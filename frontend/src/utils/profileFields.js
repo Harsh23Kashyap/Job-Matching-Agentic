@@ -1,5 +1,6 @@
 import { parseAmount } from "./format.js";
 import { skillsToPayload } from "./skills.js";
+import { normalizeProfileFields } from "./profileNormalize.js";
 
 export const EMPTY_PROFILE_FIELDS = {
   name: "",
@@ -17,7 +18,7 @@ export const EMPTY_PROFILE_FIELDS = {
 };
 
 export function profileFromApi(profile) {
-  return {
+  return normalizeProfileFields({
     id: profile.id,
     name: profile.name || "",
     skills: (profile.skills || []).join(", "),
@@ -31,11 +32,11 @@ export function profileFromApi(profile) {
     linkedin: profile.linkedin || "",
     portfolio: profile.portfolio || "",
     other_links: profile.other_links || [],
-  };
+  });
 }
 
 export function fieldsFromExtracted(ext) {
-  return {
+  return normalizeProfileFields({
     name: ext.name || "",
     skills: (ext.skills || []).join(", "),
     experience_years: ext.experience_years ?? 0,
@@ -48,7 +49,7 @@ export function fieldsFromExtracted(ext) {
     linkedin: ext.linkedin || "",
     portfolio: ext.portfolio || "",
     other_links: ext.other_links || [],
-  };
+  });
 }
 
 export function profileToPayload(fields) {

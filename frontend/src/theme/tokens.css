@@ -1,0 +1,203 @@
+/*
+ * JobMatch design tokens — semantic theme variables (light + dark).
+ * Legacy aliases (--bg-base, --text-primary, --accent-hover, etc.) map here.
+ *
+ * Naming: --accent / --accent-foreground are highlight surfaces (shadcn-style).
+ * Interactive brand green is --primary; legacy `var(--accent)` in App.css → use --primary.
+ */
+
+:root {
+  color-scheme: light;
+
+  /* Semantic tokens */
+  --background: #f7f3ec;
+  --foreground: #20262d;
+  --muted: #f1ece4;
+  --muted-foreground: #5c6670;
+  --card: #fffdfa;
+  --card-foreground: #20262d;
+  --border: #ded6ca;
+  --input: #fffdfa;
+  --primary: #52635a;
+  --primary-foreground: #fffdfa;
+  --secondary: #ebe5dc;
+  --secondary-foreground: #435249;
+  --accent: #e8eee8;
+  --accent-foreground: #435249;
+  --destructive: #9b4a3f;
+  --destructive-foreground: #fffdfa;
+
+  --primary-hover: #46554d;
+
+  /* Status / tier surfaces */
+  --status-strong-bg: #e3efe6;
+  --status-strong-fg: #3d5c48;
+  --status-strong-border: #c5dcc9;
+  --status-good-bg: #e8eee8;
+  --status-good-fg: #435249;
+  --status-good-border: rgba(82, 99, 90, 0.15);
+  --status-moderate-bg: #fbf1df;
+  --status-moderate-fg: #7a5c32;
+  --status-moderate-border: #e7cfa9;
+  --status-low-bg: #f1ece4;
+  --status-low-fg: #5c6670;
+  --status-low-border: #ded6ca;
+  --status-pass-bg: color-mix(in srgb, #12b76a 14%, transparent);
+  --status-pass-fg: #027a48;
+  --status-warn-bg: color-mix(in srgb, #f79009 16%, transparent);
+  --status-warn-fg: #b54708;
+  --status-fail-bg: color-mix(in srgb, #f04438 14%, transparent);
+  --status-fail-fg: #b42318;
+
+  /* Legacy aliases (used across App.css) */
+  --bg: var(--background);
+  --surface: var(--card);
+  --surface-muted: var(--muted);
+  --surface-elevated: var(--card);
+  --text: var(--foreground);
+  --accent-soft: var(--accent);
+  --danger: var(--destructive);
+  --warning-bg: var(--status-moderate-bg);
+  --warning-border: var(--status-moderate-border);
+
+  --bg-base: var(--background);
+  --bg-card: var(--card);
+  --bg-elevated: var(--card);
+  --bg-hover: var(--muted);
+  --auth-panel: #efe7db;
+  --border-subtle: var(--border);
+  --border-input: var(--border);
+  --text-primary: var(--foreground);
+  --text-secondary: var(--muted-foreground);
+  --text-tertiary: #6b7580;
+  --accent-hover: var(--primary-hover);
+  --accent-light: var(--accent);
+  --sand: #d8cbb8;
+  --brand: var(--primary);
+  --brand-hover: var(--primary-hover);
+  --brand-light: var(--accent);
+  --info: #5b6472;
+  --healthy: #5f7668;
+  --warning: #9a7b4f;
+  --critical: var(--destructive);
+  --chart-1: #6e8b74;
+  --chart-2: #5f7668;
+  --chart-3: #9a7b4f;
+  --chart-4: #5b6472;
+
+  --portal-accent: var(--primary);
+  --portal-accent-soft: var(--accent);
+  --portal-accent-hover: var(--primary-hover);
+
+  --on-primary: var(--primary-foreground);
+  --role-icon-bg: color-mix(in srgb, var(--accent) 72%, var(--background));
+  --role-icon-fg: var(--primary);
+  --table-row-hover: color-mix(in srgb, var(--muted) 55%, var(--card));
+  --placeholder: var(--muted-foreground);
+  --disabled-fg: color-mix(in srgb, var(--muted-foreground) 72%, var(--foreground));
+  --disabled-bg: color-mix(in srgb, var(--muted) 88%, var(--background));
+  --btn-primary-bg: var(--primary);
+  --btn-primary-fg: var(--primary-foreground);
+  --btn-primary-hover: var(--primary-hover);
+  --btn-secondary-fg: var(--secondary-foreground);
+
+  --shadow-sm: 0 1px 2px rgba(31, 41, 51, 0.04);
+  --shadow-md: 0 12px 30px rgba(31, 41, 51, 0.06);
+  --shadow-lg: 0 16px 40px rgba(31, 41, 51, 0.08);
+  --focus-ring: 0 0 0 3px color-mix(in srgb, var(--primary) 18%, transparent);
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --background: #1a1f24;
+  --foreground: #ece8e1;
+  --muted: #2a3139;
+  --muted-foreground: #b0b8c0;
+  --card: #222830;
+  --card-foreground: #ece8e1;
+  --border: #3a424c;
+  --input: #2a3139;
+  --primary: #8aa892;
+  --primary-foreground: #1a1f24;
+  --secondary: #323b44;
+  --secondary-foreground: #d4dce4;
+  --accent: #2a3530;
+  --accent-foreground: #c8d8cc;
+  --destructive: #e08888;
+  --destructive-foreground: #1a1f24;
+
+  --primary-hover: #9bb8a3;
+
+  --status-strong-bg: #243028;
+  --status-strong-fg: #a8cdb4;
+  --status-strong-border: #3a5244;
+  --status-good-bg: #2a3530;
+  --status-good-fg: #b8cfc0;
+  --status-good-border: #3d5248;
+  --status-moderate-bg: #3a3228;
+  --status-moderate-fg: #e0c898;
+  --status-moderate-border: #5a4a38;
+  --status-low-bg: #2a3139;
+  --status-low-fg: #b0b8c0;
+  --status-low-border: #3a424c;
+  --status-pass-bg: color-mix(in srgb, #12b76a 22%, transparent);
+  --status-pass-fg: #6ce9a6;
+  --status-warn-bg: color-mix(in srgb, #f79009 22%, transparent);
+  --status-warn-fg: #fec84b;
+  --status-fail-bg: color-mix(in srgb, #f04438 22%, transparent);
+  --status-fail-fg: #fda29b;
+
+  --auth-panel: #252b32;
+  --border-subtle: #2f363e;
+  --border-input: #3a424c;
+  --text-tertiary: #949ca4;
+  --accent-hover: var(--primary-hover);
+  --accent-light: var(--accent);
+  --info: #9aa3b0;
+  --healthy: #8aa892;
+  --warning: #c4a574;
+  --critical: #e08888;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 12px 30px rgba(0, 0, 0, 0.25);
+  --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.35);
+
+  --role-icon-bg: color-mix(in srgb, var(--accent) 88%, var(--card));
+  --role-icon-fg: var(--accent-foreground);
+  --table-row-hover: color-mix(in srgb, var(--muted) 70%, var(--card));
+  --disabled-fg: color-mix(in srgb, var(--muted-foreground) 78%, var(--foreground));
+  --disabled-bg: color-mix(in srgb, var(--muted) 92%, var(--background));
+  --btn-primary-bg: var(--primary);
+  --btn-primary-fg: var(--primary-foreground);
+  --btn-primary-hover: var(--primary-hover);
+  --btn-secondary-fg: var(--secondary-foreground);
+}
+
+/* Utility classes (Tailwind-style semantic names) */
+.text-foreground { color: var(--foreground); }
+.text-muted-foreground { color: var(--muted-foreground); }
+.text-card-foreground { color: var(--card-foreground); }
+.text-primary { color: var(--primary); }
+.text-destructive { color: var(--destructive); }
+.bg-background { background: var(--background); }
+.bg-card { background: var(--card); color: var(--card-foreground); }
+.bg-muted { background: var(--muted); }
+.bg-input { background: var(--input); }
+.border-border { border-color: var(--border); }
+
+/* Global form helpers */
+.form-helper {
+  margin: 0;
+  font-size: calc(13px * var(--font-scale, 1));
+  color: var(--muted-foreground);
+  line-height: 1.45;
+}
+
+/* Placeholders — visible but muted */
+input::placeholder,
+textarea::placeholder,
+.skill-chip-input::placeholder,
+.jd-paste-field__textarea::placeholder {
+  color: var(--placeholder);
+  opacity: 1;
+}

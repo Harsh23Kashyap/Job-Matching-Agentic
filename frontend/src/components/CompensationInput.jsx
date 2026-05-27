@@ -8,6 +8,14 @@ import {
   parseAmount,
 } from "../utils/format.js";
 
+const CURRENCY_LABELS = {
+  INR: "INR (₹)",
+  USD: "USD ($)",
+  EUR: "EUR (€)",
+  GBP: "GBP (£)",
+  SGD: "SGD (S$)",
+};
+
 function AmountField({ id, label, amount, currency, onChange, placeholder, suffix = "per year" }) {
   const [display, setDisplay] = useState(() => (amount ? formatAmount(amount, currency) : ""));
 
@@ -96,14 +104,14 @@ export default function CompensationInput({
         </label>
         <select
           id={`${id}-currency`}
-          className="compensation-currency"
+          className="compensation-currency portal-select"
           value={currency}
           onChange={(e) => onCurrencyChange?.(e.target.value)}
-          aria-label="Currency"
+          aria-label="Compensation currency"
         >
           {CURRENCIES.map((c) => (
             <option key={c} value={c}>
-              {c}
+              {CURRENCY_LABELS[c] || c}
             </option>
           ))}
         </select>

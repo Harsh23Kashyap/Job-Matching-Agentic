@@ -291,7 +291,7 @@ export default function EmployerCandidateResults({
 
   if (!response) {
     return (
-      <EmptyStatePanel patternVariant="employer-candidates">
+      <EmptyStatePanel>
         <EmployerCandidatesReadyEmpty
           jobTitle={jobTitle}
           action={
@@ -423,7 +423,7 @@ function ButtonRefresh({ disabled, loading, onRefresh }) {
 
 export function EmployerNoJobsEmpty() {
   return (
-    <EmptyStatePanel patternVariant="employer-empty">
+    <EmptyStatePanel>
       <EmptyState
         title="No roles posted yet"
         description="Create a role first, then we'll rank matching candidates against it."

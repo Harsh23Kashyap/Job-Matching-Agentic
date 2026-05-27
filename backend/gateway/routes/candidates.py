@@ -1,12 +1,14 @@
 from fastapi import APIRouter, Depends, File, HTTPException, Request, UploadFile
 
+import re
+
 from pydantic import BaseModel
 
 from auth.deps import get_optional_user, require_role
 from auth.store import User
 from contracts.profiles import CandidateProfile
 from core.contact_extract import extract_contact_from_text, merge_contact_fields
-from core.resume_clean import clean_resume_text, resume_preview_excerpt
+from core.resume_clean import CID_RE, clean_resume_text, resume_preview_excerpt
 from core.resume_suggestions import build_resume_suggestions
 from core.resume_text import extract_text_from_upload
 from hooks.llm_parser import LlmParseError, LlmParser, LlmUnavailableError
@@ -224,6 +226,12 @@ def _sanitize_profile_payload(raw: dict) -> dict:
     payload = dict(raw)
     if not str(payload.get("id") or "").strip():
         payload.pop("id", None)
+    for key in ("name", "email", "phone", "linkedin", "portfolio"):
+        value = payload.get(key)
+        if value:
+            cleaned = CID_RE.sub("", str(value))
+            cleaned = re.sub(r"\s*(?:,\s*)+$", "", cleaned).strip()
+            payload[key] = cleaned.strip()
     summary = payload.get("summary")
     if summary:
         payload["summary"] = clean_resume_text(str(summary))

@@ -9,8 +9,9 @@ import {
 import { Logo, IconMoon, IconSun } from "../components/icons.jsx";
 import { useTheme } from "../hooks/useTheme.js";
 
-export default function AuthLayout({ children, title, subtitle }) {
+export default function AuthLayout({ children, title, subtitle, variant = "login" }) {
   const { theme, toggleTheme } = useTheme();
+  const isRegister = variant === "register";
 
   return (
     <div className="auth-split">
@@ -21,16 +22,18 @@ export default function AuthLayout({ children, title, subtitle }) {
             <Logo size={40} />
             <span>JobMatch</span>
           </Link>
-          <h1>Find roles that actually fit</h1>
-          <p className="auth-tagline">For candidates, employers, and teams.</p>
+          <h1>Match people to roles that fit</h1>
+          <p className="auth-tagline">
+            A hiring workspace for candidates and employers — ranked matches, clear profiles, no spam inbox.
+          </p>
           <AuthMiniCards />
           <ul className="auth-features">
-            <li>Match on skills and experience, not buzzwords</li>
-            <li>Separate portals for each role</li>
+            <li>See why a role or candidate scored the way it did</li>
+            <li>Separate workspaces for job seekers and hiring teams</li>
           </ul>
         </div>
         <AuthMatchingScene />
-        <p className="auth-trust-strip">Built for candidates · employers · hiring teams</p>
+        <p className="auth-trust-strip">Candidates · Employers · Hiring ops</p>
         <div className="auth-brand-bg" aria-hidden="true" />
       </aside>
 
@@ -43,8 +46,8 @@ export default function AuthLayout({ children, title, subtitle }) {
             {theme === "light" ? <IconMoon /> : <IconSun />}
           </button>
         </div>
-        <div className="auth-panel-center">
-          <div className="auth-card">
+        <div className={`auth-panel-center${isRegister ? " auth-panel-center--register" : ""}`}>
+          <div className={`auth-card${isRegister ? " auth-card--register" : ""}`}>
             <h1>{title}</h1>
             {subtitle && <p className="auth-sub">{subtitle}</p>}
             {children}

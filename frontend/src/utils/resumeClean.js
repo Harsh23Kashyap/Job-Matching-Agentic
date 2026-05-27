@@ -100,6 +100,23 @@ export function cleanResumeText(text) {
   return normalizeLines(cleaned);
 }
 
+/** Strip PDF/DOCX noise from a single field value (name, summary snippet, etc.). */
+export function cleanFieldText(text) {
+  if (!text) return "";
+  let cleaned = String(text);
+  cleaned = cleaned.replace(CID_RE, "");
+  cleaned = cleaned.replace(/\s*(?:,\s*)+$/gm, "");
+  cleaned = cleaned.replace(/^(?:,\s*)+/gm, "");
+  cleaned = cleaned.replace(/,\s*,+/g, ", ");
+  cleaned = cleaned.replace(CONTROL_RE, "");
+  cleaned = cleaned.replace(ZERO_WIDTH_RE, "");
+  cleaned = cleaned.replace(REPLACEMENT_CHAR_RE, "");
+  cleaned = cleaned.replace(JUNK_SYMBOLS_RE, " ");
+  cleaned = cleaned.replace(/\u00a0/g, " ");
+  cleaned = cleaned.replace(/[ \t]+/g, " ");
+  return cleaned.trim();
+}
+
 export function resumePreviewFromUpload(data) {
   if (data?.cleaned_text) return data.cleaned_text;
   return cleanResumeText(data?.raw_text_preview || "");

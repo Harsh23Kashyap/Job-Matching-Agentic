@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { Logo, IconMoon, IconSun } from "../components/icons.jsx";
 import UserMenu from "../components/UserMenu.jsx";
@@ -29,6 +30,13 @@ export default function PortalShell({ portal = "candidate", subtitle, navItems =
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const { pathname } = useLocation();
+
+  useEffect(() => {
+    document.documentElement.dataset.portal = portal;
+    return () => {
+      delete document.documentElement.dataset.portal;
+    };
+  }, [portal]);
 
   return (
     <div className="app" data-portal={portal}>

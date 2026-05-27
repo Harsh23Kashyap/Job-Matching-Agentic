@@ -1,6 +1,6 @@
 export default function FormField({ label, helper, error, htmlFor, optional, children }) {
   return (
-    <div className="form-field">
+    <div className={`form-field${error ? " has-error" : ""}`}>
       <label className="form-field-label field-label" htmlFor={htmlFor}>
         {label}
         {optional && <span className="field-optional">Optional</span>}

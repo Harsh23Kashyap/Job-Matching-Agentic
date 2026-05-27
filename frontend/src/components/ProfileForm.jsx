@@ -33,11 +33,11 @@ export default function ProfileForm({
 
         <FormSection
           title="Contact & links"
-          helper="Add how employers can reach you. These are pulled from your resume when you upload one."
+          helper="How employers can reach you. These fields are filled from your resume when possible — edit anything that looks off."
         >
           <FormField
             label="Email"
-            helper="Work or personal email from your resume."
+            helper="Work or personal email. We'll never share it without your consent."
             error={errors.email}
             htmlFor="pf-email"
           >
@@ -53,7 +53,7 @@ export default function ProfileForm({
 
           <FormField
             label="Phone"
-            helper="Include country code if outside your home region."
+            helper="Include country code for numbers outside your home region (e.g. +91 98765 43210)."
             error={errors.phone}
             htmlFor="pf-phone"
           >
@@ -69,6 +69,7 @@ export default function ProfileForm({
 
           <FormField
             label="LinkedIn"
+            helper="Full profile URL — we'll add https:// if you paste linkedin.com/in/…"
             error={errors.linkedin}
             htmlFor="pf-linkedin"
           >
@@ -83,6 +84,7 @@ export default function ProfileForm({
 
           <FormField
             label="Portfolio or website"
+            helper="GitHub, personal site, or portfolio — shown to employers reviewing your profile."
             error={errors.portfolio}
             htmlFor="pf-portfolio"
           >
@@ -112,7 +114,7 @@ export default function ProfileForm({
 
         <FormField
           label="Skills"
-          helper="Add skills as chips, or paste a comma-separated list (e.g. Python, C/C++, REST APIs)."
+          helper="Type a skill and press Enter, or paste a comma-separated list. Remove chips you don't want."
           error={errors.skills}
           htmlFor="pf-skills"
         >
@@ -141,7 +143,7 @@ export default function ProfileForm({
 
         <FormField
           label="Expected annual total compensation"
-          helper="Annual total compensation expectation. Includes base salary, bonus, stocks/RSUs, and recurring compensation."
+          helper="Optional. Total package per year — base, bonus, equity, and recurring pay. Pick a currency, then enter a whole number."
           error={errors.preferred_salary}
           htmlFor="pf-salary"
           optional
@@ -166,7 +168,7 @@ export default function ProfileForm({
 
         <FormField
           label="Summary"
-          helper="A short overview for employers."
+          helper="Two or three sentences on your focus areas — this appears on match cards for employers."
           error={errors.summary}
           htmlFor="pf-summary"
         >

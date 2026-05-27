@@ -60,7 +60,7 @@ export default function EmployerJobCard({ job, onEdit, onClose, closing }) {
       <div className="employer-role-card__actions">
         <Link
           to={`/employer/matches?job=${encodeURIComponent(job.title)}`}
-          className="btn-secondary"
+          className="btn-primary btn-sm"
         >
           View candidates
         </Link>

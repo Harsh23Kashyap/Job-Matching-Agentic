@@ -82,7 +82,11 @@ export function jobFromApi(job) {
 
 export function validateJobFields(fields) {
   const errors = {};
-  if (!fields.title?.trim()) errors.title = "Role title is required.";
+  if (!fields.title?.trim()) errors.title = "Job title is required.";
+  const skills = skillsToPayload(fields.required_skills);
+  if (!skills.length) {
+    errors.required_skills = "Add at least one required skill for matching.";
+  }
   if (fields.required_experience !== "" && fields.required_experience != null) {
     const exp = parseFloat(fields.required_experience);
     if (Number.isNaN(exp) || exp < 0 || exp > 50) {

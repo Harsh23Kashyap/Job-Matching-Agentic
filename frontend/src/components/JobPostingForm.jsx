@@ -3,33 +3,44 @@ import FormSection from "./FormSection.jsx";
 import SkillsChipsInput from "./SkillsChipsInput.jsx";
 import ExperienceInput from "./ExperienceInput.jsx";
 import CompensationInput from "./CompensationInput.jsx";
-import CustomCheckbox from "./CustomCheckbox.jsx";
+import RemotePolicyField from "./RemotePolicyField.jsx";
 import { JOB_DESCRIPTION_MAX, JOB_TYPE_OPTIONS } from "../utils/jobFields.js";
 
 const DESCRIPTION_PLACEHOLDER =
-  "Example: We're looking for a backend engineer to build APIs and data pipelines. You'll work with Python, collaborate with product, and help scale services used by thousands of customers.";
+  "Outline the role, team, and impact. Include day-to-day responsibilities, must-have qualifications, and what success looks like in the first 90 days.";
 
 export default function JobPostingForm({ fields, errors = {}, onChange, footer }) {
   const descLen = fields.description?.length ?? 0;
+  const descWarn = descLen > JOB_DESCRIPTION_MAX * 0.9;
 
   return (
     <div className="portal-form-wrap employer-job-form-wrap">
-      <div className="portal-form-fields">
+      <div className="portal-form-fields employer-job-form-fields">
         <FormSection
           title="Role basics"
-          helper="Core details candidates see first when browsing matches."
+          helper="How this posting appears to candidates in search and match results."
         >
-          <FormField label="Title" helper="Use a clear role name, e.g. Senior Backend Engineer." error={errors.title} htmlFor="ej-title">
+          <FormField
+            label="Job title"
+            helper="Use a clear, searchable title — e.g. Senior Backend Engineer."
+            error={errors.title}
+            htmlFor="ej-title"
+          >
             <input
               id="ej-title"
-              placeholder="Machine Learning Engineer"
+              placeholder="Senior Machine Learning Engineer"
               value={fields.title}
               onChange={(e) => onChange({ ...fields, title: e.target.value })}
               required
             />
           </FormField>
 
-          <FormField label="Company" helper="Your organization or team name." htmlFor="ej-company">
+          <FormField
+            label="Company"
+            helper="Legal name or team label shown on the posting."
+            error={errors.company}
+            htmlFor="ej-company"
+          >
             <input
               id="ej-company"
               placeholder="Acme Labs"
@@ -39,12 +50,13 @@ export default function JobPostingForm({ fields, errors = {}, onChange, footer }
           </FormField>
         </FormSection>
 
-        <FormSection
-          title="Work setup"
-          helper="Location, employment type, and remote policy for this role."
-        >
+        <FormSection title="Work setup" helper="Location, employment type, and remote policy.">
           <div className="form-row-2 employer-work-setup-row">
-            <FormField label="Location" helper="City, region, or Hybrid." htmlFor="ej-location">
+            <FormField
+              label="Location"
+              helper="City, region, or Hybrid."
+              htmlFor="ej-location"
+            >
               <input
                 id="ej-location"
                 placeholder="Bengaluru · Hybrid"
@@ -52,7 +64,7 @@ export default function JobPostingForm({ fields, errors = {}, onChange, footer }
                 onChange={(e) => onChange({ ...fields, location: e.target.value })}
               />
             </FormField>
-            <FormField label="Job type" helper="Employment type for this posting." htmlFor="ej-job-type">
+            <FormField label="Employment type" helper="Full-time, contract, etc." htmlFor="ej-job-type">
               <select
                 id="ej-job-type"
                 className="portal-select"
@@ -69,18 +81,16 @@ export default function JobPostingForm({ fields, errors = {}, onChange, footer }
             </FormField>
           </div>
 
-          <CustomCheckbox
+          <RemotePolicyField
             id="ej-remote"
-            label="Remote allowed"
-            helper="Candidates open to remote work can match with this role."
             checked={fields.remote_policy}
             onChange={(remote_policy) => onChange({ ...fields, remote_policy })}
           />
         </FormSection>
 
         <FormSection
-          title="Skills & experience"
-          helper="List must-have skills and the minimum experience level."
+          title="Requirements"
+          helper="Skills and experience used to rank candidate matches."
         >
           <FormField
             label="Required skills"
@@ -97,8 +107,8 @@ export default function JobPostingForm({ fields, errors = {}, onChange, footer }
           </FormField>
 
           <FormField
-            label="Required experience"
-            helper="Minimum years of relevant experience."
+            label="Minimum experience"
+            helper="Years of relevant experience required for this role."
             error={errors.required_experience}
             htmlFor="ej-exp"
           >
@@ -113,10 +123,11 @@ export default function JobPostingForm({ fields, errors = {}, onChange, footer }
 
         <FormSection
           title="Total compensation"
-          helper="Annual total compensation range offered for this role."
+          helper="Annual total compensation range (base + variable, as offered to candidates)."
         >
           <FormField
-            label="Compensation range"
+            label="Budget range"
+            helper="Select currency, then enter min and max total compensation per year."
             error={errors.budget_min || errors.budget_max}
             htmlFor="job-budget-min"
           >
@@ -136,21 +147,25 @@ export default function JobPostingForm({ fields, errors = {}, onChange, footer }
         </FormSection>
 
         <FormSection
-          title="Description"
-          helper="Summarize responsibilities, team context, and what success looks like."
+          title="Role description"
+          helper="Full posting copy — responsibilities, team context, and benefits if applicable."
         >
-          <FormField label="Role description" error={errors.description} htmlFor="ej-desc">
+          <FormField label="Description" error={errors.description} htmlFor="ej-desc">
             <textarea
               id="ej-desc"
               className="job-description-textarea"
-              rows={8}
+              rows={9}
               placeholder={DESCRIPTION_PLACEHOLDER}
               value={fields.description}
               onChange={(e) => onChange({ ...fields, description: e.target.value })}
               maxLength={JOB_DESCRIPTION_MAX}
+              aria-describedby="ej-desc-count"
             />
-            <p className={`char-count${descLen > JOB_DESCRIPTION_MAX * 0.9 ? " char-count--warn" : ""}`}>
-              {descLen} / {JOB_DESCRIPTION_MAX}
+            <p
+              id="ej-desc-count"
+              className={`char-count${descWarn ? " char-count--warn" : ""}`}
+            >
+              {descLen.toLocaleString()} / {JOB_DESCRIPTION_MAX.toLocaleString()} characters
             </p>
           </FormField>
         </FormSection>

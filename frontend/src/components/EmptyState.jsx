@@ -60,7 +60,6 @@ export function JobsReadyEmpty({ action }) {
     <EmptyState
       variant="jobs"
       illustrationVariant="ready"
-      patternVariant="jobs"
       title="Ready to find matches"
       description="Your profile is ready. Search roles matched to your skills and preferences."
       action={action}
@@ -73,7 +72,6 @@ export function NoMatchingRolesEmpty({ action }) {
     <EmptyState
       variant="no-results"
       illustrationVariant="no-results"
-      patternVariant="empty"
       title="No matching roles found"
       description="Try lowering the minimum match or updating your skills."
       compact
@@ -87,7 +85,6 @@ export function EmployerCandidatesReadyEmpty({ action, jobTitle }) {
     <EmptyState
       variant="jobs"
       illustrationVariant="ready"
-      patternVariant="employer-candidates"
       title="Ready to review candidates"
       description={
         jobTitle
@@ -105,7 +102,6 @@ export function EmployerNoCandidatesEmpty({ action }) {
     <EmptyState
       variant="no-results"
       illustrationVariant="no-results"
-      patternVariant="employer-empty"
       title="No candidates matched yet"
       description="Try broadening skills, lowering experience, or refreshing matches."
       compact
@@ -119,12 +115,31 @@ export function EmployerRolesEmpty({ action }) {
     <EmptyState
       variant="empty"
       illustrationVariant="employer-jobs"
-      patternVariant="employer-empty"
+      patternVariant="employer-jobs"
       title="No roles posted yet"
-      description="Create your first role to start matching candidates."
-      checklist={["Add title and required skills", "Set compensation and work setup", "Paste or upload a JD to pre-fill"]}
+      description="Post your first role to start matching candidates to your requirements."
+      checklist={[
+        "Import a JD or fill in role details",
+        "Set skills, experience, and compensation",
+        "Publish and review ranked candidates",
+      ]}
       checklistStyle="todo"
       action={action}
+      helperText="Use the form on the right to post a role, or paste a job description to pre-fill fields."
+    />
+  );
+}
+
+export function ActivePostingsEmpty({ action }) {
+  return (
+    <EmptyState
+      variant="jobs"
+      illustrationVariant="employer-jobs"
+      title="No active postings"
+      description="All roles are closed. Post a new role to start matching candidates again."
+      compact
+      action={action}
+      helperText="You can still view and edit closed roles below."
     />
   );
 }

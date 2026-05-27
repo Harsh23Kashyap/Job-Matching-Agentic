@@ -6,9 +6,9 @@ import { IconCheck, IconBriefcase, IconConsole, IconProfile } from "../component
 import AuthLayout from "../layouts/AuthLayout.jsx";
 
 const ROLES = [
-  { value: "candidate", label: "Candidate", hint: "Build a profile and explore matched roles", icon: IconProfile },
-  { value: "employer", label: "Employer", hint: "Post openings and review matched candidates", icon: IconBriefcase },
-  { value: "admin", label: "Admin", hint: "Manage matching and evaluation tools", icon: IconConsole },
+  { value: "candidate", label: "Candidate", hint: "Upload a resume and browse matched roles", icon: IconProfile },
+  { value: "employer", label: "Employer", hint: "Post openings and review ranked applicants", icon: IconBriefcase },
+  { value: "admin", label: "Admin", hint: "Run matching experiments and system checks", icon: IconConsole },
 ];
 
 export default function Register() {
@@ -44,7 +44,7 @@ export default function Register() {
   };
 
   return (
-    <AuthLayout title="Create your account" subtitle="Choose how you'll use JobMatch.">
+    <AuthLayout variant="register" title="Create your account" subtitle="Choose your workspace — we'll send you to the right place.">
       <form onSubmit={handleSubmit} className="auth-form auth-form--register">
         <label>
           Email
@@ -70,7 +70,7 @@ export default function Register() {
           />
         </label>
         <fieldset className="role-picker">
-          <legend>I am a…</legend>
+          <legend>I'm joining as a…</legend>
           {ROLES.map((r) => {
             const RoleIcon = r.icon;
             return (
@@ -102,10 +102,10 @@ export default function Register() {
         <button type="submit" className="btn-primary btn-block" disabled={loading}>
           {loading ? "Creating account…" : "Create account"}
         </button>
-        <p className="auth-hint">You can switch portals later from settings.</p>
+        <p className="auth-hint">Most people choose Candidate or Employer. You can update your profile after sign-up.</p>
       </form>
       <p className="auth-footer">
-        Already have an account? <Link to="/login">Sign in</Link>
+        Already registered? <Link to="/login">Sign in</Link>
       </p>
     </AuthLayout>
   );

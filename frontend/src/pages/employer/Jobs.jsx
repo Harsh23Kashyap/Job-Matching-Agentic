@@ -3,6 +3,8 @@ import PageHeader from "../../components/PageHeader.jsx";
 import PortalSection from "../../components/PortalSection.jsx";
 import JobPostingForm from "../../components/JobPostingForm.jsx";
 import EmployerJobList from "../../components/EmployerJobList.jsx";
+import JdImportPanel from "../../components/JdImportPanel.jsx";
+import FormFeedback from "../../components/FormFeedback.jsx";
 import Button from "../../components/Button.jsx";
 import { useToast } from "../../components/Toast.jsx";
 import {
@@ -24,17 +26,28 @@ import {
 
 const JD_PASTE_MIN = 40;
 
-function applyExtractionResponse(data, { setFields, setError, showToast, scrollToForm }) {
+function scrollToFirstFieldError() {
+  requestAnimationFrame(() => {
+    const target =
+      document.querySelector(".employer-job-form .form-field .field-error") ||
+      document.querySelector(".employer-job-form .form-field.has-error") ||
+      document.querySelector(".employer-job-form .skills-chips-input.has-error") ||
+      document.querySelector(".employer-job-form .compensation-input.has-error");
+    target?.scrollIntoView({ behavior: "smooth", block: "center" });
+  });
+}
+
+function applyExtractionResponse(data, { setFields, setJdError, showToast, scrollToForm }) {
   if (data.llm_status === "ok") {
     setFields((prev) => ({ ...prev, ...jobFieldsFromExtracted(data.extracted_fields || {}) }));
-    setError("");
+    setJdError("");
     showToast("Details extracted — review the fields below.");
     scrollToForm?.();
     return;
   }
   const message =
     data.message || "Could not extract details automatically. Fill in the form manually.";
-  setError(message);
+  setJdError(message);
   showToast(message, "error");
 }
 
@@ -50,9 +63,11 @@ export default function EmployerJobs() {
   const [extracting, setExtracting] = useState(false);
   const [jdPaste, setJdPaste] = useState("");
   const [editingJobId, setEditingJobId] = useState(null);
-  const [error, setError] = useState("");
+  const [jdError, setJdError] = useState("");
+  const [formError, setFormError] = useState("");
   const fileRef = useRef(null);
   const formPanelRef = useRef(null);
+  const formFeedbackRef = useRef(null);
 
   const load = () => {
     setLoading(true);
@@ -65,6 +80,7 @@ export default function EmployerJobs() {
   useEffect(load, []);
 
   const openRoles = jobs.filter((job) => (job.status || "open") === "open");
+  const editingJob = editingJobId ? jobs.find((j) => j.id === editingJobId) : null;
 
   const scrollToForm = () => {
     formPanelRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -74,23 +90,24 @@ export default function EmployerJobs() {
     setFields(EMPTY_JOB_FIELDS);
     setFieldErrors({});
     setEditingJobId(null);
-    setError("");
+    setFormError("");
+    setJdError("");
     setJdPaste("");
   };
 
   const handleExtraction = (data) => {
-    applyExtractionResponse(data, { setFields, setError, showToast, scrollToForm });
+    applyExtractionResponse(data, { setFields, setJdError, showToast, scrollToForm });
   };
 
   const handleUpload = async (file) => {
     if (!file) return;
     setUploading(true);
-    setError("");
+    setJdError("");
     try {
       const data = await uploadJobDescription(file);
       handleExtraction(data);
     } catch (err) {
-      setError(apiErrorMessage(err, "Upload failed. Try a PDF, DOCX, or TXT under 5MB."));
+      setJdError(apiErrorMessage(err, "Upload failed. Try a PDF, DOCX, or TXT under 5MB."));
     } finally {
       setUploading(false);
       if (fileRef.current) fileRef.current.value = "";
@@ -100,16 +117,16 @@ export default function EmployerJobs() {
   const handleExtractPaste = async () => {
     const text = jdPaste.trim();
     if (text.length < JD_PASTE_MIN) {
-      setError(`Paste at least ${JD_PASTE_MIN} characters of job description text to extract.`);
+      setJdError(`Paste at least ${JD_PASTE_MIN} characters of job description text to extract.`);
       return;
     }
     setExtracting(true);
-    setError("");
+    setJdError("");
     try {
       const data = await parseJobDescriptionText(text);
       handleExtraction(data);
     } catch (err) {
-      setError(apiErrorMessage(err, "Extraction failed. Try again or fill in the form manually."));
+      setJdError(apiErrorMessage(err, "Extraction failed. Try again or fill in the form manually."));
     } finally {
       setExtracting(false);
     }
@@ -119,14 +136,15 @@ export default function EmployerJobs() {
     setFields(jobFromApi(job));
     setEditingJobId(job.id);
     setFieldErrors({});
-    setError("");
+    setFormError("");
+    setJdError("");
     scrollToForm();
   };
 
   const handleClose = async (job) => {
     if (!window.confirm(`Close "${job.title}"? Candidates will no longer be able to apply.`)) return;
     setClosingId(job.id);
-    setError("");
+    setFormError("");
     try {
       await updateEmployerJobStatus(job.id, "closed");
       showToast("Role closed.");
@@ -143,25 +161,31 @@ export default function EmployerJobs() {
     const errors = validateJobFields(fields);
     if (Object.keys(errors).length) {
       setFieldErrors(errors);
+      setFormError("Fix the highlighted fields below, then try again.");
+      scrollToFirstFieldError();
+      formFeedbackRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
       return;
     }
     setSaving(true);
-    setError("");
+    setFormError("");
     setFieldErrors({});
     try {
       if (editingJobId) {
         await updateEmployerJob(editingJobId, jobToPayload(fields, editingJobId));
-        showToast("Role updated.");
+        showToast("Role updated. Future candidate matches will use the new details.");
       } else {
         await saveJobPosting(jobToPayload(fields));
-        showToast("Role posted. You can find candidates from your active postings.");
+        showToast("Role posted. Find candidates from your active postings.");
       }
       resetForm();
       load();
     } catch (err) {
-      setError(
-        apiErrorMessage(err, editingJobId ? "Could not update role." : "Could not create job. Check the form and try again."),
+      const message = apiErrorMessage(
+        err,
+        editingJobId ? "Could not update role." : "Could not post role. Check the form and try again.",
       );
+      setFormError(message);
+      formFeedbackRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
     } finally {
       setSaving(false);
     }
@@ -174,7 +198,7 @@ export default function EmployerJobs() {
       <PageHeader
         eyebrow="Employer"
         title="My jobs"
-        subtitle="Manage postings and attract the right candidates."
+        subtitle="Manage active postings and publish new roles for candidate matching."
         stats={
           !loading
             ? [
@@ -186,9 +210,15 @@ export default function EmployerJobs() {
       />
 
       <div className="employer-jobs-grid">
-        <PortalSection span={5} title="Your roles" description="Search, filter, and manage posted roles.">
+        <PortalSection
+          span={5}
+          className="employer-jobs-list-panel"
+          title="Active postings"
+          description="Search, filter, and manage your open and closed roles."
+        >
           <EmployerJobList
             jobs={jobs}
+            openCount={openRoles.length}
             loading={loading}
             onEdit={handleEdit}
             onClose={handleClose}
@@ -203,78 +233,59 @@ export default function EmployerJobs() {
           title={editingJobId ? "Edit role" : "Post a new role"}
           description={
             editingJobId
-              ? "Update role details — changes apply to future candidate matches."
-              : "Add role details so candidates can be matched accurately."
+              ? "Update posting details — changes apply to future candidate matches."
+              : "Complete the form below or import a JD to pre-fill fields."
           }
         >
           <div id="employer-post-role" ref={formPanelRef} className="employer-post-role-anchor" />
 
-          <div className="jd-import-panel">
-            <div className="jd-import-panel__head">
-              <div className="jd-import-panel__intro">
-                <h4 className="jd-import-panel__title">Import job description</h4>
-                <p className="form-helper">
-                  Paste a raw JD or upload a file — AI will pre-fill the form when extraction succeeds.
-                </p>
-              </div>
-              <div className="jd-import-panel__upload">
-                <input
-                  ref={fileRef}
-                  type="file"
-                  accept=".pdf,.docx,.txt"
-                  className="visually-hidden"
-                  id="jd-upload"
-                  onChange={(e) => handleUpload(e.target.files?.[0])}
-                />
-                <Button loading={uploading} loadingLabel="Parsing…" onClick={() => fileRef.current?.click()}>
-                  Upload file
-                </Button>
-              </div>
-            </div>
+          {editingJobId && editingJob && (
+            <FormFeedback
+              variant="info"
+              title={`Editing: ${editingJob.title}`}
+              message="Save changes when you're done, or cancel to discard."
+            />
+          )}
 
-            <label className="jd-paste-field" htmlFor="jd-paste">
-              <span className="jd-paste-field__label">Paste job description</span>
-              <textarea
-                id="jd-paste"
-                className="jd-paste-field__textarea"
-                rows={6}
-                placeholder="Paste the full job description here — title, requirements, compensation, location, and responsibilities."
-                value={jdPaste}
-                onChange={(e) => setJdPaste(e.target.value)}
-              />
-              <span className="jd-paste-field__hint">
-                {jdPaste.trim().length > 0
-                  ? `${jdPaste.trim().length.toLocaleString()} characters`
-                  : `At least ${JD_PASTE_MIN} characters needed`}
-              </span>
-            </label>
+          <JdImportPanel
+            paste={jdPaste}
+            onPasteChange={setJdPaste}
+            pasteMin={JD_PASTE_MIN}
+            onExtractPaste={handleExtractPaste}
+            extracting={extracting}
+            canExtractPaste={canExtractPaste}
+            onUploadClick={() => fileRef.current?.click()}
+            uploading={uploading}
+            error={jdError}
+            fileInputRef={fileRef}
+            onFileChange={handleUpload}
+          />
 
-            <div className="jd-import-panel__actions">
-              <Button
-                loading={extracting}
-                loadingLabel="Extracting…"
-                onClick={handleExtractPaste}
-                disabled={!canExtractPaste || uploading}
-              >
-                Extract details
-              </Button>
-            </div>
-            {error && <p className="auth-error jd-import-error">{error}</p>}
+          <div className="employer-form-divider">
+            <span>Role details</span>
           </div>
 
-          <div className="employer-form-divider" aria-hidden="true" />
+          <form className="employer-job-form" onSubmit={handleSubmit} noValidate>
+            <div ref={formFeedbackRef}>
+              {formError && (
+                <FormFeedback variant="error" title="Could not save role" message={formError} />
+              )}
+            </div>
 
-          <form className="employer-job-form" onSubmit={handleSubmit}>
             <JobPostingForm
               fields={fields}
               errors={fieldErrors}
               onChange={setFields}
               footer={
-                <div className="form-actions form-actions--sticky portal-form-footer">
-                  {editingJobId && (
+                <div className="form-actions form-actions--sticky portal-form-footer employer-form-footer">
+                  {editingJobId ? (
                     <Button className="btn-secondary" type="button" onClick={resetForm}>
                       Cancel
                     </Button>
+                  ) : (
+                    <span className="employer-form-footer__hint form-helper">
+                      Required: job title. Add skills and compensation for stronger matches.
+                    </span>
                   )}
                   <Button
                     loading={saving}

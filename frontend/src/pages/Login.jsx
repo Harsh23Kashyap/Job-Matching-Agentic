@@ -50,7 +50,7 @@ export default function Login() {
   };
 
   return (
-    <AuthLayout title="Sign in" subtitle="Use your account or try a demo login below.">
+    <AuthLayout variant="login" title="Sign in" subtitle="Welcome back — sign in to pick up where you left off.">
       <form onSubmit={handleSubmit} className="auth-form">
         <label>
           Email
@@ -74,8 +74,8 @@ export default function Login() {
       </form>
 
       <div className="demo-accounts">
-        <p className="demo-accounts-title">Demo accounts</p>
-        <p className="demo-accounts-sub">Password for all: <code>demo1234</code></p>
+        <p className="demo-accounts-title">Try the product</p>
+        <p className="demo-accounts-sub">One-click demo logins · password <code>demo1234</code> for all</p>
         <ul className="demo-accounts-list">
           {DEMO_ACCOUNTS.map((account) => (
             <li key={account.id}>
@@ -95,7 +95,7 @@ export default function Login() {
       </div>
 
       <p className="auth-footer">
-        New here? <Link to="/register">Create an account</Link>
+        No account yet? <Link to="/register">Create one</Link>
       </p>
     </AuthLayout>
   );

@@ -12,38 +12,53 @@ function isValidUrl(value) {
   }
 }
 
+function phoneDigits(value) {
+  return String(value || "").replace(/\D/g, "");
+}
+
 export function validateProfileFields(fields, { requireSkills = false } = {}) {
   const errors = {};
 
   if (!fields.name?.trim()) {
-    errors.name = "Name is required.";
+    errors.name = "Add your full name as it appears on your resume.";
+  } else if (/\(cid:/i.test(fields.name)) {
+    errors.name = "Name still contains PDF artifacts — edit and remove any (cid:…) text.";
   }
 
   if (requireSkills && !fields.skills?.trim()) {
-    errors.skills = "Add at least one skill.";
+    errors.skills = "Add at least one skill so we can match you to roles.";
   }
 
   const exp = fields.experience_years;
   if (exp !== "" && exp != null) {
     const n = Number(exp);
     if (Number.isNaN(n) || n < 0 || n > 50) {
-      errors.experience_years = "Enter a value between 0 and 50 years.";
+      errors.experience_years = "Enter years of experience between 0 and 50.";
     }
   }
 
   if (fields.preferred_salary !== "" && fields.preferred_salary != null) {
     const sal = parseAmount(fields.preferred_salary);
     if (sal == null) {
-      errors.preferred_salary = "Enter a valid annual compensation amount (whole numbers only).";
+      errors.preferred_salary = "Enter a whole-number annual total compensation amount.";
+    } else if (sal <= 0) {
+      errors.preferred_salary = "Compensation must be greater than zero, or leave the field empty.";
     }
   }
 
   if (fields.summary && fields.summary.length > SUMMARY_MAX) {
-    errors.summary = `Summary must be ${SUMMARY_MAX} characters or fewer.`;
+    errors.summary = `Keep your summary under ${SUMMARY_MAX} characters.`;
   }
 
   if (fields.email?.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(fields.email.trim())) {
     errors.email = "Enter a valid email address.";
+  }
+
+  if (fields.phone?.trim()) {
+    const digits = phoneDigits(fields.phone);
+    if (digits.length < 10) {
+      errors.phone = "Enter a phone number with at least 10 digits, including country code if applicable.";
+    }
   }
 
   for (const [key, label] of [
@@ -53,6 +68,11 @@ export function validateProfileFields(fields, { requireSkills = false } = {}) {
     if (fields[key]?.trim() && !isValidUrl(fields[key])) {
       errors[key] = `Enter a valid ${label} URL.`;
     }
+  }
+
+  const badLink = (fields.other_links || []).find((link) => link?.trim() && !isValidUrl(link));
+  if (badLink) {
+    errors.other_links = "One or more additional links look invalid — check the URL format.";
   }
 
   return errors;

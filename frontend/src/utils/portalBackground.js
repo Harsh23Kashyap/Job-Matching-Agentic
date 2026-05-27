@@ -5,13 +5,13 @@ export function resolveBackgroundVariant(pathname) {
   if (pathname.includes("/candidate/profile")) return "profile";
   if (pathname.includes("/employer/jobs")) return "employer-jobs";
   if (pathname.includes("/employer/matches") || pathname.includes("/employer/applications")) {
-    return "employer-candidates";
+    return "base";
   }
   if (
     pathname.includes("/candidate/matches")
     || pathname.includes("/candidate/saved")
   ) {
-    return "jobs";
+    return "base";
   }
   return "base";
 }
