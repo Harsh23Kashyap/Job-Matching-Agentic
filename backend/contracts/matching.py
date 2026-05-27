@@ -63,6 +63,23 @@ class ScoreComponentDetail(BaseModel):
     contribution: float
 
 
+class FitSignal(BaseModel):
+    score: float | None = None
+    label: str
+    reason: str
+
+
+class MatchExplanation(BaseModel):
+    matched_skills: list[str] = Field(default_factory=list)
+    missing_skills: list[str] = Field(default_factory=list)
+    semantic: FitSignal
+    experience: FitSignal
+    compensation: FitSignal
+    remote: FitSignal
+    score_breakdown: list[ScoreComponentDetail] = Field(default_factory=list)
+    final_score: float
+
+
 class ScoreBreakdown(BaseModel):
     semantic_score: float
     skills_score: float | None = None
@@ -127,6 +144,7 @@ class MatchResult(BaseModel):
     matched_skills: list[str] = Field(default_factory=list)
     missing_skills: list[str] = Field(default_factory=list)
     why_ranked: list[str] = Field(default_factory=list)
+    explanation: MatchExplanation | None = None
     score_components: list[ScoreComponentDetail] | None = None
     sources: list[EnsembleSource] | None = None
     contact_email: str | None = None
@@ -137,6 +155,12 @@ class MatchResult(BaseModel):
     candidate_preferred_salary: int | None = None
     candidate_preferred_currency: str | None = None
     candidate_remote_preference: bool | None = None
+    job_required_experience: float | None = None
+    job_budget: int | None = None
+    job_budget_min: int | None = None
+    job_budget_max: int | None = None
+    job_remote_policy: bool | None = None
+    job_created_at: str | None = None
     apply_url: str | None = None
     apply_available: bool = True
     calibrated_similarity: float | None = None

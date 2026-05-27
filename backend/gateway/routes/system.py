@@ -1,9 +1,12 @@
 from typing import Literal
 
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
 
+from auth.deps import require_role
+from auth.store import User
 from bootstrap_reindex import switch_vector_store
+from demo_reset import demo_snapshot, reset_demo_data
 
 router = APIRouter(prefix="/system", tags=["system"])
 
@@ -21,10 +24,18 @@ def get_system_config(request: Request):
         if settings.read_only
         else "Mutating requests are allowed."
     )
+    demo_accounts = getattr(request.app.state, "demo_accounts", None)
+    demo_snapshot_data = None
+    if settings.demo_mode and demo_accounts:
+        demo_snapshot_data = demo_snapshot(request.app.state.container, request.app.state.auth_store)
     return {
         "vector_store": settings.vector_store,
         "read_only": settings.read_only,
         "read_only_note": read_only_note,
+        "demo_mode": settings.demo_mode,
+        "seed_demo": settings.seed_demo,
+        "demo_accounts": demo_accounts,
+        "demo_snapshot": demo_snapshot_data,
         "embedding_model": settings.embedding_model,
         "strategies": ["semantic", "multimodal"],
         "metrics": ["cosine", "euclidean"],
@@ -59,6 +70,33 @@ def set_vector_store(body: VectorStoreRequest, request: Request):
         raise HTTPException(status_code=422, detail={"error": str(exc), "code": "VALIDATION"}) from exc
     except RuntimeError as exc:
         raise HTTPException(status_code=503, detail={"error": str(exc), "code": "UNAVAILABLE"}) from exc
+    return result
+
+
+@router.post("/demo/reset")
+def reset_demo(
+    request: Request,
+    _admin: User = Depends(require_role("admin")),
+):
+    settings = request.app.state.container.settings
+    if not settings.demo_mode:
+        raise HTTPException(
+            status_code=403,
+            detail={"error": "Demo mode is disabled on this server.", "code": "DEMO_MODE_OFF"},
+        )
+    if settings.read_only:
+        raise HTTPException(
+            status_code=403,
+            detail={"error": "Cannot reset demo data while read-only mode is active.", "code": "READ_ONLY"},
+        )
+    result = reset_demo_data(request.app.state.container, request.app.state.auth_store)
+    request.app.state.demo_accounts = {
+        "candidate_email": result["candidate_email"],
+        "employer_email": result["employer_email"],
+        "admin_email": result["admin_email"],
+        "password": result["password"],
+        "summary": result.get("summary", "demo data reset"),
+    }
     return result
 
 

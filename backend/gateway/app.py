@@ -4,7 +4,7 @@ from starlette.middleware.sessions import SessionMiddleware
 from auth.routes import router as auth_router
 from auth.store import UserStore
 from bootstrap import SystemContainer
-from demo_seed import seed_demo_accounts
+from demo_seed import seed_demo_accounts, seed_demo_activity
 from gateway.handlers import register_exception_handlers
 from gateway.middleware import ReadOnlyMiddleware
 from gateway.routes import agents, candidates, employers, feedback, matching, similar, system
@@ -19,6 +19,13 @@ def build_gateway(container: SystemContainer) -> FastAPI:
 
     if container.settings.seed_demo:
         app.state.demo_accounts = seed_demo_accounts(app.state.auth_store, container)
+        if container.settings.demo_mode:
+            seed_demo_activity(
+                container,
+                app.state.auth_store,
+                container.activity_store,
+                container.feedback_store,
+            )
     else:
         app.state.demo_accounts = None
 

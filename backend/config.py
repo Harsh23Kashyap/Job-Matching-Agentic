@@ -36,6 +36,7 @@ class Settings(BaseSettings):
     port: int = 8001
     read_only: bool = False
     seed_demo: bool = True
+    demo_mode: bool = True
     enable_cross_encoder_rerank: bool = False
     cross_encoder_rerank_pool: int = 20
 

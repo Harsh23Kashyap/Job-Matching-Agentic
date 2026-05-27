@@ -164,3 +164,8 @@ class CandidateActivityStore:
                 job_ids,
             ).fetchall()
         return [JobApplication(**dict(row)) for row in rows]
+
+    def clear_all(self) -> None:
+        with self._connect() as conn:
+            conn.execute("DELETE FROM saved_jobs")
+            conn.execute("DELETE FROM job_applications")

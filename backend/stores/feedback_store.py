@@ -178,3 +178,8 @@ class FeedbackStore:
             elif row["action"] == "apply":
                 out.apply_count = int(row["c"])
         return out
+
+    def clear_all(self) -> None:
+        with self._connect() as conn:
+            conn.execute("DELETE FROM match_feedback")
+            conn.execute("DELETE FROM user_feedback")

@@ -208,6 +208,18 @@ class UserStore:
             ).fetchall()
         return [row["job_id"] for row in rows]
 
+    def purge_users_by_email(self, emails: tuple[str, ...] | list[str]) -> int:
+        normalized = [email.strip().lower() for email in emails]
+        if not normalized:
+            return 0
+        placeholders = ",".join("?" * len(normalized))
+        with self._connect() as conn:
+            cur = conn.execute(
+                f"DELETE FROM users WHERE email IN ({placeholders})",
+                normalized,
+            )
+        return int(cur.rowcount)
+
 
 class DuplicateEmailError(Exception):
     pass

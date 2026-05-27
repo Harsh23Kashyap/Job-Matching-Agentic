@@ -32,6 +32,7 @@ from core.matchmaking_scoring import resolve_routing, score_pair_advanced
 from core.rerank_diagnostics import compute_rank_changes, top_k_ids
 from core.rrf import rrf_fuse
 from core.skills import skill_overlap_details
+from core.match_explanation import build_match_explanation
 from hooks.explainer import RuleExplainer
 from stores.feedback_store import FeedbackStore
 
@@ -131,7 +132,15 @@ class MatchmakingAgent(BaseAgent):
         include_contact: bool = False,
     ) -> MatchResult:
         matched, missing = skill_overlap_details(candidate.skills, job.required_skills)
+        explanation = build_match_explanation(
+            candidate,
+            job,
+            breakdown,
+            matched_skills=matched,
+            missing_skills=missing,
+        )
         contact: dict[str, str | None] = {}
+        job_meta: dict[str, float | int | bool | str | None] = {}
         apply_url: str | None = None
         apply_available = True
         if include_contact:
@@ -154,6 +163,25 @@ class MatchmakingAgent(BaseAgent):
                 apply_url = link.strip() if isinstance(link, str) and link.strip() else None
                 accepts = getattr(job_profile, "accepts_applications", True)
                 apply_available = accepts if isinstance(accepts, bool) else True
+                job_meta = {
+                    "job_required_experience": job_profile.required_experience,
+                    "job_budget": job_profile.budget,
+                    "job_budget_min": job_profile.budget_min,
+                    "job_budget_max": job_profile.budget_max,
+                    "job_remote_policy": job_profile.remote_policy,
+                    "job_created_at": job_profile.created_at if isinstance(job_profile.created_at, str) and job_profile.created_at else None,
+                }
+            else:
+                budget_min = job.budget_min if job.budget_min is not None else job.budget
+                budget_max = job.budget_max if job.budget_max is not None else job.budget
+                job_meta = {
+                    "job_required_experience": float(job.required_experience),
+                    "job_budget": job.budget,
+                    "job_budget_min": budget_min,
+                    "job_budget_max": budget_max,
+                    "job_remote_policy": job.remote_policy,
+                    "job_created_at": None,
+                }
         return MatchResult(
             target_id=target_id,
             target_label=target_label,
@@ -170,7 +198,8 @@ class MatchmakingAgent(BaseAgent):
             matched_skills=matched,
             missing_skills=missing,
             why_ranked=self._explain(candidate, job, breakdown, explain_mode),
-            score_components=breakdown.score_components,
+            explanation=explanation,
+            score_components=breakdown.score_components or explanation.score_breakdown or None,
             sources=sources,
             calibrated_similarity=breakdown.calibrated_score,
             constraint_notes=constraint_notes or [],
@@ -178,6 +207,7 @@ class MatchmakingAgent(BaseAgent):
             apply_url=apply_url,
             apply_available=apply_available,
             **contact,
+            **job_meta,
         )
 
     def _cross_encoder_requested(self, request: MatchRequest) -> bool:
