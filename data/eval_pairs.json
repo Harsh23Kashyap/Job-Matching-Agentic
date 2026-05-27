@@ -1,0 +1,84 @@
+{
+  "version": "1.0",
+  "task": "resume_to_jobs",
+  "relevance_scale": "0-2",
+  "notes": "Starter labeled set for Phase 1.1. relevance=2 strong match, relevance=1 partial match.",
+  "labels": [
+    {"query_id": "cv_01", "doc_id": "job_01", "relevance": 2},
+    {"query_id": "cv_01", "doc_id": "job_07", "relevance": 1},
+
+    {"query_id": "cv_02", "doc_id": "job_02", "relevance": 2},
+    {"query_id": "cv_02", "doc_id": "job_13", "relevance": 1},
+
+    {"query_id": "cv_03", "doc_id": "job_03", "relevance": 2},
+    {"query_id": "cv_03", "doc_id": "job_14", "relevance": 1},
+
+    {"query_id": "cv_04", "doc_id": "job_04", "relevance": 2},
+    {"query_id": "cv_04", "doc_id": "job_15", "relevance": 1},
+
+    {"query_id": "cv_05", "doc_id": "job_05", "relevance": 2},
+    {"query_id": "cv_05", "doc_id": "job_07", "relevance": 1},
+
+    {"query_id": "cv_06", "doc_id": "job_01", "relevance": 2},
+    {"query_id": "cv_06", "doc_id": "job_06", "relevance": 1},
+
+    {"query_id": "cv_07", "doc_id": "job_03", "relevance": 1},
+
+    {"query_id": "cv_08", "doc_id": "job_13", "relevance": 2},
+
+    {"query_id": "cv_09", "doc_id": "job_07", "relevance": 2},
+    {"query_id": "cv_09", "doc_id": "job_05", "relevance": 1},
+
+    {"query_id": "cv_10", "doc_id": "job_15", "relevance": 2},
+    {"query_id": "cv_10", "doc_id": "job_04", "relevance": 1},
+
+    {"query_id": "cv_11", "doc_id": "job_03", "relevance": 1},
+    {"query_id": "cv_11", "doc_id": "job_14", "relevance": 1},
+
+    {"query_id": "cv_12", "doc_id": "job_06", "relevance": 2},
+    {"query_id": "cv_12", "doc_id": "job_01", "relevance": 1},
+
+    {"query_id": "cv_13", "doc_id": "job_02", "relevance": 2},
+
+    {"query_id": "cv_14", "doc_id": "job_01", "relevance": 2},
+    {"query_id": "cv_14", "doc_id": "job_04", "relevance": 1},
+
+    {"query_id": "cv_15", "doc_id": "job_14", "relevance": 2},
+
+    {"query_id": "cv_16", "doc_id": "job_08", "relevance": 2},
+    {"query_id": "cv_16", "doc_id": "job_02", "relevance": 1},
+
+    {"query_id": "cv_17", "doc_id": "job_05", "relevance": 2},
+    {"query_id": "cv_17", "doc_id": "job_07", "relevance": 1},
+
+    {"query_id": "cv_18", "doc_id": "job_01", "relevance": 2},
+    {"query_id": "cv_18", "doc_id": "job_04", "relevance": 1},
+
+    {"query_id": "cv_19", "doc_id": "job_09", "relevance": 2},
+
+    {"query_id": "cv_20", "doc_id": "job_11", "relevance": 2},
+
+    {"query_id": "cv_21", "doc_id": "job_04", "relevance": 1},
+
+    {"query_id": "cv_22", "doc_id": "job_15", "relevance": 1},
+    {"query_id": "cv_22", "doc_id": "job_04", "relevance": 1},
+
+    {"query_id": "cv_23", "doc_id": "job_08", "relevance": 1},
+
+    {"query_id": "cv_24", "doc_id": "job_01", "relevance": 1},
+    {"query_id": "cv_24", "doc_id": "job_06", "relevance": 1},
+
+    {"query_id": "cv_25", "doc_id": "job_12", "relevance": 2},
+
+    {"query_id": "cv_26", "doc_id": "job_15", "relevance": 1},
+
+    {"query_id": "cv_27", "doc_id": "job_10", "relevance": 2},
+    {"query_id": "cv_27", "doc_id": "job_07", "relevance": 1},
+
+    {"query_id": "cv_28", "doc_id": "job_11", "relevance": 1},
+
+    {"query_id": "cv_29", "doc_id": "job_14", "relevance": 2},
+
+    {"query_id": "cv_30", "doc_id": "job_13", "relevance": 1}
+  ]
+}

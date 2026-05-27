@@ -1,0 +1,71 @@
+import pytest
+from fastapi.testclient import TestClient
+
+
+@pytest.fixture
+def client(system):
+    from gateway.app import build_gateway
+
+    app = build_gateway(system)
+    with TestClient(app) as c:
+        yield c
+
+
+def test_openapi_loads(client):
+    resp = client.get("/openapi.json")
+    assert resp.status_code == 200
+    assert "paths" in resp.json()
+
+
+def test_agent_status_three_agents(client):
+    resp = client.get("/agents/status")
+    assert resp.status_code == 200
+    data = resp.json()
+    assert "candidates" in data
+    assert "employer" in data
+    assert "matchmaking" in data
+    assert data["candidates"]["entity_count"] == 30
+    assert data["employer"]["entity_count"] == 15
+
+
+def test_list_candidates(client):
+    resp = client.get("/candidates")
+    assert resp.status_code == 200
+    assert "Rahul Sharma" in resp.json()["names"]
+
+
+def test_list_jobs(client):
+    resp = client.get("/jobs")
+    assert resp.status_code == 200
+    assert "Machine Learning Engineer" in resp.json()["titles"]
+
+
+def test_match_candidate_to_jobs(client):
+    resp = client.post(
+        "/match/candidate-to-jobs",
+        json={"query_key": "Rahul Sharma", "top_k": 3},
+    )
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["results"][0]["target_label"] == "Machine Learning Engineer"
+
+
+def test_match_not_found(client):
+    resp = client.post(
+        "/match/candidate-to-jobs",
+        json={"query_key": "Nobody Here", "top_k": 3},
+    )
+    assert resp.status_code == 404
+
+
+def test_legacy_match_resume_alias(client):
+    resp = client.post("/match-resume", json={"query_key": "Rahul Sharma", "top_k": 1})
+    assert resp.status_code == 200
+
+
+def test_system_config(client):
+    resp = client.get("/system/config")
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["vector_store"] == "chroma"
+    assert "semantic" in data["strategies"]

@@ -1,0 +1,137 @@
+[
+  {
+    "id": "job_01",
+    "title": "Machine Learning Engineer",
+    "required_skills": ["Python", "Machine Learning", "TensorFlow"],
+    "required_experience": 2,
+    "budget": 130000,
+    "remote_policy": true,
+    "description": "Looking for ML engineer with strong Python and TensorFlow experience."
+  },
+  {
+    "id": "job_02",
+    "title": "Frontend Developer",
+    "required_skills": ["React", "JavaScript"],
+    "required_experience": 1,
+    "budget": 95000,
+    "remote_policy": true,
+    "description": "Frontend role requiring React and modern JavaScript skills."
+  },
+  {
+    "id": "job_03",
+    "title": "Backend Engineer",
+    "required_skills": ["Java", "Spring Boot"],
+    "required_experience": 3,
+    "budget": 125000,
+    "remote_policy": false,
+    "description": "Backend developer needed with experience in Java and Spring Boot."
+  },
+  {
+    "id": "job_04",
+    "title": "Data Analyst",
+    "required_skills": ["Python", "Pandas"],
+    "required_experience": 1,
+    "budget": 105000,
+    "remote_policy": true,
+    "description": "Data analyst role requiring strong Python and Pandas knowledge."
+  },
+  {
+    "id": "job_05",
+    "title": "DevOps Engineer",
+    "required_skills": ["Docker", "Kubernetes"],
+    "required_experience": 4,
+    "budget": 150000,
+    "remote_policy": false,
+    "description": "Seeking DevOps engineer experienced in container orchestration."
+  },
+  {
+    "id": "job_06",
+    "title": "NLP Engineer",
+    "required_skills": ["Python", "NLP", "Transformers"],
+    "required_experience": 3,
+    "budget": 145000,
+    "remote_policy": true,
+    "description": "NLP engineer role focusing on transformer-based models."
+  },
+  {
+    "id": "job_07",
+    "title": "Cloud Architect",
+    "required_skills": ["AWS", "Terraform"],
+    "required_experience": 5,
+    "budget": 160000,
+    "remote_policy": false,
+    "description": "Cloud architect role requiring AWS and infrastructure automation."
+  },
+  {
+    "id": "job_08",
+    "title": "Mobile Developer",
+    "required_skills": ["React Native", "Mobile Development"],
+    "required_experience": 2,
+    "budget": 110000,
+    "remote_policy": true,
+    "description": "Mobile app developer role using React Native."
+  },
+  {
+    "id": "job_09",
+    "title": "Cybersecurity Engineer",
+    "required_skills": ["Cybersecurity", "Network Security"],
+    "required_experience": 4,
+    "budget": 150000,
+    "remote_policy": false,
+    "description": "Cybersecurity engineer responsible for threat analysis and prevention."
+  },
+  {
+    "id": "job_10",
+    "title": "Data Engineer",
+    "required_skills": ["Spark", "Hadoop"],
+    "required_experience": 3,
+    "budget": 145000,
+    "remote_policy": false,
+    "description": "Data engineer role focusing on big data pipelines."
+  },
+  {
+    "id": "job_11",
+    "title": "Product Manager",
+    "required_skills": ["Product Management", "Agile"],
+    "required_experience": 5,
+    "budget": 160000,
+    "remote_policy": true,
+    "description": "Product manager role requiring agile leadership and roadmap planning."
+  },
+  {
+    "id": "job_12",
+    "title": "Blockchain Developer",
+    "required_skills": ["Blockchain", "Solidity"],
+    "required_experience": 3,
+    "budget": 155000,
+    "remote_policy": false,
+    "description": "Blockchain developer role building smart contracts."
+  },
+  {
+    "id": "job_13",
+    "title": "UI/UX Designer",
+    "required_skills": ["UI/UX", "Figma"],
+    "required_experience": 2,
+    "budget": 90000,
+    "remote_policy": true,
+    "description": "UI/UX designer role focused on modern design systems."
+  },
+  {
+    "id": "job_14",
+    "title": "Systems Engineer",
+    "required_skills": ["C++", "System Design"],
+    "required_experience": 3,
+    "budget": 135000,
+    "remote_policy": false,
+    "description": "Systems engineer role focused on performance and scalability."
+  },
+  {
+    "id": "job_15",
+    "title": "Business Intelligence Analyst",
+    "required_skills": ["SQL", "Power BI"],
+    "required_experience": 2,
+    "budget": 100000,
+    "remote_policy": true,
+    "description": "BI analyst role requiring SQL and dashboarding skills."
+  }
+]
