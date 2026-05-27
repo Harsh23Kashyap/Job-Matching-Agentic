@@ -29,5 +29,5 @@
 - Preserve eval corpus + benchmarks only; rewrite rest.
 
 **Approach chosen:** Event-driven monolith with agent state ownership and pub-sub events.
-**Outcome:** HLD drafted; SDD pending HLD approval; no code yet.
-**Files affected:** `docs/design/HLD-multi-agent-system.md`, `.claude/knowledge_graph.md` (rewrite roadmap).
+**Outcome:** HLD drafted; SDD drafted; V1-V2 scope doc added; no code yet.
+**Files affected:** `docs/design/HLD-multi-agent-system.md`, `docs/design/SDD-multi-agent-system.md`, `docs/design/V1-V2-SCOPE.md`, `.claude/knowledge_graph.md` (rewrite roadmap).

@@ -3,7 +3,7 @@
 
 **Version:** 1.0  
 **Date:** 2026-05-27  
-**Status:** Draft — awaiting approval before SDD  
+**Status:** Approved for SDD — see [SDD-multi-agent-system.md](./SDD-multi-agent-system.md)  
 **Authors:** Harsh Kashyap, Taranumpreet Kaur Wasu  
 
 ---
