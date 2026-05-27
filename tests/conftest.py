@@ -21,6 +21,7 @@ def settings(tmp_path, repo_root):
         repo_root=repo_root,
         data_dir=repo_root / "data",
         chroma_persist_dir=tmp_path / "chroma_db",
+        sqlite_path=tmp_path / "app.db",
     )
 
 

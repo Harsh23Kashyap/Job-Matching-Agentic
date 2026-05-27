@@ -2,7 +2,30 @@ import axios from "axios";
 
 const baseURL = import.meta.env.VITE_API_BASE_URL || "";
 
-export const api = axios.create({ baseURL, headers: { "Content-Type": "application/json" } });
+export const api = axios.create({
+  baseURL,
+  withCredentials: true,
+  headers: { "Content-Type": "application/json" },
+});
+
+export async function fetchMe() {
+  const { data } = await api.get("/auth/me");
+  return data;
+}
+
+export async function login(email, password) {
+  const { data } = await api.post("/auth/login", { email, password });
+  return data;
+}
+
+export async function register(email, password, role) {
+  const { data } = await api.post("/auth/register", { email, password, role });
+  return data;
+}
+
+export async function logout() {
+  await api.post("/auth/logout");
+}
 
 export async function fetchAgentStatus() {
   const { data } = await api.get("/agents/status");
@@ -17,6 +40,35 @@ export async function fetchCandidates() {
 export async function fetchJobs() {
   const { data } = await api.get("/jobs");
   return data.titles;
+}
+
+export async function fetchMyProfile() {
+  const { data } = await api.get("/candidates/me");
+  return data;
+}
+
+export async function fetchMyJobs() {
+  const { data } = await api.get("/jobs/mine");
+  return data;
+}
+
+export async function uploadResume(file) {
+  const form = new FormData();
+  form.append("file", file);
+  const { data } = await api.post("/candidates/upload-resume", form, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return data;
+}
+
+export async function saveCandidateProfile(profile) {
+  const { data } = await api.post("/candidates", profile);
+  return data;
+}
+
+export async function saveJobPosting(job) {
+  const { data } = await api.post("/jobs", job);
+  return data;
 }
 
 export async function runMatch(config) {

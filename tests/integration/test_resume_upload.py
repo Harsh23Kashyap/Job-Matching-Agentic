@@ -1,0 +1,102 @@
+import io
+from unittest.mock import patch
+
+import pytest
+from fastapi.testclient import TestClient
+
+
+@pytest.fixture
+def client(system):
+    from gateway.app import build_gateway
+
+    app = build_gateway(system)
+    with TestClient(app) as c:
+        yield c
+
+
+def _register_candidate(client, email="cand2@test.com"):
+    return client.post(
+        "/auth/register",
+        json={"email": email, "password": "secret1", "role": "candidate"},
+    )
+
+
+@patch("gateway.routes.candidates.create_llm_parser")
+def test_upload_resume_extracts_fields(mock_factory, client):
+    from hooks.llm_parser import LlmParser
+
+    mock_parser = LlmParser(client.app.state.container.settings)
+    mock_parser.parse_candidate_from_text = lambda text: {
+        "name": "Upload User",
+        "skills": ["Java"],
+        "experience_years": 3,
+        "preferred_salary": None,
+        "remote_preference": False,
+        "summary": "Engineer",
+    }
+    mock_factory.return_value = mock_parser
+
+    _register_candidate(client)
+    content = b"Jane Doe\nSkills: Java, Spring\n3 years experience"
+    resp = client.post(
+        "/candidates/upload-resume",
+        files={"file": ("resume.txt", io.BytesIO(content), "text/plain")},
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["extracted_fields"]["name"] == "Upload User"
+    assert "Java" in data["extracted_fields"]["skills"]
+
+
+def test_upload_requires_auth(client):
+    resp = client.post(
+        "/candidates/upload-resume",
+        files={"file": ("resume.txt", io.BytesIO(b"hello"), "text/plain")},
+    )
+    assert resp.status_code == 401
+
+
+def test_candidates_me_and_register(client):
+    _register_candidate(client, "me@test.com")
+    me = client.get("/candidates/me")
+    assert me.status_code == 404
+
+    reg = client.post(
+        "/candidates",
+        json={
+            "name": "Me User",
+            "skills": ["Go"],
+            "experience_years": 2,
+            "summary": "Dev",
+        },
+    )
+    assert reg.status_code == 201
+
+    me = client.get("/candidates/me")
+    assert me.status_code == 200
+    assert me.json()["name"] == "Me User"
+
+
+def test_employer_jobs_mine(client):
+    client.post(
+        "/auth/register",
+        json={"email": "emp2@test.com", "password": "secret1", "role": "employer"},
+    )
+    mine = client.get("/jobs/mine")
+    assert mine.status_code == 200
+    assert mine.json() == []
+
+    created = client.post(
+        "/jobs",
+        json={
+            "title": "QA Engineer",
+            "required_skills": ["Testing"],
+            "required_experience": 2,
+            "description": "Test apps",
+        },
+    )
+    assert created.status_code == 201
+
+    mine = client.get("/jobs/mine")
+    assert len(mine.json()) == 1
+    assert mine.json()[0]["title"] == "QA Engineer"

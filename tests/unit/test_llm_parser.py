@@ -1,0 +1,80 @@
+import json
+from unittest.mock import MagicMock, patch
+
+import pytest
+
+from config import Settings
+from hooks.llm_parser import LlmParser, LlmUnavailableError
+
+
+@pytest.fixture
+def settings():
+    return Settings(
+        ollama_base_url="http://ollama.test",
+        ollama_model="test-model",
+        openai_api_key=None,
+    )
+
+
+@pytest.fixture
+def parser(settings):
+    return LlmParser(settings)
+
+
+def test_parse_candidate_from_text_ollama(parser):
+    payload = {
+        "name": "Jane Doe",
+        "skills": ["Python", "FastAPI"],
+        "experience_years": 5,
+        "preferred_salary": 120000,
+        "remote_preference": True,
+        "summary": "Backend engineer",
+    }
+    mock_resp = MagicMock()
+    mock_resp.json.return_value = {"message": {"content": json.dumps(payload)}}
+    mock_resp.raise_for_status = MagicMock()
+
+    with patch("hooks.llm_parser.httpx.Client") as mock_client:
+        mock_client.return_value.__enter__.return_value.post.return_value = mock_resp
+        result = parser.parse_candidate_from_text("Jane Doe resume text")
+
+    assert result["name"] == "Jane Doe"
+    assert "Python" in result["skills"]
+    assert result["experience_years"] == 5
+    assert result["remote_preference"] is True
+
+
+def test_parse_retries_on_bad_json(parser):
+    bad = MagicMock()
+    bad.json.return_value = {"message": {"content": "not json"}}
+    bad.raise_for_status = MagicMock()
+
+    good = MagicMock()
+    good.json.return_value = {
+        "message": {
+            "content": json.dumps(
+                {
+                    "name": "Retry User",
+                    "skills": [],
+                    "experience_years": 1,
+                    "preferred_salary": None,
+                    "remote_preference": False,
+                    "summary": "",
+                }
+            )
+        }
+    }
+    good.raise_for_status = MagicMock()
+
+    with patch("hooks.llm_parser.httpx.Client") as mock_client:
+        mock_client.return_value.__enter__.return_value.post.side_effect = [bad, good]
+        result = parser.parse_candidate_from_text("resume")
+
+    assert result["name"] == "Retry User"
+
+
+def test_llm_unavailable(parser):
+    with patch("hooks.llm_parser.httpx.Client") as mock_client:
+        mock_client.return_value.__enter__.return_value.post.side_effect = OSError("connection refused")
+        with pytest.raises(LlmUnavailableError):
+            parser.parse_candidate_from_text("resume")

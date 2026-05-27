@@ -707,3 +707,228 @@ body {
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
 }
+
+/* Auth & portal */
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: var(--bg-base);
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 420px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 32px;
+  box-shadow: var(--shadow-md);
+}
+
+.auth-card-wide {
+  max-width: 520px;
+}
+
+.auth-card h1 {
+  margin: 0 0 8px;
+  font-size: calc(24px * var(--font-scale));
+}
+
+.auth-sub {
+  color: var(--text-secondary);
+  margin: 0 0 20px;
+}
+
+.auth-form label {
+  display: block;
+  margin-bottom: 14px;
+  font-size: calc(13px * var(--font-scale));
+  color: var(--text-secondary);
+}
+
+.auth-form input,
+.auth-form textarea,
+.auth-form select,
+.profile-form input,
+.profile-form textarea,
+.profile-form select {
+  display: block;
+  width: 100%;
+  margin-top: 6px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  font: inherit;
+}
+
+.btn-primary,
+.btn-secondary {
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: none;
+  font: inherit;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background: var(--info);
+  color: #fff;
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+}
+
+.auth-error {
+  color: var(--critical);
+  font-size: calc(13px * var(--font-scale));
+}
+
+.auth-success {
+  color: var(--healthy);
+}
+
+.auth-footer {
+  margin-top: 20px;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.role-picker {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 14px;
+}
+
+.role-option {
+  display: flex;
+  gap: 10px;
+  padding: 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-bottom: 6px;
+}
+
+.role-option.selected {
+  background: var(--bg-hover);
+}
+
+.role-option strong {
+  display: block;
+  color: var(--text-primary);
+}
+
+.role-option small {
+  color: var(--text-secondary);
+}
+
+.portal-nav {
+  display: flex;
+  gap: 16px;
+}
+
+.portal-nav a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: calc(13px * var(--font-scale));
+}
+
+.portal-nav a:hover {
+  color: var(--info);
+}
+
+.user-pill {
+  font-size: calc(12px * var(--font-scale));
+  color: var(--text-secondary);
+  padding: 4px 10px;
+  background: var(--bg-hover);
+  border-radius: 999px;
+}
+
+.portal-main {
+  padding-top: 8px;
+}
+
+.portal-panel {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-bottom: 16px;
+}
+
+.profile-form label {
+  display: block;
+  margin-bottom: 14px;
+  color: var(--text-secondary);
+  font-size: calc(13px * var(--font-scale));
+}
+
+.checkbox-label {
+  display: flex !important;
+  align-items: center;
+  gap: 8px;
+}
+
+.checkbox-label input {
+  width: auto;
+  margin: 0;
+}
+
+.onboarding-upload {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.dropzone {
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+  padding: 32px;
+  text-align: center;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.dropzone input {
+  display: none;
+}
+
+.text-preview {
+  font-size: calc(12px * var(--font-scale));
+  color: var(--text-tertiary);
+  background: var(--bg-elevated);
+  padding: 12px;
+  border-radius: 8px;
+  max-height: 120px;
+  overflow: auto;
+}
+
+.form-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.job-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.job-list li {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-subtle);
+}

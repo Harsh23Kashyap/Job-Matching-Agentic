@@ -31,3 +31,22 @@
 **Approach chosen:** Event-driven monolith with agent state ownership and pub-sub events.
 **Outcome:** HLD drafted; SDD drafted; V1-V2 scope doc added; no code yet.
 **Files affected:** `docs/design/HLD-multi-agent-system.md`, `docs/design/SDD-multi-agent-system.md`, `docs/design/V1-V2-SCOPE.md`, `.claude/knowledge_graph.md` (rewrite roadmap).
+
+## Role portals + auth (v1.1) — 2026-05-27
+
+**Decisions:**
+- Real product: 3 logged-in portals (Candidate, Employer, Admin) — not v2 defer.
+- Three route-based portals (`/candidate`, `/employer`, `/admin`) with shared match components.
+- Candidate flow: upload resume → LLM extract → edit profile → search jobs.
+- LLM CV parser in v1.1 (Ollama/OpenAI); heuristics-only rejected.
+- Auth: email/password, HTTP-only cookie session, SQLite user store.
+- Admin keeps current Match Console unchanged.
+
+**Approach chosen:** Three route portals + FastAPI auth + LlmParser resume pipeline.
+**Outcome:** Spec saved; implementation pending.
+**Files affected:** `docs/design/v1.1-role-portals-auth.md`.
+
+## Role portals + auth (v1.1) — implementation — 2026-05-27
+
+**Outcome:** Implemented — auth, 3 portals, LLM resume upload, 59 tests.
+**Files affected:** `backend/auth/`, `backend/hooks/llm_parser.py`, `backend/core/resume_text.py`, `frontend/src/pages/`, `frontend/src/layouts/`, `frontend/src/context/`.

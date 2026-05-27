@@ -67,6 +67,17 @@
 | **Skills mode param** | On match + ensemble requests |
 | **Auth** | None (local research demo) |
 
+### V1.1 — Role portals, auth, LLM resume (shipped)
+
+| Item | Detail |
+|------|--------|
+| **Auth** | Email/password, HTTP-only session cookie, SQLite user store |
+| **Portals** | Candidate, Employer, Admin — React Router role-guarded routes |
+| **LLM CV parser** | `LlmParser` — Ollama default; OpenAI-compatible fallback |
+| **Resume upload** | `POST /candidates/upload-resume` (PDF/DOCX/TXT) |
+| **Ownership** | `GET /candidates/me`, `GET /jobs/mine`; 1:1 candidate profile per user |
+| **Tests** | 59 total (41 v1 + 18 v1.1) |
+
 ### Agent workflows (v1)
 
 | Workflow | In v1? |
@@ -136,7 +147,6 @@
 
 | Item | Why v2 |
 |------|--------|
-| **LLM CV parser** | Unstructured PDF/text → `CandidateProfile` |
 | **LLM JD parser** | Unstructured prose → `JobProfile` |
 | **LLM match explainer** | Natural-language why_ranked |
 | **LLM query refinement** | Interpret user intent |
@@ -153,7 +163,7 @@
 | **Real jobs sync** | `real_jobs_sync.py` → Employer Agent external API |
 | **ANN-first UI matching** | Scale beyond 15-job corpus (§9.3) |
 | **Read-only demo mode** | `settings.read_only` disable POST |
-| **Authentication** | If public deployment |
+| **Authentication (production)** | OAuth, email verification, Postgres, public deploy hardening — basic auth shipped in v1.1 |
 
 ### Frontend & ops (v2)
 
