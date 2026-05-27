@@ -49,6 +49,12 @@ def test_composite_match_exposes_all_component_scores(client):
         assert row[key] is not None
     assert isinstance(row.get("matched_skills"), list)
     assert isinstance(row.get("missing_skills"), list)
+    explanation = row.get("explanation")
+    assert explanation is not None
+    assert isinstance(explanation.get("matched_skills"), list)
+    assert explanation.get("semantic", {}).get("reason")
+    assert isinstance(explanation.get("score_breakdown"), list)
+    assert len(explanation["score_breakdown"]) >= 5
 
 
 # 2. Skill gap recommendations surface on match rows
