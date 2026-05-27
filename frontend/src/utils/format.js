@@ -39,6 +39,36 @@ export function formatInr(amount) {
   return formatted ? `₹ ${formatted}` : "";
 }
 
+export function formatBudgetRange(job, currency = "INR") {
+  const cur = job?.budget_currency || currency;
+  const meta = CURRENCY_META[cur] || CURRENCY_META.INR;
+  const sym = meta.symbol;
+  const min = job?.budget_min ?? null;
+  const max = job?.budget_max ?? job?.budget ?? null;
+  if (min && max) {
+    return `${sym}${formatAmount(min, cur)} – ${sym}${formatAmount(max, cur)} / year`;
+  }
+  if (max) return `${sym}${formatAmount(max, cur)} / year budget`;
+  if (min) return `From ${sym}${formatAmount(min, cur)} / year`;
+  return "";
+}
+
+export function formatPostedDate(iso) {
+  if (!iso) return "—";
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return "—";
+  return date.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+}
+
+export function formatExperienceYears(years) {
+  if (years == null || years === "") return "—";
+  const value = Number(years);
+  if (!Number.isFinite(value)) return "—";
+  if (value === 0) return "No minimum";
+  if (value === 1) return "1 yr min";
+  return `${value} yrs min`;
+}
+
 export function filterAmountInput(raw) {
   return String(raw ?? "").replace(/[^\d,]/g, "");
 }
@@ -139,6 +169,77 @@ export function deriveWhyMatch(row) {
 
 export function pluralGoodMatches(count) {
   return count === 1 ? "Good match" : "Good matches";
+}
+
+export function pluralStrongMatches(count) {
+  return count === 1 ? "Strong match" : "Strong matches";
+}
+
+export function formatRefreshedAt(iso) {
+  if (!iso) return "Just now";
+  const diff = Date.now() - new Date(iso).getTime();
+  if (diff < 60000) return "Just now";
+  const mins = Math.floor(diff / 60000);
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  return `${hrs}h ago`;
+}
+
+export function formatCandidateExperience(years) {
+  if (years == null || years === "") return null;
+  const value = Number(years);
+  if (!Number.isFinite(value)) return null;
+  if (value === 0) return "No experience listed";
+  if (value === 1) return "1 year";
+  return `${value} years`;
+}
+
+export function formatExpectedCompensation(row) {
+  const amount = row?.candidate_preferred_salary ?? row?.preferred_salary;
+  if (amount == null || amount === "") return null;
+  const currency = row?.candidate_preferred_currency ?? row?.preferred_currency ?? "INR";
+  const meta = CURRENCY_META[currency] || CURRENCY_META.INR;
+  const formatted = formatAmount(amount, currency);
+  if (!formatted) return null;
+  return `${meta.symbol}${formatted} / year expected`;
+}
+
+export function formatRemotePreference(row) {
+  const pref = row?.candidate_remote_preference ?? row?.remote_preference;
+  if (pref == null) return null;
+  return pref ? "Open to remote" : "On-site preferred";
+}
+
+export function deriveEmployerWhyMatch(row) {
+  const { matched, other } = parseWhySignals(row.why_ranked || []);
+  const sim = Number(row.similarity) || 0;
+
+  if (matched.length >= 2) {
+    return `Strong overlap on ${matched.slice(0, 3).join(", ")}.`;
+  }
+  if (matched.length === 1) {
+    return `Matches required skill: ${matched[0]}.`;
+  }
+  if (other.length > 0) {
+    return other[0];
+  }
+  if (sim >= 0.45) {
+    return "Profile context aligns with the role beyond listed skills.";
+  }
+  return "Limited direct skill overlap — review the full profile.";
+}
+
+export function countStrongMatches(results, threshold = 0.8) {
+  return (results || []).filter((row) => Number(row.similarity) >= threshold).length;
+}
+
+export function candidateHasContact(row) {
+  return Boolean(
+    row?.contact_email ||
+      row?.contact_phone ||
+      row?.contact_linkedin ||
+      row?.contact_portfolio,
+  );
 }
 
 export function matchSkills(row) {

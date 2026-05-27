@@ -109,6 +109,54 @@ def get_job(title: str, request: Request):
     return _public_profile(profile)
 
 
+def _employer_owns_job(request: Request, user: User, job_id: str) -> None:
+    job_ids = request.app.state.auth_store.list_job_ids(user.id)
+    if job_id not in job_ids:
+        raise HTTPException(status_code=404, detail={"error": "Job not found", "code": "NOT_FOUND"})
+
+
+class JobStatusBody(BaseModel):
+    status: str
+
+
+@router.put("/mine/{job_id}")
+def update_my_job(
+    job_id: str,
+    raw: dict,
+    request: Request,
+    user: User = Depends(require_role("employer")),
+):
+    _employer_owns_job(request, user, job_id)
+    payload = {**raw, "id": job_id}
+    profile = request.app.state.container.employer.register(payload)
+    return _public_profile(profile)
+
+
+@router.patch("/mine/{job_id}/status")
+def update_my_job_status(
+    job_id: str,
+    body: JobStatusBody,
+    request: Request,
+    user: User = Depends(require_role("employer")),
+):
+    _employer_owns_job(request, user, job_id)
+    status = body.status.lower()
+    if status not in {"open", "closed", "draft"}:
+        raise HTTPException(status_code=400, detail={"error": "Invalid status", "code": "INVALID_STATUS"})
+    employer = request.app.state.container.employer
+    existing = employer.get_by_id(job_id)
+    if existing is None:
+        raise HTTPException(status_code=404, detail={"error": "Job not found", "code": "NOT_FOUND"})
+    payload = existing.model_dump()
+    payload["status"] = status
+    if status == "closed":
+        payload["accepts_applications"] = False
+    elif status == "open":
+        payload["accepts_applications"] = True
+    profile = employer.register(payload)
+    return _public_profile(profile)
+
+
 @router.post("", status_code=201)
 def register_job(
     raw: dict,
@@ -119,6 +167,8 @@ def register_job(
         if "id" not in raw:
             title = raw.get("title", "Untitled Job")
             raw = {**raw, "id": _slug_job_id(title)}
+        if "status" not in raw:
+            raw = {**raw, "status": "open"}
     profile = request.app.state.container.employer.register(raw)
     if user is not None and user.role == "employer":
         request.app.state.auth_store.link_job(user.id, profile.id)

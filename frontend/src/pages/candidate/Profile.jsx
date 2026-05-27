@@ -6,7 +6,8 @@ import ProfileStrength from "../../components/ProfileStrength.jsx";
 import ResumePreview from "../../components/ResumePreview.jsx";
 import Button from "../../components/Button.jsx";
 import { useToast } from "../../components/Toast.jsx";
-import { fetchMyProfile, uploadResume, upsertCandidateProfile } from "../../api/client.js";
+import { apiErrorMessage, fetchMyProfile, uploadResume, upsertCandidateProfile } from "../../api/client.js";
+import { notifyProfileUpdated } from "../../utils/profileEvents.js";
 import { resumePreviewFromUpload } from "../../utils/resumeClean.js";
 import { EMPTY_PROFILE_FIELDS, fieldsFromExtracted, profileFromApi, profileToPayload } from "../../utils/profileFields.js";
 import { profileStrength, validateProfileFields } from "../../utils/validation.js";
@@ -48,7 +49,7 @@ export default function Profile() {
       setResumePreview(resumePreviewFromUpload(data));
       showToast("Resume parsed — review updated fields and save.");
     } catch (err) {
-      setError(err.response?.data?.detail?.error || err.message || "Upload failed");
+      setError(apiErrorMessage(err, "Upload failed. Try a PDF, DOCX, or TXT under 5MB."));
     } finally {
       setReuploading(false);
       if (fileRef.current) fileRef.current.value = "";
@@ -68,14 +69,15 @@ export default function Profile() {
       const saved = await upsertCandidateProfile(profileToPayload(fields));
       setFields(profileFromApi(saved));
       setHasProfile(true);
+      notifyProfileUpdated();
       showToast(
-        "Profile updated. You can refresh matches now.",
+        hasProfile ? "Profile updated." : "Profile saved.",
         <Link to="/candidate/matches" className="btn-secondary btn-sm">
           Find jobs
         </Link>,
       );
     } catch (err) {
-      setError(err.response?.data?.detail?.error || err.message || "Save failed");
+      setError(apiErrorMessage(err, "Save failed. Check your details and try again."));
     } finally {
       setSaving(false);
     }
@@ -85,18 +87,12 @@ export default function Profile() {
     return (
       <>
         <PageHeader eyebrow="Candidate" title="Your profile" />
-        <section className="portal-panel portal-panel--form"><p>Loading…</p></section>
-      </>
-    );
-  }
-
-  if (error && !fields.name) {
-    return (
-      <>
-        <PageHeader eyebrow="Candidate" title="Your profile" subtitle="Create your candidate profile to start matching." />
         <section className="portal-panel portal-panel--form">
-          <p>{error}</p>
-          <Link to="/candidate/onboarding" className="btn-primary">Upload resume</Link>
+          <div className="loading-shimmer" aria-hidden="true">
+            <span className="skeleton-block skeleton-block--lg" />
+            <span className="skeleton-block skeleton-block--md" />
+            <span className="skeleton-block skeleton-block--sm" />
+          </div>
         </section>
       </>
     );
@@ -107,9 +103,21 @@ export default function Profile() {
       <PageHeader
         eyebrow="Candidate"
         title="Your profile"
-        subtitle="Keep your skills and preferences up to date for better matches."
+        subtitle={
+          hasProfile
+            ? "Keep your skills and preferences up to date for better matches."
+            : "Create your candidate profile to start matching."
+        }
       />
       <section className="portal-panel portal-panel--form">
+        {!hasProfile && (
+          <div className="notice-warning profile-setup-notice">
+            <span>No profile saved yet. Fill in your details below or upload a resume to get started.</span>
+            <Link to="/candidate/onboarding" className="btn-secondary btn-sm">
+              Upload resume
+            </Link>
+          </div>
+        )}
         <div className="profile-reupload-bar">
           <div>
             <h3 className="profile-form-section-title">Update from resume</h3>

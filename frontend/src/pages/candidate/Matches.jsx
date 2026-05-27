@@ -4,11 +4,14 @@ import PageHeader from "../../components/PageHeader.jsx";
 import CandidateJobResults from "../../components/CandidateJobResults.jsx";
 import { ProfileNeededEmpty, JobsReadyEmpty } from "../../components/EmptyState.jsx";
 import Button from "../../components/Button.jsx";
-import { fetchMyProfile, runMatch, DEFAULT_CANDIDATE_MATCH } from "../../api/client.js";
+import { useToast } from "../../components/Toast.jsx";
+import { apiErrorMessage, fetchMyProfile, runMatch, DEFAULT_CANDIDATE_MATCH } from "../../api/client.js";
 import { matchPercent } from "../../utils/format.js";
+import { PROFILE_UPDATED_EVENT } from "../../utils/profileEvents.js";
 
 export default function CandidateMatches() {
   const location = useLocation();
+  const { showToast } = useToast();
   const [profile, setProfile] = useState(null);
   const [profileLoading, setProfileLoading] = useState(true);
   const [response, setResponse] = useState(null);
@@ -28,6 +31,12 @@ export default function CandidateMatches() {
     loadProfile();
   }, [loadProfile, location.pathname]);
 
+  useEffect(() => {
+    const onProfileUpdated = () => loadProfile();
+    window.addEventListener(PROFILE_UPDATED_EVENT, onProfileUpdated);
+    return () => window.removeEventListener(PROFILE_UPDATED_EVENT, onProfileUpdated);
+  }, [loadProfile]);
+
   const handleFindJobs = async () => {
     if (!profile) return;
     setLoading(true);
@@ -39,9 +48,14 @@ export default function CandidateMatches() {
       });
       setResponse(data);
       setLastUpdated(new Date().toISOString());
+      const count = data.results?.length ?? 0;
+      showToast(
+        count === 0
+          ? "Search complete — no roles matched your profile yet."
+          : `Found ${count} role${count === 1 ? "" : "s"} matched to your profile.`,
+      );
     } catch (err) {
-      setError(err.response?.data?.detail?.error || err.message);
-      setResponse(null);
+      setError(apiErrorMessage(err, "Could not load job matches. Try again."));
     } finally {
       setLoading(false);
     }
@@ -120,6 +134,17 @@ export default function CandidateMatches() {
             }
           />
         </section>
+      ) : error && !response ? (
+        <section className="portal-panel portal-panel--elevated">
+          <div className="notice-warning match-error-banner">
+            <span>{error}</span>
+          </div>
+          <div className="empty-state-action" style={{ marginTop: 16 }}>
+            <Button loading={loading} loadingLabel="Searching…" onClick={handleFindJobs}>
+              Try again
+            </Button>
+          </div>
+        </section>
       ) : (
         <CandidateJobResults
           response={response}
@@ -127,6 +152,7 @@ export default function CandidateMatches() {
           onRefresh={handleFindJobs}
           loading={loading}
           updatedAt={lastUpdated}
+          onClearError={() => setError(null)}
         />
       )}
     </>

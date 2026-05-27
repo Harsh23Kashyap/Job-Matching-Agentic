@@ -30,13 +30,15 @@ curl -s -X POST http://localhost:8001/match/candidate-to-jobs \
 
 ## Demo accounts (optional — create fresh or reuse)
 
+Seeded automatically when the backend starts (`SEED_DEMO=true`, default). One-click login on http://localhost:5173/login.
+
 | Role | Email | Password |
 |------|-------|----------|
-| Candidate | `demo.candidate@test.com` | `demo1234` |
-| Employer | `demo.employer@test.com` | `demo1234` |
+| Candidate (profile ready) | `demo.candidate@test.com` | `demo1234` |
+| Employer (5 sample jobs) | `demo.employer@test.com` | `demo1234` |
 | Admin | `demo.admin@test.com` | `demo1234` |
 
-Register at http://localhost:5173/register if accounts don't exist yet.
+Candidate demo is linked to **Rahul Sharma** — Jobs → **Find matches** returns ranked roles immediately.
 
 ## Browser
 

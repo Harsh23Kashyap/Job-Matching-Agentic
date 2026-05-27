@@ -95,3 +95,4 @@ def test_job_match_contact_fields_optional(client):
     row = resp.json()["results"][0]
     assert "contact_email" in row
     assert "contact_phone" in row
+    assert "candidate_experience_years" in row

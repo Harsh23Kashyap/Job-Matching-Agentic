@@ -13,7 +13,8 @@ export function apiErrorMessage(err, fallback) {
   const status = err.response?.status;
   const detail = err.response?.data?.detail;
   if (status === 404) {
-    return "Auth API not found — restart the backend on port 8001 (v1.1+).";
+    if (typeof detail === "object" && detail?.error) return detail.error;
+    return "Not found.";
   }
   if (typeof detail === "object" && detail?.error) return detail.error;
   if (typeof detail === "string") return detail;
@@ -118,6 +119,16 @@ export async function uploadJobDescription(file) {
 
 export async function saveJobPosting(job) {
   const { data } = await api.post("/jobs", job);
+  return data;
+}
+
+export async function updateEmployerJob(jobId, job) {
+  const { data } = await api.put(`/jobs/mine/${jobId}`, job);
+  return data;
+}
+
+export async function updateEmployerJobStatus(jobId, status) {
+  const { data } = await api.patch(`/jobs/mine/${jobId}/status`, { status });
   return data;
 }
 

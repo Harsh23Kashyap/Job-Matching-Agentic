@@ -47,3 +47,4 @@ def test_parse_job():
         }
     )
     assert profile.title == "Engineer"
+    assert profile.status == "open"

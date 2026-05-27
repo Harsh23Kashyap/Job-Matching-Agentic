@@ -4,6 +4,7 @@ from starlette.middleware.sessions import SessionMiddleware
 from auth.routes import router as auth_router
 from auth.store import UserStore
 from bootstrap import SystemContainer
+from demo_seed import seed_demo_accounts
 from gateway.middleware import ReadOnlyMiddleware
 from gateway.routes import agents, candidates, employers, feedback, matching, system
 
@@ -14,6 +15,11 @@ def build_gateway(container: SystemContainer) -> FastAPI:
     app.state.auth_store = UserStore(container.settings.sqlite_path)
     app.state.feedback_store = container.feedback_store
     app.state.activity_store = container.activity_store
+
+    if container.settings.seed_demo:
+        app.state.demo_accounts = seed_demo_accounts(app.state.auth_store, container)
+    else:
+        app.state.demo_accounts = None
 
     app.add_middleware(ReadOnlyMiddleware)
     app.add_middleware(

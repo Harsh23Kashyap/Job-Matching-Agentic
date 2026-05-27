@@ -5,12 +5,6 @@ import PortalBackground from "../components/PortalBackground.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useTheme } from "../hooks/useTheme.js";
 
-const PORTAL_LABELS = {
-  candidate: "Candidate workspace",
-  employer: "Employer workspace",
-  admin: "Admin console",
-};
-
 const JOBS_LAYOUT_PREFIXES = [
   "/candidate/matches",
   "/candidate/saved",
@@ -23,6 +17,11 @@ function pageContainerClass(pathname) {
     return "page-container page-container--jobs";
   }
   return "page-container page-container--form";
+}
+
+function navItemActive(item, pathname, routerActive) {
+  if (typeof item.isActive === "function") return item.isActive(pathname);
+  return routerActive;
 }
 
 export default function PortalShell({ portal = "candidate", subtitle, navItems = [] }) {
@@ -42,23 +41,31 @@ export default function PortalShell({ portal = "candidate", subtitle, navItems =
             </div>
           </NavLink>
 
-          <nav className="top-nav-links" aria-label="Main">
-            {navItems.map((item) => (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                className={({ isActive }) => `nav-link${isActive ? " nav-link--active" : ""}`}
-              >
-                {item.icon}
-                <span>{item.label}</span>
-              </NavLink>
-            ))}
-          </nav>
+          {navItems.length > 0 && (
+            <nav className="top-nav-links" aria-label="Main">
+              {navItems.map((item) => (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  end={item.end}
+                  isActive={(props) => navItemActive(item, pathname, props.isActive)}
+                  className={({ isActive }) => `nav-link${isActive ? " nav-link--active" : ""}`}
+                >
+                  <span className="nav-link-icon">{item.icon}</span>
+                  <span className="nav-link-label">{item.label}</span>
+                </NavLink>
+              ))}
+            </nav>
+          )}
 
           <div className="top-nav-actions">
-            <span className="portal-pill">{PORTAL_LABELS[portal] || subtitle}</span>
-            <button type="button" className="icon-btn" onClick={toggleTheme} aria-label="Toggle theme">
-              {theme === "light" ? <IconMoon /> : <IconSun />}
+            <button
+              type="button"
+              className="nav-action-btn"
+              onClick={toggleTheme}
+              aria-label={theme === "light" ? "Switch to dark theme" : "Switch to light theme"}
+            >
+              {theme === "light" ? <IconMoon size={18} /> : <IconSun size={18} />}
             </button>
             <UserMenu user={user} onLogout={logout} />
           </div>
@@ -78,10 +85,12 @@ export default function PortalShell({ portal = "candidate", subtitle, navItems =
             <NavLink
               key={item.to}
               to={item.to}
+              end={item.end}
+              isActive={(props) => navItemActive(item, pathname, props.isActive)}
               className={({ isActive }) => `mobile-tab${isActive ? " mobile-tab--active" : ""}`}
             >
-              {item.icon}
-              <span>{item.label}</span>
+              <span className="mobile-tab-icon">{item.icon}</span>
+              <span className="mobile-tab-label">{item.label}</span>
             </NavLink>
           ))}
         </nav>

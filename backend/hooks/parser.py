@@ -21,13 +21,24 @@ class JsonParser:
         )
 
     def parse_job(self, raw: dict) -> JobProfile:
+        budget_min = normalize_preferred_salary(raw.get("budget_min"))
+        budget_max = normalize_preferred_salary(raw.get("budget_max"))
+        budget = normalize_preferred_salary(raw.get("budget"))
+        if budget is None:
+            budget = budget_max or budget_min
+        status = str(raw.get("status") or "open").lower()
+        if status not in {"open", "closed", "draft"}:
+            status = "open"
         return JobProfile(
             id=raw["id"],
             title=raw["title"],
             required_skills=list(raw.get("required_skills", [])),
             preferred_skills=list(raw.get("preferred_skills", [])),
-            required_experience=int(raw.get("required_experience", 0)),
-            budget=raw.get("budget"),
+            required_experience=float(raw.get("required_experience", 0)),
+            budget=budget,
+            budget_currency=normalize_preferred_currency(raw.get("budget_currency")),
+            budget_min=budget_min,
+            budget_max=budget_max,
             remote_policy=bool(raw.get("remote_policy", False)),
             description=str(raw.get("description", "")),
             company=raw.get("company"),
@@ -35,4 +46,7 @@ class JsonParser:
             job_type=raw.get("job_type"),
             link=raw.get("link"),
             accepts_applications=bool(raw.get("accepts_applications", True)),
+            status=status,
+            created_at=str(raw.get("created_at") or ""),
+            updated_at=str(raw.get("updated_at") or ""),
         )

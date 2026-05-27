@@ -102,6 +102,22 @@ class UserStore:
             created_at=row["created_at"],
         )
 
+    def get_by_email(self, email: str) -> User | None:
+        normalized = email.strip().lower()
+        with self._connect() as conn:
+            row = conn.execute(
+                "SELECT id, email, role, created_at FROM users WHERE email = ?",
+                (normalized,),
+            ).fetchone()
+        if row is None:
+            return None
+        return User(
+            id=row["id"],
+            email=row["email"],
+            role=row["role"],
+            created_at=row["created_at"],
+        )
+
     def link_candidate(self, user_id: str, candidate_id: str) -> None:
         with self._connect() as conn:
             existing = conn.execute(
@@ -135,6 +151,21 @@ class UserStore:
                 "INSERT INTO job_ownership (user_id, job_id) VALUES (?, ?)",
                 (user_id, job_id),
             )
+
+    def link_job_if_unowned(self, user_id: str, job_id: str) -> bool:
+        """Link job to user when no owner exists. Returns True if linked."""
+        with self._connect() as conn:
+            row = conn.execute(
+                "SELECT user_id FROM job_ownership WHERE job_id = ?",
+                (job_id,),
+            ).fetchone()
+            if row is not None:
+                return row["user_id"] == user_id
+            conn.execute(
+                "INSERT INTO job_ownership (user_id, job_id) VALUES (?, ?)",
+                (user_id, job_id),
+            )
+            return True
 
     def list_job_ids(self, user_id: str) -> list[str]:
         with self._connect() as conn:

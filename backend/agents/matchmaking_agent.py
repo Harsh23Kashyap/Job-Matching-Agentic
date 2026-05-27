@@ -139,6 +139,10 @@ class MatchmakingAgent(BaseAgent):
                     "contact_phone": profile.phone or None,
                     "contact_linkedin": profile.linkedin or None,
                     "contact_portfolio": profile.portfolio or None,
+                    "candidate_experience_years": profile.experience_years,
+                    "candidate_preferred_salary": profile.preferred_salary,
+                    "candidate_preferred_currency": profile.preferred_currency,
+                    "candidate_remote_preference": profile.remote_preference,
                 }
         else:
             job_profile = self.employer_agent.get_by_id(job.id)

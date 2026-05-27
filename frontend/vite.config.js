@@ -16,6 +16,7 @@ export default defineConfig({
       "/match-resume-ensemble": "http://localhost:8001",
       "/agent": "http://localhost:8001",
       "/system": "http://localhost:8001",
+      "/feedback": "http://localhost:8001",
     },
   },
 });

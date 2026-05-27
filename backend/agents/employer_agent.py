@@ -1,6 +1,7 @@
 import hashlib
 import json
 from dataclasses import dataclass, field
+from datetime import datetime, timezone
 from pathlib import Path
 
 import numpy as np
@@ -50,10 +51,14 @@ class EmployerAgent(BaseAgent):
 
         existing = self.state.profiles.get(profile.id)
         version = (existing.version + 1) if existing else 1
+        now = datetime.now(timezone.utc).isoformat()
+        created_at = (existing.created_at if existing and existing.created_at else None) or profile.created_at or now
 
         profile = profile.model_copy(
             update={
                 "version": version,
+                "created_at": created_at,
+                "updated_at": now,
                 "document_text": doc,
                 "document_text_hash": doc_hash,
                 "embedding": vector.tolist(),

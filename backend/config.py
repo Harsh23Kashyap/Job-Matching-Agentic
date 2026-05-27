@@ -35,6 +35,7 @@ class Settings(BaseSettings):
     host: str = "0.0.0.0"
     port: int = 8001
     read_only: bool = False
+    seed_demo: bool = True
 
     @property
     def cvs_path(self) -> Path:

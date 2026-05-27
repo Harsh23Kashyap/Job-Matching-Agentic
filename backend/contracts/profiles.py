@@ -1,5 +1,7 @@
 from pydantic import BaseModel, Field
 
+JOB_STATUSES = frozenset({"open", "closed", "draft"})
+
 
 class CandidateProfile(BaseModel):
     id: str
@@ -26,8 +28,11 @@ class JobProfile(BaseModel):
     title: str
     required_skills: list[str]
     preferred_skills: list[str] = Field(default_factory=list)
-    required_experience: int
+    required_experience: float = Field(default=0, ge=0, le=50)
     budget: int | None = None
+    budget_currency: str = "INR"
+    budget_min: int | None = None
+    budget_max: int | None = None
     remote_policy: bool = False
     description: str = ""
     company: str | None = None
@@ -35,6 +40,9 @@ class JobProfile(BaseModel):
     job_type: str | None = None
     accepts_applications: bool = True
     link: str | None = None
+    status: str = "open"
+    created_at: str = ""
+    updated_at: str = ""
     version: int = 1
     document_text: str = ""
     document_text_hash: str = ""

@@ -232,3 +232,30 @@ def test_employer_jobs_mine(client):
     mine = client.get("/jobs/mine")
     assert len(mine.json()) == 1
     assert mine.json()[0]["title"] == "QA Engineer"
+    job_id = mine.json()[0]["id"]
+    assert mine.json()[0]["status"] == "open"
+    assert mine.json()[0]["created_at"]
+
+    updated = client.put(
+        f"/jobs/mine/{job_id}",
+        json={
+            "title": "Senior QA Engineer",
+            "required_skills": ["Testing", "Automation"],
+            "required_experience": 3,
+            "description": "Test apps deeply",
+            "company": "Acme",
+            "location": "Bengaluru",
+            "remote_policy": True,
+        },
+    )
+    assert updated.status_code == 200
+    body = updated.json()
+    assert body["title"] == "Senior QA Engineer"
+    assert body["company"] == "Acme"
+    assert body["created_at"]
+    assert body["updated_at"]
+
+    closed = client.patch(f"/jobs/mine/{job_id}/status", json={"status": "closed"})
+    assert closed.status_code == 200
+    assert closed.json()["status"] == "closed"
+    assert closed.json()["accepts_applications"] is False

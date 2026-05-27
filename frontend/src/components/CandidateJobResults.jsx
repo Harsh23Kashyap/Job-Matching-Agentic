@@ -1,27 +1,19 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   deriveWhyMatch,
   formatCandidateMatchScore,
+  formatRefreshedAt,
   isApplyAvailable,
   matchSkills,
   matchTier,
   pluralGoodMatches,
 } from "../utils/format.js";
-import { createApplication, fetchMyApplications, fetchSavedJobs, updateSavedJob } from "../api/client.js";
+import { createApplication, fetchMyApplications, fetchSavedJobs, updateSavedJob, apiErrorMessage } from "../api/client.js";
 import { IconAlert } from "./icons.jsx";
-import { JobsResultsDecor } from "./PortalBackground.jsx";
+import BackgroundPattern from "./BackgroundPattern.jsx";
+import { NoMatchingRolesEmpty } from "./EmptyState.jsx";
 import MatchDetailsDrawer from "./MatchDetailsDrawer.jsx";
 import { useToast } from "./Toast.jsx";
-
-function formatRefreshedAt(iso) {
-  if (!iso) return "Just now";
-  const diff = Date.now() - new Date(iso).getTime();
-  if (diff < 60000) return "Just now";
-  const mins = Math.floor(diff / 60000);
-  if (mins < 60) return `${mins}m ago`;
-  const hrs = Math.floor(mins / 60);
-  return `${hrs}h ago`;
-}
 
 function MatchSummaryCards({ response, updatedAt }) {
   const results = response.results || [];
@@ -80,21 +72,9 @@ function ApplyAction({ row, applied, onApply }) {
 }
 
 function JobMatchCard({ row, onViewDetails, saved, applied, onSave, onApply }) {
-  const { showToast } = useToast();
   const tier = matchTier(row.similarity);
   const { matched } = matchSkills(row);
   const whyLine = deriveWhyMatch(row);
-
-  const handleSave = () => {
-    onSave(row);
-    showToast(saved ? `Removed ${row.target_label} from saved.` : `Saved ${row.target_label} to your list.`);
-  };
-
-  const handleApply = async () => {
-    if (!isApplyAvailable(row) || applied) return;
-    await onApply(row);
-    showToast(`Applied to ${row.target_label}.`);
-  };
 
   return (
     <article className="job-match-card job-match-row">
@@ -138,17 +118,18 @@ function JobMatchCard({ row, onViewDetails, saved, applied, onSave, onApply }) {
           <button type="button" className="row-action-btn" onClick={() => onViewDetails(row, whyLine)}>
             View details
           </button>
-          <button type="button" className="row-action-btn" onClick={handleSave}>
+          <button type="button" className="row-action-btn" onClick={() => onSave(row)}>
             {saved ? "Unsave" : "Save"}
           </button>
-          <ApplyAction row={row} applied={applied} onApply={handleApply} />
+          <ApplyAction row={row} applied={applied} onApply={() => onApply(row)} />
         </div>
       </div>
     </article>
   );
 }
 
-export default function CandidateJobResults({ response, error, onRefresh, loading, updatedAt }) {
+export default function CandidateJobResults({ response, error, onRefresh, loading, updatedAt, onClearError }) {
+  const { showToast } = useToast();
   const [search, setSearch] = useState("");
   const [minMatch, setMinMatch] = useState("0");
   const [remoteOnly, setRemoteOnly] = useState(false);
@@ -156,6 +137,7 @@ export default function CandidateJobResults({ response, error, onRefresh, loadin
   const [drawer, setDrawer] = useState(null);
   const [savedIds, setSavedIds] = useState(new Set());
   const [appliedIds, setAppliedIds] = useState(new Set());
+  const filtersRef = useRef(null);
 
   useEffect(() => {
     Promise.all([fetchSavedJobs(), fetchMyApplications()])
@@ -176,8 +158,11 @@ export default function CandidateJobResults({ response, error, onRefresh, loadin
         else next.delete(row.target_id);
         return next;
       });
-    } catch {
-      /* ignore */
+      showToast(
+        saving ? `Saved ${row.target_label} to your list.` : `Removed ${row.target_label} from saved.`,
+      );
+    } catch (err) {
+      showToast(apiErrorMessage(err, "Could not update saved jobs. Try again."));
     }
   };
 
@@ -186,9 +171,18 @@ export default function CandidateJobResults({ response, error, onRefresh, loadin
     try {
       await createApplication(row.target_id, row.target_label, row.similarity);
       setAppliedIds((prev) => new Set(prev).add(row.target_id));
-    } catch {
-      /* ignore */
+      showToast(`Applied to ${row.target_label}.`);
+    } catch (err) {
+      showToast(apiErrorMessage(err, "Could not record your application. Try again."));
     }
+  };
+
+  const handleAdjustFilters = () => {
+    setSearch("");
+    setMinMatch("0");
+    setRemoteOnly(false);
+    filtersRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    filtersRef.current?.querySelector(".filter-search")?.focus();
   };
 
   const filtered = useMemo(() => {
@@ -214,25 +208,25 @@ export default function CandidateJobResults({ response, error, onRefresh, loadin
     return rows;
   }, [response, search, minMatch, remoteOnly, sort]);
 
-  if (error) {
-    return (
-      <section className="portal-panel portal-panel--elevated">
-        <div className="notice-warning">
-          <IconAlert />
-          <span>{error}</span>
-        </div>
-      </section>
-    );
-  }
-
   if (!response) return null;
 
   return (
     <>
       <section className="portal-panel portal-panel--elevated candidate-results">
-        <JobsResultsDecor />
+        <BackgroundPattern variant="jobs" scope="panel" />
+        {error && (
+          <div className="notice-warning match-error-banner">
+            <IconAlert />
+            <span>{error}</span>
+            {onClearError && (
+              <button type="button" className="row-action-btn match-error-dismiss" onClick={onClearError}>
+                Dismiss
+              </button>
+            )}
+          </div>
+        )}
         <MatchSummaryCards response={response} updatedAt={updatedAt} />
-        <div className="results-filters">
+        <div className="results-filters" ref={filtersRef}>
           <input
             type="search"
             className="filter-search"
@@ -277,7 +271,13 @@ export default function CandidateJobResults({ response, error, onRefresh, loadin
           {loading ? (
             <MatchSkeletonRows />
           ) : filtered.length === 0 ? (
-            <p className="auth-sub">No roles match your current filters.</p>
+            <NoMatchingRolesEmpty
+              action={
+                <button type="button" className="btn-secondary" onClick={handleAdjustFilters}>
+                  Adjust filters
+                </button>
+              }
+            />
           ) : (
             filtered.map((row) => (
               <JobMatchCard
@@ -297,6 +297,13 @@ export default function CandidateJobResults({ response, error, onRefresh, loadin
         <MatchDetailsDrawer
           row={drawer.row}
           whyLine={drawer.whyLine}
+          variant="candidate"
+          matchContext={{
+            evaluated_count: response.evaluated_count,
+            corpus_size: response.corpus_size,
+            strategy_used: response.strategy_used,
+            fusion_mode: response.fusion_mode,
+          }}
           onClose={() => setDrawer(null)}
         />
       )}

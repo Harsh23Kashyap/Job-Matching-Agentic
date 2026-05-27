@@ -69,6 +69,16 @@ Optional: set `OPENAI_API_KEY` in `backend/.env` (see `backend/.env.example`) to
 
 Register at `/register` and pick a role. Sign in at `/login`.
 
+### Demo accounts (auto-seeded on startup)
+
+| Role | Email | Password |
+|------|-------|----------|
+| **Candidate** (profile ready) | `demo.candidate@test.com` | `demo1234` |
+| **Employer** (5 sample jobs) | `demo.employer@test.com` | `demo1234` |
+| **Admin** | `demo.admin@test.com` | `demo1234` |
+
+The candidate demo links to **Rahul Sharma** in the bootstrapped corpus — open **Jobs → Find matches** for instant results. Disable seeding with `SEED_DEMO=false` in `backend/.env`.
+
 ## Quick demo (15 min)
 
 Follow the scripted walkthrough for supervisors and stakeholders:

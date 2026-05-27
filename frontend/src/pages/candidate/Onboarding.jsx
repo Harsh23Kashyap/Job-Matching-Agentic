@@ -7,7 +7,8 @@ import ResumePreview from "../../components/ResumePreview.jsx";
 import Button from "../../components/Button.jsx";
 import { useToast } from "../../components/Toast.jsx";
 import { IconAlert } from "../../components/icons.jsx";
-import { fetchMyProfile, upsertCandidateProfile, uploadResume } from "../../api/client.js";
+import { apiErrorMessage, fetchMyProfile, upsertCandidateProfile, uploadResume } from "../../api/client.js";
+import { notifyProfileUpdated } from "../../utils/profileEvents.js";
 import { resumePreviewFromUpload } from "../../utils/resumeClean.js";
 import {
   EMPTY_PROFILE_FIELDS,
@@ -57,7 +58,7 @@ export default function Onboarding() {
       const data = await uploadResume(file);
       goToReview(data);
     } catch (err) {
-      setError(err.response?.data?.detail?.error || err.message || "Upload failed");
+      setError(apiErrorMessage(err, "Upload failed. Try a PDF, DOCX, or TXT under 5MB."));
     } finally {
       setLoading(false);
     }
@@ -75,12 +76,14 @@ export default function Onboarding() {
     try {
       const payload = profileToPayload(fields);
       if (fields.id) payload.id = fields.id;
-      await upsertCandidateProfile(payload);
-      showToast("Profile updated. You can refresh matches now.");
+      const saved = await upsertCandidateProfile(payload);
+      setFields(profileFromApi(saved));
+      setHasExistingProfile(true);
+      notifyProfileUpdated();
+      showToast(hasExistingProfile ? "Profile updated." : "Profile saved. You're ready to find jobs.");
       navigate("/candidate/matches");
     } catch (err) {
-      const detail = err.response?.data?.detail;
-      setError(typeof detail === "object" ? detail.error : detail || err.message || "Save failed");
+      setError(apiErrorMessage(err, "Save failed. Check your details and try again."));
     } finally {
       setLoading(false);
     }

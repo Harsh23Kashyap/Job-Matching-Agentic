@@ -93,6 +93,10 @@ class MatchResult(BaseModel):
     contact_phone: str | None = None
     contact_linkedin: str | None = None
     contact_portfolio: str | None = None
+    candidate_experience_years: float | None = None
+    candidate_preferred_salary: int | None = None
+    candidate_preferred_currency: str | None = None
+    candidate_remote_preference: bool | None = None
     apply_url: str | None = None
     apply_available: bool = True
     calibrated_similarity: float | None = None

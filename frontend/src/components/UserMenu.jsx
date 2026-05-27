@@ -13,6 +13,12 @@ const PROFILE_PATH = {
   admin: "/admin/console",
 };
 
+const SETTINGS_PATH = {
+  candidate: "/candidate/profile",
+  employer: "/employer/jobs",
+  admin: "/admin/console",
+};
+
 export default function UserMenu({ user, onLogout }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
@@ -26,27 +32,41 @@ export default function UserMenu({ user, onLogout }) {
     return () => document.removeEventListener("click", close);
   }, []);
 
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, []);
+
   const profilePath = PROFILE_PATH[user?.role] || ROLE_HOME[user?.role] || "/";
+  const settingsPath = SETTINGS_PATH[user?.role] || profilePath;
 
   return (
     <div className="user-menu" ref={ref}>
-      <button type="button" className="user-menu-trigger" onClick={() => setOpen(!open)} aria-expanded={open}>
-        <div className="avatar">{userInitials(user?.email)}</div>
-        <span className="user-menu-chevron" aria-hidden="true">
-          ▾
-        </span>
+      <button
+        type="button"
+        className="user-menu-trigger user-menu-trigger--avatar"
+        onClick={() => setOpen(!open)}
+        aria-expanded={open}
+        aria-haspopup="menu"
+        aria-label="Account menu"
+      >
+        <div className="avatar avatar--nav">{userInitials(user?.email)}</div>
       </button>
       {open && (
-        <div className="user-menu-dropdown">
+        <div className="user-menu-dropdown" role="menu">
           <p className="user-menu-email">{user?.email}</p>
-          <Link to={profilePath} onClick={() => setOpen(false)}>
+          <Link to={profilePath} role="menuitem" onClick={() => setOpen(false)}>
             View profile
           </Link>
-          <Link to={profilePath} onClick={() => setOpen(false)}>
+          <Link to={settingsPath} role="menuitem" onClick={() => setOpen(false)}>
             Settings
           </Link>
           <button
             type="button"
+            role="menuitem"
             onClick={async () => {
               setOpen(false);
               await onLogout();
