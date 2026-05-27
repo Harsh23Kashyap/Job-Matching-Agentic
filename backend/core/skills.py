@@ -40,3 +40,12 @@ def raw_skill_overlap(resume_skills: list[str], job_skills: list[str]) -> list[s
     r = {normalize(s) for s in resume_skills}
     j = {normalize(s) for s in job_skills}
     return sorted(r & j)
+
+
+def skill_overlap_details(resume_skills: list[str], job_skills: list[str]) -> tuple[list[str], list[str]]:
+    resume_norm = {normalize(s): s for s in resume_skills}
+    job_norm = {normalize(s): s for s in job_skills}
+    overlap_keys = set(resume_norm) & set(job_norm)
+    matched = sorted({job_norm[key] for key in overlap_keys}, key=str.lower)
+    missing = [job_norm[key] for key in job_norm if key not in overlap_keys]
+    return matched, missing

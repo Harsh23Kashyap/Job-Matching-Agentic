@@ -22,8 +22,13 @@ Return ONLY valid JSON with these keys:
 - preferred_salary (integer or null)
 - remote_preference (boolean)
 - summary (string, 1-3 sentences)
+- email (string)
+- phone (string)
+- linkedin (string URL)
+- portfolio (string URL — personal site, GitHub profile, or portfolio)
+- other_links (array of string URLs — e.g. GitLab, Medium, project links)
 
-Use empty string or sensible defaults when unknown. Do not include markdown."""
+Use empty string or empty array when unknown. Do not include markdown."""
 
 
 class LlmParser:
@@ -119,6 +124,9 @@ class LlmParser:
                 salary = int(salary)
             except (TypeError, ValueError):
                 salary = None
+        other_links = raw.get("other_links") or []
+        if isinstance(other_links, str):
+            other_links = [s.strip() for s in other_links.split(",") if s.strip()]
         return {
             "name": str(raw.get("name") or "Unknown Candidate").strip(),
             "skills": [str(s) for s in skills],
@@ -126,4 +134,9 @@ class LlmParser:
             "preferred_salary": salary,
             "remote_preference": bool(raw.get("remote_preference", False)),
             "summary": str(raw.get("summary") or "").strip(),
+            "email": str(raw.get("email") or "").strip(),
+            "phone": str(raw.get("phone") or "").strip(),
+            "linkedin": str(raw.get("linkedin") or "").strip(),
+            "portfolio": str(raw.get("portfolio") or "").strip(),
+            "other_links": [str(link).strip() for link in other_links if str(link).strip()],
         }

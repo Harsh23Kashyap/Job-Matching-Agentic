@@ -6,7 +6,8 @@ export default function ExperienceInput({ id, value, onChange, error }) {
         type="text"
         inputMode="decimal"
         className="experience-input input-no-spinner"
-        placeholder="2"
+        placeholder="0"
+        aria-label="Years of experience"
         value={value ?? ""}
         onChange={(e) => onChange(e.target.value)}
       />

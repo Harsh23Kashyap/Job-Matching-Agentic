@@ -2,21 +2,23 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import PageHeader from "../../components/PageHeader.jsx";
 import CandidateJobResults from "../../components/CandidateJobResults.jsx";
-import EmptyState from "../../components/EmptyState.jsx";
+import { ProfileNeededEmpty, JobsReadyEmpty } from "../../components/EmptyState.jsx";
 import Button from "../../components/Button.jsx";
 import { fetchMyProfile, runMatch } from "../../api/client.js";
 
 export default function CandidateMatches() {
   const [profile, setProfile] = useState(null);
+  const [profileLoading, setProfileLoading] = useState(true);
   const [response, setResponse] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [bootError, setBootError] = useState("");
+  const [lastUpdated, setLastUpdated] = useState(null);
 
   useEffect(() => {
     fetchMyProfile()
       .then(setProfile)
-      .catch(() => setBootError("Complete your profile before searching for jobs."));
+      .catch(() => setProfile(null))
+      .finally(() => setProfileLoading(false));
   }, []);
 
   const handleFindJobs = async () => {
@@ -35,6 +37,7 @@ export default function CandidateMatches() {
         ensemble: false,
       });
       setResponse(data);
+      setLastUpdated(new Date().toISOString());
     } catch (err) {
       setError(err.response?.data?.detail?.error || err.message);
       setResponse(null);
@@ -43,7 +46,16 @@ export default function CandidateMatches() {
     }
   };
 
-  if (bootError) {
+  if (profileLoading) {
+    return (
+      <>
+        <PageHeader title="Jobs for you" />
+        <section className="portal-panel portal-panel--form"><p>Loading…</p></section>
+      </>
+    );
+  }
+
+  if (!profile) {
     return (
       <>
         <PageHeader
@@ -55,21 +67,17 @@ export default function CandidateMatches() {
             </Link>
           }
         />
-        <section className="portal-panel">
-          <EmptyState
-            title="Profile needed"
-            description="Upload your resume or enter your skills so we can find roles that fit."
-            checklist={["Upload or enter resume details", "Add skills", "Set salary and preferences"]}
-            action={<Link to="/candidate/onboarding" className="btn-primary">Set up profile</Link>}
-          />
+        <section className="portal-panel portal-panel--elevated portal-panel--empty">
+          <ProfileNeededEmpty action={<Link to="/candidate/onboarding" className="btn-primary">Set up profile</Link>} />
         </section>
       </>
     );
   }
 
+  const matchCount = response?.results?.length || 0;
   const subtitle = response
-    ? `Showing ${response.results?.length || 0} roles ranked for ${profile?.name}.`
-    : `Ready to find roles for ${profile?.name}.`;
+    ? `${matchCount} role${matchCount === 1 ? "" : "s"} matched for ${profile.name}.`
+    : `Matching roles for ${profile.name} based on your profile.`;
 
   return (
     <>
@@ -77,16 +85,14 @@ export default function CandidateMatches() {
         title="Jobs for you"
         subtitle={subtitle}
         inlineAction={
-          <Button loading={loading} loadingLabel="Searching…" onClick={handleFindJobs} disabled={!profile}>
+          <Button loading={loading} loadingLabel="Searching…" onClick={handleFindJobs}>
             {response ? "Refresh matches" : "Find jobs"}
           </Button>
         }
       />
       {!response && !error ? (
-        <section className="portal-panel">
-          <EmptyState
-            title="No matches yet"
-            description="Run a search to see roles ranked by fit with your profile."
+        <section className="portal-panel portal-panel--elevated portal-panel--empty">
+          <JobsReadyEmpty
             action={
               <Button loading={loading} loadingLabel="Searching…" onClick={handleFindJobs}>
                 Find jobs
@@ -100,6 +106,7 @@ export default function CandidateMatches() {
           error={error}
           onRefresh={handleFindJobs}
           loading={loading}
+          updatedAt={lastUpdated}
         />
       )}
     </>

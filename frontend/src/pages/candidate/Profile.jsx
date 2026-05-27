@@ -5,41 +5,26 @@ import ProfileForm from "../../components/ProfileForm.jsx";
 import ProfileStrength from "../../components/ProfileStrength.jsx";
 import Button from "../../components/Button.jsx";
 import { useToast } from "../../components/Toast.jsx";
-import { fetchMyProfile, saveCandidateProfile } from "../../api/client.js";
-import { parseInr } from "../../utils/format.js";
+import { fetchMyProfile, upsertCandidateProfile } from "../../api/client.js";
+import { EMPTY_PROFILE_FIELDS, profileFromApi, profileToPayload } from "../../utils/profileFields.js";
 import { profileStrength, validateProfileFields } from "../../utils/validation.js";
-
-const EMPTY = {
-  name: "",
-  skills: "",
-  experience_years: 0,
-  preferred_salary: "",
-  remote_preference: false,
-  summary: "",
-};
 
 export default function Profile() {
   const { showToast } = useToast();
-  const [fields, setFields] = useState({ ...EMPTY, id: "" });
+  const [fields, setFields] = useState({ ...EMPTY_PROFILE_FIELDS, id: "" });
   const [fieldErrors, setFieldErrors] = useState({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [hasProfile, setHasProfile] = useState(false);
 
   const strength = useMemo(() => profileStrength(fields), [fields]);
 
   useEffect(() => {
     fetchMyProfile()
       .then((p) => {
-        setFields({
-          id: p.id,
-          name: p.name || "",
-          skills: (p.skills || []).join(", "),
-          experience_years: p.experience_years ?? 0,
-          preferred_salary: p.preferred_salary ?? "",
-          remote_preference: p.remote_preference ?? false,
-          summary: p.summary || "",
-        });
+        setHasProfile(true);
+        setFields(profileFromApi(p));
       })
       .catch(() => setError("No profile yet."))
       .finally(() => setLoading(false));
@@ -55,17 +40,10 @@ export default function Profile() {
     setError("");
     setFieldErrors({});
     try {
-      await saveCandidateProfile({
-        id: fields.id,
-        name: fields.name.trim(),
-        skills: fields.skills.split(",").map((s) => s.trim()).filter(Boolean),
-        experience_years: Number(fields.experience_years) || 0,
-        preferred_salary: parseInr(fields.preferred_salary),
-        remote_preference: fields.remote_preference,
-        summary: fields.summary,
-      });
+      await upsertCandidateProfile(profileToPayload(fields));
+      setHasProfile(true);
       showToast(
-        "Profile saved. Your matches are ready to refresh.",
+        "Profile updated. You can refresh matches now.",
         <Link to="/candidate/matches" className="btn-secondary btn-sm">
           Find jobs
         </Link>,
@@ -81,7 +59,7 @@ export default function Profile() {
     return (
       <>
         <PageHeader title="Your profile" />
-        <section className="portal-panel"><p>Loading…</p></section>
+        <section className="portal-panel portal-panel--form"><p>Loading…</p></section>
       </>
     );
   }
@@ -90,7 +68,7 @@ export default function Profile() {
     return (
       <>
         <PageHeader title="Your profile" subtitle="Create your candidate profile to start matching." />
-        <section className="portal-panel">
+        <section className="portal-panel portal-panel--form">
           <p>{error}</p>
           <Link to="/candidate/onboarding" className="btn-primary">Upload resume</Link>
         </section>
@@ -101,16 +79,18 @@ export default function Profile() {
   return (
     <>
       <PageHeader title="Your profile" subtitle="Keep your skills and preferences up to date for better matches." />
-      <section className="portal-panel">
+      <section className="portal-panel portal-panel--form">
         <ProfileStrength percent={strength.percent} hint={strength.hint} />
         <ProfileForm
           fields={fields}
           errors={fieldErrors}
           onChange={setFields}
           footer={
-            <Button loading={saving} loadingLabel="Saving…" onClick={handleSave}>
-              Save changes
-            </Button>
+            <div className="form-actions form-actions--sticky">
+              <Button loading={saving} loadingLabel="Saving…" onClick={handleSave}>
+                {hasProfile ? "Update profile" : "Save profile"}
+              </Button>
+            </div>
           }
         />
         {error && <p className="auth-error">{error}</p>}

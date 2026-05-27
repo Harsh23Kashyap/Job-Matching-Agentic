@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import PageHeader from "../../components/PageHeader.jsx";
 import Stepper from "../../components/Stepper.jsx";
@@ -6,44 +6,40 @@ import ProfileForm from "../../components/ProfileForm.jsx";
 import ResumePreview from "../../components/ResumePreview.jsx";
 import Button from "../../components/Button.jsx";
 import { IconAlert } from "../../components/icons.jsx";
-import { saveCandidateProfile, uploadResume } from "../../api/client.js";
-import { parseInr } from "../../utils/format.js";
+import { fetchMyProfile, upsertCandidateProfile, uploadResume } from "../../api/client.js";
+import { cleanResumeText } from "../../utils/resumeClean.js";
+import {
+  EMPTY_PROFILE_FIELDS,
+  fieldsFromExtracted,
+  profileFromApi,
+  profileToPayload,
+} from "../../utils/profileFields.js";
 import { validateProfileFields } from "../../utils/validation.js";
-
-const EMPTY = {
-  name: "",
-  skills: "",
-  experience_years: 0,
-  preferred_salary: "",
-  remote_preference: false,
-  summary: "",
-};
-
-function fieldsFromExtracted(ext) {
-  return {
-    name: ext.name || "",
-    skills: (ext.skills || []).join(", "),
-    experience_years: ext.experience_years ?? 0,
-    preferred_salary: ext.preferred_salary ?? "",
-    remote_preference: ext.remote_preference ?? false,
-    summary: ext.summary || "",
-  };
-}
 
 export default function Onboarding() {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [file, setFile] = useState(null);
-  const [fields, setFields] = useState(EMPTY);
+  const [fields, setFields] = useState(EMPTY_PROFILE_FIELDS);
   const [preview, setPreview] = useState("");
   const [fieldErrors, setFieldErrors] = useState({});
   const [error, setError] = useState("");
   const [showFallbackNotice, setShowFallbackNotice] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [hasExistingProfile, setHasExistingProfile] = useState(false);
+
+  useEffect(() => {
+    fetchMyProfile()
+      .then((p) => {
+        setHasExistingProfile(true);
+        setFields(profileFromApi(p));
+      })
+      .catch(() => {});
+  }, []);
 
   const goToReview = (data) => {
-    setFields(fieldsFromExtracted(data.extracted_fields || {}));
-    setPreview(data.raw_text_preview || "");
+    setFields((prev) => ({ ...prev, ...fieldsFromExtracted(data.extracted_fields || {}) }));
+    setPreview(cleanResumeText(data.raw_text_preview || ""));
     setShowFallbackNotice(Boolean(data.llm_status && data.llm_status !== "ok"));
     setError("");
     setFieldErrors({});
@@ -75,15 +71,9 @@ export default function Onboarding() {
     setError("");
     setFieldErrors({});
     try {
-      const payload = {
-        name: fields.name.trim(),
-        skills: fields.skills.split(",").map((s) => s.trim()).filter(Boolean),
-        experience_years: Number(fields.experience_years) || 0,
-        preferred_salary: parseInr(fields.preferred_salary),
-        remote_preference: fields.remote_preference,
-        summary: fields.summary,
-      };
-      await saveCandidateProfile(payload);
+      const payload = profileToPayload(fields);
+      if (fields.id) payload.id = fields.id;
+      await upsertCandidateProfile(payload);
       navigate("/candidate/matches");
     } catch (err) {
       const detail = err.response?.data?.detail;
@@ -93,20 +83,22 @@ export default function Onboarding() {
     }
   };
 
+  const fieldsFilled = Boolean(fields.name?.trim() && fields.skills?.trim());
+
   return (
     <>
       <PageHeader
         title="Build your profile"
         subtitle="Upload your resume or enter details manually — we'll match you to the right jobs."
       />
-      <section className="portal-panel onboarding-panel">
+      <section className="portal-panel portal-panel--form onboarding-panel">
         <Stepper steps={["Upload resume", "Review profile"]} current={step} />
 
         {step === 1 && (
           <div className="onboarding-upload">
             <h2>Upload resume</h2>
             <p className="auth-sub">
-              We'll extract your name, skills, and experience from your resume. You can review and edit everything before saving.
+              We'll extract your name, contact details, skills, and experience from your resume. You can review and edit everything before saving.
             </p>
             <label className="dropzone">
               <input
@@ -140,23 +132,23 @@ export default function Onboarding() {
               <div className="notice-warning">
                 <IconAlert />
                 <span>
-                  We couldn't auto-fill your profile. Your resume text was still imported below — review it and complete any missing fields.
+                  We couldn't auto-fill your profile. Your resume text was still imported — review it and complete any missing fields.
                 </span>
               </div>
             )}
-            {preview && <ResumePreview text={preview} />}
+            {preview && <ResumePreview text={preview} defaultCollapsed={fieldsFilled} />}
             <ProfileForm
               fields={fields}
               errors={fieldErrors}
               onChange={setFields}
               requireSkills
               footer={
-                <div className="form-actions">
+                <div className="form-actions form-actions--sticky">
                   <button type="button" className="btn-secondary" onClick={() => setStep(1)}>
                     Back
                   </button>
                   <Button loading={loading} loadingLabel="Saving…" onClick={handleSave}>
-                    Save profile
+                    {hasExistingProfile ? "Update profile" : "Save profile"}
                   </Button>
                 </div>
               }

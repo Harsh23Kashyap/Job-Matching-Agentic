@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import PageHeader from "../../components/PageHeader.jsx";
 import { fetchMyJobs, saveJobPosting } from "../../api/client.js";
 import { formatInr } from "../../utils/format.js";
+import EmptyState from "../../components/EmptyState.jsx";
 
 const EMPTY = {
   title: "",
@@ -62,10 +63,11 @@ export default function EmployerJobs() {
         {loading ? (
           <p>Loading…</p>
         ) : jobs.length === 0 ? (
-          <div className="empty-state-product">
-            <h3>No jobs yet</h3>
-            <p>Create your first posting below to start matching candidates.</p>
-          </div>
+          <EmptyState
+            title="No jobs yet"
+            description="Create your first posting below to start matching candidates."
+            helperText="Include required skills so we can rank the best profiles."
+          />
         ) : (
           <div className="job-card-list">
             {jobs.map((j) => (

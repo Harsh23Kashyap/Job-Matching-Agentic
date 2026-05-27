@@ -1,56 +1,50 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { humanizeStrategy, matchPercent, matchTier, parseWhySignals } from "../utils/format.js";
+import { deriveWhyMatch, humanizeStrategy, matchPercent, matchSkills, matchTier, pluralGoodMatches } from "../utils/format.js";
+import { ResultsDecor } from "./PortalBackground.jsx";
+import MatchDetailsDrawer from "./MatchDetailsDrawer.jsx";
+import EmptyState from "./EmptyState.jsx";
 import { IconAlert } from "./icons.jsx";
 
-function CandidateMatchCard({ row }) {
-  const [open, setOpen] = useState(false);
+function CandidateMatchCard({ row, onViewDetails }) {
   const tier = matchTier(row.similarity);
-  const { matched, other } = parseWhySignals(row.why_ranked);
+  const { matched } = matchSkills(row);
+  const whyLine = deriveWhyMatch(row);
 
   return (
-    <article className="job-match-card">
-      <div className="job-match-card-head">
-        <div>
-          <h3>{row.target_label}</h3>
-          <p>{tier.label} for this role.</p>
-        </div>
-        <span className={`match-badge ${tier.className}`}>{matchPercent(row.similarity)} match</span>
+    <article className="job-match-card job-match-row">
+      <div className="job-match-col job-match-col--role">
+        <span className="col-label">Candidate</span>
+        <h3>{row.target_label}</h3>
       </div>
-      {matched.length > 0 && (
-        <div className="signal-group">
-          <span className="signal-label">Matched skills</span>
+      <div className="job-match-col job-match-col--match">
+        <span className="col-label">Match</span>
+        <span className={`match-badge match-badge--pill ${tier.className}`}>{matchPercent(row.similarity)} match</span>
+      </div>
+      <div className="job-match-col job-match-col--why">
+        <span className="col-label">Why they match</span>
+        <p>{whyLine}</p>
+      </div>
+      <div className="job-match-col job-match-col--skills">
+        <span className="col-label">Skills</span>
+        {matched.length > 0 ? (
           <div className="signal-chips">
-            {matched.slice(0, 5).map((s) => (
-              <span key={s} className="signal-chip signal-chip--match">
-                {s}
-              </span>
+            {matched.slice(0, 4).map((s) => (
+              <span key={s} className="signal-chip signal-chip--match">{s}</span>
             ))}
           </div>
+        ) : (
+          <span className="signal-chip signal-chip--empty">No direct overlap</span>
+        )}
+      </div>
+      <div className="job-match-col job-match-col--actions">
+        <span className="col-label">Actions</span>
+        <div className="row-actions">
+          <button type="button" className="row-action-btn" onClick={() => onViewDetails(row, whyLine)}>
+            View details
+          </button>
         </div>
-      )}
-      {other.length > 0 && (
-        <div className="signal-group">
-          <span className="signal-label">Fit notes</span>
-          <div className="signal-chips">
-            {other.map((s) => (
-              <span key={s} className="signal-chip">
-                {s}
-              </span>
-            ))}
-          </div>
-        </div>
-      )}
-      <button type="button" className="btn-text" onClick={() => setOpen(!open)}>
-        {open ? "Hide match details" : "View match details"}
-      </button>
-      {open && (
-        <div className="match-details">
-          <p>Skills overlap: {row.skills_score != null ? matchPercent(row.skills_score) : "—"}</p>
-          <p>Profile alignment: {matchPercent(row.semantic_score)}</p>
-          <p>Overall rank: #{row.rank}</p>
-        </div>
-      )}
+      </div>
     </article>
   );
 }
@@ -58,6 +52,7 @@ function CandidateMatchCard({ row }) {
 export default function EmployerCandidateResults({ response, error, jobTitle }) {
   const [search, setSearch] = useState("");
   const [minMatch, setMinMatch] = useState("0");
+  const [drawer, setDrawer] = useState(null);
 
   const filtered = useMemo(() => {
     if (!response?.results) return [];
@@ -84,68 +79,98 @@ export default function EmployerCandidateResults({ response, error, jobTitle }) 
 
   if (!response) {
     return (
-      <section className="portal-panel">
-        <div className="empty-state-product">
-          <h3>No candidates yet</h3>
-          <p>Select a job and run a search to see ranked candidate matches.</p>
-          <ul className="empty-checklist">
-            <li>Post a job with required skills</li>
-            <li>Choose the role to match against</li>
-            <li>Review ranked profiles</li>
-          </ul>
-        </div>
+      <section className="portal-panel portal-panel--elevated portal-panel--empty">
+        <EmptyState
+          title="No candidates yet"
+          description="Select a job and run a search to see ranked candidate matches."
+          checklist={["Post a job with required skills", "Choose the role to match against", "Review ranked profiles"]}
+          action={<Link to="/employer/jobs" className="btn-primary">Create a job</Link>}
+          helperText="Matches rank profiles by skills overlap and experience fit."
+        />
       </section>
     );
   }
 
   const good = (response.results || []).filter((r) => r.similarity >= 0.6).length;
+  const top = response.results[0]?.similarity ?? 0;
 
   return (
-    <section className="portal-panel candidate-results">
-      <p className="auth-sub">
-        Matches for <strong>{jobTitle || response.query_label}</strong> · {humanizeStrategy(response.strategy_used)}
-      </p>
-      <div className="match-summary-cards">
-        <div className="summary-card">
-          <span className="summary-value">{response.evaluated_count ?? response.results.length}</span>
-          <span className="summary-label">Profiles reviewed</span>
+    <>
+      <section className="portal-panel portal-panel--elevated candidate-results">
+        <ResultsDecor />
+        <p className="auth-sub">
+          Matches for <strong>{jobTitle || response.query_label}</strong> · {humanizeStrategy(response.strategy_used)}
+        </p>
+        <div className="match-summary-cards">
+          <div className="summary-card">
+            <span className="summary-value">{response.evaluated_count ?? response.results.length}</span>
+            <span className="summary-label">Profiles reviewed</span>
+          </div>
+          <div className="summary-card summary-card--accent">
+            <span className="summary-value">{good}</span>
+            <span className="summary-label">{pluralGoodMatches(good)}</span>
+          </div>
+          <div className="summary-card">
+            <span className="summary-value">{matchPercent(top)}</span>
+            <span className="summary-label">Top match</span>
+          </div>
         </div>
-        <div className="summary-card">
-          <span className="summary-value">{good}</span>
-          <span className="summary-label">Strong fits</span>
+        <div className="results-filters">
+          <input
+            type="search"
+            className="filter-search"
+            placeholder="Search candidates…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+          <select className="filter-select" value={minMatch} onChange={(e) => setMinMatch(e.target.value)}>
+            <option value="0">Any match</option>
+            <option value="60">60%+ match</option>
+            <option value="80">80%+ match</option>
+          </select>
         </div>
-        <div className="summary-card">
-          <span className="summary-value">{matchPercent(response.results[0]?.similarity ?? 0)}</span>
-          <span className="summary-label">Top match</span>
+        <div className="job-match-list">
+          <div className="job-match-list-head" aria-hidden="true">
+            <span>Candidate</span>
+            <span>Match</span>
+            <span>Why they match</span>
+            <span>Skills</span>
+            <span>Actions</span>
+          </div>
+          {filtered.length === 0 ? (
+            <p className="auth-sub">No candidates match your current filters.</p>
+          ) : (
+            filtered.map((row) => (
+              <CandidateMatchCard
+                key={row.target_id}
+                row={row}
+                onViewDetails={(r, why) => setDrawer({ row: r, whyLine: why })}
+              />
+            ))
+          )}
         </div>
-      </div>
-      <div className="results-filters">
-        <input type="search" placeholder="Search candidates…" value={search} onChange={(e) => setSearch(e.target.value)} />
-        <select value={minMatch} onChange={(e) => setMinMatch(e.target.value)}>
-          <option value="0">Min match: Any</option>
-          <option value="60">Min match: 60%+</option>
-          <option value="80">Min match: 80%+</option>
-        </select>
-      </div>
-      <div className="job-match-list">
-        {filtered.map((row) => (
-          <CandidateMatchCard key={row.target_id} row={row} />
-        ))}
-      </div>
-    </section>
+      </section>
+      {drawer && (
+        <MatchDetailsDrawer
+          row={drawer.row}
+          whyLine={drawer.whyLine}
+          subtitle="Candidate match details"
+          onClose={() => setDrawer(null)}
+        />
+      )}
+    </>
   );
 }
 
 export function EmployerNoJobsEmpty() {
   return (
-    <section className="portal-panel">
-      <div className="empty-state-product">
-        <h3>No jobs posted yet</h3>
-        <p>Create a job posting first, then we'll rank matching candidates.</p>
-        <Link to="/employer/jobs" className="btn-primary">
-          Create a job
-        </Link>
-      </div>
+    <section className="portal-panel portal-panel--elevated portal-panel--empty">
+      <EmptyState
+        title="No jobs posted yet"
+        description="Create a job posting first, then we'll rank matching candidates."
+        action={<Link to="/employer/jobs" className="btn-primary">Create a job</Link>}
+        helperText="Add required skills and experience to improve match quality."
+      />
     </section>
   );
 }

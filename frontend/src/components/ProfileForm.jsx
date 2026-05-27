@@ -1,7 +1,9 @@
 import FormField from "./FormField.jsx";
-import SalaryInput from "./SalaryInput.jsx";
+import CompensationInput from "./CompensationInput.jsx";
 import ExperienceInput from "./ExperienceInput.jsx";
 import CustomCheckbox from "./CustomCheckbox.jsx";
+import SkillsChipsInput from "./SkillsChipsInput.jsx";
+import LinksChipsInput from "./LinksChipsInput.jsx";
 import { SUMMARY_MAX } from "../utils/validation.js";
 
 export default function ProfileForm({
@@ -28,23 +30,105 @@ export default function ProfileForm({
           />
         </FormField>
 
+        <div className="profile-form-section">
+          <h3 className="profile-form-section-title">Contact & links</h3>
+          <p className="profile-form-section-helper">
+            Add how employers can reach you. These are pulled from your resume when you upload one.
+          </p>
+
+          <FormField
+            label="Email"
+            helper="Work or personal email from your resume."
+            error={errors.email}
+            htmlFor="pf-email"
+          >
+            <input
+              id="pf-email"
+              type="email"
+              autoComplete="email"
+              placeholder="you@example.com"
+              value={fields.email}
+              onChange={(e) => onChange({ ...fields, email: e.target.value })}
+            />
+          </FormField>
+
+          <FormField
+            label="Phone"
+            helper="Include country code if outside your home region."
+            error={errors.phone}
+            htmlFor="pf-phone"
+          >
+            <input
+              id="pf-phone"
+              type="tel"
+              autoComplete="tel"
+              placeholder="+91 98765 43210"
+              value={fields.phone}
+              onChange={(e) => onChange({ ...fields, phone: e.target.value })}
+            />
+          </FormField>
+
+          <FormField
+            label="LinkedIn"
+            error={errors.linkedin}
+            htmlFor="pf-linkedin"
+          >
+            <input
+              id="pf-linkedin"
+              type="url"
+              placeholder="https://linkedin.com/in/your-handle"
+              value={fields.linkedin}
+              onChange={(e) => onChange({ ...fields, linkedin: e.target.value })}
+            />
+          </FormField>
+
+          <FormField
+            label="Portfolio or website"
+            error={errors.portfolio}
+            htmlFor="pf-portfolio"
+          >
+            <input
+              id="pf-portfolio"
+              type="url"
+              placeholder="https://github.com/you or your personal site"
+              value={fields.portfolio}
+              onChange={(e) => onChange({ ...fields, portfolio: e.target.value })}
+            />
+          </FormField>
+
+          <FormField
+            label="Other links"
+            helper="GitLab, Medium, project demos, or anything else worth sharing."
+            error={errors.other_links}
+            htmlFor="pf-other-links"
+          >
+            <LinksChipsInput
+              id="pf-other-links"
+              value={fields.other_links || []}
+              onChange={(links) => onChange({ ...fields, other_links: links })}
+              error={errors.other_links}
+            />
+          </FormField>
+        </div>
+
         <FormField
           label="Skills"
-          helper="Separate skills with commas. Example: Java, Spring Boot, Python, AWS"
+          helper="Add skills one at a time, or paste a comma-separated list."
           error={errors.skills}
           htmlFor="pf-skills"
         >
-          <input
+          <SkillsChipsInput
             id="pf-skills"
             value={fields.skills}
-            onChange={(e) => onChange({ ...fields, skills: e.target.value })}
+            onChange={(v) => onChange({ ...fields, skills: v })}
+            error={errors.skills}
             required={requireSkills}
           />
         </FormField>
 
         <FormField
           label="Years of experience"
-          helper="Use total professional experience. Internships optional."
+          helper="Use your total professional experience. Internships are optional."
           error={errors.experience_years}
           htmlFor="pf-exp"
         >
@@ -57,15 +141,17 @@ export default function ProfileForm({
         </FormField>
 
         <FormField
-          label="Preferred salary"
-          helper="Annual salary expectation in INR."
+          label="Expected annual total compensation"
+          helper="Annual total compensation including base salary, bonus, stocks/RSUs, and other recurring compensation."
           error={errors.preferred_salary}
           htmlFor="pf-salary"
         >
-          <SalaryInput
+          <CompensationInput
             id="pf-salary"
-            value={fields.preferred_salary}
-            onChange={(v) => onChange({ ...fields, preferred_salary: v ?? "" })}
+            amount={fields.preferred_salary}
+            currency={fields.preferred_currency || "INR"}
+            onAmountChange={(v) => onChange({ ...fields, preferred_salary: v ?? "" })}
+            onCurrencyChange={(v) => onChange({ ...fields, preferred_currency: v })}
             error={errors.preferred_salary}
           />
         </FormField>

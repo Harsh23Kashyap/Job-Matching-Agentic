@@ -11,11 +11,18 @@ def resume_document_text(cv: dict, canonical_skills: bool = True) -> str:
     lines = [
         "resume profile",
         f"name: {cv.get('name', '')}",
+        f"email: {cv.get('email', '')}",
+        f"phone: {cv.get('phone', '')}",
+        f"linkedin: {cv.get('linkedin', '')}",
+        f"portfolio: {cv.get('portfolio', '')}",
         f"experience_years: {cv.get('experience_years', 0)}",
         f"work_mode: {work_mode}",
         f"skills: {_format_skills(cv.get('skills', []), canonical_skills)}",
         f"summary: {cv.get('summary', '')}",
     ]
+    other_links = cv.get("other_links") or []
+    if other_links:
+        lines.append(f"other_links: {', '.join(other_links)}")
     return "\n".join(lines)
 
 

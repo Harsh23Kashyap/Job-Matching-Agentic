@@ -1,10 +1,17 @@
-import { Link } from "react-router-dom";
-import { IconEmpty } from "./icons.jsx";
+import JobsEmptyIllustration from "./JobsEmptyIllustration.jsx";
 
-export default function EmptyState({ title, description, checklist = [], action }) {
+export default function EmptyState({
+  title,
+  description,
+  checklist = [],
+  action,
+  helperText,
+  illustration,
+  variant = "default",
+}) {
   return (
-    <div className="empty-state-product">
-      <IconEmpty />
+    <div className={`empty-state-card empty-state-card--${variant}`}>
+      {illustration || null}
       <h3>{title}</h3>
       <p>{description}</p>
       {checklist.length > 0 && (
@@ -14,22 +21,33 @@ export default function EmptyState({ title, description, checklist = [], action 
           ))}
         </ul>
       )}
-      {action}
+      {action && <div className="empty-state-action">{action}</div>}
+      {helperText && <p className="empty-state-helper">{helperText}</p>}
     </div>
   );
 }
 
-export function ProfileEmptyState() {
+export function ProfileNeededEmpty({ action }) {
   return (
     <EmptyState
-      title="No matches yet"
-      description="Complete your profile so we can compare your skills with open roles."
-      checklist={[
-        "Upload or enter resume details",
-        "Add skills",
-        "Set preferences",
-      ]}
-      action={<Link to="/candidate/onboarding" className="btn-primary">Set up profile</Link>}
+      variant="profile"
+      title="Profile needed"
+      description="Upload your resume or enter your skills so we can find roles that fit."
+      action={action}
+      helperText="A complete profile unlocks personalized match rankings."
+    />
+  );
+}
+
+export function JobsReadyEmpty({ action }) {
+  return (
+    <EmptyState
+      variant="jobs"
+      illustration={<JobsEmptyIllustration />}
+      title="Ready to find matches"
+      description="Your profile is complete. Search roles matched to your skills and preferences."
+      action={action}
+      helperText="We'll rank open roles by skills, experience, and compensation fit."
     />
   );
 }

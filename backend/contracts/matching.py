@@ -68,6 +68,8 @@ class MatchResult(BaseModel):
     similarity: float
     semantic_score: float
     skills_score: float | None = None
+    matched_skills: list[str] = Field(default_factory=list)
+    missing_skills: list[str] = Field(default_factory=list)
     why_ranked: list[str] = Field(default_factory=list)
     sources: list[EnsembleSource] | None = None
 

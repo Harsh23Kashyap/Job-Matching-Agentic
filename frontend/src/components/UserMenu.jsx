@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth, ROLE_HOME } from "../context/AuthContext.jsx";
+import { ROLE_HOME } from "../context/AuthContext.jsx";
 
 function userInitials(email) {
   if (!email) return "?";
@@ -32,7 +32,6 @@ export default function UserMenu({ user, onLogout }) {
     <div className="user-menu" ref={ref}>
       <button type="button" className="user-menu-trigger" onClick={() => setOpen(!open)} aria-expanded={open}>
         <div className="avatar">{userInitials(user?.email)}</div>
-        <span className="user-menu-name">Me</span>
         <span className="user-menu-chevron" aria-hidden="true">
           ▾
         </span>
@@ -41,7 +40,7 @@ export default function UserMenu({ user, onLogout }) {
         <div className="user-menu-dropdown">
           <p className="user-menu-email">{user?.email}</p>
           <Link to={profilePath} onClick={() => setOpen(false)}>
-            Profile
+            View profile
           </Link>
           <Link to={profilePath} onClick={() => setOpen(false)}>
             Settings

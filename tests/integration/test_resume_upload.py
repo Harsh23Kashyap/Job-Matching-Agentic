@@ -34,15 +34,18 @@ def test_upload_llm_unavailable_returns_manual_fallback(mock_factory, client):
     mock_factory.return_value = mock_parser
 
     _register_candidate(client, "cand-llm-fail@test.com")
+    content = b"Harsh Kashyap\nharsh@example.com\n+91 9876543210\nhttps://linkedin.com/in/harsh"
     resp = client.post(
         "/candidates/upload-resume",
-        files={"file": ("resume.txt", io.BytesIO(b"Harsh Kashyap\nPython developer"), "text/plain")},
+        files={"file": ("resume.txt", io.BytesIO(content), "text/plain")},
     )
     assert resp.status_code == 200
     data = resp.json()
     assert data["llm_status"] == "unavailable"
     assert "raw_text_preview" in data
     assert data["extracted_fields"]["name"] == ""
+    assert data["extracted_fields"]["email"] == "harsh@example.com"
+    assert "linkedin.com/in/harsh" in data["extracted_fields"]["linkedin"]
 
 
 @patch("gateway.routes.candidates.create_llm_parser")
@@ -99,6 +102,64 @@ def test_candidates_me_and_register(client):
     me = client.get("/candidates/me")
     assert me.status_code == 200
     assert me.json()["name"] == "Me User"
+
+
+def test_candidate_profile_upsert_on_post(client):
+    _register_candidate(client, "upsert@test.com")
+    first = client.post(
+        "/candidates",
+        json={
+            "name": "Upsert User",
+            "skills": ["Go"],
+            "experience_years": 2,
+            "summary": "Dev",
+        },
+    )
+    assert first.status_code == 201
+    profile_id = first.json()["id"]
+
+    second = client.post(
+        "/candidates",
+        json={
+            "name": "Upsert User Updated",
+            "skills": ["Go", "Python"],
+            "experience_years": 3,
+            "summary": "Senior dev",
+        },
+    )
+    assert second.status_code == 201
+    assert second.json()["id"] == profile_id
+    assert second.json()["name"] == "Upsert User Updated"
+    assert "Python" in second.json()["skills"]
+
+
+def test_candidate_profile_put_me(client):
+    _register_candidate(client, "putme@test.com")
+    client.post(
+        "/candidates",
+        json={
+            "name": "Put User",
+            "skills": ["Rust"],
+            "experience_years": 1,
+            "summary": "Dev",
+        },
+    )
+    updated = client.put(
+        "/candidates/me",
+        json={
+            "name": "Put User Updated",
+            "skills": ["Rust", "Go"],
+            "experience_years": 2,
+            "summary": "Updated",
+            "preferred_currency": "USD",
+            "preferred_salary": 120000,
+        },
+    )
+    assert updated.status_code == 200
+    body = updated.json()
+    assert body["name"] == "Put User Updated"
+    assert body["preferred_currency"] == "USD"
+    assert body["preferred_salary"] == 120000
 
 
 def test_employer_jobs_mine(client):

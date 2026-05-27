@@ -9,8 +9,14 @@ class JsonParser:
             skills=list(raw.get("skills", [])),
             experience_years=float(raw.get("experience_years", 0)),
             preferred_salary=raw.get("preferred_salary"),
+            preferred_currency=str(raw.get("preferred_currency") or "INR"),
             remote_preference=bool(raw.get("remote_preference", False)),
             summary=str(raw.get("summary", "")),
+            email=str(raw.get("email") or "").strip(),
+            phone=str(raw.get("phone") or "").strip(),
+            linkedin=str(raw.get("linkedin") or "").strip(),
+            portfolio=str(raw.get("portfolio") or "").strip(),
+            other_links=[str(link).strip() for link in (raw.get("other_links") or []) if str(link).strip()],
         )
 
     def parse_job(self, raw: dict) -> JobProfile:

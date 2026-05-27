@@ -1,6 +1,7 @@
 import { NavLink, Outlet } from "react-router-dom";
 import { Logo, IconMoon, IconSun } from "../components/icons.jsx";
 import UserMenu from "../components/UserMenu.jsx";
+import PortalBackground from "../components/PortalBackground.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useTheme } from "../hooks/useTheme.js";
 
@@ -42,7 +43,8 @@ export default function PortalShell({ subtitle, navItems = [] }) {
         </div>
       </header>
 
-      <main className="page-shell">
+      <main className="page-shell page">
+        <PortalBackground />
         <div className="page-container">
           <Outlet />
         </div>

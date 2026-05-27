@@ -108,3 +108,7 @@ def test_match_candidate_to_jobs_ranks_by_score():
     response = matchmaker.match_candidate_to_jobs(req)
     assert response.results[0].target_label == "Job A"
     assert response.results[0].rank == 1
+    assert response.results[0].matched_skills == ["Python"]
+    assert response.results[0].missing_skills == []
+    assert response.results[1].matched_skills == []
+    assert response.results[1].missing_skills == ["Java"]

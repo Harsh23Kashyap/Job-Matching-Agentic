@@ -25,6 +25,7 @@ from contracts.matching import (
 from contracts.snapshots import CandidateSnapshot, JobSnapshot
 from core.rrf import rrf_fuse
 from core.scoring import compute_multimodal_weighted, compute_semantic
+from core.skills import skill_overlap_details
 from hooks.explainer import RuleExplainer
 
 
@@ -89,6 +90,31 @@ class MatchmakingAgent(BaseAgent):
             model_name=self.settings.embedding_model,
         )
 
+    def _build_match_result(
+        self,
+        *,
+        target_id: str,
+        target_label: str,
+        rank: int,
+        breakdown: ScoreBreakdown,
+        candidate: CandidateSnapshot,
+        job: JobSnapshot,
+        sources: list[EnsembleSource] | None = None,
+    ) -> MatchResult:
+        matched, missing = skill_overlap_details(candidate.skills, job.required_skills)
+        return MatchResult(
+            target_id=target_id,
+            target_label=target_label,
+            rank=rank,
+            similarity=breakdown.final_score,
+            semantic_score=breakdown.semantic_score,
+            skills_score=breakdown.skills_score,
+            matched_skills=matched,
+            missing_skills=missing,
+            why_ranked=self.explainer.explain(candidate, job, breakdown),
+            sources=sources,
+        )
+
     def _rank_jobs_for_candidate(
         self,
         candidate: CandidateSnapshot,
@@ -110,14 +136,13 @@ class MatchmakingAgent(BaseAgent):
         results: list[MatchResult] = []
         for rank, (job, breakdown) in enumerate(scored[:top_k], start=1):
             results.append(
-                MatchResult(
+                self._build_match_result(
                     target_id=job.id,
                     target_label=job.title,
                     rank=rank,
-                    similarity=breakdown.final_score,
-                    semantic_score=breakdown.semantic_score,
-                    skills_score=breakdown.skills_score,
-                    why_ranked=self.explainer.explain(candidate, job, breakdown),
+                    breakdown=breakdown,
+                    candidate=candidate,
+                    job=job,
                 )
             )
         return results
@@ -143,14 +168,13 @@ class MatchmakingAgent(BaseAgent):
         results: list[MatchResult] = []
         for rank, (candidate, breakdown) in enumerate(scored[:top_k], start=1):
             results.append(
-                MatchResult(
+                self._build_match_result(
                     target_id=candidate.id,
                     target_label=candidate.name,
                     rank=rank,
-                    similarity=breakdown.final_score,
-                    semantic_score=breakdown.semantic_score,
-                    skills_score=breakdown.skills_score,
-                    why_ranked=self.explainer.explain(candidate, job, breakdown),
+                    breakdown=breakdown,
+                    candidate=candidate,
+                    job=job,
                 )
             )
         return results
@@ -327,14 +351,13 @@ class MatchmakingAgent(BaseAgent):
                 for s in source_items
             ]
             results.append(
-                MatchResult(
+                self._build_match_result(
                     target_id=target_id,
                     target_label=job.title,
                     rank=rank,
-                    similarity=_score,
-                    semantic_score=breakdown.semantic_score,
-                    skills_score=breakdown.skills_score,
-                    why_ranked=self.explainer.explain(cand_snap, job, breakdown),
+                    breakdown=breakdown.model_copy(update={"final_score": _score}),
+                    candidate=cand_snap,
+                    job=job,
                     sources=sources,
                 )
             )
