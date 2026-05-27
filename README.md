@@ -30,6 +30,22 @@ npm run dev
 
 Open http://localhost:5173 (frontend) and http://localhost:8001/docs (API).
 
+### Environment variables (secrets)
+
+```bash
+cd backend
+cp .env.example .env   # first time only — .env is gitignored
+# Edit .env and set OPENAI_API_KEY locally. Never commit .env.
+```
+
+| Variable | Purpose |
+|----------|---------|
+| `OPENAI_API_KEY` | Resume AI extraction (uses OpenAI instead of Ollama when set) |
+| `SESSION_SECRET` | Signs auth cookies — **must** change in production |
+| `OLLAMA_BASE_URL` / `OLLAMA_MODEL` | Local LLM fallback when no OpenAI key |
+
+**Production:** set secrets in your host’s environment / secret manager (Render, Railway, Fly, AWS, etc.). Use `backend/.env.example` as documentation only — do not deploy a `.env` file with real keys.
+
 ### LLM resume extraction (candidate onboarding)
 
 Candidate resume upload uses **Ollama** by default. Start Ollama locally and pull a model:
@@ -39,7 +55,7 @@ ollama pull llama3.2
 ollama serve   # if not already running
 ```
 
-Optional: set `OPENAI_API_KEY` in `backend/.env` to use an OpenAI-compatible API instead of Ollama.
+Optional: set `OPENAI_API_KEY` in `backend/.env` (see `backend/.env.example`) to use OpenAI instead of Ollama.
 
 ## Portals (v1.1)
 

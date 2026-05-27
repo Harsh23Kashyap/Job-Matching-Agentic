@@ -1,23 +1,24 @@
-import { Navigate, Outlet } from "react-router-dom";
-import { ROLE_HOME, useAuth } from "../context/AuthContext.jsx";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
+import { useAuth } from "../context/AuthContext.jsx";
 
 export default function ProtectedRoute({ role }) {
   const { user, loading } = useAuth();
+  const location = useLocation();
 
   if (loading) {
     return (
-      <div className="auth-page">
-        <p>Loading…</p>
+      <div className="auth-form-panel" style={{ minHeight: "100vh" }}>
+        <p className="auth-sub">Loading…</p>
       </div>
     );
   }
 
   if (!user) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/error/401" replace state={{ from: location.pathname }} />;
   }
 
   if (role && user.role !== role) {
-    return <Navigate to={ROLE_HOME[user.role] || "/login"} replace />;
+    return <Navigate to="/error/403" replace />;
   }
 
   return <Outlet />;

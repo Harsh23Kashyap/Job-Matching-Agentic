@@ -8,6 +8,21 @@ export const api = axios.create({
   headers: { "Content-Type": "application/json" },
 });
 
+/** Parse FastAPI/axios errors for auth forms. */
+export function apiErrorMessage(err, fallback) {
+  const status = err.response?.status;
+  const detail = err.response?.data?.detail;
+  if (status === 404) {
+    return "Auth API not found — restart the backend on port 8001 (v1.1+).";
+  }
+  if (typeof detail === "object" && detail?.error) return detail.error;
+  if (typeof detail === "string") return detail;
+  if (err.message === "Network Error") {
+    return "Cannot reach the API — is the backend running on port 8001?";
+  }
+  return fallback;
+}
+
 export async function fetchMe() {
   const { data } = await api.get("/auth/me");
   return data;

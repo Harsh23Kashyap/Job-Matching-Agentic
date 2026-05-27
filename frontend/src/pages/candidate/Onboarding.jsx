@@ -1,6 +1,14 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import PageHeader from "../../components/PageHeader.jsx";
+import Stepper from "../../components/Stepper.jsx";
+import ProfileForm from "../../components/ProfileForm.jsx";
+import ResumePreview from "../../components/ResumePreview.jsx";
+import Button from "../../components/Button.jsx";
+import { IconAlert } from "../../components/icons.jsx";
 import { saveCandidateProfile, uploadResume } from "../../api/client.js";
+import { parseInr } from "../../utils/format.js";
+import { validateProfileFields } from "../../utils/validation.js";
 
 const EMPTY = {
   name: "",
@@ -11,152 +19,153 @@ const EMPTY = {
   summary: "",
 };
 
+function fieldsFromExtracted(ext) {
+  return {
+    name: ext.name || "",
+    skills: (ext.skills || []).join(", "),
+    experience_years: ext.experience_years ?? 0,
+    preferred_salary: ext.preferred_salary ?? "",
+    remote_preference: ext.remote_preference ?? false,
+    summary: ext.summary || "",
+  };
+}
+
 export default function Onboarding() {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [file, setFile] = useState(null);
   const [fields, setFields] = useState(EMPTY);
   const [preview, setPreview] = useState("");
+  const [fieldErrors, setFieldErrors] = useState({});
   const [error, setError] = useState("");
+  const [showFallbackNotice, setShowFallbackNotice] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const goToReview = (data) => {
+    setFields(fieldsFromExtracted(data.extracted_fields || {}));
+    setPreview(data.raw_text_preview || "");
+    setShowFallbackNotice(Boolean(data.llm_status && data.llm_status !== "ok"));
+    setError("");
+    setFieldErrors({});
+    setStep(2);
+  };
 
   const handleUpload = async () => {
     if (!file) return;
     setLoading(true);
     setError("");
+    setShowFallbackNotice(false);
     try {
       const data = await uploadResume(file);
-      const ext = data.extracted_fields;
-      setFields({
-        name: ext.name || "",
-        skills: (ext.skills || []).join(", "),
-        experience_years: ext.experience_years ?? 0,
-        preferred_salary: ext.preferred_salary ?? "",
-        remote_preference: ext.remote_preference ?? false,
-        summary: ext.summary || "",
-      });
-      setPreview(data.raw_text_preview || "");
-      setStep(2);
+      goToReview(data);
     } catch (err) {
-      const code = err.response?.data?.detail?.code;
-      if (code === "LLM_UNAVAILABLE" || code === "PARSE_FAILED") {
-        setError(err.response?.data?.detail?.error || "Extraction failed. Fill in your details manually.");
-        setStep(2);
-      } else {
-        setError(err.response?.data?.detail?.error || err.message);
-      }
+      setError(err.response?.data?.detail?.error || err.message || "Upload failed");
     } finally {
       setLoading(false);
     }
   };
 
   const handleSave = async () => {
+    const errors = validateProfileFields(fields, { requireSkills: true });
+    if (Object.keys(errors).length) {
+      setFieldErrors(errors);
+      return;
+    }
     setLoading(true);
     setError("");
+    setFieldErrors({});
     try {
       const payload = {
-        name: fields.name,
+        name: fields.name.trim(),
         skills: fields.skills.split(",").map((s) => s.trim()).filter(Boolean),
         experience_years: Number(fields.experience_years) || 0,
-        preferred_salary: fields.preferred_salary ? Number(fields.preferred_salary) : null,
+        preferred_salary: parseInr(fields.preferred_salary),
         remote_preference: fields.remote_preference,
         summary: fields.summary,
       };
       await saveCandidateProfile(payload);
       navigate("/candidate/matches");
     } catch (err) {
-      setError(err.response?.data?.detail?.error || err.message);
+      const detail = err.response?.data?.detail;
+      setError(typeof detail === "object" ? detail.error : detail || err.message || "Save failed");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <section className="portal-panel span-12">
-      <h2>Resume onboarding</h2>
-      <p className="auth-sub">Step {step} of 2 — upload your resume, review extracted details, then save.</p>
+    <>
+      <PageHeader
+        title="Build your profile"
+        subtitle="Upload your resume or enter details manually — we'll match you to the right jobs."
+      />
+      <section className="portal-panel onboarding-panel">
+        <Stepper steps={["Upload resume", "Review profile"]} current={step} />
 
-      {step === 1 && (
-        <div className="onboarding-upload">
-          <label className="dropzone">
-            <input
-              type="file"
-              accept=".pdf,.docx,.txt"
-              onChange={(e) => setFile(e.target.files?.[0] || null)}
-            />
-            {file ? file.name : "Drop PDF, DOCX, or TXT (max 5MB)"}
-          </label>
-          <button type="button" className="btn-primary" onClick={handleUpload} disabled={!file || loading}>
-            {loading ? "Extracting…" : "Extract with AI"}
-          </button>
-          <button type="button" className="btn-secondary" onClick={() => setStep(2)}>
-            Skip — enter manually
-          </button>
-        </div>
-      )}
-
-      {step === 2 && (
-        <form
-          className="profile-form"
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleSave();
-          }}
-        >
-          {preview && <p className="text-preview">{preview}</p>}
-          <label>
-            Name
-            <input value={fields.name} onChange={(e) => setFields({ ...fields, name: e.target.value })} required />
-          </label>
-          <label>
-            Skills (comma-separated)
-            <input value={fields.skills} onChange={(e) => setFields({ ...fields, skills: e.target.value })} />
-          </label>
-          <label>
-            Years of experience
-            <input
-              type="number"
-              min="0"
-              value={fields.experience_years}
-              onChange={(e) => setFields({ ...fields, experience_years: e.target.value })}
-            />
-          </label>
-          <label>
-            Preferred salary
-            <input
-              type="number"
-              value={fields.preferred_salary}
-              onChange={(e) => setFields({ ...fields, preferred_salary: e.target.value })}
-            />
-          </label>
-          <label className="checkbox-label">
-            <input
-              type="checkbox"
-              checked={fields.remote_preference}
-              onChange={(e) => setFields({ ...fields, remote_preference: e.target.checked })}
-            />
-            Open to remote work
-          </label>
-          <label>
-            Summary
-            <textarea
-              rows={4}
-              value={fields.summary}
-              onChange={(e) => setFields({ ...fields, summary: e.target.value })}
-            />
-          </label>
-          <div className="form-actions">
-            <button type="button" className="btn-secondary" onClick={() => setStep(1)}>
-              Back
-            </button>
-            <button type="submit" className="btn-primary" disabled={loading}>
-              {loading ? "Saving…" : "Save profile"}
+        {step === 1 && (
+          <div className="onboarding-upload">
+            <h2>Upload resume</h2>
+            <p className="auth-sub">
+              We'll extract your name, skills, and experience from your resume. You can review and edit everything before saving.
+            </p>
+            <label className="dropzone">
+              <input
+                type="file"
+                accept=".pdf,.docx,.txt"
+                onChange={(e) => setFile(e.target.files?.[0] || null)}
+              />
+              {file ? file.name : "Drop PDF, DOCX, or TXT (max 5MB)"}
+            </label>
+            <Button loading={loading} loadingLabel="Parsing resume…" onClick={handleUpload} disabled={!file}>
+              Upload and parse
+            </Button>
+            <button
+              type="button"
+              className="btn-secondary"
+              onClick={() => {
+                setError("");
+                setShowFallbackNotice(false);
+                setStep(2);
+              }}
+            >
+              Skip — enter manually
             </button>
           </div>
-        </form>
-      )}
+        )}
 
-      {error && <p className="auth-error">{error}</p>}
-    </section>
+        {step === 2 && (
+          <>
+            <h2>Review profile</h2>
+            {showFallbackNotice && (
+              <div className="notice-warning">
+                <IconAlert />
+                <span>
+                  We couldn't auto-fill your profile. Your resume text was still imported below — review it and complete any missing fields.
+                </span>
+              </div>
+            )}
+            {preview && <ResumePreview text={preview} />}
+            <ProfileForm
+              fields={fields}
+              errors={fieldErrors}
+              onChange={setFields}
+              requireSkills
+              footer={
+                <div className="form-actions">
+                  <button type="button" className="btn-secondary" onClick={() => setStep(1)}>
+                    Back
+                  </button>
+                  <Button loading={loading} loadingLabel="Saving…" onClick={handleSave}>
+                    Save profile
+                  </Button>
+                </div>
+              }
+            />
+          </>
+        )}
+
+        {error && <p className="auth-error">{error}</p>}
+      </section>
+    </>
   );
 }

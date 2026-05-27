@@ -1,10 +1,22 @@
 from pathlib import Path
 
+from dotenv import load_dotenv
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+_BACKEND_DIR = Path(__file__).resolve().parent
+_ENV_FILE = _BACKEND_DIR / ".env"
+
+# Local .env must win over stale shell exports (common when OPENAI_API_KEY was set in the terminal).
+if _ENV_FILE.is_file():
+    load_dotenv(_ENV_FILE, override=True)
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+    model_config = SettingsConfigDict(
+        env_file=str(_ENV_FILE) if _ENV_FILE.is_file() else None,
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
 
     repo_root: Path = Path(__file__).resolve().parent.parent
     data_dir: Path = repo_root / "data"

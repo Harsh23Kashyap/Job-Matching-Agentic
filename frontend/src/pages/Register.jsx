@@ -1,11 +1,14 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { apiErrorMessage } from "../api/client.js";
 import { useAuth, ROLE_HOME } from "../context/AuthContext.jsx";
+import { IconCheck, IconBriefcase, IconConsole, IconProfile } from "../components/icons.jsx";
+import AuthLayout from "../layouts/AuthLayout.jsx";
 
 const ROLES = [
-  { value: "candidate", label: "Candidate", hint: "Upload resume and find jobs" },
-  { value: "employer", label: "Employer", hint: "Post jobs and find candidates" },
-  { value: "admin", label: "Admin", hint: "Full match console and eval tools" },
+  { value: "candidate", label: "Candidate", hint: "Build a profile and explore matched roles", icon: IconProfile },
+  { value: "employer", label: "Employer", hint: "Post openings and review matched candidates", icon: IconBriefcase },
+  { value: "admin", label: "Admin", hint: "Manage matching and evaluation tools", icon: IconConsole },
 ];
 
 export default function Register() {
@@ -34,59 +37,76 @@ export default function Register() {
         navigate(ROLE_HOME[me.role] || "/");
       }
     } catch (err) {
-      setError(err.response?.data?.detail?.error || "Registration failed");
+      setError(apiErrorMessage(err, "Registration failed"));
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="auth-page">
-      <div className="auth-card auth-card-wide">
-        <h1>Create account</h1>
-        <p className="auth-sub">Choose your role to get the right portal experience.</p>
-        <form onSubmit={handleSubmit} className="auth-form">
-          <label>
-            Email
-            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-          </label>
-          <label>
-            Password
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              minLength={6}
-              required
-            />
-          </label>
-          <fieldset className="role-picker">
-            <legend>Role</legend>
-            {ROLES.map((r) => (
-              <label key={r.value} className={`role-option ${role === r.value ? "selected" : ""}`}>
-                <input
-                  type="radio"
-                  name="role"
-                  value={r.value}
-                  checked={role === r.value}
-                  onChange={() => setRole(r.value)}
-                />
-                <span>
+    <AuthLayout title="Create your account" subtitle="Choose how you'll use JobMatch.">
+      <form onSubmit={handleSubmit} className="auth-form auth-form--register">
+        <label>
+          Email
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            autoComplete="email"
+            placeholder="you@example.com"
+          />
+        </label>
+        <label>
+          Password
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            minLength={6}
+            required
+            autoComplete="new-password"
+            placeholder="••••••••"
+          />
+        </label>
+        <fieldset className="role-picker">
+          <legend>I am a…</legend>
+          {ROLES.map((r) => {
+            const RoleIcon = r.icon;
+            return (
+            <label key={r.value} className={`role-option ${role === r.value ? "selected" : ""}`}>
+              <input
+                type="radio"
+                name="role"
+                value={r.value}
+                checked={role === r.value}
+                onChange={() => setRole(r.value)}
+              />
+              <span className="role-card-inner">
+                <span className="role-card-icon" aria-hidden="true">
+                  <RoleIcon size={18} />
+                </span>
+                <span className="role-card-text">
                   <strong>{r.label}</strong>
                   <small>{r.hint}</small>
                 </span>
-              </label>
-            ))}
-          </fieldset>
-          {error && <p className="auth-error">{error}</p>}
-          <button type="submit" className="btn-primary" disabled={loading}>
-            {loading ? "Creating…" : "Create account"}
-          </button>
-        </form>
-        <p className="auth-footer">
-          Already have an account? <Link to="/login">Sign in</Link>
-        </p>
-      </div>
-    </div>
+                <span className="role-card-check" aria-hidden="true">
+                  {role === r.value && <IconCheck size={12} />}
+                </span>
+              </span>
+            </label>
+            );
+          })}
+        </fieldset>
+        {error && <p className="auth-error">{error}</p>}
+        <button type="submit" className="btn-primary btn-block" disabled={loading}>
+          {loading ? "Creating account…" : "Create account"}
+        </button>
+        <p className="auth-hint">You can switch portals later from settings.</p>
+      </form>
+      <p className="auth-footer">
+        Already have an account? <Link to="/login">Sign in</Link>
+      </p>
+    </AuthLayout>
   );
 }

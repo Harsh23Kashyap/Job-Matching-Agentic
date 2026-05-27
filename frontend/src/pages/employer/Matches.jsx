@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import ResultsPanel from "../../components/ResultsPanel.jsx";
+import PageHeader from "../../components/PageHeader.jsx";
+import EmployerCandidateResults, { EmployerNoJobsEmpty } from "../../components/EmployerCandidateResults.jsx";
+import Button from "../../components/Button.jsx";
 import { fetchMyJobs, runMatch } from "../../api/client.js";
 
 export default function EmployerMatches() {
@@ -40,20 +42,30 @@ export default function EmployerMatches() {
 
   if (jobs.length === 0) {
     return (
-      <section className="portal-panel span-12">
-        <h2>Find candidates</h2>
-        <p>Create a job posting first.</p>
-        <Link to="/employer/jobs" className="btn-primary">Go to My jobs</Link>
-      </section>
+      <>
+        <PageHeader title="Find candidates" subtitle="Post a job first, then we'll rank matching profiles." />
+        <EmployerNoJobsEmpty />
+      </>
     );
   }
 
+  const jobTitle = jobs.find((j) => j.title === selected)?.title;
+
   return (
     <>
-      <section className="portal-panel span-12">
-        <h2>Find candidates</h2>
-        <label>
-          Select job
+      <PageHeader
+        title="Find candidates"
+        subtitle="Select a role and discover top-matching profiles."
+        inlineAction={
+          <Button loading={loading} loadingLabel="Searching…" onClick={handleFind} disabled={!selected}>
+            Find matching candidates
+          </Button>
+        }
+      />
+      <section className="portal-panel">
+        <h2>Search by job</h2>
+        <label className="form-field">
+          <span className="field-label">Select job</span>
           <select value={selected} onChange={(e) => setSelected(e.target.value)}>
             <option value="">Choose a job…</option>
             {jobs.map((j) => (
@@ -63,11 +75,8 @@ export default function EmployerMatches() {
             ))}
           </select>
         </label>
-        <button type="button" className="btn-primary" onClick={handleFind} disabled={!selected || loading}>
-          {loading ? "Searching…" : "Find matching candidates"}
-        </button>
       </section>
-      <ResultsPanel response={response} error={error} recentRuns={[]} />
+      <EmployerCandidateResults response={response} error={error} jobTitle={jobTitle} />
     </>
   );
 }

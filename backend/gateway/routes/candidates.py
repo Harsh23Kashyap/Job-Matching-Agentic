@@ -52,20 +52,36 @@ async def upload_resume(
     llm: LlmParser = Depends(_get_llm_parser),
 ):
     text = extract_text_from_upload(file)
+    preview = text[:500] + ("…" if len(text) > 500 else "")
+    empty_fields = {
+        "name": "",
+        "skills": [],
+        "experience_years": 0,
+        "preferred_salary": None,
+        "remote_preference": False,
+        "summary": "",
+    }
     try:
         extracted = llm.parse_candidate_from_text(text)
-    except LlmUnavailableError as exc:
-        raise HTTPException(
-            status_code=503,
-            detail={"error": str(exc), "code": "LLM_UNAVAILABLE"},
-        ) from exc
+    except LlmUnavailableError:
+        return {
+            "extracted_fields": empty_fields,
+            "raw_text_preview": preview,
+            "llm_status": "unavailable",
+            "message": "AI extraction unavailable. Review the text preview and fill in your details manually.",
+        }
     except LlmParseError as exc:
-        raise HTTPException(
-            status_code=422,
-            detail={"error": f"Could not parse resume: {exc}", "code": "PARSE_FAILED"},
-        ) from exc
-    preview = text[:500] + ("…" if len(text) > 500 else "")
-    return {"extracted_fields": extracted, "raw_text_preview": preview}
+        return {
+            "extracted_fields": empty_fields,
+            "raw_text_preview": preview,
+            "llm_status": "parse_failed",
+            "message": f"Could not parse resume automatically ({exc}). Fill in details manually.",
+        }
+    return {
+        "extracted_fields": extracted,
+        "raw_text_preview": preview,
+        "llm_status": "ok",
+    }
 
 
 @router.get("/{name}")

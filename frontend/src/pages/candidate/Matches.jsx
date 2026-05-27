@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import ResultsPanel from "../../components/ResultsPanel.jsx";
+import PageHeader from "../../components/PageHeader.jsx";
+import CandidateJobResults from "../../components/CandidateJobResults.jsx";
+import EmptyState from "../../components/EmptyState.jsx";
+import Button from "../../components/Button.jsx";
 import { fetchMyProfile, runMatch } from "../../api/client.js";
 
 export default function CandidateMatches() {
@@ -42,26 +45,63 @@ export default function CandidateMatches() {
 
   if (bootError) {
     return (
-      <section className="portal-panel span-12">
-        <h2>Find jobs</h2>
-        <p>{bootError}</p>
-        <Link to="/candidate/onboarding" className="btn-primary">Set up profile</Link>
-      </section>
+      <>
+        <PageHeader
+          title="Jobs for you"
+          subtitle="Complete your profile to unlock personalized matches."
+          inlineAction={
+            <Link to="/candidate/onboarding" className="btn-primary">
+              Set up profile
+            </Link>
+          }
+        />
+        <section className="portal-panel">
+          <EmptyState
+            title="Profile needed"
+            description="Upload your resume or enter your skills so we can find roles that fit."
+            checklist={["Upload or enter resume details", "Add skills", "Set salary and preferences"]}
+            action={<Link to="/candidate/onboarding" className="btn-primary">Set up profile</Link>}
+          />
+        </section>
+      </>
     );
   }
 
+  const subtitle = response
+    ? `Showing ${response.results?.length || 0} roles ranked for ${profile?.name}.`
+    : `Ready to find roles for ${profile?.name}.`;
+
   return (
     <>
-      <section className="portal-panel span-12">
-        <h2>Find jobs</h2>
-        <p className="auth-sub">
-          Matching jobs for <strong>{profile?.name}</strong> using semantic search and skill overlap.
-        </p>
-        <button type="button" className="btn-primary" onClick={handleFindJobs} disabled={loading || !profile}>
-          {loading ? "Searching…" : "Find matching jobs"}
-        </button>
-      </section>
-      <ResultsPanel response={response} error={error} recentRuns={[]} />
+      <PageHeader
+        title="Jobs for you"
+        subtitle={subtitle}
+        inlineAction={
+          <Button loading={loading} loadingLabel="Searching…" onClick={handleFindJobs} disabled={!profile}>
+            {response ? "Refresh matches" : "Find jobs"}
+          </Button>
+        }
+      />
+      {!response && !error ? (
+        <section className="portal-panel">
+          <EmptyState
+            title="No matches yet"
+            description="Run a search to see roles ranked by fit with your profile."
+            action={
+              <Button loading={loading} loadingLabel="Searching…" onClick={handleFindJobs}>
+                Find jobs
+              </Button>
+            }
+          />
+        </section>
+      ) : (
+        <CandidateJobResults
+          response={response}
+          error={error}
+          onRefresh={handleFindJobs}
+          loading={loading}
+        />
+      )}
     </>
   );
 }

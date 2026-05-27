@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
+import PageHeader from "../../components/PageHeader.jsx";
 import { fetchMyJobs, saveJobPosting } from "../../api/client.js";
+import { formatInr } from "../../utils/format.js";
 
 const EMPTY = {
   title: "",
@@ -54,26 +56,45 @@ export default function EmployerJobs() {
 
   return (
     <>
-      <section className="portal-panel span-12">
-        <h2>My job postings</h2>
+      <PageHeader title="My jobs" subtitle="Manage postings and attract the right candidates." />
+      <section className="portal-panel">
+        <h2>Active postings</h2>
         {loading ? (
           <p>Loading…</p>
         ) : jobs.length === 0 ? (
-          <p className="auth-sub">No jobs yet. Create your first posting below.</p>
+          <div className="empty-state-product">
+            <h3>No jobs yet</h3>
+            <p>Create your first posting below to start matching candidates.</p>
+          </div>
         ) : (
-          <ul className="job-list">
+          <div className="job-card-list">
             {jobs.map((j) => (
-              <li key={j.id}>
-                <strong>{j.title}</strong>
-                {j.company && <span> — {j.company}</span>}
-              </li>
+              <article key={j.id} className="job-card">
+                <div className="job-card-head">
+                  <h3>{j.title}</h3>
+                  {j.company && <span className="job-card-meta">{j.company}</span>}
+                </div>
+                {j.location && <p className="job-card-location">{j.location}</p>}
+                {j.required_skills?.length > 0 && (
+                  <div className="signal-chips">
+                    {j.required_skills.slice(0, 6).map((s) => (
+                      <span key={s} className="signal-chip">
+                        {s}
+                      </span>
+                    ))}
+                  </div>
+                )}
+                {j.budget != null && (
+                  <p className="job-card-budget">{formatInr(j.budget)} / year budget</p>
+                )}
+              </article>
             ))}
-          </ul>
+          </div>
         )}
       </section>
 
-      <section className="portal-panel span-12">
-        <h2>Create job posting</h2>
+      <section className="portal-panel">
+        <h2>New job posting</h2>
         <form className="profile-form" onSubmit={handleCreate}>
           <label>
             Title
@@ -91,12 +112,13 @@ export default function EmployerJobs() {
             <input
               type="number"
               min="0"
+              step="0.5"
               value={fields.required_experience}
               onChange={(e) => setFields({ ...fields, required_experience: e.target.value })}
             />
           </label>
           <label>
-            Budget
+            Budget (INR)
             <input type="number" value={fields.budget} onChange={(e) => setFields({ ...fields, budget: e.target.value })} />
           </label>
           <label>

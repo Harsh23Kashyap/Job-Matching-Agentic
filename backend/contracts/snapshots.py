@@ -5,7 +5,7 @@ class CandidateSnapshot(BaseModel):
     id: str
     name: str
     skills: list[str]
-    experience_years: int
+    experience_years: float
     remote_preference: bool
     summary: str
     version: int

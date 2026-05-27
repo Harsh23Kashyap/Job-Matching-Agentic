@@ -5,7 +5,7 @@ class CandidateProfile(BaseModel):
     id: str
     name: str
     skills: list[str]
-    experience_years: int
+    experience_years: float = Field(default=0, ge=0, le=50)
     preferred_salary: int | None = None
     remote_preference: bool = False
     summary: str = ""

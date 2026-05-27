@@ -22,6 +22,30 @@ def _register_candidate(client, email="cand2@test.com"):
 
 
 @patch("gateway.routes.candidates.create_llm_parser")
+def test_upload_llm_unavailable_returns_manual_fallback(mock_factory, client):
+    from hooks.llm_parser import LlmParser, LlmUnavailableError
+
+    mock_parser = LlmParser(client.app.state.container.settings)
+
+    def fail(_text):
+        raise LlmUnavailableError("LLM service unavailable")
+
+    mock_parser.parse_candidate_from_text = fail
+    mock_factory.return_value = mock_parser
+
+    _register_candidate(client, "cand-llm-fail@test.com")
+    resp = client.post(
+        "/candidates/upload-resume",
+        files={"file": ("resume.txt", io.BytesIO(b"Harsh Kashyap\nPython developer"), "text/plain")},
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["llm_status"] == "unavailable"
+    assert "raw_text_preview" in data
+    assert data["extracted_fields"]["name"] == ""
+
+
+@patch("gateway.routes.candidates.create_llm_parser")
 def test_upload_resume_extracts_fields(mock_factory, client):
     from hooks.llm_parser import LlmParser
 

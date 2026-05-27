@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import PageHeader from "../../components/PageHeader.jsx";
 import AgentStatusPanel from "../../components/AgentStatusPanel.jsx";
 import MatchControls from "../../components/MatchControls.jsx";
 import ResultsPanel from "../../components/ResultsPanel.jsx";
@@ -73,13 +74,10 @@ export default function AdminConsole() {
 
   return (
     <>
-      <section className="page-intro span-12">
-        <h2>Match Console</h2>
-        <p>
-          Monitor agent health, configure matching strategies, and review ranked results across the
-          candidate and employer corpus.
-        </p>
-      </section>
+      <PageHeader
+        title="Match console"
+        subtitle="Monitor agent health, configure matching strategies, and review ranked results."
+      />
       <AgentStatusPanel onConnectionChange={() => {}} />
       <MatchControls onRun={handleRun} onDailyBatch={handleDailyBatch} loading={loading} />
       <ResultsPanel response={response} error={error} recentRuns={recentRuns} />

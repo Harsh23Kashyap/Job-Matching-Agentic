@@ -4,7 +4,18 @@ backend/app.db
 backend/__pycache__/
 backend/**/__pycache__/
 *.pyc
+
+# Secrets — never commit real API keys or session secrets
 .env
+.env.local
+.env.*.local
+backend/.env
+frontend/.env
+frontend/.env.local
+
+# Safe template (committed on purpose)
+!backend/.env.example
+
 data/daily_recommendations_*.json
 frontend/node_modules/
 frontend/dist/

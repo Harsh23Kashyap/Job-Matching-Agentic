@@ -1,5 +1,7 @@
 import { Navigate, Route, Routes } from "react-router-dom";
+import ApiErrorBridge from "./components/ApiErrorBridge.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
+import { ToastProvider } from "./components/Toast.jsx";
 import { AuthProvider, useAuth, ROLE_HOME } from "./context/AuthContext.jsx";
 import AdminLayout from "./layouts/AdminLayout.jsx";
 import CandidateLayout from "./layouts/CandidateLayout.jsx";
@@ -12,11 +14,19 @@ import CandidateMatches from "./pages/candidate/Matches.jsx";
 import Profile from "./pages/candidate/Profile.jsx";
 import EmployerJobs from "./pages/employer/Jobs.jsx";
 import EmployerMatches from "./pages/employer/Matches.jsx";
+import ErrorPage from "./pages/errors/ErrorPage.jsx";
+import { ERROR_CODES } from "./pages/errors/errorConfig.js";
 import "./App.css";
 
 function HomeRedirect() {
   const { user, loading } = useAuth();
-  if (loading) return <div className="auth-page"><p>Loading…</p></div>;
+  if (loading) {
+    return (
+      <div className="auth-form-panel" style={{ minHeight: "100vh" }}>
+        <p className="auth-sub">Loading…</p>
+      </div>
+    );
+  }
   if (!user) return <Navigate to="/login" replace />;
   return <Navigate to={ROLE_HOME[user.role] || "/login"} replace />;
 }
@@ -24,10 +34,16 @@ function HomeRedirect() {
 export default function App() {
   return (
     <AuthProvider>
-      <Routes>
+      <ToastProvider>
+        <ApiErrorBridge />
+        <Routes>
         <Route path="/" element={<HomeRedirect />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+
+        {ERROR_CODES.map((code) => (
+          <Route key={code} path={`/error/${code}`} element={<ErrorPage />} />
+        ))}
 
         <Route element={<ProtectedRoute role="admin" />}>
           <Route element={<AdminLayout />}>
@@ -51,7 +67,8 @@ export default function App() {
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+        </Routes>
+      </ToastProvider>
     </AuthProvider>
   );
 }

@@ -3,7 +3,7 @@ import { IconAlert, IconEmpty, IconResults } from "./icons.jsx";
 export default function ResultsPanel({ response, error, recentRuns }) {
   if (error) {
     return (
-      <section className="panel span-7">
+      <section className="panel span-12">
         <div className="panel-header">
           <IconResults size={18} />
           <h2>Match Results</h2>
@@ -18,7 +18,7 @@ export default function ResultsPanel({ response, error, recentRuns }) {
 
   if (!response) {
     return (
-      <section className="panel span-7">
+      <section className="panel span-12">
         <div className="panel-header">
           <IconResults size={18} />
           <h2>Match Results</h2>
@@ -48,7 +48,7 @@ export default function ResultsPanel({ response, error, recentRuns }) {
   }
 
   return (
-    <section className="panel span-7">
+    <section className="panel span-12">
       <div className="panel-header">
         <IconResults size={18} />
         <h2>Match Results</h2>

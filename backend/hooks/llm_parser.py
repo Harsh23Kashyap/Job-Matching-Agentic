@@ -18,7 +18,7 @@ SYSTEM_PROMPT = """You extract structured candidate profile data from resume tex
 Return ONLY valid JSON with these keys:
 - name (string)
 - skills (array of strings)
-- experience_years (integer)
+- experience_years (number, can be 0.5 increments)
 - preferred_salary (integer or null)
 - remote_preference (boolean)
 - summary (string, 1-3 sentences)
@@ -46,7 +46,10 @@ class LlmParser:
 
     def _call_llm(self, text: str) -> dict:
         if self.settings.openai_api_key:
-            return self._call_openai(text)
+            try:
+                return self._call_openai(text)
+            except LlmUnavailableError:
+                pass
         return self._call_ollama(text)
 
     def _call_ollama(self, text: str) -> dict:
@@ -86,7 +89,11 @@ class LlmParser:
                 resp.raise_for_status()
                 content = resp.json()["choices"][0]["message"]["content"]
         except (httpx.HTTPError, KeyError, IndexError) as exc:
-            raise LlmUnavailableError("LLM service unavailable") from exc
+            detail = "LLM service unavailable"
+            if isinstance(exc, httpx.HTTPStatusError) and exc.response is not None:
+                if exc.response.status_code in (401, 403):
+                    detail = "OpenAI API key rejected — check OPENAI_API_KEY in backend/.env"
+            raise LlmUnavailableError(detail) from exc
         return self._parse_json_content(content)
 
     def _parse_json_content(self, content: str) -> dict:
@@ -102,9 +109,10 @@ class LlmParser:
             skills = [s.strip() for s in skills.split(",") if s.strip()]
         exp = raw.get("experience_years", 0)
         try:
-            exp = int(exp)
+            exp = float(exp)
+            exp = max(0.0, min(50.0, exp))
         except (TypeError, ValueError):
-            exp = 0
+            exp = 0.0
         salary = raw.get("preferred_salary")
         if salary is not None:
             try:

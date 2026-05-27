@@ -7,7 +7,7 @@ class JsonParser:
             id=raw["id"],
             name=raw["name"],
             skills=list(raw.get("skills", [])),
-            experience_years=int(raw.get("experience_years", 0)),
+            experience_years=float(raw.get("experience_years", 0)),
             preferred_salary=raw.get("preferred_salary"),
             remote_preference=bool(raw.get("remote_preference", False)),
             summary=str(raw.get("summary", "")),
