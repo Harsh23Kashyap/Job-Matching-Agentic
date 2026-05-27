@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { fetchCandidates, fetchJobs } from "../api/client.js";
+import { IconMatch } from "./icons.jsx";
 
 const DEFAULT_ENSEMBLE = [
   { strategy: "semantic", metric: "cosine", weight: 1.0, skills_mode: "jaccard", semantic_weight: 0.7 },
@@ -44,18 +45,10 @@ export default function MatchControls({ onRun, onDailyBatch, loading }) {
   }, []);
 
   useEffect(() => {
-    const config = {
-      mode,
-      queryKey,
-      strategy,
-      metric,
-      skillsMode,
-      semanticWeight,
-      topK,
-      ensemble,
-      ensembleChecks,
-    };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({ mode, queryKey, strategy, metric, skillsMode, semanticWeight, topK, ensemble, ensembleChecks })
+    );
   }, [mode, queryKey, strategy, metric, skillsMode, semanticWeight, topK, ensemble, ensembleChecks]);
 
   const handleModeChange = (next) => {
@@ -63,92 +56,107 @@ export default function MatchControls({ onRun, onDailyBatch, loading }) {
     setQueryKey(next === "candidate_to_jobs" ? names[0] || "" : titles[0] || "");
   };
 
-  const buildConfig = () => {
-    const searches = DEFAULT_ENSEMBLE.filter((_, i) => ensembleChecks[i]);
-    return {
-      mode,
-      queryKey,
-      strategy,
-      metric,
-      skillsMode,
-      semanticWeight,
-      topK,
-      ensemble: ensemble && mode === "candidate_to_jobs",
-      searches,
-    };
-  };
+  const buildConfig = () => ({
+    mode,
+    queryKey,
+    strategy,
+    metric,
+    skillsMode,
+    semanticWeight,
+    topK,
+    ensemble: ensemble && mode === "candidate_to_jobs",
+    searches: DEFAULT_ENSEMBLE.filter((_, i) => ensembleChecks[i]),
+  });
 
   return (
-    <section className="panel controls-panel">
-      <h2>Match Controls</h2>
-      <div className="controls-grid">
-        <label>
-          Direction
-          <select value={mode} onChange={(e) => handleModeChange(e.target.value)}>
-            <option value="candidate_to_jobs">Resume → Jobs</option>
-            <option value="job_to_candidates">Job → Candidates</option>
-          </select>
-        </label>
+    <section className="panel span-5">
+      <div className="panel-header">
+        <IconMatch size={18} />
+        <h2>Match Controls</h2>
+      </div>
 
-        <label>
-          {mode === "candidate_to_jobs" ? "Candidate" : "Job title"}
-          <select value={queryKey} onChange={(e) => setQueryKey(e.target.value)}>
+      <div className="control-section">
+        <p className="control-section-title">Direction</p>
+        <div className="pill-group">
+          <button
+            type="button"
+            className={`pill-option ${mode === "candidate_to_jobs" ? "active" : ""}`}
+            onClick={() => handleModeChange("candidate_to_jobs")}
+          >
+            Resume → Jobs
+          </button>
+          <button
+            type="button"
+            className={`pill-option ${mode === "job_to_candidates" ? "active" : ""}`}
+            onClick={() => handleModeChange("job_to_candidates")}
+          >
+            Job → Candidates
+          </button>
+        </div>
+      </div>
+
+      <div className="control-section">
+        <p className="control-section-title">Query</p>
+        <div className="field">
+          <label htmlFor="query-select">{mode === "candidate_to_jobs" ? "Candidate" : "Job title"}</label>
+          <select id="query-select" value={queryKey} onChange={(e) => setQueryKey(e.target.value)}>
             {(mode === "candidate_to_jobs" ? names : titles).map((item) => (
               <option key={item} value={item}>
                 {item}
               </option>
             ))}
           </select>
-        </label>
+        </div>
+      </div>
 
-        <label>
-          Strategy
-          <select value={strategy} onChange={(e) => setStrategy(e.target.value)} disabled={ensemble}>
-            <option value="semantic">Semantic</option>
-            <option value="multimodal">Multimodal</option>
-          </select>
-        </label>
-
-        <label>
-          Metric
-          <select value={metric} onChange={(e) => setMetric(e.target.value)} disabled={ensemble}>
-            <option value="cosine">Cosine</option>
-            <option value="euclidean">Euclidean</option>
-          </select>
-        </label>
-
-        <label>
-          Skills mode
-          <select value={skillsMode} onChange={(e) => setSkillsMode(e.target.value)} disabled={ensemble}>
-            <option value="jaccard">Jaccard</option>
-            <option value="embedding">Soft embedding</option>
-          </select>
-        </label>
-
-        <label>
-          Semantic weight
-          <input
-            type="number"
-            min="0"
-            max="1"
-            step="0.05"
-            value={semanticWeight}
-            onChange={(e) => setSemanticWeight(Number(e.target.value))}
-            disabled={ensemble || strategy === "semantic"}
-          />
-        </label>
-
-        <label>
-          Top K
-          <input type="number" min="1" max="15" value={topK} onChange={(e) => setTopK(Number(e.target.value))} />
-        </label>
-
-        {mode === "candidate_to_jobs" && (
-          <label className="checkbox-row">
-            <input type="checkbox" checked={ensemble} onChange={(e) => setEnsemble(e.target.checked)} />
-            Ensemble (RRF)
-          </label>
-        )}
+      <div className="control-section">
+        <p className="control-section-title">Strategy</p>
+        <div className="controls-grid">
+          <div className="field">
+            <label htmlFor="strategy">Algorithm</label>
+            <select id="strategy" value={strategy} onChange={(e) => setStrategy(e.target.value)} disabled={ensemble}>
+              <option value="semantic">Semantic</option>
+              <option value="multimodal">Multimodal</option>
+            </select>
+          </div>
+          <div className="field">
+            <label htmlFor="metric">Metric</label>
+            <select id="metric" value={metric} onChange={(e) => setMetric(e.target.value)} disabled={ensemble}>
+              <option value="cosine">Cosine</option>
+              <option value="euclidean">Euclidean</option>
+            </select>
+          </div>
+          <div className="field">
+            <label htmlFor="skills">Skills mode</label>
+            <select id="skills" value={skillsMode} onChange={(e) => setSkillsMode(e.target.value)} disabled={ensemble}>
+              <option value="jaccard">Jaccard</option>
+              <option value="embedding">Soft embedding</option>
+            </select>
+          </div>
+          <div className="field">
+            <label htmlFor="weight">Semantic weight</label>
+            <input
+              id="weight"
+              type="number"
+              min="0"
+              max="1"
+              step="0.05"
+              value={semanticWeight}
+              onChange={(e) => setSemanticWeight(Number(e.target.value))}
+              disabled={ensemble || strategy === "semantic"}
+            />
+          </div>
+          <div className="field">
+            <label htmlFor="topk">Top K</label>
+            <input id="topk" type="number" min="1" max="15" value={topK} onChange={(e) => setTopK(Number(e.target.value))} />
+          </div>
+          {mode === "candidate_to_jobs" && (
+            <label className="checkbox-row" style={{ alignSelf: "end", paddingBottom: 8 }}>
+              <input type="checkbox" checked={ensemble} onChange={(e) => setEnsemble(e.target.checked)} />
+              Ensemble (RRF)
+            </label>
+          )}
+        </div>
       </div>
 
       {ensemble && mode === "candidate_to_jobs" && (
@@ -173,10 +181,10 @@ export default function MatchControls({ onRun, onDailyBatch, loading }) {
       )}
 
       <div className="actions">
-        <button type="button" disabled={loading || !queryKey} onClick={() => onRun(buildConfig())}>
+        <button type="button" className="btn-primary" disabled={loading || !queryKey} onClick={() => onRun(buildConfig())}>
           {loading ? "Running…" : "Run match"}
         </button>
-        <button type="button" disabled={loading} onClick={() => onDailyBatch(buildConfig())}>
+        <button type="button" className="btn-secondary" disabled={loading} onClick={() => onDailyBatch(buildConfig())}>
           Daily batch
         </button>
       </div>

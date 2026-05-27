@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     chroma_persist_dir: Path = Path(__file__).resolve().parent / "chroma_db"
     rrf_k: int = 60
     host: str = "0.0.0.0"
-    port: int = 8000
+    port: int = 8001
     read_only: bool = False
 
     @property

@@ -19,7 +19,7 @@ pip install -r requirements-min.txt
 
 # From repo root — run API (factory app)
 cd backend && source .venv/bin/activate
-uvicorn main:create_app --factory --reload --port 8000
+uvicorn main:create_app --factory --reload --port 8001
 
 # Frontend (separate terminal)
 cd frontend
@@ -27,7 +27,7 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:5173 (frontend) and http://localhost:8000/docs (API).
+Open http://localhost:5173 (frontend) and http://localhost:8001/docs (API).
 
 ## API overview
 
