@@ -4,7 +4,7 @@ import PageHeader from "../../components/PageHeader.jsx";
 import CandidateJobResults from "../../components/CandidateJobResults.jsx";
 import { ProfileNeededEmpty, JobsReadyEmpty } from "../../components/EmptyState.jsx";
 import Button from "../../components/Button.jsx";
-import { fetchMyProfile, runMatch } from "../../api/client.js";
+import { fetchMyProfile, runMatch, DEFAULT_CANDIDATE_MATCH } from "../../api/client.js";
 import { matchPercent } from "../../utils/format.js";
 
 export default function CandidateMatches() {
@@ -28,14 +28,8 @@ export default function CandidateMatches() {
     setError(null);
     try {
       const data = await runMatch({
-        mode: "candidate_to_jobs",
+        ...DEFAULT_CANDIDATE_MATCH,
         queryKey: profile.name,
-        topK: 10,
-        strategy: "semantic",
-        metric: "cosine",
-        skillsMode: "jaccard",
-        semanticWeight: 0.7,
-        ensemble: false,
       });
       setResponse(data);
       setLastUpdated(new Date().toISOString());
@@ -127,7 +121,6 @@ export default function CandidateMatches() {
           onRefresh={handleFindJobs}
           loading={loading}
           updatedAt={lastUpdated}
-          candidateId={profile.id}
         />
       )}
     </>

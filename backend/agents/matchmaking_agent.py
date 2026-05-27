@@ -110,7 +110,7 @@ class MatchmakingAgent(BaseAgent):
         if explain_mode == "llm":
             from hooks.grounded_explainer import GroundedLlmExplainer
 
-            return GroundedLlmExplainer().explain(candidate, job, breakdown)
+            return GroundedLlmExplainer(self.settings).explain(candidate, job, breakdown)
         return self.explainer.explain(candidate, job, breakdown)
 
     def _build_match_result(

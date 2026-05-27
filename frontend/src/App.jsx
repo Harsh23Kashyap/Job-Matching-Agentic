@@ -12,8 +12,10 @@ import AdminConsole from "./pages/admin/AdminConsole.jsx";
 import Onboarding from "./pages/candidate/Onboarding.jsx";
 import CandidateMatches from "./pages/candidate/Matches.jsx";
 import Profile from "./pages/candidate/Profile.jsx";
+import EmployerApplications from "./pages/employer/Applications.jsx";
 import EmployerJobs from "./pages/employer/Jobs.jsx";
 import EmployerMatches from "./pages/employer/Matches.jsx";
+import CandidateSaved from "./pages/candidate/Saved.jsx";
 import ErrorPage from "./pages/errors/ErrorPage.jsx";
 import { ERROR_CODES } from "./pages/errors/errorConfig.js";
 import "./App.css";
@@ -56,6 +58,7 @@ export default function App() {
             <Route path="/candidate/onboarding" element={<Onboarding />} />
             <Route path="/candidate/profile" element={<Profile />} />
             <Route path="/candidate/matches" element={<CandidateMatches />} />
+            <Route path="/candidate/saved" element={<CandidateSaved />} />
           </Route>
         </Route>
 
@@ -63,6 +66,7 @@ export default function App() {
           <Route element={<EmployerLayout />}>
             <Route path="/employer/jobs" element={<EmployerJobs />} />
             <Route path="/employer/matches" element={<EmployerMatches />} />
+            <Route path="/employer/applications" element={<EmployerApplications />} />
           </Route>
         </Route>
 

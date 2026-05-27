@@ -4,7 +4,7 @@ import PageHeader from "../../components/PageHeader.jsx";
 import PortalSection from "../../components/PortalSection.jsx";
 import EmployerCandidateResults, { EmployerNoJobsEmpty } from "../../components/EmployerCandidateResults.jsx";
 import Button from "../../components/Button.jsx";
-import { fetchMyJobs, runMatch } from "../../api/client.js";
+import { fetchMyJobs, runMatch, DEFAULT_EMPLOYER_MATCH } from "../../api/client.js";
 import { matchPercent } from "../../utils/format.js";
 
 export default function EmployerMatches() {
@@ -28,14 +28,8 @@ export default function EmployerMatches() {
     setError(null);
     try {
       const data = await runMatch({
-        mode: "job_to_candidates",
+        ...DEFAULT_EMPLOYER_MATCH,
         queryKey: selected,
-        topK: 10,
-        strategy: "semantic",
-        metric: "cosine",
-        skillsMode: "jaccard",
-        semanticWeight: 0.7,
-        ensemble: false,
       });
       setResponse(data);
     } catch (err) {

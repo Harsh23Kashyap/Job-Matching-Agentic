@@ -22,7 +22,7 @@ Communication uses an **in-process event-driven bus** (event-driven monolith, no
 
 **Evaluation corpus:** 30 synthetic CVs, 15 jobs, 47 labeled relevance pairs (0–2 scale). Smoke validation: *Rahul Sharma → Machine Learning Engineer* rank 1.
 
-**Test suite:** 59 automated tests (unit + integration).
+**Test suite:** 116 automated tests (unit + integration).
 
 ---
 
@@ -78,8 +78,11 @@ Communication uses an **in-process event-driven bus** (event-driven monolith, no
 | Register new CV | POST `/candidates` | Immediate embed + upsert | ✅ |
 | Register new JD | POST `/jobs` | Immediate embed + upsert | ✅ |
 | Resume upload + LLM extract | Candidate portal | PDF/DOCX/TXT → structured fields | ✅ v1.1 |
-| Real external job API sync | — | — | ❌ v2 |
-| Agent event log API | — | — | ❌ v2 |
+| Saved jobs + applications | Candidate portal | SQLite-backed shortlist + apply entity | ✅ v2.1 |
+| Employer applicant feed | Employer portal | Applications for owned jobs | ✅ v2.1 |
+| Fairness baseline | Admin / API | Experience + remote proxy DI ratios | ✅ v2.1 |
+| Real external job API sync | — | — | ❌ deferred |
+| Agent event log API | Admin strip | `GET /agents/events/recent` | ✅ v2 |
 
 ---
 
@@ -126,18 +129,19 @@ Communication uses an **in-process event-driven bus** (event-driven monolith, no
 |--------|-------|--------|--------|
 | `JsonParser` | Structured JSON dict | `CandidateProfile` / `JobProfile` | ✅ v1 |
 | `LlmParser` | Unstructured resume text | Structured candidate fields (JSON) | ✅ v1.1 |
-| LLM JD parser | Unstructured JD prose | `JobProfile` | ❌ v2 |
-| LLM match explainer | Scores + profiles | Natural language | ❌ v2 |
+| LLM JD parser | Unstructured JD prose | `JobProfile` | ✅ v2 |
+| LLM match explainer | Scores + profiles | Grounded LLM + template fallback | ✅ v2.1 |
+| Learned fusion + constraints | Eval pairs | LR fusion, Platt calibration, feedback boost | ✅ v2 |
+| Lexical + cross-encoder | Benchmarks / API flags | BM25, TF-IDF, ms-marco CE rerank | ✅ v2 |
 
 ### 4.6 Deferred ML (do NOT claim as implemented)
 
-- BM25 / TF-IDF lexical baselines
-- Cross-encoder rerank (ms-marco two-stage)
-- Bootstrap significance testing (paired nDCG CI)
-- Full Table 9 progression ladder / phase11 ANN sweep
+- Bootstrap significance testing (paired nDCG CI) as merge gate
+- Full legacy Table 9/10 exact float parity
 - BGE-small embedder ablation
 - LLM rerank / LLM strategy selection
-- Preference learning from clicks
+- Online retraining from feedback
+- Full ESCO/O*NET taxonomy import
 
 ---
 

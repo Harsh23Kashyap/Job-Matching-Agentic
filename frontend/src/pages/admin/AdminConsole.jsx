@@ -5,7 +5,7 @@ import AgentEventStrip from "../../components/AgentEventStrip.jsx";
 import AgentStatusPanel from "../../components/AgentStatusPanel.jsx";
 import MatchControls from "../../components/MatchControls.jsx";
 import ResultsPanel from "../../components/ResultsPanel.jsx";
-import { runDailyBatch, runMatch } from "../../api/client.js";
+import { runDailyBatch, runMatch, fetchFairnessReport } from "../../api/client.js";
 
 const RECENT_KEY = "jm_recent_runs";
 
@@ -22,6 +22,11 @@ export default function AdminConsole() {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [recentRuns, setRecentRuns] = useState(loadRecent);
+  const [fairness, setFairness] = useState(null);
+
+  useEffect(() => {
+    fetchFairnessReport().then(setFairness).catch(() => setFairness(null));
+  }, []);
 
   const saveRecent = (data) => {
     const next = [data, ...recentRuns].slice(0, 10);
@@ -87,6 +92,15 @@ export default function AdminConsole() {
         <AgentStatusPanel onConnectionChange={() => {}} />
         <SystemConfigPanel />
         <AgentEventStrip />
+        {fairness && (
+          <div className="portal-panel portal-panel--compact" style={{ marginTop: 12 }}>
+            <p className="admin-workspace-label">Fairness baseline (proxy groups)</p>
+            <p className="auth-sub">
+              Experience DI ratio: {fairness.experience_disparate_impact?.toFixed(2) ?? "n/a"} · Remote DI ratio:{" "}
+              {fairness.remote_disparate_impact?.toFixed(2) ?? "n/a"} · {fairness.queries_evaluated} queries
+            </p>
+          </div>
+        )}
       </section>
 
       <section className="admin-workspace-block admin-workspace-block--controls">

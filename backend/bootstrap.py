@@ -10,6 +10,7 @@ from core.calibration import PlattCalibrator
 from core.fusion import LearnedFusionModel
 from hooks.explainer import RuleExplainer
 from hooks.parser import JsonParser
+from stores.candidate_activity_store import CandidateActivityStore
 from stores.factory import create_store
 from stores.feedback_store import FeedbackStore
 
@@ -22,6 +23,7 @@ class SystemContainer:
     employer: EmployerAgent
     matchmaker: MatchmakingAgent
     feedback_store: FeedbackStore
+    activity_store: CandidateActivityStore
 
 
 def create_system(settings: Settings | None = None) -> SystemContainer:
@@ -33,6 +35,7 @@ def create_system(settings: Settings | None = None) -> SystemContainer:
     candidate_store = create_store(settings, "candidates_collection")
     job_store = create_store(settings, "jobs_collection")
     feedback_store = FeedbackStore(settings.sqlite_path)
+    activity_store = CandidateActivityStore(settings.sqlite_path)
 
     fusion_model = LearnedFusionModel.load(settings.fusion_model_path)
     calibrator = PlattCalibrator.load(settings.calibration_model_path)
@@ -79,4 +82,5 @@ def create_system(settings: Settings | None = None) -> SystemContainer:
         employer=employer_agent,
         matchmaker=matchmaker,
         feedback_store=feedback_store,
+        activity_store=activity_store,
     )

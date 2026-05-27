@@ -128,6 +128,77 @@ export async function saveJobPosting(job) {
   return data;
 }
 
+/** Default ML pipeline for candidate job search. */
+export const DEFAULT_CANDIDATE_MATCH = {
+  mode: "candidate_to_jobs",
+  topK: 10,
+  strategy: "multimodal",
+  metric: "cosine",
+  skillsMode: "jaccard",
+  semanticWeight: 0.7,
+  ensemble: false,
+  fusionMode: "learned",
+  applyConstraints: true,
+  autoStrategy: true,
+  useCalibration: true,
+  useFeedbackBoost: true,
+  explainMode: "llm",
+};
+
+export const DEFAULT_EMPLOYER_MATCH = {
+  mode: "job_to_candidates",
+  topK: 10,
+  strategy: "multimodal",
+  metric: "cosine",
+  skillsMode: "jaccard",
+  semanticWeight: 0.7,
+  ensemble: false,
+  fusionMode: "learned",
+  applyConstraints: true,
+  autoStrategy: false,
+  useCalibration: true,
+  useFeedbackBoost: false,
+  explainMode: "rules",
+};
+
+export async function fetchSavedJobs() {
+  const { data } = await api.get("/candidates/me/saved-jobs");
+  return data.saved_jobs || [];
+}
+
+export async function updateSavedJob(jobId, jobTitle, saved) {
+  const { data } = await api.put("/candidates/me/saved-jobs", {
+    job_id: jobId,
+    job_title: jobTitle,
+    saved,
+  });
+  return data;
+}
+
+export async function fetchMyApplications() {
+  const { data } = await api.get("/candidates/me/applications");
+  return data.applications || [];
+}
+
+export async function createApplication(jobId, jobTitle, matchScore) {
+  const { data } = await api.post("/candidates/me/applications", {
+    job_id: jobId,
+    job_title: jobTitle,
+    match_score: matchScore,
+  });
+  return data;
+}
+
+export async function fetchEmployerApplications() {
+  const { data } = await api.get("/jobs/mine/applications");
+  return data.applications || [];
+}
+
+export async function fetchFairnessReport() {
+  const { data } = await api.get("/system/fairness");
+  return data;
+}
+
 export async function runMatch(config) {
   const path =
     config.mode === "candidate_to_jobs"

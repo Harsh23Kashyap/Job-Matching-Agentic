@@ -1,5 +1,7 @@
 from fastapi import APIRouter, Depends, File, HTTPException, Request, UploadFile
 
+from pydantic import BaseModel
+
 from auth.deps import get_optional_user, require_role
 from auth.store import User
 from contracts.profiles import JobProfile
@@ -46,6 +48,16 @@ def list_my_jobs(
         if profile is not None:
             profiles.append(_public_profile(profile))
     return profiles
+
+
+@router.get("/mine/applications")
+def list_applications_for_my_jobs(
+    request: Request,
+    user: User = Depends(require_role("employer")),
+):
+    job_ids = request.app.state.auth_store.list_job_ids(user.id)
+    rows = request.app.state.activity_store.list_applications_for_jobs(job_ids)
+    return {"applications": [row.__dict__ for row in rows]}
 
 
 @router.post("/upload-description")

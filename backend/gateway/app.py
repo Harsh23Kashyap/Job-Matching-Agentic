@@ -13,6 +13,7 @@ def build_gateway(container: SystemContainer) -> FastAPI:
     app.state.container = container
     app.state.auth_store = UserStore(container.settings.sqlite_path)
     app.state.feedback_store = container.feedback_store
+    app.state.activity_store = container.activity_store
 
     app.add_middleware(ReadOnlyMiddleware)
     app.add_middleware(

@@ -1,5 +1,7 @@
 from fastapi import APIRouter, Depends, File, HTTPException, Request, UploadFile
 
+from pydantic import BaseModel
+
 from auth.deps import get_optional_user, require_role
 from auth.store import ProfileAlreadyLinkedError, User
 from contracts.profiles import CandidateProfile
@@ -44,6 +46,91 @@ def get_my_candidate(
     if profile is None:
         raise HTTPException(status_code=404, detail={"error": "Profile not found", "code": "NOT_FOUND"})
     return _public_profile(profile)
+
+
+class SavedJobBody(BaseModel):
+    job_id: str
+    job_title: str
+    saved: bool = True
+
+
+class ApplicationBody(BaseModel):
+    job_id: str
+    job_title: str
+    match_score: float | None = None
+
+
+@router.get("/me/saved-jobs")
+def list_my_saved_jobs(
+    request: Request,
+    user: User = Depends(require_role("candidate")),
+):
+    candidate_id = request.app.state.auth_store.get_candidate_id(user.id)
+    if candidate_id is None:
+        raise HTTPException(status_code=404, detail={"error": "No profile linked", "code": "NOT_FOUND"})
+    rows = request.app.state.activity_store.list_saved_jobs(candidate_id)
+    return {"saved_jobs": [row.__dict__ for row in rows]}
+
+
+@router.put("/me/saved-jobs")
+def update_saved_job(
+    body: SavedJobBody,
+    request: Request,
+    user: User = Depends(require_role("candidate")),
+):
+    candidate_id = request.app.state.auth_store.get_candidate_id(user.id)
+    if candidate_id is None:
+        raise HTTPException(status_code=404, detail={"error": "No profile linked", "code": "NOT_FOUND"})
+    store = request.app.state.activity_store
+    feedback = request.app.state.feedback_store
+    if body.saved:
+        row = store.save_job(candidate_id, body.job_id, body.job_title)
+        feedback.record(candidate_id=candidate_id, job_id=body.job_id, action="save", user_id=user.id)
+        return {"saved_job": row.__dict__}
+    removed = store.unsave_job(candidate_id, body.job_id)
+    if removed:
+        feedback.record(candidate_id=candidate_id, job_id=body.job_id, action="dismiss", user_id=user.id)
+    return {"removed": removed}
+
+
+@router.get("/me/applications")
+def list_my_applications(
+    request: Request,
+    user: User = Depends(require_role("candidate")),
+):
+    candidate_id = request.app.state.auth_store.get_candidate_id(user.id)
+    if candidate_id is None:
+        raise HTTPException(status_code=404, detail={"error": "No profile linked", "code": "NOT_FOUND"})
+    rows = request.app.state.activity_store.list_applications_for_candidate(candidate_id)
+    return {"applications": [row.__dict__ for row in rows]}
+
+
+@router.post("/me/applications", status_code=201)
+def create_application(
+    body: ApplicationBody,
+    request: Request,
+    user: User = Depends(require_role("candidate")),
+):
+    candidate_id = request.app.state.auth_store.get_candidate_id(user.id)
+    if candidate_id is None:
+        raise HTTPException(status_code=404, detail={"error": "No profile linked", "code": "NOT_FOUND"})
+    profile = request.app.state.container.candidate.get_by_id(candidate_id)
+    if profile is None:
+        raise HTTPException(status_code=404, detail={"error": "Profile not found", "code": "NOT_FOUND"})
+    app_row = request.app.state.activity_store.apply(
+        candidate_id=candidate_id,
+        candidate_name=profile.name,
+        job_id=body.job_id,
+        job_title=body.job_title,
+        match_score=body.match_score,
+    )
+    request.app.state.feedback_store.record(
+        candidate_id=candidate_id,
+        job_id=body.job_id,
+        action="apply",
+        user_id=user.id,
+    )
+    return app_row.__dict__
 
 
 @router.post("/upload-resume")

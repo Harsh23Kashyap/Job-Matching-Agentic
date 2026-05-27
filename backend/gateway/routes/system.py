@@ -58,3 +58,16 @@ def set_vector_store(body: VectorStoreRequest, request: Request):
     except RuntimeError as exc:
         raise HTTPException(status_code=503, detail={"error": str(exc), "code": "UNAVAILABLE"}) from exc
     return result
+
+
+@router.get("/fairness")
+def get_fairness_report(request: Request):
+    from benchmarks.fairness_eval import run_fairness_eval
+
+    container = request.app.state.container
+    report = run_fairness_eval(
+        container.settings,
+        fusion_model=container.matchmaker.fusion_model,
+        calibrator=container.matchmaker.calibrator,
+    )
+    return report

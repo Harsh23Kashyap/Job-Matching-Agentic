@@ -6,8 +6,8 @@ Run this **30 minutes before** a supervisor or stakeholder demo.
 
 - [ ] Backend running on **port 8001** (`uvicorn main:create_app --factory --reload --port 8001`)
 - [ ] Frontend running on **port 5173** (`npm run dev`)
-- [ ] OpenAPI version is **1.1.0**: `curl -s http://localhost:8001/openapi.json | python3 -c "import sys,json; print(json.load(sys.stdin)['info']['version'])"`
-- [ ] Tests green: `cd backend && pytest ../tests -q` (expect **69 passed**)
+- [ ] OpenAPI version is **2.0.0**: `curl -s http://localhost:8001/openapi.json | python3 -c "import sys,json; print(json.load(sys.stdin)['info']['version'])"`
+- [ ] Tests green: `cd backend && pytest ../tests -q` (expect **116 passed**)
 
 ## Secrets (local only — never commit)
 
