@@ -1,0 +1,116 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=2.2cm]{geometry}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{parskip}
+
+\hypersetup{hidelinks}
+
+\title{Springer Nature Information Sheet --- JAAMAS}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+\thispagestyle{empty}
+
+\noindent\textbf{Manuscript title:} JobMatch: An Agentic Multi-Role Platform for Explainable Job--Candidate Matching
+
+\noindent\textbf{Article type:} Original research (regular paper)
+
+\noindent\textbf{Corresponding author:} First Author (\url{author@example.edu})
+
+\vspace{0.8em}
+\hrule
+\vspace{0.8em}
+
+\section*{Q1. What is the main contribution?}
+
+This paper presents \textbf{JobMatch}, an integrated research prototype for \textbf{explainable job--candidate matching} built as a \textbf{role-aware multi-agent platform}. The contribution is architectural, algorithmic, and evaluative---not a claim of production hiring effectiveness.
+
+\paragraph{Agentic platform design.}
+We describe a three-agent pattern in which Candidate and Employer agents own profile ingestion, normalization, and embedding, while a read-only Matchmaking agent scores and explains candidate--job pairs. Agents coordinate through a shared in-process event bus; role-separated web portals enforce authenticated ownership and keep hiring actions (save, apply, contact) under explicit human control.
+
+\paragraph{Hybrid matching with structured explainability.}
+We specify a composite ranker that fuses semantic similarity, skill overlap, title overlap, experience compatibility, compensation compatibility, and remote-preference signals. The default portal configuration uses a fixed \textbf{composite} strategy with \textbf{topK = 10} and documented weights \textbf{28/27/10/15/10/10}. Each ranked pair can carry a structured explanation object rather than a single opaque score.
+
+\paragraph{Reproducible offline evaluation tied to deployed code.}
+We document an evaluation protocol on a labeled demo corpus of \textbf{30 resumes}, \textbf{15 job postings}, and \textbf{47 graded relevance pairs} (grades 0/1/2), with macro-averaged P@5, R@5, and nDCG@5 at \textbf{K = 5}, hard-negative mining, regression gates, and a synthetic counterfactual fairness audit. All headline numbers are taken from committed benchmark artifacts.
+
+\begin{center}
+\small
+\begin{tabular}{@{}llr@{}}
+\toprule
+Result & Source & nDCG@5 \\
+\midrule
+Multimodal soft embed ($\alpha = 0.7$) & \texttt{paper\_progression\_summary.json} & \textbf{0.969} \\
+Learned fusion (logistic regression) & \texttt{table11\_fusion.json} & \textbf{0.968} \\
+Full composite ablation & \texttt{ablation\_summary.json} (40/30/15/10/5) & \textbf{0.942} \\
+TF--IDF / BM25 lexical baselines & progression benchmark & \textbf{0.905 / 0.901} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent\textbf{Additional measured findings:}
+\begin{itemize}[noitemsep]
+  \item Cross-encoder reranking (pool = 20): $\Delta$nDCG@5 = \textbf{$-$0.108} vs composite bi-encoder, \textbf{$\sim$141.7 ms/query}; disabled in the default portal configuration.
+  \item Hard-negative mining: \textbf{30} queries, \textbf{150} pairs, \textbf{0} label conflicts with declared relevant jobs.
+  \item Synthetic fairness audit (10 fabricated pairs): \textbf{6/10} flagged; engineering sanity check only, not demographic fairness validation in live hiring.
+\end{itemize}
+
+\noindent\textbf{Scope and limits.} We position JobMatch as a traceable research artifact with benchmark drivers and regression tests. We \textbf{do not} claim generalization beyond the demo corpus, validated recruiter outcomes, or operational fairness guarantees.
+
+\section*{Q2. Why is it relevant to JAAMAS?}
+
+\textit{Journal of Autonomous Agents and Multi-Agent Systems} publishes research on agent architectures, coordination, and deployed agent systems. JobMatch fits this scope in four ways:
+
+\begin{enumerate}[noitemsep]
+  \item \textbf{Multi-agent decomposition.} Profile mutation is separated from read-only matchmaking, supporting modular failure diagnosis and cache invalidation on profile updates.
+  \item \textbf{Coordination without autonomous hiring.} Agents exchange events and expose HTTP endpoints; users review profiles, inspect explanations, and explicitly act on matches.
+  \item \textbf{Human-in-the-loop workflows.} Role-specific portals implement distinct agent-mediated workflows (ingestion, match discovery, explainability consumption, admin inspection).
+  \item \textbf{Empirical ranking study.} We compare lexical, dense, fusion, composite, and cross-encoder methods on a fixed corpus and report when higher offline nDCG does not justify deployment (e.g., cross-encoder latency/quality trade-off; portal preference for interpretable composite weights over the highest offline nDCG in research drivers).
+\end{enumerate}
+
+In summary, the paper contributes an \textbf{agentic, explainable matching platform} with \textbf{reproducible evaluation}, aligned with JAAMAS interest in multi-agent systems designed and measured with explicit human roles.
+
+\section*{Q3. How does it relate to prior work?}
+
+JobMatch sits at the intersection of \textbf{information retrieval}, \textbf{multi-agent systems}, and \textbf{explainable ranking} for hiring workflows.
+
+\paragraph{Information retrieval and hybrid ranking.}
+Our evaluation compares TF--IDF, BM25, dense bi-encoder similarity (\texttt{all-MiniLM-L6-v2}, 384-dimensional embeddings), multimodal semantic--skill combinations, reciprocal rank fusion (RRF), learned fusion, and cross-encoder reranking. These components build on established IR practice. \textbf{Our novelty is not a new single retrieval formula} but the \textbf{integration} of these signals in a composite, explainable ranker within an agentic platform, with metrics from reproducible drivers.
+
+\paragraph{Multi-agent systems.}
+We adopt role-specialized agents (Wooldridge) with concrete portal workflows, gateway endpoints, and a read-only Matchmaking boundary---connecting MAS design to an implemented hiring support system.
+
+\paragraph{Gap relative to typical deployed matchers.}
+Many systems expose opaque scores. JobMatch separates profile ownership from scoring, exposes structured explanations, and pairs the deployed composite default with an offline benchmark suite (negative mining, regression tests, synthetic fairness audit). Comparisons are against \textbf{implemented baselines on the same labeled corpus}, not reproduced commercial ATS products.
+
+\paragraph{What we do not claim.}
+We do not assert state-of-the-art hiring accuracy, large-scale web evaluation, or demographic fairness certification. The labeled set is small (30 queries, 15 documents); learned fusion shares structural overlap with evaluation queries; hard negatives are high-scoring \textbf{unlabeled} jobs.
+
+\section*{Q4. What is the relationship to prior publications, GitHub, or technical reports?}
+
+\paragraph{Prior publication.}
+This manuscript has \textbf{not been published previously} and is \textbf{not under consideration elsewhere}. No portion has appeared as a colored-layout preprint. This submission is \textbf{original research} as a \textbf{regular paper}.
+
+\paragraph{Technical reports.}
+There is \textbf{no separate technical report} or conference version whose results are reused without disclosure. Repository benchmark artifacts support the manuscript but are not standalone prior publications.
+
+\paragraph{Code availability (per manuscript declarations).}
+Source code for the platform, benchmark drivers, and regression tests is available in the \textbf{JobMatch project repository at the submission tag}. Key entry points: \texttt{backend/gateway/}, \texttt{backend/agents/}, \texttt{frontend/src/}, and \texttt{tests/benchmarks/test\_eval\_regression.py}.
+
+\paragraph{Data availability (per manuscript declarations).}
+The demo corpus (\texttt{data/cvs.json}, \texttt{data/jobs.json}, \texttt{data/eval\_pairs.json}) and benchmark outputs under \texttt{backend/benchmark\_outputs/} and \texttt{docs/research/evaluation/} are included in the project repository. Regenerate metrics with \texttt{python backend/scripts/run\_research\_pipeline.py} and \texttt{python -m benchmarks.paper\_progression}.
+
+\paragraph{Repository--paper relationship.}
+Reported numbers (nDCG@5 \textbf{0.969}, \textbf{0.968}, \textbf{0.942}; cross-encoder $\Delta$nDCG@5 = \textbf{$-$0.108}; hard negatives \textbf{150} pairs with \textbf{0} conflicts; fairness audit \textbf{6/10} flagged) are drawn from named artifacts cited in the paper tables.
+
+\vspace{0.5em}
+\noindent\small\textit{Aligned with \texttt{docs/submission/jaamas/manuscript/main.tex} (May 2026). Author metadata pending final submission.}
+
+\end{document}

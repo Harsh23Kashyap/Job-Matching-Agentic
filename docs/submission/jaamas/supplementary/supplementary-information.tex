@@ -1,0 +1,56 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{parskip}
+
+\hypersetup{hidelinks}
+\pagestyle{empty}
+
+\title{Supplementary Information\\JobMatch: An Agentic Multi-Role Platform for Explainable Job--Candidate Matching}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+\thispagestyle{empty}
+
+\section*{Scope}
+
+This supplementary note lists benchmark artifacts and regeneration commands referenced in the main manuscript. It does not introduce new experimental results.
+
+\section*{Primary benchmark artifacts}
+
+\begin{tabular}{@{}ll@{}}
+\toprule
+Artifact & Path (repository root) \\
+\midrule
+Paper progression summary & \texttt{data/expected/paper\_progression\_summary.json} \\
+Fusion ablation & \texttt{backend/benchmark\_outputs/table11\_fusion.json} \\
+Composite ablation & \texttt{docs/research/evaluation/artifacts/runs/2026-05-27T150000Z/ablation/ablation\_summary.json} \\
+Method comparison & \texttt{docs/research/evaluation/artifacts/runs/2026-05-27T150000Z/comparison/comparison\_summary.json} \\
+Cross-encoder report & \texttt{docs/research/evaluation/artifacts/runs/2026-05-27T150000Z/cross\_encoder/cross\_encoder\_report.json} \\
+Hard negatives & \texttt{backend/benchmark\_outputs/hard\_negatives.json} \\
+Fairness audit table & \texttt{docs/research/evaluation/paper\_tables/table4\_fairness.csv} \\
+Eval corpus & \texttt{data/cvs.json}, \texttt{data/jobs.json}, \texttt{data/eval\_pairs.json} \\
+\bottomrule
+\end{tabular}
+
+\section*{Regeneration commands}
+
+\begin{verbatim}
+python backend/scripts/run_research_pipeline.py
+python -m benchmarks.paper_progression
+python -m pytest tests/benchmarks/test_eval_regression.py -q
+\end{verbatim}
+
+\section*{Regression gate}
+
+Committed progression baselines are gated by \texttt{tests/benchmarks/test\_eval\_regression.py} with $\pm 0.04$ nDCG tolerance on nDCG@5.
+
+\vspace{0.8em}
+\noindent\small\textit{Aligned with manuscript declarations (May 2026).}
+
+\end{document}
