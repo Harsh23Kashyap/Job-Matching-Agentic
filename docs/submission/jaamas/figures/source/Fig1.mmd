@@ -1,29 +1,35 @@
 flowchart TB
-  subgraph portals [Role portals]
+  subgraph ui [UI / Application Layer]
     CP[Candidate Portal]
     EP[Employer Portal]
-    AC[Admin Console]
+    AD[Admin / Evaluation View]
   end
-  GW[API Gateway]
-  BUS[Event Bus]
-  CA[Candidate Agent]
-  EA[Employer Agent]
-  MA[Matchmaking Agent]
-  MC[Matching Core]
-  VS[(Vector Stores)]
-  SQL[(SQL / Auth / Activity)]
-  EV[Benchmark / Evaluation]
-  CP --> GW
-  EP --> GW
-  AC --> GW
-  GW --> BUS
-  BUS --> CA
-  BUS --> EA
-  BUS --> MA
-  MA --> MC
-  CA --> VS
-  EA --> VS
-  MC -. read .-> VS
-  GW --> SQL
-  AC -. offline .-> EV
-  EV -.-> MC
+  subgraph ca [Candidate Agent]
+    CV[Resume / CV Input] --> RP[Resume Parsing] --> CE[Embedding Generation]
+    CE --> CVS[(Candidate Vector Store)] --> CPS[Candidate Profile / State]
+  end
+  subgraph ea [Employer Agent]
+    JD[Job Description Input] --> JP[JD Parsing] --> JE[Embedding Generation]
+    JE --> JVS[(Job Vector Store)] --> JPS[Job Profile / State]
+  end
+  subgraph ma [Matchmaking Agent]
+    RC[Read Candidate Store] --> RS[Read Job Store] --> SS[Semantic Search]
+    SS --> SC[Similarity / Matching Score] --> RR[Ranked Recommendations]
+  end
+  subgraph shared [Shared Communication and State]
+    EV[Agent Messages / Events]
+    SN[Shared Contracts and Snapshots]
+    NT[State Update Notifications]
+  end
+  CP --> CV
+  EP --> JD
+  AD -.-> NT
+  CVS -. read .-> RC
+  JVS -. read .-> RS
+  RR --> CP
+  RR --> EP
+  CPS --> SN
+  JPS --> SN
+  CPS -.-> EV
+  JPS -.-> EV
+  EV -. refresh .-> SS

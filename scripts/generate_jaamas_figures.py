@@ -127,45 +127,127 @@ class DrawioBuilder:
 
 
 def fig1_platform() -> str:
-    b = DrawioBuilder(page_width=1100, page_height=820)
-    b.title("Fig. 1  End-to-end agentic hiring platform architecture")
+    """Multi-agent architecture: three agent pipelines, UI layer, shared communication."""
+    b = DrawioBuilder(page_width=1200, page_height=780)
+    b.title("Fig. 1  Multi-agent architecture of the JobMatch recruitment system")
 
-    # Presentation layer
-    p1 = b.box("Candidate\nPortal", 60, 70, 140, 52)
-    p2 = b.box("Employer\nPortal", 480, 70, 140, 52)
-    p3 = b.box("Admin\nConsole", 900, 70, 140, 52)
+    # --- UI / Application Layer ---
+    b.box("UI / Application Layer", 40, 48, 1120, 26, fill=FILL_DARK, size=12, bold=True)
+    cand_port = b.box("Candidate\nPortal", 90, 82, 150, 50)
+    emp_port = b.box("Employer\nPortal", 525, 82, 150, 50)
+    admin = b.box("Admin /\nEvaluation View", 960, 82, 150, 50)
 
-    gw = b.box("API Gateway  (FastAPI + session auth)", 300, 160, 500, 44, bold=True)
+    col_w, box_w, box_h, step_gap = 300, 260, 40, 46
+    x_ca, x_ea, x_ma = 40, 430, 820
+    y0 = 158
 
-    for p in (p1, p2, p3):
-        b.edge(p, gw, exit_x=0.5, exit_y=1, entry_x=0.5, entry_y=0)
+    def pipeline_column(title: str, x: float, steps: list[str]) -> list[str]:
+        b.box(title, x, y0, col_w, 30, fill=FILL_DARK, bold=True)
+        ids: list[str] = []
+        y = y0 + 38
+        for step in steps:
+            fill = FILL_STORE if "Vector Store" in step else FILL
+            ids.append(b.box(step, x + 20, y, box_w, box_h, fill=fill))
+            y += step_gap
+        return ids
 
-    bus = b.box("Event Bus  (in-process pub-sub)", 250, 240, 600, 36, fill=FILL_DARK, bold=True)
+    ca = pipeline_column(
+        "Candidate Agent",
+        x_ca,
+        [
+            "Resume / CV Input",
+            "Resume Parsing",
+            "Embedding Generation",
+            "Candidate Vector Store",
+            "Candidate Profile / State",
+        ],
+    )
+    ea = pipeline_column(
+        "Employer Agent",
+        x_ea,
+        [
+            "Job Description Input",
+            "JD Parsing",
+            "Embedding Generation",
+            "Job Vector Store",
+            "Job Profile / State",
+        ],
+    )
+    ma = pipeline_column(
+        "Matchmaking Agent  (read-only)",
+        x_ma,
+        [
+            "Read Candidate Store",
+            "Read Job Store",
+            "Semantic Search",
+            "Similarity / Matching Score",
+            "Ranked Recommendations",
+        ],
+    )
 
-    b.edge(gw, bus, exit_x=0.5, exit_y=1, entry_x=0.5, entry_y=0)
+    # --- Shared communication & state ---
+    y_shared = 430
+    b.box("Shared Communication & State Layer", 40, y_shared, 1120, 26, fill=FILL_DARK, size=12, bold=True)
+    events = b.box(
+        "Agent Messages / Events\n(profile updated · job updated · match completed)",
+        60,
+        y_shared + 34,
+        340,
+        52,
+    )
+    snaps = b.box(
+        "Shared Contracts & Snapshots\n(canonical skills · versioned match inputs)",
+        430,
+        y_shared + 34,
+        340,
+        52,
+    )
+    notify = b.box(
+        "State Update Notifications\n(match cache invalidation)",
+        800,
+        y_shared + 34,
+        340,
+        52,
+    )
 
-    ca = b.box("Candidate\nAgent", 80, 320, 150, 56)
-    ea = b.box("Employer\nAgent", 475, 320, 150, 56)
-    ma = b.box("Matchmaking\nAgent", 870, 320, 150, 56)
+    # --- Legend ---
+    b.box(
+        "Solid arrows: owned write / processing path   |   Dashed arrows: read, query, or event",
+        120,
+        y_shared + 100,
+        960,
+        28,
+        fill=FILL_DARK,
+        size=10,
+    )
 
-    for a in (ca, ea, ma):
-        b.edge(bus, a, exit_x=0.5, exit_y=1, entry_x=0.5, entry_y=0)
+    # UI -> agent inputs
+    b.edge(cand_port, ca[0], exit_x=0.5, exit_y=1, entry_x=0.5, entry_y=0, label="upload / edit")
+    b.edge(emp_port, ea[0], exit_x=0.5, exit_y=1, entry_x=0.5, entry_y=0, label="post / edit")
+    b.edge(admin, notify, exit_x=0.5, exit_y=1, entry_x=0.5, entry_y=0, dashed=True, label="monitor")
 
-    core = b.box("Matching Core\n(composite, fusion, calibration, explain)", 620, 420, 280, 56)
-    b.edge(ma, core, exit_x=0.5, exit_y=1, entry_x=0.5, entry_y=0)
+    # Vertical pipelines (owning agent)
+    for ids in (ca, ea, ma):
+        for i in range(len(ids) - 1):
+            b.edge(ids[i], ids[i + 1], exit_x=0.5, exit_y=1, entry_x=0.5, entry_y=0)
 
-    vec = b.box("Vector Stores\n(Chroma / Qdrant)", 80, 530, 200, 52, fill=FILL_STORE)
-    sql = b.box("SQL Stores\n(auth, ownership, feedback, activity)", 400, 530, 260, 52, fill=FILL_STORE)
-    bench = b.box("Benchmark /\nEvaluation Module", 780, 530, 200, 52, fill=FILL_STORE)
+    # Vector stores -> matchmaking reads (dashed)
+    b.edge(ca[3], ma[0], exit_x=1, exit_y=0.5, entry_x=0, entry_y=0.5, dashed=True, label="read")
+    b.edge(ea[3], ma[1], exit_x=1, exit_y=0.5, entry_x=0, entry_y=0.5, dashed=True, label="read")
 
-    b.edge(ca, vec, exit_x=0.5, exit_y=1, entry_x=0.5, entry_y=0)
-    b.edge(ea, vec, exit_x=0.5, exit_y=1, entry_x=0.5, entry_y=0)
-    b.edge(core, vec, exit_x=0, exit_y=0.5, entry_x=1, entry_y=0.5, dashed=True, label="read")
-    b.edge(gw, sql, exit_x=0.25, exit_y=1, entry_x=0.5, entry_y=0, dashed=True)
-    b.edge(p3, bench, exit_x=0.5, exit_y=1, entry_x=0.5, entry_y=0, dashed=True)
-    b.edge(bench, core, exit_x=0, exit_y=0.5, entry_x=1, entry_y=0.5, dashed=True, label="offline")
+    # Ranked results -> portals
+    b.edge(ma[4], cand_port, exit_x=0, exit_y=0.5, entry_x=1, entry_y=0.5, label="job matches")
+    b.edge(ma[4], emp_port, exit_x=0, exit_y=0.5, entry_x=1, entry_y=0.5, label="candidate matches")
 
-    b.box("Human-in-the-loop: portals rank & explain; users decide save / apply / hire", 200, 640, 700, 32, fill=FILL_DARK, size=10)
+    # Profile/state -> shared layer
+    b.edge(ca[4], snaps, exit_x=0.5, exit_y=1, entry_x=0.25, entry_y=0)
+    b.edge(ea[4], snaps, exit_x=0.5, exit_y=1, entry_x=0.75, entry_y=0)
+    b.edge(ca[4], events, exit_x=0, exit_y=0.5, entry_x=1, entry_y=0.5, dashed=True)
+    b.edge(ea[4], events, exit_x=0, exit_y=0.5, entry_x=1, entry_y=0.5, dashed=True)
+
+    # Events -> matchmaking invalidation
+    b.edge(events, ma[2], exit_x=1, exit_y=0, entry_x=0, entry_y=1, dashed=True, label="refresh")
+    b.edge(notify, ma[2], exit_x=0, exit_y=0, entry_x=1, entry_y=1, dashed=True)
 
     return b.build("Fig1")
 
@@ -315,7 +397,7 @@ def export_pdfs(sources: list[Path]) -> None:
     FIG_DIR.mkdir(parents=True, exist_ok=True)
     for src in sources:
         out = FIG_DIR / f"{src.stem}.pdf"
-        cmd = [drawio, "-x", "-f", "pdf", "-o", str(out), str(src), "--crop", "-b", "10"]
+        cmd = [drawio, "-x", "-f", "pdf", "-o", str(out), str(src), "-b", "10"]
         print("Export:", " ".join(cmd))
         subprocess.run(cmd, check=True)
         if not out.is_file() or out.stat().st_size == 0:
@@ -327,34 +409,40 @@ def write_mermaid_alternates() -> None:
     """Lightweight Mermaid sources for quick edits (not exported to PDF)."""
     mmd = {
         "Fig1": """flowchart TB
-  subgraph portals [Role portals]
+  subgraph ui [UI / Application Layer]
     CP[Candidate Portal]
     EP[Employer Portal]
-    AC[Admin Console]
+    AD[Admin / Evaluation View]
   end
-  GW[API Gateway]
-  BUS[Event Bus]
-  CA[Candidate Agent]
-  EA[Employer Agent]
-  MA[Matchmaking Agent]
-  MC[Matching Core]
-  VS[(Vector Stores)]
-  SQL[(SQL / Auth / Activity)]
-  EV[Benchmark / Evaluation]
-  CP --> GW
-  EP --> GW
-  AC --> GW
-  GW --> BUS
-  BUS --> CA
-  BUS --> EA
-  BUS --> MA
-  MA --> MC
-  CA --> VS
-  EA --> VS
-  MC -. read .-> VS
-  GW --> SQL
-  AC -. offline .-> EV
-  EV -.-> MC
+  subgraph ca [Candidate Agent]
+    CV[Resume / CV Input] --> RP[Resume Parsing] --> CE[Embedding Generation]
+    CE --> CVS[(Candidate Vector Store)] --> CPS[Candidate Profile / State]
+  end
+  subgraph ea [Employer Agent]
+    JD[Job Description Input] --> JP[JD Parsing] --> JE[Embedding Generation]
+    JE --> JVS[(Job Vector Store)] --> JPS[Job Profile / State]
+  end
+  subgraph ma [Matchmaking Agent]
+    RC[Read Candidate Store] --> RS[Read Job Store] --> SS[Semantic Search]
+    SS --> SC[Similarity / Matching Score] --> RR[Ranked Recommendations]
+  end
+  subgraph shared [Shared Communication and State]
+    EV[Agent Messages / Events]
+    SN[Shared Contracts and Snapshots]
+    NT[State Update Notifications]
+  end
+  CP --> CV
+  EP --> JD
+  AD -.-> NT
+  CVS -. read .-> RC
+  JVS -. read .-> RS
+  RR --> CP
+  RR --> EP
+  CPS --> SN
+  JPS --> SN
+  CPS -.-> EV
+  JPS -.-> EV
+  EV -. refresh .-> SS
 """,
         "Fig2": """sequenceDiagram
   participant C as Candidate

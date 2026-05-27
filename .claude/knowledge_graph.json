@@ -1,12 +1,47 @@
 {
   "version": "2.0",
   "last_updated": "2026-05-27",
+  "graph_version": "v12",
   "project": "Job-Matching-Agentic",
   "branch": "main",
-  "commit": "bfa27e1",
+  "commit_pushed": "010dadf",
+  "local_uncommitted": [
+    "manuscript sections 1-7 rewrite",
+    "algorithms/alg-multi-agent-matching.tex",
+    "figures Fig1-5 PDFs",
+    "HANDOFF.md",
+    "knowledge_graph.md/json"
+  ],
   "architecture": "multi-agent rewrite (Candidate, Employer, Matchmaking)",
-  "entry_count": 28,
-  "legacy_note": "Module backend (legacy monolith) entries for app.py remain in knowledge_graph.md for benchmark reference",
+  "entry_count": 35,
+  "manuscript": {
+    "path": "docs/submission/jaamas/manuscript/main.tex",
+    "title": "JobMatch: An Agentic Multi-Role Platform for Explainable Job--Candidate Matching",
+    "sections": 7,
+    "pages_local": 33,
+    "build": "bash docs/submission/jaamas/build_all.sh",
+    "commits_pushed": ["cfae2c2", "3631bcb"],
+    "bib_entries": 7,
+    "citation_todos": 12,
+    "manuscript_todos": 29,
+    "algorithm1": "docs/submission/jaamas/manuscript/algorithms/alg-multi-agent-matching.tex"
+  },
+  "professor_qa": {
+    "date": "2026-05-27",
+    "pass": 10,
+    "partial": 4,
+    "fail": ["literature citations"]
+  },
+  "security_review": {
+    "date": "2026-05-27",
+    "fixes_applied": false,
+    "critical": [
+      "open admin registration",
+      "unauthenticated match routes expose PII",
+      "unauthenticated full profile listing"
+    ],
+    "deployment_rule": "localhost/demo only until hardened"
+  },
   "entries": [
     {
       "path": "backend/main.py",
@@ -32,144 +67,121 @@
       "indexed": "2026-05-27"
     },
     {
+      "path": "backend/gateway/routes/matching.py",
+      "language": "python",
+      "purpose": "Match endpoints — NO AUTH (admin/tests); exposes PII on job-to-candidates",
+      "key_elements": ["match_candidate_to_jobs", "match_job_to_candidates", "run_daily_batch"],
+      "importance": "HIGH",
+      "indexed": "2026-05-27",
+      "security_note": "critical if network-exposed"
+    },
+    {
+      "path": "backend/auth/routes.py",
+      "language": "python",
+      "purpose": "Register/login — allows role=admin without gate",
+      "importance": "HIGH",
+      "indexed": "2026-05-27",
+      "security_note": "open admin registration"
+    },
+    {
       "path": "backend/agents/matchmaking_agent.py",
       "language": "python",
-      "purpose": "Neutral match broker: score, rank, explain; reads snapshots only",
+      "purpose": "Neutral match broker: score, rank, explain; attaches MatchExplanation and job metadata",
       "key_elements": ["MatchmakingAgent", "match_candidate_to_jobs", "match_job_to_candidates"],
       "importance": "HIGH",
       "indexed": "2026-05-27"
     },
     {
+      "path": "backend/core/match_explanation.py",
+      "language": "python",
+      "purpose": "build_match_explanation — structured skills/fit/breakdown on MatchResult",
+      "key_elements": ["build_match_explanation"],
+      "importance": "HIGH",
+      "indexed": "2026-05-27"
+    },
+    {
+      "path": "backend/demo_reset.py",
+      "language": "python",
+      "purpose": "POST /system/demo/reset — reload corpus, clear demo SQLite, re-seed activity",
+      "importance": "MEDIUM",
+      "indexed": "2026-05-27"
+    },
+    {
       "path": "backend/core/scoring.py",
       "language": "python",
-      "purpose": "Semantic, multimodal, composite scoring; COMPOSITE_WEIGHTS 40/30/15/10/5",
-      "key_elements": ["compute_composite", "compute_semantic", "compute_multimodal_weighted"],
+      "purpose": "Semantic, multimodal, composite scoring; portal weights 28/27/10/15/10/10",
+      "key_elements": ["compute_composite", "compute_semantic"],
       "importance": "HIGH",
       "indexed": "2026-05-27"
     },
     {
-      "path": "backend/core/matchmaking_scoring.py",
-      "language": "python",
-      "purpose": "score_pair_advanced: strategy routing, constraints, calibration, fusion",
-      "key_elements": ["score_pair_advanced", "resolve_routing"],
+      "path": "docs/submission/jaamas/manuscript/sections/section-2-literature-review.tex",
+      "language": "latex",
+      "purpose": "6-theme literature review; 12 citation TODOs",
       "importance": "HIGH",
       "indexed": "2026-05-27"
     },
     {
-      "path": "backend/gateway/routes/candidates.py",
-      "language": "python",
-      "purpose": "Candidate API: upsert /me, resume upload, saved jobs, applications, resume coach",
-      "key_elements": ["_upsert_my_candidate", "upload_resume", "_sanitize_profile_payload"],
+      "path": "docs/submission/jaamas/manuscript/sections/section-6-results-discussion.tex",
+      "language": "latex",
+      "purpose": "Narrative results + interpreted tables for general audience",
       "importance": "HIGH",
       "indexed": "2026-05-27"
     },
     {
-      "path": "backend/gateway/routes/employers.py",
-      "language": "python",
-      "purpose": "Employer job API: JD paste parse, file upload, mine jobs, applications",
-      "key_elements": ["parse_description", "upload_description"],
+      "path": "docs/submission/jaamas/manuscript/algorithms/alg-multi-agent-matching.tex",
+      "language": "latex",
+      "purpose": "Algorithm 1 — 15-step multi-agent matching (formulas deferred to section 5)",
       "importance": "HIGH",
       "indexed": "2026-05-27"
     },
     {
-      "path": "backend/gateway/routes/matching.py",
-      "language": "python",
-      "purpose": "Match endpoints: candidate-to-jobs, job-to-candidates, ensemble, daily-batch",
-      "importance": "HIGH",
-      "indexed": "2026-05-27"
-    },
-    {
-      "path": "backend/auth/store.py",
-      "language": "python",
-      "purpose": "SQLite users + candidate/job ownership links; idempotent link_candidate",
-      "key_elements": ["UserStore", "link_candidate", "get_candidate_id"],
-      "importance": "HIGH",
-      "indexed": "2026-05-27"
-    },
-    {
-      "path": "backend/core/resume_clean.py",
-      "language": "python",
-      "purpose": "Strip PDF cid artifacts and junk; protect contact spans during cleanup",
-      "key_elements": ["clean_resume_text"],
-      "importance": "MEDIUM",
-      "indexed": "2026-05-27"
-    },
-    {
-      "path": "backend/core/contact_extract.py",
-      "language": "python",
-      "purpose": "Regex contact extraction: email, phone, GitHub, LinkedIn, portfolio, certs",
-      "key_elements": ["extract_contact_from_text", "merge_contact_fields"],
-      "importance": "MEDIUM",
-      "indexed": "2026-05-27"
-    },
-    {
-      "path": "backend/stores/feedback_store.py",
-      "language": "python",
-      "purpose": "SQLite user_feedback for portal UI state; does not change rankings",
-      "importance": "MEDIUM",
-      "indexed": "2026-05-27"
-    },
-    {
-      "path": "backend/demo_seed.py",
-      "language": "python",
-      "purpose": "Idempotent demo accounts; links demo.candidate to cv_01 Rahul Sharma",
-      "key_elements": ["seed_demo_accounts", "DEMO_CANDIDATE_ID"],
-      "importance": "MEDIUM",
-      "indexed": "2026-05-27"
-    },
-    {
-      "path": "frontend/src/api/client.js",
-      "language": "javascript",
-      "purpose": "Axios API client; default composite strategy; profile upsert helpers",
-      "key_elements": ["DEFAULT_CANDIDATE_MATCH", "upsertCandidateProfile", "fetchMyProfileOrNull"],
-      "importance": "HIGH",
-      "indexed": "2026-05-27"
-    },
-    {
-      "path": "frontend/src/components/MatchDetailsDrawer.jsx",
-      "language": "javascript",
-      "purpose": "Match detail panel: score bars, skill gaps, resume coach, similar recs",
-      "importance": "HIGH",
-      "indexed": "2026-05-27"
-    },
-    {
-      "path": "frontend/src/pages/candidate/Matches.jsx",
-      "language": "javascript",
-      "purpose": "Candidate jobs page with profile gate and match refresh",
-      "importance": "HIGH",
-      "indexed": "2026-05-27"
-    },
-    {
-      "path": "README.md",
-      "language": "markdown",
-      "purpose": "Full onboarding doc: architecture, setup, API, demo, tests, troubleshooting",
+      "path": "docs/submission/jaamas/manuscript/main.tex",
+      "language": "latex",
+      "purpose": "JAAMAS submission entry: 7-section multi-agent manuscript",
       "importance": "HIGH",
       "indexed": "2026-05-27"
     },
     {
       "path": "HANDOFF.md",
       "language": "markdown",
-      "purpose": "Session handoff: state, decisions, open questions, test counts",
+      "purpose": "Session continuation: next steps, blockers, QA/review summaries",
       "importance": "HIGH",
+      "indexed": "2026-05-27"
+    },
+    {
+      "path": "scripts/generate_jaamas_figures.py",
+      "language": "python",
+      "purpose": "Generate draw.io sources for paper Figs 1–5; export without --crop",
+      "importance": "MEDIUM",
       "indexed": "2026-05-27"
     }
   ],
   "relationships": [
-    { "from": "backend/main.py", "to": "backend/bootstrap.py", "type": "creates SystemContainer" },
-    { "from": "backend/bootstrap.py", "to": "backend/agents/matchmaking_agent.py", "type": "wires matchmaker" },
-    { "from": "backend/gateway/routes/matching.py", "to": "backend/agents/matchmaking_agent.py", "type": "delegates match requests" },
-    { "from": "backend/agents/matchmaking_agent.py", "to": "backend/core/matchmaking_scoring.py", "type": "score_pair_advanced" },
-    { "from": "backend/core/matchmaking_scoring.py", "to": "backend/core/scoring.py", "type": "compute_composite" },
-    { "from": "frontend/src/api/client.js", "to": "backend/gateway/routes/matching.py", "type": "runMatch HTTP" },
-    { "from": "frontend/src/pages/candidate/Matches.jsx", "to": "frontend/src/api/client.js", "type": "profile gate + match" },
-    { "from": "backend/gateway/routes/candidates.py", "to": "backend/auth/store.py", "type": "ownership link on upsert" },
-    { "from": "backend/demo_seed.py", "to": "backend/auth/store.py", "type": "links demo.candidate to cv_01" }
+    { "from": "backend/gateway/routes/matching.py", "to": "backend/agents/matchmaking_agent.py", "type": "unauthenticated HTTP → scoring" },
+    { "from": "docs/submission/jaamas/manuscript/sections/section-3-architecture.tex", "to": "algorithms/alg-multi-agent-matching.tex", "type": "Algorithm 1 input" },
+    { "from": "docs/submission/jaamas/manuscript/sections/section-5-quality-metrics.tex", "to": "docs/submission/jaamas/manuscript/sections/section-6-results-discussion.tex", "type": "definitions vs results split" },
+    { "from": "HANDOFF.md", "to": ".claude/knowledge_graph.md", "type": "session state sync" }
   ],
   "key_flows": [
-    "Portal → client.runMatch(composite) → MatchmakingAgent → compute_composite → MatchDetailsDrawer",
-    "upload-resume → resume_clean → contact_extract → LlmParser → PUT /candidates/me upsert",
-    "JD paste → POST /jobs/parse-description → employer agent register",
-    "startup → bootstrap corpus → seed_demo_accounts"
+    "§3 Algorithm 1 → §5 formulas → §6 interpreted tables",
+    "matchmaking_agent → build_match_explanation → MatchExplainability UI",
+    "Admin → POST /system/demo/reset → demo_reset",
+    "bash docs/submission/jaamas/build_all.sh → main.pdf + portal + Overleaf zip"
   ],
-  "tests": { "pytest": 208, "node": 20, "last_verified": "2026-05-27" }
+  "benchmarks": {
+    "corpus": "30 resumes, 15 jobs, 47 graded pairs, K=5",
+    "ndcg5_soft_embed": 0.969,
+    "ndcg5_composite_ablation": 0.942,
+    "precision5_approx": 0.31,
+    "portal_composite_weights": "28/27/10/15/10/10",
+    "ablation_weights_in_table": "40/30/15/10/5"
+  },
+  "tests": { "pytest_collected": 302, "last_verified": "2026-05-27", "note": "full suite not re-run after manuscript session" },
+  "next_steps": [
+    "Commit manuscript rewrite",
+    "Fix matchmaking engine → agent in section-1",
+    "Resolve citation TODOs in section-2",
+    "Optional API auth hardening"
+  ]
 }

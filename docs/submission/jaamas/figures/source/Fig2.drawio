@@ -7,37 +7,37 @@
         <mxCell id="2" value="Fig. 2  Candidate workflow (profile to matches)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e8e8e8;strokeColor=#333333;fontColor=#1a1a1a;fontSize=13;align=center;verticalAlign=middle;" vertex="1" parent="1">
           <mxGeometry x="20" y="12" width="1060" height="28" as="geometry"/>
         </mxCell>
-        <mxCell id="3" value="Candidate" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#333333;fontColor=#1a1a1a;fontSize=11;align=center;verticalAlign=middle;" vertex="1" parent="1">
+        <mxCell id="3" value="Candidate" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e8e8e8;strokeColor=#333333;fontColor=#1a1a1a;fontSize=11;align=center;verticalAlign=middle;" vertex="1" parent="1">
           <mxGeometry x="40.0" y="60" width="130" height="48" as="geometry"/>
         </mxCell>
         <mxCell id="4" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#333333;strokeColor=#333333;fontColor=#1a1a1a;fontSize=11;align=center;verticalAlign=middle;" vertex="1" parent="1">
           <mxGeometry x="104.0" y="108" width="2" height="520" as="geometry"/>
         </mxCell>
-        <mxCell id="5" value="Parser" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#333333;fontColor=#1a1a1a;fontSize=11;align=center;verticalAlign=middle;" vertex="1" parent="1">
+        <mxCell id="5" value="Parser" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e8e8e8;strokeColor=#333333;fontColor=#1a1a1a;fontSize=11;align=center;verticalAlign=middle;" vertex="1" parent="1">
           <mxGeometry x="218.0" y="60" width="130" height="48" as="geometry"/>
         </mxCell>
         <mxCell id="6" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#333333;strokeColor=#333333;fontColor=#1a1a1a;fontSize=11;align=center;verticalAlign=middle;" vertex="1" parent="1">
           <mxGeometry x="282.0" y="108" width="2" height="520" as="geometry"/>
         </mxCell>
-        <mxCell id="7" value="Candidate<br>Agent" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#333333;fontColor=#1a1a1a;fontSize=11;align=center;verticalAlign=middle;" vertex="1" parent="1">
+        <mxCell id="7" value="Candidate<br>Agent" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e8e8e8;strokeColor=#333333;fontColor=#1a1a1a;fontSize=11;align=center;verticalAlign=middle;" vertex="1" parent="1">
           <mxGeometry x="396.0" y="60" width="130" height="48" as="geometry"/>
         </mxCell>
         <mxCell id="8" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#333333;strokeColor=#333333;fontColor=#1a1a1a;fontSize=11;align=center;verticalAlign=middle;" vertex="1" parent="1">
           <mxGeometry x="460.0" y="108" width="2" height="520" as="geometry"/>
         </mxCell>
-        <mxCell id="9" value="Matchmaking<br>Agent" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#333333;fontColor=#1a1a1a;fontSize=11;align=center;verticalAlign=middle;" vertex="1" parent="1">
+        <mxCell id="9" value="Matchmaking<br>Agent" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e8e8e8;strokeColor=#333333;fontColor=#1a1a1a;fontSize=11;align=center;verticalAlign=middle;" vertex="1" parent="1">
           <mxGeometry x="574.0" y="60" width="130" height="48" as="geometry"/>
         </mxCell>
         <mxCell id="10" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#333333;strokeColor=#333333;fontColor=#1a1a1a;fontSize=11;align=center;verticalAlign=middle;" vertex="1" parent="1">
           <mxGeometry x="638.0" y="108" width="2" height="520" as="geometry"/>
         </mxCell>
-        <mxCell id="11" value="Matching<br>Core" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#333333;fontColor=#1a1a1a;fontSize=11;align=center;verticalAlign=middle;" vertex="1" parent="1">
+        <mxCell id="11" value="Matching<br>Core" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e8e8e8;strokeColor=#333333;fontColor=#1a1a1a;fontSize=11;align=center;verticalAlign=middle;" vertex="1" parent="1">
           <mxGeometry x="752.0" y="60" width="130" height="48" as="geometry"/>
         </mxCell>
         <mxCell id="12" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#333333;strokeColor=#333333;fontColor=#1a1a1a;fontSize=11;align=center;verticalAlign=middle;" vertex="1" parent="1">
           <mxGeometry x="816.0" y="108" width="2" height="520" as="geometry"/>
         </mxCell>
-        <mxCell id="13" value="Portal" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#333333;fontColor=#1a1a1a;fontSize=11;align=center;verticalAlign=middle;" vertex="1" parent="1">
+        <mxCell id="13" value="Portal" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e8e8e8;strokeColor=#333333;fontColor=#1a1a1a;fontSize=11;align=center;verticalAlign=middle;" vertex="1" parent="1">
           <mxGeometry x="930.0" y="60" width="130" height="48" as="geometry"/>
         </mxCell>
         <mxCell id="14" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#333333;strokeColor=#333333;fontColor=#1a1a1a;fontSize=11;align=center;verticalAlign=middle;" vertex="1" parent="1">

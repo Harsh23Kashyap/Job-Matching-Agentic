@@ -1,93 +1,129 @@
 \section{Architecture of the Multi-Agent System}\label{sec:3}
 
 JobMatch organizes hiring support around three collaborating agents and a shared representation layer.
-Figure~\ref{fig:1} shows the overall layout; Figures~\ref{fig:2} and~\ref{fig:3} show how candidates and employers interact with their respective agents.
-Implementation details (APIs, libraries, parameters) appear in \S\ref{sec:4}; scoring formulas and evaluation metrics in \S\ref{sec:5}.
+Figure~\ref{fig:1} shows the overall layout; Figures~\ref{fig:2} and~\ref{fig:3} summarize end-user workflows.
+Three design principles guide the layout: \textbf{separation of ownership} (each market side controls its own records), \textbf{read-only matchmaking} (scoring never edits profiles or acts on behalf of users), and \textbf{human-in-the-loop decisions} (save, apply, contact, and shortlist remain explicit user actions).
+Concrete libraries, APIs, and parameters appear in \S\ref{sec:4}; score formulas and evaluation metrics in \S\ref{sec:5}.
 
 \begin{JFigure}{../figures/Fig1.pdf}
-\figcap{1}{Multi-agent recruitment architecture. Candidate and Employer agents own profile state and embeddings; they publish update events on a shared bus. The Matchmaking agent consumes immutable snapshots, scores pairs, and returns ranked explanations to role portals. The UI layer never writes directly to vector stores.}
+\figcap{1}{Multi-agent architecture of the proposed JobMatch recruitment system. The Candidate and Employer agents each own an ingestion pipeline (parse, embed, store, profile state); the read-only Matchmaking agent queries both vector stores, scores pairings, and returns ranked recommendations to role portals. A shared communication layer carries events, versioned snapshots, and cache-invalidation signals between agents.}
 \end{JFigure}
 
-\subsection{Design principles}\label{sec:3-principles}
+\subsection{Candidate/Client Agent}\label{sec:3-candidate}
 
-Three principles govern the architecture.
-\textbf{Separation of ownership:} only the Candidate agent writes candidate snapshots; only the Employer agent writes job snapshots.
-\textbf{Read-only matchmaking:} the Matchmaking agent scores and explains but does not edit profiles, apply on behalf of users, or send messages to employers.
-\textbf{Human-in-the-loop actions:} save, apply, contact, and shortlist operations flow through portal APIs and activity stores; ranking suggests, users decide.
+The \textbf{candidate-side agent} (also referred to as the client-side agent in our implementation) represents the job seeker.
+Its responsibility is to turn resumes and profile edits into a maintained \emph{candidate state} that the rest of the system can trust.
 
-\subsection{The three agents}\label{sec:3-agents}
+When a user uploads or revises a resume, this agent assists with parsing, normalizes skills into a shared vocabulary, and registers a versioned snapshot of the person's skills, experience, compensation expectations, and remote preferences.
+It also maintains the editable portal profile the user sees in forms.
+The agent publishes a profile-updated signal whenever a new snapshot is ready so that stale match lists can be refreshed.
 
-\leadpara{Candidate agent.}
-Represents the job seeker's side of the market.
-When a user uploads or edits a resume, this agent parses assistive fields, normalizes skills, builds a versioned \emph{snapshot}, computes a document embedding, and upserts the vector index.
-It publishes a profile-updated event so downstream components know prior rankings may be stale.
+The candidate agent does \emph{not} own job postings, write into employer records, or decide which applications are sent.
+Those boundaries keep accountability clear: the seeker's representative manages seeker data only.
 
-\leadpara{Employer agent.}
-Represents the hiring organization's side.
-When a user posts or revises a job description, this agent registers a job snapshot with required and preferred skills, experience and compensation bounds, remote policy, and an embedding of the description text.
-It publishes job-updated events on the same bus.
+\subsection{Employer Agent}\label{sec:3-employer}
 
-\leadpara{Matchmaking agent.}
-Serves both portals.
-Given a candidate snapshot and a set of job snapshots (or the reverse direction), it runs the hybrid scoring core, optionally fuses multiple retrieval lists, attaches structured explanations, and returns ranked \texttt{MatchResult} rows.
-It subscribes to profile and job events to invalidate cached rankings but never calls write APIs on candidate or job stores.
+The \textbf{employer-side agent} represents the hiring organization.
+It accepts job descriptions and requirement updates, structures them into a maintained \emph{job state}, and keeps that state aligned with what recruiters edit in the employer portal.
 
-\subsection{Agent communication and the event bus}\label{sec:3-communication}
+For each posting, the agent registers a snapshot with required and preferred skills, experience bounds, compensation band, remote policy, and descriptive text suitable for comparison against candidates.
+Like its counterpart on the candidate side, it emits a job-updated signal when a snapshot changes so match rankings can be invalidated without cross-agent writes.
 
-Agents communicate asynchronously through an in-process event bus (\texttt{agents/base.py}).
-Typical events include \texttt{CandidateProfileUpdated}, \texttt{JobProfileUpdated}, and \texttt{MatchCompleted}.
-When the Candidate agent finishes embedding a new resume version, it emits an update event; the Matchmaking agent drops any cached ranking for that candidate.
-The Employer agent follows the same pattern for job edits.
+The employer agent does \emph{not} manage candidate profiles or override match scores.
+Shortlisting and applicant review remain human decisions supported by ranked suggestions.
 
-This design keeps coupling low: agents expose HTTP endpoints through a gateway, but \emph{coordination} happens via typed events rather than direct method calls across ownership boundaries.
-Administrators can inspect recent events in the admin console for debugging.
+\subsection{Matchmaking Agent}\label{sec:3-matchmaking}
 
-\subsection{State ownership and shared representations}\label{sec:3-state}
+The \textbf{matchmaking agent} is a neutral broker between the two market sides.
+Given a candidate snapshot and a set of job snapshots---or the reverse direction for employer-initiated search---it scores each feasible pairing, attaches structured explanations, and returns a ranked list.
 
-Each market side maintains two conceptual layers.
-A \textbf{profile} is the editable portal record (form fields the user sees).
-A \textbf{snapshot} is the immutable, versioned object passed to matching---skills, constraints, document hash, and embedding vector.
+It reads snapshots by identifier only; it never mutates candidate or job stores.
+It may fuse multiple retrieval signals and optional reranking stages when configured, but the default portal path favors a fixed composite strategy whose components users can inspect (\S\ref{sec:4}, \S\ref{sec:5}).
+When profile or job events indicate that inputs changed, the matchmaking layer drops cached rankings for the affected entity and recomputes on the next request.
 
-Ownership rules are strict.
-Candidate profiles and snapshots belong to the Candidate agent; job profiles and snapshots belong to the Employer agent.
-Feedback (save, dismiss, apply) and user activity logs live in SQLite and are owned by the gateway layer; they do not mutate snapshots unless the user submits a new profile version.
-The Matchmaking agent reads snapshots by identifier only.
+The matchmaking agent suggests; it does not hire, reject, or apply on anyone's behalf.
 
-Both agents write into a shared embedding space so that resume and job vectors are comparable.
-Skill aliases are canonicalized once so that lexical and set-based scores refer to the same vocabulary.
+\subsection{Agent Communication and State Sharing}\label{sec:3-communication}
 
-\subsection{Vector-store updates and matchmaking flow}\label{sec:3-vector-flow}
+JobMatch relies on exactly three cooperating agents: the \textbf{Candidate/Client Agent}, the \textbf{Employer Agent}, and the \textbf{Matchmaking Agent} (Figure~\ref{fig:1}).
+Sections~\ref{sec:3-candidate}--\ref{sec:3-matchmaking} describe each agent's role; this subsection explains how they exchange information, what each one is allowed to keep private, and how user actions propagate through the system without collapsing ownership boundaries.
 
-When a snapshot is registered or updated, the owning agent:
-(1)~computes a fixed-dimensional embedding of canonical document text,
-(2)~upserts the vector into a pluggable store (Chroma or Qdrant behind a \texttt{VectorStorePort} interface),
-(3)~emits an update event.
+\leadpara{What each agent owns.}
+The Candidate/Client Agent owns everything derived from the job seeker's side of the market: the resume-derived profile, stated preferences (salary, remote work, location constraints), normalized skills, and the embedding-backed \emph{candidate state} used for comparison.
+The Employer Agent owns the parallel objects on the hiring side: the job-description-derived posting, structured requirements, compensation and experience bounds, and the \emph{job state} with its embedding.
+The Matchmaking Agent owns neither profile store.
+It owns the retrieval-and-ranking workflow---how candidate and job snapshots are paired, scored, explained, and ordered---and the transient recommendation output returned to a portal session.
+It may cache recent rankings for responsiveness, but it does not author candidate or job records.
 
-The Matchmaking agent's typical flow for a candidate seeking jobs is:
-(1)~load the candidate snapshot for the authenticated user,
-(2)~retrieve candidate jobs---either exhaustively (small pools) or via approximate nearest-neighbor search over job embeddings,
-(3)~score each candidate--job pair with the configured strategy (portal default: composite),
-(4)~attach explanations and return the top-$K$ list.
+\leadpara{State each agent maintains.}
+On the candidate and employer sides, each agent maintains two related layers.
+A \textbf{profile} is the editable portal record: form fields the user can revise at any time.
+A \textbf{snapshot} is a versioned, match-ready view frozen at the moment the user confirms a save---normalized skills, constraint values, document identity, and a comparable text representation with its embedding.
+Only snapshots enter ranking; profiles exist so people can edit without immediately rewriting history.
+The Matchmaking Agent maintains session-scoped ranking state (cached lists, last-computed scores) and structured explanation payloads attached to each recommendation.
+It does not maintain a third copy of full resumes or job descriptions beyond what it needs to score a request.
 
-Employer-side reverse matching mirrors the same steps with roles exchanged.
-Optional paths (ensemble fusion, cross-encoder rerank, calibration, feedback boost) exist in the codebase but are disabled in default portal requests (\S\ref{sec:4}).
+\leadpara{What data is shared.}
+Agents share the minimum information required for fair comparison and timely refresh.
+\textbf{Snapshots and identifiers} cross the boundary to the Matchmaking Agent when a user requests matches: a candidate identifier plus the current candidate snapshot, and a set of job identifiers with their snapshots (or the reverse direction for employer search).
+\textbf{Events} broadcast that a snapshot changed---for example, after a confirmed profile save or job edit---so the Matchmaking Agent can discard stale rankings.
+\textbf{Canonical skill vocabulary} is shared implicitly: both owning agents normalize skills to the same alias table so that overlap and constraint checks refer to the same terms.
+\textbf{Recommendation results} flow outward as ranked lists with explanations; they are shared with the UI layer, not written back into profile stores.
 
-\subsection{Role portals as the application layer}\label{sec:3-portals}
+\leadpara{What should not be shared unnecessarily.}
+The design deliberately withholds data that would blur accountability or expose one party without cause.
+The Candidate Agent does not receive employer-only draft postings or internal recruiter notes unless the employer publishes a job snapshot.
+The Employer Agent does not receive another candidate's full profile when an employer views a shortlist---only the fields appropriate to that match request.
+The Matchmaking Agent never receives portal credentials, authentication secrets, or raw feedback logs as inputs to ranking; save, dismiss, and apply actions are recorded separately and do not silently rewrite embeddings.
+Neither owning agent calls the other's write path: all cross-side access for matching is read-only through the Matchmaking Agent.
 
-Candidates, employers, and administrators use separate route trees in one React application.
-Each tree enforces role-based access at the router and API layers.
-Portals call the gateway; they never invoke agent internals directly.
-Detailed UI flows, endpoints, and default parameters are documented in \S\ref{sec:4}.
+\leadpara{How vector stores are updated.}
+Each owning agent updates only its own embedding index when a confirmed snapshot changes.
+After parsing and normalization, the agent computes a fresh vector for the canonical document text and upserts it into the candidate or job vector store.
+The opposite side's store is untouched.
+An update event follows the write so downstream components know prior similarity searches may be outdated.
+The Matchmaking Agent never performs upserts; it queries both stores when retrieving candidates for a job or jobs for a candidate.
+Implementation details of the store backends appear in \S\ref{sec:4}.
 
-\subsection{Candidate and employer workflows}\label{sec:3-workflows}
+\leadpara{How the Matchmaking Agent reads from both sides.}
+A match request supplies direction (candidate seeking jobs, or employer seeking candidates), the authenticated user's snapshot identifier, and retrieval scope (top-$K$, strategy).
+The agent loads the query-side snapshot from the owning agent's store, retrieves candidate vectors or job vectors from the respective indexes, scores each feasible pair using the configured strategy, attaches explanations, and sorts the results.
+Reads are symmetric: the same pipeline runs in reverse when an employer searches for candidates.
+If either store lacks a fresh embedding, the owning agent must register a snapshot first; the Matchmaking Agent does not fabricate missing state.
+
+\leadpara{How UI actions trigger agent updates.}
+Portal interactions map cleanly to owning agents and to the Matchmaking layer.
+When a candidate uploads or edits a resume and confirms the form, the Candidate Agent updates profile and snapshot state, refreshes the candidate embedding, and emits a profile-updated event.
+When an employer posts or revises a job description and saves, the Employer Agent performs the parallel job-side update.
+Requesting the matches page---or an employer opening reverse search for a posting---invokes the Matchmaking Agent with the current snapshots; no ranking runs on half-edited forms until the user confirms.
+Secondary actions such as save, apply, shortlist, or dismiss are recorded as user activity; they do not automatically change embeddings unless the user later edits and re-saves a profile or job.
+Administrators can inspect recent events for debugging but do not override ownership through the UI.
+
+\leadpara{Human-in-the-loop by design.}
+This communication model keeps people in control of outcomes that matter.
+Agents prepare, normalize, and suggest; they do not substitute for a hiring decision.
+Ranked lists arrive with reasons attached, and every consequential action---saving a job, submitting an application, contacting a candidate---requires an explicit portal choice.
+Because snapshots change only after user confirmation, a person can review parsed fields, correct errors, and understand what the system will compare before any recommendation is computed.
+Separation of ownership plus read-only matchmaking makes it clear who changed what: candidates govern candidate state, employers govern job state, and the Matchmaking Agent governs only how those states are compared at a given moment.
+
+\subsection{Overall Workflow}\label{sec:3-workflow}
+
+Figure~\ref{fig:2} traces the candidate path; Figure~\ref{fig:3} traces the employer path.
+In both portal workflows, document ingestion is assistive: extracted fields populate review forms, users confirm or correct them, and only then does the owning agent register a snapshot and notify the matchmaking layer.
+
+\input{algorithms/alg-multi-agent-matching.tex}
+
+\algref{alg:matching} summarizes the end-to-end multi-agent matching process at the architectural level; score definitions appear in \S\ref{sec:5} and implementation paths in \S\ref{sec:4}.
 
 \begin{JFigure}{../figures/Fig2.pdf}
-\figcap{2}{Candidate workflow: resume upload, assisted parsing, profile confirmation, embedding registration, and ranked job discovery with explainable results.}
+\figcap{2}{Candidate workflow: resume upload, assisted parsing, profile confirmation, snapshot registration, and ranked job discovery with explainable results.}
 \end{JFigure}
 
 \begin{JFigure}{../figures/Fig3.pdf}
 \figcap{3}{Employer workflow: job description ingestion, posting confirmation, reverse candidate matching, and applicant review with structured explanations.}
 \end{JFigure}
 
-In both workflows, parsing is assistive---extracted fields populate forms and users confirm before an agent registers a snapshot.
-Matches appear with explanation panels; users explicitly choose next actions.
+Candidates browse ranked jobs with explanation panels, then explicitly save or apply.
+Employers browse ranked candidates for a posting, then shortlist or contact through portal actions.
+Administrators inspect agent health and recent events in a separate console.
+Separate web experiences for candidates, employers, and administrators sit above the gateway; routing, endpoints, and default request parameters are specified in \S\ref{sec:4}.

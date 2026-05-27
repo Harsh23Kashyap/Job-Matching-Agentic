@@ -1,5 +1,5 @@
 # Codebase Knowledge Graph
-> Last updated: 2026-05-27 (v10 · demo data mode, explainability, filters, frontend state) | Entries: 485+ | Modules: 15
+> Last updated: 2026-05-27 (v12 · manuscript §2–§7 rewrite local; last push `010dadf`) | Entries: 490+ | Modules: 15
 
 ---
 
@@ -10,7 +10,7 @@
 **Authors:** Harsh Kashyap, Taranumpreet Kaur Wasu (Thapar Institute). Supervisor: Dr Parteek Bhatia (WSU).
 
 **Repository:** https://github.com/Harsh23Kashyap/Job-Matching-Agentic  
-**Branch:** `main` @ `57ad896` (pushed) · **local uncommitted:** demo data mode, match explainability, search/filters, frontend state management
+**Branch:** `main` @ `010dadf` (pushed) · **Local uncommitted:** manuscript §1–§7 rewrites, Fig1–5 PDFs, Algorithm 1, `HANDOFF.md`, this graph v12 · **Recent commit stack:** backend explainability → frontend filters/UX → tests → JAAMAS manuscript v1 → portal/build → knowledge graph
 
 **Legacy note:** Entries under [Module: backend (legacy monolith)](#module-backend-legacy-monolith) describe the **pre-rewrite** `app.py` monolith. Current runtime uses `main.py` → `bootstrap.py` → `gateway/app.py`. See [Module: rewrite (current)](#module-rewrite-current) and [Module: research evaluation](#module-research-evaluation).
 
@@ -77,8 +77,9 @@ cd frontend && npm run dev
 | Doc | Path |
 |-----|------|
 | Onboarding README | `README.md` (602 lines, full setup + API) |
-| Session handoff | `HANDOFF.md` |
+| Session handoff | `HANDOFF.md` (updated 2026-05-27 · professor QA + code review) |
 | Research paper draft | `docs/research/RESEARCH-PAPER.md` |
+| **JAAMAS submission (active)** | `docs/submission/jaamas/manuscript/main.tex` · build: `bash docs/submission/jaamas/build_all.sh` |
 | Evaluation archive | `docs/research/evaluation/` |
 | HLD / SDD | `docs/design/HLD-multi-agent-system.md`, `SDD-multi-agent-system.md` |
 | Demo script | `docs/demo/DEMO-SCRIPT.md` |
@@ -106,9 +107,34 @@ bash scripts/run_research_suite.sh   # export → docs/research/evaluation/
 
 ---
 
-## Paper rewrite roadmap · PRIORITY (user directive, 2026-05-27)
+## Paper rewrite roadmap · STATUS (user directive, 2026-05-27)
 
-> **Supersedes current manuscript framing.** The existing JAAMAS draft reads like a technical report. Target: **white paper / internet-style** narrative for a general audience. Core reframe: a **multi-agentic recruitment system** where candidate-side and employer-side agents collaborate via shared representations and a matchmaking agent, not keyword search alone.
+> **Committed:** `cfae2c2` + `3631bcb` (manuscript v1, portal, build). **Local session (2026-05-27):** full §2–§7 rewrite, professor QA pass, security code review — **not yet committed**.
+
+**Completion checklist**
+
+| Item | Status |
+|------|--------|
+| 7-section structure (§1–§7) | Done · committed + locally refined |
+| Introduction story arc (no subsections, no tech opening) | Done · §1 (contrib bullet still says “matchmaking engine” — fix pending) |
+| Multi-agent architecture §3 | Done · Fig1 multi-agent, §3.4 communication, Algorithm 1 |
+| §4 Implementation (consolidated technical detail) | Done · local rewrite |
+| §5 Quality Metrics (formulas only, no results) | Done · local rewrite; equations only in §5 |
+| §6 Results (narrative + interpreted tables) | Done · local rewrite; `tab-method-comparison` moved here from §5 |
+| §7 Conclusion + Future Scope (decision-support framing) | Done · local rewrite; 8 future-scope items |
+| §2 Literature Review (6 themed subsections) | Done · local rewrite; **12 citation `\todo`s**, 7 bib entries |
+| Portal cover letter + information sheet | Done · may need sync with §6 numbers |
+| Build pipeline + Overleaf zip | Done · `build_all.sh`; re-run after commit |
+| Abstract reframed (multi-agent) | Done · `main.tex` |
+| Fig1 export fix (no `--crop`) | Done · local PDF re-export |
+| Professor QA (14 criteria) | Done · 10 PASS / 4 PARTIAL / 1 FAIL (citations) |
+| Author/affiliation placeholders | Open |
+| Resolve ~29 `\todo` markers | Open · body + tables + declarations |
+| Portal-weight composite ablation (28/27/10/15/10/10) | Open · `tab-ablation.tex` uses research weights |
+| Explainability / fairness / phase11 result tables | Open |
+| Optional Sal Khan bib entry | Open |
+
+> **Original directive (archived intent).** Target: **white paper / internet-style** narrative for a general audience. Core reframe: a **multi-agentic recruitment system** where candidate-side and employer-side agents collaborate via shared representations and a matchmaking agent, not keyword search alone.
 
 ### 1. Reframe completely
 
@@ -168,7 +194,7 @@ Do **not** open with keyword/semantic search, embeddings, or vector stores.
 
 1. **Candidate/client-side agent** · processes resumes/CVs
 2. **Employer-side agent** · processes job descriptions
-3. **Matchmaking engine** · semantic matching
+3. **Matchmaking agent** · semantic matching and ranking (intro bullet still says “engine” — pending fix)
 4. **Multi-agent communication flow** · agents share relevant states/data
 5. **UI/application layer** · end-to-end demonstrator
 6. **Evaluation** · quality metrics showing improvement over baselines
@@ -221,26 +247,123 @@ Connect prior work to: recruitment systems; AI agents in hiring; semantic search
 
 ### 10. Edit cascade when rewrite lands
 
-Update: `sections/section-1.tex` … `section-9.tex` (restructure), new Fig1–7 as multi-agent block diagram, abstract, portal cover letter + information sheet, README, supplementary JSON/CSV if metrics unchanged.
+**Landed 2026-05-27.** Renamed `section-*-*.tex` (7 files), abstract/keywords in `main.tex`, portal PDFs, `build_all.sh`, supplementary SI. Still open: author block, `\todo` cleanup, Fig1/Fig4 re-export, sync cover letter if § titles change again.
 
 ---
 
 ## JAAMAS Manuscript · Complete Architecture Reference
 
-> **Why this section exists:** The team is migrating the system to a new architecture. This documents how the **current paper** is built, structured, and tied to code · so claims, tables, figures, and evaluation protocols can be preserved or consciously revised during the rewrite.
+> **Active manuscript (v2, May 2026):** Seven-section multi-agent restructure. **Compiled ~33 pages (local).** Legacy 9-section / 31-page map retained below for table-number and benchmark cross-reference only.
 
-### Paper identity
+### Paper identity (current)
+
+| Field | Value |
+|-------|-------|
+| Title | JobMatch: An Agentic Multi-Role Platform for Explainable Job--Candidate Matching |
+| Journal | Journal of Autonomous Agents and Multi-Agent Systems (JAAMAS) |
+| Type | Original research article |
+| Compiled PDF | `docs/submission/jaamas/manuscript/main.pdf` (~33 pp. local) · copy: `build/jaamas-manuscript.pdf` |
+| LaTeX entry | `docs/submission/jaamas/manuscript/main.tex` |
+| Engine | **pdfLaTeX** + BibTeX (`sn-mathphys-num.bst`) |
+| Class | `sn-jnl.cls` · `\documentclass[pdflatex,sn-mathphys-num]{sn-jnl}` |
+| Git commits | `cfae2c2` (source v1), `3631bcb` (portal/build) · **local §2–§7 rewrite uncommitted** |
+
+### Manuscript directory tree (current)
+
+```
+docs/submission/jaamas/
+├── manuscript/
+│   ├── main.tex
+│   ├── jaamas-style.tex, jaamas-macros.tex
+│   ├── references.bib (7 entries)
+│   ├── sn-jnl.cls, sn-mathphys-num.bst, vendored *.sty
+│   ├── sections/
+│   │   ├── section-1-introduction.tex
+│   │   ├── section-2-literature-review.tex
+│   │   ├── section-3-architecture.tex
+│   │   ├── section-4-implementation.tex
+│   │   ├── section-5-quality-metrics.tex
+│   │   ├── section-6-results-discussion.tex
+│   │   ├── section-7-conclusion-future.tex
+│   │   └── declarations.tex
+│   ├── algorithms/ alg-multi-agent-matching.tex (Algorithm 1 · 15 steps)
+│   └── tables/ tab-*.tex (10 tables from benchmark artifacts)
+├── figures/ Fig1.pdf … Fig5.pdf + source/*.drawio, *.mmd
+├── supplementary/ supplementary-information.{tex,pdf}
+├── portal/ cover-letter + information-sheet (md/tex/pdf)
+├── build/ jaamas-manuscript.pdf, jaamas-overleaf-upload.zip
+├── build_all.sh
+└── figures/README.md
+```
+
+### How compilation works (current)
+
+```
+main.tex
+  ├── \input{jaamas-macros} + jaamas-style
+  ├── abstract + keywords (inline)
+  ├── \input{sections/section-1-introduction} … section-7-conclusion-future
+  ├── \input{sections/declarations}
+  └── \bibliography{references}
+```
+
+**Build:** `bash docs/submission/jaamas/build_all.sh` → manuscript PDF, portal PDFs, supplementary SI, Overleaf zip via `archive/dev-scripts/make_overleaf_zip.sh`.
+
+**Figure generation:** `python scripts/generate_jaamas_figures.py` → draw.io sources in `figures/source/` · export PDF **without `--crop`** (crop produced ~47 pt tall PDFs).
+
+### PDF document map (current · ~33 pages local)
+
+| § | Source file | Title / content (v12 local) |
+|---|-------------|------------------------------|
+| 1 | `section-1-introduction.tex` | Introduction — story arc, Sal Khan, 6 contributions, no subsections |
+| 2 | `section-2-literature-review.tex` | Literature Review — 6 themes + gaps + positioning; **12 citation TODOs** |
+| 3 | `section-3-architecture.tex` | Multi-agent architecture — 3 agents, §3.4 state sharing, Algorithm 1, Figs 1–3 |
+| 4 | `section-4-implementation.tex` | Implementation — gateway, agents, stores, portals, params, reproducibility, Fig 4 |
+| 5 | `section-5-quality-metrics.tex` | Quality Metrics — matching scores + P/R/nDCG/MRR/MAP formulas only, Fig 5 |
+| 6 | `section-6-results-discussion.tex` | Results — narrative interpretation; 8 tables; human-audience structure |
+| 7 | `section-7-conclusion-future.tex` | Conclusion + Future Scope — decision-support; 8 future items |
+
+**Key committed metrics (K=5, demo corpus):** soft-embed nDCG@5 **0.969**, learned fusion **0.968**, composite ablation **0.942** (research weights 40/30/15/10/5), TF–IDF **0.905**, BM25 **0.901**, P@5 ~**0.31** at best configs, cross-encoder ΔnDCG **−0.108** @ ~141.7 ms/query.
+
+### Professor QA summary (2026-05-27)
+
+| Criterion | Result |
+|-----------|--------|
+| Less like technical report | PARTIAL — §4–§5 still dense |
+| Intro no subsections / story-first | PASS |
+| §3 multi-agent + Fig1 + Algorithm 1 | PASS (Fig1 after brief intro para) |
+| Formulas in §5, implementation in §4 | PASS |
+| §6 readable + interpreted | PASS |
+| Literature review strength | PARTIAL content / **FAIL citations** (7 bib, 12 TODOs) |
+| Consistent multi-agent framing | PARTIAL — “matchmaking engine” in §1 contrib |
+
+### Security review summary (2026-05-27 · `/review` · no fixes applied)
+
+| Severity | Issue |
+|----------|-------|
+| Critical | Open `admin` self-registration (`/auth/register`); unauthenticated `/match/*` exposes candidate PII (email/phone) |
+| Critical | Unauthenticated `GET /candidates/full`, `/candidates/{name}`, `/jobs/full` |
+| High | Unauthenticated `POST /system/vector-store`, `POST /match/daily-batch` (path traversal on `output_path`) |
+| High | Unauthenticated corpus pollution via `POST /candidates`, `POST /jobs` |
+| Medium | Demo passwords in `GET /system/config`; default `session_secret=dev-change-me` |
+| Tests | `test_register_admin`, `test_match_*` assert insecure behavior — auth hardening needs test rewrites |
+
+**Deployment rule:** localhost/demo only until auth + PII redaction land. Documented intentionally in §4 for admin console access.
+
+---
+
+### [LEGACY] Pre-restructure manuscript reference (9 sections · 31 pages)
+
+> The following documents the **old** draft (`section-1.tex` … `section-9.tex`). Use only for historical table/figure numbering and migration notes.
+
+### Paper identity (legacy)
 
 | Field | Value |
 |-------|-------|
 | Title | Agentic Job Matching: A Semantic Retrieval System for Resume-to-Job Alignment |
-| Journal | Journal of Autonomous Agents and Multi-Agent Systems (JAAMAS) |
-| Type | Original research article |
-| Compiled PDF | `docs/submission/jaamas/manuscript/Agentic Job Matching.pdf` (31 pages) |
-| LaTeX entry | `docs/submission/jaamas/manuscript/main.tex` |
-| Build marker | `2026-05-17-page-rhythm-v7` (in main.tex comment) |
-| Engine | **pdfLaTeX** + BibTeX (`sn-mathphys.bst`) |
-| Class | `sn-jnl.cls` · `\documentclass[pdflatex,sn-mathphys,Numbered,oneside]{sn-jnl}` |
+| Compiled PDF | `Agentic Job Matching.pdf` (31 pages) · **removed** |
+| Build marker | `2026-05-17-page-rhythm-v7` |
+| Engine | pdfLaTeX + `sn-mathphys.bst` |
 
 ### Manuscript directory tree
 
@@ -1885,13 +2008,14 @@ benchmarks.phase11
 - [ ] Decide match endpoint: ANN-first vs exhaustive (§9.3)
 
 **Phase C · Manuscript sync**
-- [ ] §3 Fig 1–7 redraw if layers change
-- [ ] §5 Table 6 if routes change
-- [ ] Abstract + portal + README if metrics change
-- [ ] Rebuild Overleaf zip + supplementary JSON/CSV
+- [x] 7-section restructure + intro rewrite (`cfae2c2`)
+- [x] Portal + build pipeline (`3631bcb`)
+- [ ] Fig1/Fig4 re-export (thin PDFs)
+- [ ] Author placeholders + `\todo` cleanup
+- [ ] Abstract + portal re-sync if metrics change
 
 **Phase D · New architecture documentation**
-- [ ] Update this knowledge graph
+- [x] Update this knowledge graph (v11 @ `010dadf`)
 - [ ] Technical report `docs/latex/body.tex` if still maintained
 
 ---
@@ -1935,6 +2059,9 @@ benchmarks.phase11
 | `auth/store.py` | `gateway/routes/employers.py` | `get_job_owner`, `link_job_if_unowned` on POST /jobs |
 | `auth/store.py` | `gateway/routes/candidates.py` | candidate_ownership link for GET/PUT /me |
 | `stores/feedback_store.py` | `gateway/routes/feedback.py` | user_feedback UI state (no ranking change) |
+| `docs/submission/jaamas/manuscript/main.tex` | `build_all.sh`, section files | JAAMAS entry point, abstract, `\input` chain |
+| `docs/submission/jaamas/build_all.sh` | portal scripts, make_overleaf_zip | One-command submission rebuild |
+| `scripts/generate_jaamas_figures.py` | `figures/source/*.drawio` | Programmatic draw.io diagram sources |
 | `core/match_explanation.py` | `agents/matchmaking_agent.py` | Builds structured `MatchExplanation` on every MatchResult |
 | `frontend/src/components/MatchExplainability.jsx` | `CandidateJobResults`, `EmployerCandidateResults`, `MatchDetailsDrawer` | Compact + full explainability UI |
 | `frontend/src/utils/matchFilters.js` | `MatchResultsFilters.jsx` | Client-side filter/sort for match rows |
@@ -2199,8 +2326,9 @@ frontend/src/
 
 ### backend/gateway/routes/matching.py
 **Language:** python | **Importance:** HIGH | **Indexed:** 2026-05-27  
-**Purpose:** Match endpoints · candidate-to-jobs, job-to-candidates, ensemble, daily-batch; legacy aliases.  
-**Used by:** admin console, portal runMatch, curl smoke tests
+**Purpose:** Match endpoints · candidate-to-jobs, job-to-candidates, ensemble, daily-batch; legacy aliases. **No auth on routes** — exposes PII (email/phone) on job-to-candidates responses.  
+**Used by:** admin console, portal runMatch, curl smoke tests  
+**Security:** Critical if network-exposed · see Security review summary in JAAMAS block.
 
 ---
 
@@ -2496,9 +2624,9 @@ frontend/src/
 ---
 
 ### HANDOFF.md
-**Language:** markdown | **Importance:** HIGH | **Indexed:** 2026-05-27 (stale · source @ 57ad896)  
-**Purpose:** Agent session handoff · current state, decisions, open questions, test counts, demo commands.  
-**Note:** Knowledge graph handoff section above is more current than HANDOFF.md body until next handoff write.
+**Language:** markdown | **Importance:** HIGH | **Indexed:** 2026-05-27  
+**Purpose:** Session continuation doc — goal, git state, manuscript §2–§7 status, professor QA, security review, next steps.  
+**Core Logic:** Authoritative for “what to do next”; synced with graph v12 handoff block above.
 
 ---
 
@@ -3142,24 +3270,43 @@ backend/
 
 ## Module: submission-pdfs
 
+### docs/submission/jaamas/manuscript/main.pdf
+**Language:** pdf | **Importance:** HIGH | **Indexed:** 2026-05-27  
+**Purpose:** Compiled JAAMAS submission (~33 pages local). Source: `main.tex` + 7 section files + `algorithms/` + `tables/tab-*.tex`.  
+**Structure:** Abstract → §1 Introduction → §2 Literature Review → §3 Multi-Agent Architecture → §4 Implementation → §5 Quality Metrics → §6 Results and Discussion → §7 Conclusion and Future Scope → Declarations → References.
+
+**Key tables:** `tab-dataset`, `tab-methods`, `tab-progression`, `tab-fusion`, `tab-ablation`, `tab-latency`, `tab-fairness`, `tab-hard-negs`, `tab-model-params`, `tab-workflows` (numbers from committed benchmark artifacts).
+
+---
+
+### docs/submission/jaamas/manuscript/main.tex
+**Language:** latex | **Importance:** HIGH | **Indexed:** 2026-05-27  
+**Purpose:** JAAMAS document class, reframed abstract (~163 words), keywords, `\input` chain for 7 sections + declarations.  
+**Title:** JobMatch: An Agentic Multi-Role Platform for Explainable Job--Candidate Matching.
+
+---
+
+### docs/submission/jaamas/build_all.sh
+**Language:** bash | **Importance:** MEDIUM | **Indexed:** 2026-05-27  
+**Purpose:** Rebuild manuscript PDF, portal PDFs, supplementary SI, and Overleaf zip in one command.
+
+---
+
+### scripts/generate_jaamas_figures.py
+**Language:** python | **Importance:** MEDIUM | **Indexed:** 2026-05-27  
+**Purpose:** Emit draw.io XML for Figs 1–5 (academic greyscale palette). Export PDF **without `--crop`** — crop produced unusable ~47 pt tall PDFs.
+
+---
+
 ### docs/submission/jaamas/manuscript/Agentic Job Matching.pdf
-**Language:** pdf | **Importance:** HIGH | **Indexed:** 2026-05-24  
-**Purpose:** Compiled JAAMAS submission (31 pages). Source: `manuscript/main.tex` + sections.  
-**Structure:** Abstract → §1 Introduction → §2 Literature → §3 Architecture → §4 Matching → §5 Realization → §6 Evaluation → §7 Results → §8 Conclusion → §9 Future Work → **Appendix: Recommendation Summary** → Declarations → References.
-
-**Key tables in PDF:**
-- **Table 9** · Method progression (BM25 through cross-encoder); soft embed **nDCG@5 0.969**
-- **Table 10** · ANN store sweep; Jaccard w=0.7 **nDCG@5 0.913** vs semantic **0.884**
-- **Table 11** · Chroma vs Qdrant characteristics
-
-**Appendix recommendations (5 bullets):** retain lexical baselines; prefer soft overlap @ w=0.7; cautious ANN on tiny corpus; document backend parity; expose batch workflows.
+**Language:** pdf | **Importance:** LOW | **Indexed:** 2026-05-24 | **[LEGACY]**
+**Purpose:** Old 31-page draft (9 sections). Superseded by `main.pdf`.
 
 ---
 
 ### docs/submission/jaamas/portal/cover-letter.pdf
-**Importance:** MEDIUM | **Indexed:** 2026-05-24  
-**Date:** 17 May 2026 | **Journal:** JAAMAS  
-**Claims:** End-to-end pipeline; soft embed nDCG 0.969 vs semantic 0.911; ANN sweep 0.913 vs 0.884; replication artifacts on GitHub; no prior archival publication.
+**Importance:** MEDIUM | **Indexed:** 2026-05-27  
+**Purpose:** Editor cover letter (2–3 paragraphs, JAAMAS fit). Rebuilt via `portal/build_cover_letter.sh`.
 
 ---
 
@@ -3173,17 +3320,54 @@ backend/
 
 ## Module: docs/submission/jaamas
 
-> **Full manuscript architecture:** See **JAAMAS Manuscript · Complete Architecture Reference** (top of this file) for section map, labels, tables, figures, compile pipeline, and migration notes.
+> **Current structure:** See **JAAMAS Manuscript · Complete Architecture Reference** (v2 block at top). Legacy 9-section file index below marked **[LEGACY]**.
 
-### Per-file index (manuscript/)
+### Per-file index (manuscript/ · current)
+
+| File | Responsibility |
+|------|----------------|
+| `main.tex` | Document class, abstract, keywords, 7-section `\input` chain |
+| `jaamas-style.tex` | JTable/JFigure floats, page rhythm |
+| `jaamas-macros.tex` | `\modelname`, metrics, `\figcap`, `\figref` |
+| `sections/section-1-introduction.tex` | Story intro, Sal Khan vision, 6 contributions (fix “engine”→agent), paper map |
+| `sections/section-2-literature-review.tex` | 6 themed subsections, gaps, positioning; 12 citation TODOs |
+| `sections/section-3-architecture.tex` | 3 agents, §3.4 communication, Algorithm 1, Figs 1–3 |
+| `sections/section-4-implementation.tex` | Gateway, agents, stores, portals, params, reproducibility, Fig 4 |
+| `sections/section-5-quality-metrics.tex` | Formulas + metric definitions only; benchmark criteria; no numeric results |
+| `sections/section-6-results-discussion.tex` | Narrative results + 8 interpreted tables incl. method-comparison |
+| `sections/section-7-conclusion-future.tex` | Decision-support conclusion; 8 future-scope items |
+| `algorithms/alg-multi-agent-matching.tex` | Algorithm 1 — 15-step multi-agent matching workflow |
+| `sections/declarations.tex` | Springer declarations |
+| `tables/tab-*.tex` | 10 tables wired from benchmark JSON |
+| `references.bib` | 7 numeric citations |
+
+### figures/ (current)
+
+| Figure | Used in | Depicts |
+|--------|---------|---------|
+| Fig1.pdf | §3 | Multi-agent system overview |
+| Fig2.pdf | §3 | Agent communication / event flow |
+| Fig3.pdf | §3 | End-to-end workflow |
+| Fig4.pdf | §4 | Implementation / API layer |
+| Fig5.pdf | §5 | Metrics / evaluation pipeline |
+
+Sources: `figures/source/FigN.drawio` · regenerate via `scripts/generate_jaamas_figures.py`.
+
+### build/ and scripts (current)
+
+| Script | Output |
+|--------|--------|
+| `docs/submission/jaamas/build_all.sh` | All submission PDFs + Overleaf zip |
+| `archive/dev-scripts/make_overleaf_zip.sh` | `build/jaamas-overleaf-upload.zip` |
+| `portal/build_cover_letter.sh` | `portal/cover-letter.pdf` |
+| `portal/build_info_sheet.sh` | `portal/information-sheet.pdf` |
+| `scripts/generate_jaamas_figures.py` | draw.io sources for Figs 1–5 |
+
+### [LEGACY] Per-file index (9-section draft)
 
 | File | Lines (approx) | Responsibility |
 |------|----------------|----------------|
-| `main.tex` | 77 | Document class, abstract, keywords, `\input` chain, back matter |
-| `jaamas-style.tex` | 176 | JTable/JFigure/JSchemaTable, float rhythm, `\raggedbottom` |
-| `jaamas-macros.tex` | 21 | `\modelname`, metrics, `\figcap`, `\onres` |
-| `author-emails.tex` | 18 | Institution, `\AffilContactList` |
-| `sections/section-1.tex` | 42 | Introduction + agentic framing |
+| `sections/section-1.tex` | 42 | Old introduction |
 | `sections/section-2.tex` | 69 | Literature (6 subsections) |
 | `sections/section-3.tex` | 120 | Architecture + Figs 1–7 |
 | `sections/section-4.tex` | 222 | Methodology algebra + schema tables |
@@ -3316,7 +3500,8 @@ Editor-facing; **must stay metric-consistent** with Table 9/10 and abstract when
 
 ## Staleness
 
-**Last refresh:** 2026-05-27 v9 @ `57ad896` · parsing pipeline, skill catalog, quality intel, six-signal composite, gateway error envelopes, 12 new/updated rewrite entries.  
-**Legacy drift:** Module: backend (legacy monolith) still documents removed `app.py` · use for algorithm/benchmark reference only. HLD/SDD may still describe old composite weights.  
-**Known open items:** 100×50 pipeline eval TODO; CE in unified run TODO; review findings (stale parse confidence on quality panel, public /full endpoints); Playwright E2E optional.  
-**Refresh command:** `/knowledge refresh backend/core/` or `/knowledge learn tests/unit/test_*quality*`
+**Last refresh:** 2026-05-27 v12 · local manuscript §2–§7 rewrite; professor QA; security review; Fig1 export fix; Algorithm 1 · last push `010dadf`  
+**Stale sections in graph:** Detailed legacy JAAMAS §1–§9 walkthrough (marked LEGACY) · individual backend file entries mostly unchanged since v11  
+**Legacy drift:** Module: backend (legacy monolith) still documents removed `app.py` · use for algorithm/benchmark reference only.  
+**Known open items:** Commit manuscript; ~29 `\todo`s; 12 §2 citations; author placeholders; portal-weight ablation; explainability/fairness/phase11 tables; API auth hardening if network-deployed; fix §1 “matchmaking engine” bullet  
+**Refresh command:** `/knowledge refresh docs/submission/jaamas/` or `/knowledge refresh backend/gateway/routes/`

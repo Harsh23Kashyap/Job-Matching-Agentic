@@ -1,107 +1,174 @@
 \section{Results and Discussion}\label{sec:6}
 
-We report macro-averaged ranking metrics at $K{=}5$ on the corpus defined in \S\ref{sec:5}.
-All numbers come from committed benchmark artifacts; we do not extrapolate to production hiring outcomes.
-Results appear first; subsections thereafter interpret findings, state limits, and connect them to the multi-agent platform goals.
+This section reports what we measured, what we compared it against, and what the numbers mean for people who would use JobMatch---not only for retrieval researchers.
+All figures come from committed benchmark artifacts on the demo corpus described in \S\ref{sec:5}; they do not predict real hiring outcomes at scale.
 
-\subsection{Progression of retrieval strategies}\label{sec:6-progression}
+\subsection{What was evaluated}\label{sec:6-evaluated}
 
-Table~\ref{tab:progression} summarizes the paper-progression driver (\texttt{paper\_progression.py}), which exhaustively ranks all 15 jobs per query.
-Among configurations in \texttt{data/expected/paper\_progression\_summary.json}, multimodal soft-embed ($\alpha{=}0.7$) achieves the highest nDCG@5 ($0.969$) and recall@5 ($1.000$).
-Lexical baselines (TF--IDF, BM25) remain competitive (nDCG@5 $\approx 0.901$--$0.905$), indicating that keyword overlap still matters when the job pool is small.
+We evaluated \emph{resume-to-jobs matching}: for each of 30 sample resumes, the system ranks 15 job postings and we ask how often the right jobs appear near the top.
+Human annotators supplied 47 graded pairs---each pair links one resume to one job with a relevance score of none (0), partial (1), or strong (2).
+We report results at cutoff $K{=}5$, meaning we judge only the top five jobs shown to a user.
 
-RRF over four lists reaches nDCG@5 $0.935$, above semantic cosine ($0.911$) but below the best multimodal run.
-Cross-encoder reranking on pool${=}10$ raises nDCG@5 to $0.939$---still below soft-embed without reranking.
+Four questions guided the evaluation.
+First, \textbf{precision}: among the five jobs shown, how many are actually relevant?
+Second, \textbf{recall}: of all relevant jobs for that person, how many appear in the top five?
+Third, \textbf{ranking quality (nDCG@5)}: do \emph{strongly} relevant jobs appear above merely partial ones?
+Fourth, \textbf{speed}: how long does each ranking take on this small pool?
+Metrics are averaged across all 30 resumes so that no single profile dominates the score.
+Formal definitions appear in \S\ref{sec:5}; the same scoring code powers both these offline tests and the live portals (\S\ref{sec:4}).
+
+\subsection{Baselines compared}\label{sec:6-baselines}\label{sec:6-comparison}
+
+We compared methods that recruitment tools often use, alone or in combination.
+
+\leadpara{Keyword-style methods.}
+TF--IDF and BM25 treat resumes and jobs as word lists; they reward shared terms and run very quickly.
+Exact skill overlap and Jaccard skill matching reward listed skills without understanding paraphrases.
+
+\leadpara{Meaning-based methods.}
+Semantic cosine scoring compares embedding vectors of resume and job text so that related wording can match even when keywords differ.
+Multimodal methods blend semantic similarity with skill overlap (default blend: 70\% semantic, 30\% skills).
+
+\leadpara{Combined and advanced methods.}
+Reciprocal rank fusion (RRF) merges several ranked lists.
+Learned fusion trains a small model to weight signals.
+Composite scoring---the portal default---adds title fit, experience, compensation, and remote preference on top of semantic and skill channels.
+We also tested optional cross-encoder reranking (a slower second-pass scorer) and post-hoc constraint filtering.
+
+Table~\ref{tab:method-comparison} summarizes the head-to-head comparison on the same labeled set.
+Multimodal weighted scoring achieves the highest ranking quality (nDCG@5 $= 0.924$) among the methods listed, while BM25 and TF--IDF stay surprisingly close (nDCG@5 $\approx 0.89$--$0.90$).
+That pattern matters: on a small job pool, simple keyword methods are hard to beat, so gains from AI-based matching are real but not dramatic.
+Semantic similarity alone (nDCG@5 $= 0.878$) underperforms both keyword baselines and multimodal blends, which supports combining \emph{what the text means} with \emph{which skills are named}.
+
+\begin{JTable}
+\input{tables/tab-methods.tex}
+\end{JTable}
+
+\subsection{What the main results mean}\label{sec:6-main-result}\label{sec:6-progression}\label{sec:6-fusion}
+
+The progression study (Table~\ref{tab:progression}) ranks every job for every resume and tracks how design choices accumulate.
+The best single configuration---multimodal scoring with soft skill embeddings---reaches nDCG@5 $= 0.969$ and recall@5 $= 1.00$, meaning every resume retrieves all of its labeled relevant jobs within the top five.
+Plain semantic cosine reaches nDCG@5 $= 0.911$; adding richer text templates nudges it to $0.922$ but still trails the best hybrid.
+Merging four lists with RRF ($0.935$) helps diversity but does not beat the strongest single hybrid on this corpus.
+Cross-encoder reranking improves over bare semantic search ($0.939$) yet still falls short of soft-embed multimodal ($0.969$) while adding far more compute (Table~\ref{tab:latency}).
 
 \begin{JTable}
 \input{tables/tab-progression.tex}
 \end{JTable}
 
-\subsection{Fusion and constraint variants}\label{sec:6-fusion}
-
-Table~\ref{tab:fusion} reports the fusion driver (\texttt{table11\_fusion.py}).
-Learned logistic-regression fusion reaches nDCG@5 $0.968$ (P@5 $0.307$, R@5 $0.983$), within $0.001$ nDCG of the best soft-embed progression run.
-Fixed multimodal ($\alpha{=}0.7$) and hierarchical blending tie at nDCG@5 $0.924$.
-Post-hoc constraint filtering lowers nDCG@5 to $0.908$.
+Table~\ref{tab:fusion} asks whether learned or rule-based \emph{fusion} of signals changes the story.
+Learned logistic-regression fusion ties the best progression run (nDCG@5 $= 0.968$).
+Fixed multimodal blending and hierarchical skill weighting both score $0.924$.
+Applying hard constraints \emph{after} scoring lowers nDCG@5 to $0.908$: filtering out imperfect fits can remove jobs that annotators marked as partially relevant, which hurts graded ranking scores even when recruiters might prefer stricter filters.
 
 \begin{JTable}
 \input{tables/tab-fusion.tex}
 \end{JTable}
 
-Table~\ref{tab:model-params} lists fitted calibration and fusion parameters ($a{=}2.078$, $b{=}2.112$ for Platt scaling).
+Table~\ref{tab:model-params} records fitted parameters for optional calibration and learned fusion.
+These models are available in the codebase but turned off in default portal settings; they were trained on the same 47 labeled pairs used for evaluation, so their strong offline scores should be read as an exploratory ceiling, not a proven production upgrade.
 
 \begin{JTable}
 \input{tables/tab-model-params.tex}
 \end{JTable}
 
-\subsection{Composite ablation and latency}\label{sec:6-ablation-latency}
+\leadpara{Plain-language takeaway.}
+The main result is modest but consistent: matching improves when the system considers both language meaning and explicit skills, and the best scores come from combining those signals rather than relying on either alone.
+No method achieves perfect precision---at best, roughly three in ten top-five slots are relevant (P@5 $\approx 0.31$)---because the corpus is small, labels are sparse, and several jobs can look plausible for the same resume.
+We therefore describe JobMatch as \emph{assistive} ranking with explainable reasons, not as an automated hiring decision engine.
 
-Table~\ref{tab:ablation} ablates composite components under research weights (40/30/15/10/5, no title term).
-Full composite reaches nDCG@5 $0.942$ vs.\ $0.917$ for semantic+skills and $0.878$ for semantic-only.
-Single constraint channels alone score nDCG@5 $\leq 0.393$.
+\subsection{Multi-agent state sharing and usability}\label{sec:6-agent-sharing}\label{sec:6-agentic}
 
-Table~\ref{tab:latency} reports latency: multimodal weighted ${\sim}0.26$\,ms/query over 15 jobs; soft skill embedding ${\sim}15.5$\,ms/query; cross-encoder rerank ${\sim}142$\,ms/query with nDCG@5 falling from $0.942$ to $0.834$ ($\Delta{=}{-}0.108$).
+The offline tables above test the Matchmaking agent's \emph{scoring} logic.
+They do not directly score portal usability or measure whether event-driven coordination feels faster to a user.
+We separate what the benchmarks show from what the architecture is designed to improve.
+
+When a candidate edits a resume or an employer revises a job description, the owning agent rebuilds a versioned snapshot and shared embedding, then notifies the Matchmaking layer through the event bus (\S\ref{sec:3}--\S\ref{sec:4}).
+That pattern targets a usability problem seen in monolithic ATS tools: rankings that stay stale after a profile change, or that change without a visible cause.
+Role-separated agents also keep each side's data under its owner's control, which supports trust and auditability even when two users see the same match score from the neutral Matchmaking agent.
+
+State sharing therefore improves \textbf{system usability and traceability}---fresh rankings after edits, clear ownership, structured explanations---more than it maximizes a single offline metric on a frozen corpus.
+The benchmarks validate that the shared scoring core ranks sensibly under manual labels; they do not yet prove that multi-agent coordination reduces time-to-hire or increases applicant satisfaction in the field.
+
+\subsection{Where the system performs well}\label{sec:6-strengths}\label{sec:6-ablation-latency}
+
+Several patterns repeat across tables.
+
+\leadpara{Hybrid semantic--skill ranking.}
+Any method that combines text meaning with skills beats semantic-only search (nDCG@5 $0.878$ vs.\ $0.917$--$0.942$ for richer composites).
+Table~\ref{tab:ablation} shows that dropping experience, compensation, or location \emph{alone} as the only signal yields very poor rankings (nDCG@5 $\leq 0.39$), but adding them alongside semantic and skill channels contributes to the full composite score ($0.942$ under the research weight set in that table).
 
 \begin{JTable}
 \input{tables/tab-ablation.tex}
 \end{JTable}
 
+\leadpara{Speed on a small pool.}
+Table~\ref{tab:latency} shows that lightweight scorers complete in well under one millisecond per resume on 15 jobs; even the full composite bi-encoder run averages ${\sim}0.4$\,ms per query.
+That headroom matters for interactive portals where a user expects refreshed matches after saving a profile.
+
 \begin{JTable}
 \input{tables/tab-latency.tex}
 \end{JTable}
 
-\subsection{Hard-negative mining}\label{sec:6-hard-negs}
-
-Table~\ref{tab:hard-negs}: 30 queries, 150 hard-negative pairs, zero overlap with declared relevant jobs.
-Negatives are high-scoring \emph{unlabeled} jobs, not confirmed irrelevants.
+\leadpara{Label-set sanity.}
+Table~\ref{tab:hard-negs} confirms that hard-negative mining---high-scoring jobs \emph{not} in the labeled relevant set---never overlaps declared relevant jobs across 150 mined pairs.
+This does not prove those jobs are truly bad fits, but it shows the label file is internally consistent for benchmark purposes.
 
 \begin{JTable}
 \input{tables/tab-hard-negs.tex}
 \end{JTable}
 
-\subsection{Fairness audit}\label{sec:6-fairness}
+\leadpara{Explainability path.}
+The live portal defaults to composite scoring precisely because each channel maps to a human-readable explanation (skills matched, experience gap, remote fit).
+Research drivers achieve slightly higher nDCG with soft-embed multimodal or learned fusion, but those variants expose fewer interpretable components to end users (\S\ref{sec:4-params}).
 
-Table~\ref{tab:fairness}: synthetic counterfactual audit flags 6/10 fabricated pairs; max score shift $0.024$.
-Engineering sanity check only---not demographic fairness validation.
+\subsection{Where the system falls short}\label{sec:6-limitations}\label{sec:6-fairness}\label{sec:6-hard-negs}\label{sec:6-latency}
+
+Honest limits follow from the corpus, the methods, and what we did not measure.
+
+\leadpara{Small, controlled dataset.}
+Thirty resumes and fifteen jobs make recall@5 easy to saturate---many methods reach ${\ge}0.93$---so differences in nDCG are informative but narrow.
+Results may not transfer to employers with thousands of open roles or to domains unlike our demo profiles.
+
+\leadpara{Precision still modest.}
+Even the best methods place relevant jobs in only about three of every ten top-five slots (P@5 $\approx 0.31$).
+Users will still see imperfect suggestions and must rely on explanations and their own judgment.
+
+\leadpara{Configuration mismatch.}
+Offline ablations use research composite weights (40/30/15/10/5) while the portal uses 28/27/10/15/10/10 with a title channel.
+We have not yet published ablation numbers under portal-default weights \todo{Publish composite ablation under portal weights for deployment alignment.}.
+
+\leadpara{Advanced scorers that disappoint offline.}
+Cross-encoder reranking is ${\sim}340\times$ slower than composite bi-encoder scoring on this setup and \emph{lowers} nDCG@5 from $0.942$ to $0.834$ in the committed report---consistent with leaving it disabled by default.
+Learned fusion and calibration fit on the same labeled pairs they are judged against, which risks overfitting.
+
+\leadpara{Fairness scope is narrow.}
+Table~\ref{tab:fairness} runs a synthetic counterfactual audit on ten fabricated profile pairs (name, summary, or metadata edits).
+Six pairs trigger flags---mostly small rank shifts or score changes when non-qualification text changes---with a maximum score shift of $0.024$.
+This is an engineering sanity check, not demographic fairness certification; proxy-group disparate-impact ratios are not yet committed to benchmark artifacts \todo{Export proxy-group disparate-impact ratios from \texttt{fairness\_eval.py}.}.
 
 \begin{JTable}
 \input{tables/tab-fairness.tex}
 \end{JTable}
 
-\subsection{Which strategy should the platform use?}\label{sec:6-best-strategy}
+\leadpara{No real hiring outcomes.}
+We did not measure interview rates, time-to-fill, applicant satisfaction, or recruiter workload.
+Explainability quality is defined offline (\S\ref{sec:5-explainability}) but not yet summarized in a results table here \todo{Add explainability evaluation summary table to this section.}.
 
-Research drivers favor multimodal soft-embed (nDCG@5 $0.969$) and learned fusion ($0.968$), while the live portal defaults to composite weighting for interpretability (28/27/10/15/10/10).
-We do not claim one universally dominant strategy on this corpus.
-Combining semantic and skill signals consistently beats semantic-only retrieval; hard post-filter constraints hurt graded nDCG.
-\todo{Publish composite ablation under portal weights for deployment alignment.}
+\subsection{Implications for job seekers and employers}\label{sec:6-implications}
 
-\subsection{Fusion stability and overfitting risk}\label{sec:6-fusion-stability}
+\leadpara{For job seekers.}
+JobMatch is designed to act as an assistive representative: keep a structured profile, see \emph{why} a job ranked highly or poorly, and choose whether to save or apply.
+The evaluation suggests that suggestions are most trustworthy when the system weighs both résumé wording and listed skills---matching how a person might skim a posting for fit.
+Candidates should not treat top-five lists as exhaustive or authoritative; with P@5 near 0.31, several shown jobs may be weak fits, and relevant openings can still be missed when the job pool grows beyond fifteen roles.
 
-RRF diversifies rankings without beating the best single multimodal run on this small corpus.
-Learned fusion ties soft-embed offline but trains on the same 47 labeled pairs used for evaluation---an exploratory upper bound, not a validated upgrade.
+\leadpara{For employers.}
+Employers get symmetric reverse matching: ranked candidates with component-level reasons instead of a black-box score.
+Hybrid ranking supports the recruiter who cares about keywords \emph{and} the hiring manager who reads career narrative.
+Hard post-filters can remove partially suitable candidates from the graded top five, so the portal keeps constraints optional and off by default.
+When a job description changes, the employer agent's update path is meant to refresh rankings without manual re-upload to a separate scoring service.
 
-\subsection{Latency--quality trade-offs}\label{sec:6-latency}
-
-Lightweight scorers dominate on a 15-job pool.
-Cross-encoder reranking adds two orders of magnitude latency for lower nDCG in the committed report---consistent with keeping it disabled in default portal settings.
-\todo{Publish \texttt{phase11.py} ANN shortlist latency at larger pool sizes.}
-
-\subsection{Implications for the multi-agent design}\label{sec:6-agentic}
-
-Offline metrics validate the Matchmaking agent's scoring core under manual labels.
-They do not test whether event-driven cache invalidation or role-separated portals improve real hiring outcomes.
-The defensible claim is \emph{bounded automation}: agents synchronize profiles and suggest explainable matches; users decide what to do next.
-
-\subsection{Limitations}\label{sec:6-limitations}
-
-\begin{itemize}[noitemsep]
-  \item Small demo corpus (30 queries, 15 jobs); high recall@5 narrows nDCG spreads.
-  \item Manual and synthetic labels, not ATS-sampled judgments.
-  \item No production hiring outcomes measured.
-  \item Fairness scope limited to synthetic counterfactuals; proxy-group ratios uncommitted.
-  \item Configuration drift across drivers (portal vs.\ ablation weights).
-  \item Learned fusion and calibration fit on eval data shared with test queries.
-\end{itemize}
-
-In sum, benchmarks support composite, explainable matchmaking on a controlled corpus.
-They do not yet justify strong claims about fairness, efficiency, or hiring quality at scale.
+\leadpara{Shared implication.}
+Both sides benefit when software explains its suggestions and leaves hire, reject, and apply decisions with people.
+The benchmarks support that product stance on a demo corpus: combined signals rank better than single-signal search, explanations align with composite channels, and the multi-agent layout keeps profile edits on the owning side while a neutral Matchmaking agent serves both portals.
+They do not yet show that this architecture wins on hiring outcomes in production---that remains future work with larger labeled datasets, portal-default ablations, and field studies.

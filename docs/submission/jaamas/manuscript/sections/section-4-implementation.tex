@@ -1,114 +1,178 @@
 \section{Implementation}\label{sec:4}
 
-This section describes how the architecture in \S\ref{sec:3} is built: technology stack, data structures, gateway APIs, matching pipeline modules, and portal behavior.
-Mathematical definitions of scores and metrics appear in \S\ref{sec:5}.
+This section records how the architecture in \S\ref{sec:3} is realized in the repository: gateway routes, agent modules, stores, portal surfaces, typed contracts, parameter defaults, and offline evaluation assets.
+Score definitions appear in \S\ref{sec:5}; measured outcomes in \S\ref{sec:6}.
 
 \begin{JFigure}{../figures/Fig4.pdf}
 \figcap{4}{Implementation of the matching pipeline: retrieval backends, composite scoring modules, optional fusion and calibration, and structured explanation generation consumed by portals.}
 \end{JFigure}
 
-\subsection{Technology stack}\label{sec:4-stack}
+\subsection{Backend implementation}\label{sec:4-backend}
 
-JobMatch is a monolithic deployable application, not a microservice mesh.
-\textbf{Backend:} Python~3, FastAPI gateway (\texttt{backend/gateway/}), three domain agents (\texttt{backend/agents/}), matching core (\texttt{backend/core/}), SQLite for auth and activity, Chroma or Qdrant for vectors.
-\textbf{Frontend:} React SPA with role-specific layouts (\texttt{frontend/src/layouts/}), shared API client (\texttt{frontend/src/api/client.js}), and explainability components (\texttt{MatchExplainability}, \texttt{MatchDetailsDrawer}).
-\textbf{Embeddings:} \texttt{all-MiniLM-L6-v2} (384 dimensions) via Sentence-Transformers.
-\textbf{Benchmarks:} Python drivers under \texttt{backend/benchmarks/} with regression tests in \texttt{tests/benchmarks/}.
+\leadpara{Gateway and route map.}
+The HTTP entry point is \texttt{backend/gateway/app.py}: a FastAPI application (\texttt{build\_gateway}) wired to a \texttt{SystemContainer} from \texttt{bootstrap.py}.
+Routers mount at the application root (no global \texttt{/api} prefix):
+\texttt{/auth} (\texttt{auth/routes.py}),
+\texttt{/agents} (\texttt{gateway/routes/agents.py}),
+\texttt{/candidates} (\texttt{gateway/routes/candidates.py}),
+\texttt{/jobs} (\texttt{gateway/routes/employers.py}),
+\texttt{/match/*} and legacy aliases (\texttt{gateway/routes/matching.py}),
+\texttt{/similar} (\texttt{gateway/routes/similar.py}),
+\texttt{/feedback} (\texttt{gateway/routes/feedback.py}),
+\texttt{/system} (\texttt{gateway/routes/system.py}).
+Middleware: \texttt{SessionMiddleware} (cookie \texttt{jm\_session}, 7-day max age) and optional \texttt{ReadOnlyMiddleware} when \texttt{read\_only=true}.
+Default listen address: \texttt{0.0.0.0:8001} (\texttt{config.py}).
 
-\subsection{Data structures: profiles and snapshots}\label{sec:4-data}
+\leadpara{Agent modules.}
+Three domain agents are constructed in \texttt{bootstrap.py} and share an in-process \texttt{AgentEventBus} (\texttt{bus/event\_bus.py}):
+\textbf{CandidateAgent} (\texttt{agents/candidate\_agent.py}) owns candidate profile ingestion, \texttt{JsonParser} resume parsing (\texttt{hooks/parser.py}), snapshot versioning, and vector upserts to \texttt{candidates\_collection};
+\textbf{EmployerAgent} (\texttt{agents/employer\_agent.py}) mirrors this for job postings in \texttt{jobs\_collection};
+\textbf{MatchmakingAgent} (\texttt{agents/matchmaking\_agent.py}) is read-only with respect to profile stores: it loads snapshots, runs retrieval and scoring, builds \texttt{MatchResult} lists, and publishes \texttt{MATCH\_COMPLETED} events.
+Each agent extends \texttt{BaseAgent} (\texttt{agents/base.py}) for status reporting exposed at \texttt{GET /agents/status}.
 
-\leadpara{Candidate profile and snapshot.}
-The portal stores editable fields: name, skills, experience years, salary expectation, remote preference, summary, and canonical resume text.
-On save, the Candidate agent produces a snapshot with normalized skills, constraint scalars, document hash, version counter, and embedding vector.
-Only snapshots enter the Matchmaking agent.
+\leadpara{Matching core.}
+Scoring and ranking live under \texttt{backend/core/}:
+\texttt{scoring.py} (composite, multimodal, semantic-only, skill-only strategies; \texttt{COMPOSITE\_WEIGHTS}),
+\texttt{matchmaking\_scoring.py} (pair scoring orchestration, optional constraints, calibration, feedback boost),
+\texttt{similarity.py}, \texttt{skills.py}, \texttt{component\_scores.py},
+\texttt{match\_explanation.py} and \texttt{explain.py} (structured and rule-based explanations),
+\texttt{rrf.py} (ensemble list fusion), \texttt{fusion.py} (learned logistic combiner),
+\texttt{calibration.py} (Platt scaling), \texttt{feedback\_boost.py},
+\texttt{constraints.py}, \texttt{strategy\_router.py}, \texttt{cross\_encoder\_rerank.py},
+\texttt{lexical.py} (BM25/TF--IDF; offline benchmarks only).
+Embeddings are computed in \texttt{core/embedding.py} via Sentence-Transformers.
 
-\leadpara{Job profile and snapshot.}
-Employer postings store title, description, required and preferred skills, experience requirement, budget band, remote policy, and metadata.
-The Employer agent emits a parallel snapshot with embedding of the job description text.
+\leadpara{Stores.}
+\textbf{Vector stores:} \texttt{stores/factory.py} selects \texttt{ChromaVectorStore} (default, \texttt{vector\_store=chroma}, persist path \texttt{backend/chroma\_db/}) or \texttt{QdrantVectorStore} (\texttt{vector\_store=qdrant}, \texttt{backend/qdrant\_db/}) behind a common upsert/query interface; cosine space is the Chroma default.
+\textbf{SQLite} (\texttt{backend/app.db}, path from \texttt{Settings.sqlite\_path}): \texttt{auth/store.py} (\texttt{UserStore}, roles and sessions), \texttt{stores/feedback\_store.py} (match and user feedback rows), \texttt{stores/candidate\_activity\_store.py} (saved jobs, applications, activity log).
+\textbf{Frozen JSON corpus:} \texttt{data/cvs.json}, \texttt{data/jobs.json} seed demo accounts when \texttt{seed\_demo=true}.
 
-\leadpara{Match results and explanations.}
-Each \texttt{MatchResult} includes identifiers, final score, strategy name, and an optional \texttt{MatchExplanation} object: matched and missing skills, fit rows for experience, compensation, remote, and semantic dimensions, plus per-component score breakdown for composite ranking.
+\leadpara{Authentication and role separation.}
+Roles are \texttt{candidate}, \texttt{employer}, and \texttt{admin} (\texttt{auth/deps.py}, \texttt{require\_role}).
+Session auth endpoints: \texttt{POST /auth/register}, \texttt{POST /auth/login}, \texttt{POST /auth/logout}, \texttt{GET /auth/me}.
+Role-gated routes enforce ownership at the gateway layer, e.g.\ \texttt{/candidates/me/*} and resume upload (\texttt{candidate}), \texttt{/jobs/mine/*} and description upload (\texttt{employer}), \texttt{/similar/jobs/*} (\texttt{candidate}), \texttt{/similar/candidates/*} (\texttt{employer}), \texttt{POST /system/demo/reset} (\texttt{admin}).
+Matching endpoints (\texttt{/match/*}) and agent telemetry (\texttt{/agents/*}) are callable without role checks so the admin console and integration tests can invoke them directly; production portals still authenticate users before calling profile-scoped routes.
 
-\leadpara{Feedback and activity.}
-Match feedback (\texttt{save}, \texttt{dismiss}, \texttt{apply}) and broader user feedback (\texttt{contact}, \texttt{reject}) are event logs in SQLite.
-They do not alter embeddings unless the user submits a new profile version.
+Table~\ref{tab:workflows} summarizes end-to-end flows; representative endpoint groups follow.
 
-\subsection{Gateway API surface}\label{sec:4-api}
+\leadpara{Candidate API surface.}
+\texttt{GET/PUT /candidates/me}, \texttt{POST /candidates/upload-resume}, \texttt{POST /candidates/me/resume-suggestions}, \texttt{POST /candidates/quality-check}, saved jobs (\texttt{GET/PUT /candidates/me/saved-jobs}), applications (\texttt{GET/POST /candidates/me/applications}).
 
-Table~\ref{tab:workflows} summarizes primary flows; key endpoint groups follow.
+\leadpara{Employer API surface.}
+\texttt{GET/POST /jobs}, \texttt{PUT /jobs/mine/\{job\_id\}}, \texttt{PATCH /jobs/mine/\{job\_id\}/status}, description upload/parse (\texttt{POST /jobs/upload-description}, \texttt{POST /jobs/parse-description}), \texttt{GET /jobs/mine/applications}.
 
-\leadpara{Authentication.}
-\texttt{POST /auth/register}, \texttt{POST /auth/login}, \texttt{POST /auth/logout}, \texttt{GET /auth/me} with server-side session cookies.
+\leadpara{Matching API surface.}
+\texttt{POST /match/candidate-to-jobs}, \texttt{POST /match/job-to-candidates}, \texttt{POST /match/ensemble}, \texttt{POST /match/daily-batch}, plus legacy aliases \texttt{/match-resume}, \texttt{/match-job}, \texttt{/match-resume-ensemble}, \texttt{/agent/run-daily-recommendations}.
 
-\leadpara{Candidate routes.}
-\texttt{GET/PUT /candidates/me}, \texttt{POST /candidates/upload-resume}, quality and suggestion endpoints, saved jobs and applications.
-
-\leadpara{Employer routes.}
-\texttt{GET/POST /jobs}, \texttt{PUT /jobs/mine/\{job\_id\}}, description upload and parse endpoints, applicant lists.
-
-\leadpara{Matching routes.}
-\texttt{POST /match/candidate-to-jobs}, \texttt{POST /match/job-to-candidates}, \texttt{POST /match/ensemble}, \texttt{POST /match/daily-batch}.
-
-\leadpara{Admin and system routes.}
-\texttt{GET /agents/status}, \texttt{GET /agents/events/recent}, \texttt{GET /system/config}, \texttt{GET /system/fairness}, demo reset when enabled.
+\leadpara{Feedback, similar items, and system routes.}
+\texttt{POST /feedback}, \texttt{POST /feedback/actions}, \texttt{GET /feedback/me}, \texttt{GET /feedback/counts};
+\texttt{GET /similar/jobs/\{job\_id\}}, \texttt{GET /similar/candidates/\{candidate\_id\}};
+\texttt{GET /system/config}, \texttt{GET /system/fairness}, \texttt{POST /system/vector-store}, \texttt{POST /system/demo/reset} (when demo mode enabled).
 
 \begin{JTable}
 \input{tables/tab-workflows.tex}
 \end{JTable}
 
-\subsection{Portal defaults and request parameters}\label{sec:4-params}
+\subsection{Frontend implementation}\label{sec:4-frontend}
 
-The frontend sends identical match defaults for candidate and employer views (\texttt{DEFAULT\_CANDIDATE\_MATCH}, \texttt{DEFAULT\_EMPLOYER\_MATCH}):
-\texttt{strategy=composite}, \texttt{topK=10}, \texttt{metric=cosine}, \texttt{skillsMode=jaccard}, \texttt{semanticWeight=0.7}, \texttt{fusionMode=fixed}, \texttt{applyConstraints=false}, \texttt{autoStrategy=false}, \texttt{useCalibration=false}, \texttt{useFeedbackBoost=false}, \texttt{explainMode=rules}.
+The UI is a single React~19 SPA (Vite build, \texttt{frontend/}) with axios session cookies and role-guarded routes in \texttt{App.jsx} (\texttt{ProtectedRoute}).
 
-Composite weights in \texttt{backend/core/scoring.py} are semantic 28\%, skills 27\%, title 10\%, experience 15\%, compensation 10\%, remote 10\%.
-API defaults in \texttt{MatchRequest} differ (e.g., \texttt{top\_k=5}, \texttt{strategy=semantic}) when clients omit overrides; portals always pass composite explicitly.
+\leadpara{Candidate portal (\texttt{role=candidate}).}
+Routes: \texttt{/candidate/onboarding}, \texttt{/candidate/profile}, \texttt{/candidate/matches}, \texttt{/candidate/saved}.
+Pages call \texttt{frontend/src/api/client.js} with \texttt{DEFAULT\_CANDIDATE\_MATCH} (see \S\ref{sec:4-params}).
+Profile save dispatches a client-side \texttt{jobmatch:profile-updated} event (\texttt{utils/profileEvents.js}); matches and saved views refetch on that signal.
+Explainability UI: \texttt{MatchExplainability}, \texttt{MatchDetailsDrawer}; users can save jobs, dismiss matches, and submit applications explicitly.
 
-\subsection{Matching core modules}\label{sec:4-matching}
+\leadpara{Employer portal (\texttt{role=employer}).}
+Routes: \texttt{/employer/jobs}, \texttt{/employer/matches}, \texttt{/employer/applications}.
+Job editor and description upload feed \texttt{/jobs/mine/*} endpoints; reverse matching uses \texttt{DEFAULT\_EMPLOYER\_MATCH} with \texttt{mode=job\_to\_candidates}.
+Applicant lists read \texttt{GET /jobs/mine/applications}.
 
-\leadpara{Retrieval.}
-\texttt{VectorStorePort} abstracts \texttt{upsert}, \texttt{search}, and \texttt{delete}.
-Production uses ANN search for large pools; the demo corpus often uses exhaustive scoring over 15 jobs.
-Lexical rankers (BM25, TF--IDF) and exact skill overlap exist for offline benchmarks only.
+\leadpara{Admin and evaluation view (\texttt{role=admin}).}
+Route: \texttt{/admin/console} (\texttt{pages/admin/AdminConsole.jsx}).
+Panels: \texttt{AgentStatusPanel}, \texttt{AgentEventStrip} (tails \texttt{GET /agents/events/recent}), \texttt{SystemConfigPanel}, \texttt{MatchControls} (manual \texttt{runMatch} / \texttt{runDailyBatch}), \texttt{ResultsPanel}, and fairness summary from \texttt{GET /system/fairness}.
+Recent run metadata is cached in \texttt{localStorage} (\texttt{jm\_recent\_runs}).
 
-\leadpara{Composite and multimodal scoring.}
-\texttt{scoring.py} implements composite, multimodal weighted, semantic-only, and skill-only strategies.
-\texttt{matchmaking\_scoring.py} orchestrates fusion modes, optional hard constraints, feedback boost, and Platt calibration when flags are enabled.
+\subsection{Data structures}\label{sec:4-data}
 
-\leadpara{Fusion and routing.}
-\texttt{rrf.py} merges multiple ranked lists (default $k{=}60$).
-\texttt{fusion.py} loads a learned logistic model from \texttt{data/models/fusion.json}.
-\texttt{strategy\_router.py} selects strategy triples when \texttt{auto\_strategy=true} based on skill count and summary length.
+Contracts are Pydantic models in \texttt{backend/contracts/}; snapshots are the only objects the Matchmaking agent scores.
 
-\leadpara{Cross-encoder reranking.}
-Optional second stage (\texttt{cross\_encoder\_rerank.py}, pool default 20) is disabled in production settings (\texttt{enable\_cross\_encoder\_rerank=false}).
+\leadpara{Candidate profile and \texttt{CandidateSnapshot}.}
+Editable portal fields: name, skills, experience years, preferred salary, remote preference, summary, canonical resume text.
+On save, \texttt{CandidateSnapshot} (\texttt{contracts/snapshots.py}) stores \texttt{id}, \texttt{name}, \texttt{skills}, \texttt{experience\_years}, \texttt{remote\_preference}, \texttt{preferred\_salary}, \texttt{summary}, monotonic \texttt{version}, \texttt{document\_text\_hash}, and fixed-length \texttt{embedding}.
 
-\leadpara{Explainability.}
-\texttt{match\_explanation.py} builds structured payloads; \texttt{explain.py} adds rule-based bullets.
-Fit labels (Strong, Good, Moderate, Weak) derive from score bands documented in \S\ref{sec:5}.
+\leadpara{Job profile and \texttt{JobSnapshot}.}
+Posting fields: title, description, \texttt{required\_skills}, \texttt{preferred\_skills}, \texttt{required\_experience}, budget (\texttt{budget}, \texttt{budget\_min}, \texttt{budget\_max}), \texttt{remote\_policy}, plus the same \texttt{version}, \texttt{document\_text\_hash}, and \texttt{embedding} triple as candidates.
 
-\leadpara{Fairness utilities.}
-\texttt{fairness.py} computes proxy-group selection rates; \texttt{benchmarks/fairness\_audit.py} runs synthetic counterfactual tests offline.
+\leadpara{\texttt{MatchResult} and \texttt{MatchExplanation}.}
+\texttt{MatchResult} (\texttt{contracts/matching.py}) carries \texttt{target\_id}, \texttt{target\_label}, \texttt{rank}, bi-encoder \texttt{similarity}, per-component scores (\texttt{semantic\_score}, \texttt{skills\_score}, \texttt{title\_score}, \texttt{experience\_score}, \texttt{compensation\_score}, \texttt{remote\_score}), \texttt{final\_score}, skill overlap lists, optional contact and job metadata, constraint notes, and an optional \texttt{MatchExplanation}.
+\texttt{MatchExplanation} bundles \texttt{matched\_skills}, \texttt{missing\_skills}, four \texttt{FitSignal} rows (\texttt{semantic}, \texttt{experience}, \texttt{compensation}, \texttt{remote}), and \texttt{score\_breakdown} (\texttt{ScoreComponentDetail} list with weight, score, contribution).
+The enclosing \texttt{MatchResponse} adds \texttt{session\_id}, \texttt{direction}, \texttt{strategy\_used}, corpus counters, agent version map, and optional rerank diagnostics.
 
-\leadpara{Calibration and feedback.}
-Platt parameters persist in \texttt{data/models/calibration.json} ($a{\approx}2.078$, $b{\approx}2.112$).
-Feedback boost deltas: save $+0.04$, apply $+0.06$, dismiss $-0.06$ per historical action when enabled.
+\leadpara{Feedback and agent events.}
+\textbf{Feedback:} \texttt{FeedbackStore} rows record \texttt{user\_id}, \texttt{target\_id}, \texttt{action}, optional \texttt{context\_id}, \texttt{role}, and timestamp.
+Match-scoped actions: \texttt{save}, \texttt{dismiss}, \texttt{apply}; broader user actions: \texttt{contact}, \texttt{reject}, \texttt{not\_interested}.
+Feedback does not rewrite embeddings; it can adjust scores only when \texttt{use\_feedback\_boost=true}.
+\textbf{Agent events:} typed enums in \texttt{bus/events.py}---\texttt{CANDIDATE\_PROFILE\_UPDATED}, \texttt{JOB\_PROFILE\_UPDATED}, \texttt{CORPUS\_BOOTSTRAPPED}, \texttt{MATCH\_REQUESTED}, \texttt{MATCH\_COMPLETED}---published on the in-process bus and surfaced to the admin event strip.
 
-\subsection{Role portals and user experience}\label{sec:4-ui}
+\subsection{Libraries and frameworks}\label{sec:4-libraries}
 
-One React SPA mounts three guarded route trees.
-\textbf{Candidate portal:} onboarding, profile editor, job matches with explanation cards and save/apply actions.
-\textbf{Employer portal:} job list, reverse candidate match, applicant tracking.
-\textbf{Admin console:} agent status, event tail, fairness summary, manual match triggers for debugging.
+Only dependencies declared in the repository are listed here.
 
-Parsing panels show extracted resume or job fields before the user confirms; quality panels warn about missing skills or incomplete budgets.
-The matches view refreshes when a \texttt{PROFILE\_UPDATED} event propagates after profile save.
-Client-side filters (e.g., remote-friendly) read explanation fields rather than duplicating constraint logic.
+\leadpara{Backend (\texttt{backend/requirements-min.txt}).}
+FastAPI~0.129, Uvicorn~0.29, Pydantic~2.9, \texttt{pydantic-settings}, NumPy~1.26, Sentence-Transformers~5.1, ChromaDB~0.4.24, HTTPX, Passlib/bcrypt, \texttt{python-multipart}, \texttt{python-dotenv}, pdfplumber, \texttt{email-validator}, ItsDangerous; optional Qdrant client~1.12 and tiktoken~0.8 when those backends are enabled.
+SQLite access uses the Python standard library (\texttt{sqlite3}).
 
-Users always act explicitly on matches; the system does not auto-apply or auto-reject.
+\leadpara{Frontend (\texttt{frontend/package.json}).}
+React~19, React DOM, React Router~7, axios~1.7; dev/build tooling Vite~6 with \texttt{@vitejs/plugin-react}.
 
-\subsection{Offline benchmark integration}\label{sec:4-benchmarks}
+\leadpara{Monolith layout.}
+JobMatch ships as one deployable backend process plus one static SPA bundle; there is no inter-service RPC layer beyond the in-process event bus.
 
-Research drivers (\texttt{comparison.py}, \texttt{ablation.py}, \texttt{paper\_progression.py}, \texttt{table11\_fusion.py}, \texttt{negative\_mining.py}) call the same scoring core with frozen corpus files under \texttt{data/}.
-Regression test \texttt{test\_eval\_regression.py} compares live runs against \texttt{data/expected/paper\_progression\_summary.json} with $\pm 0.04$ nDCG tolerance.
+\subsection{Parameter settings}\label{sec:4-params}
+
+\leadpara{Embedding model and vector backend.}
+Default embedding model: \texttt{all-MiniLM-L6-v2} (384 dimensions, \texttt{Settings.embedding\_model}).
+Vector backend selector: \texttt{Settings.vector\_store} $\in \{\texttt{chroma}, \texttt{qdrant}\}$; Chroma is the default in committed settings.
+
+\leadpara{Top-$K$ and retrieval.}
+Portal defaults (\texttt{DEFAULT\_CANDIDATE\_MATCH}, \texttt{DEFAULT\_EMPLOYER\_MATCH} in \texttt{client.js}): \texttt{topK=10}, \texttt{retrieval=exhaustive} on the demo corpus (15 jobs / 30 resumes).
+API contract defaults (\texttt{MatchRequest}): \texttt{top\_k=5}, \texttt{candidate\_pool=120}, \texttt{retrieval=exhaustive}; offline evaluation and regression tests use $K{=}5$ unless a driver overrides \texttt{--top-k}.
+When \texttt{retrieval=ann}, shortlists come from the configured vector store before pairwise rescoring.
+
+\leadpara{Scoring weights and modes.}
+Portal requests fix \texttt{strategy=composite}, \texttt{metric=cosine}, \texttt{skillsMode=jaccard}, \texttt{semanticWeight=0.7}, \texttt{fusionMode=fixed}, with \texttt{applyConstraints=false}, \texttt{autoStrategy=false}, \texttt{useCalibration=false}, \texttt{useFeedbackBoost=false}, \texttt{explainMode=rules}.
+Composite component weights in \texttt{COMPOSITE\_WEIGHTS}: semantic 28\%, skills 27\%, title 10\%, experience 15\%, compensation 10\%, remote 10\% (Eq.~\ref{eq:composite}).
+RRF merge constant: \texttt{Settings.rrf\_k=60}.
+Learned fusion weights load from \texttt{data/models/fusion.json}; Platt calibration from \texttt{data/models/calibration.json} ($a{\approx}2.078$, $b{\approx}2.112$).
+
+\leadpara{Thresholds and optional boosts.}
+Explainability fit labels (\texttt{match\_explanation.py}): Strong $\geq 0.85$, Good $\geq 0.65$, Moderate $\geq 0.45$, else Weak.
+Rule bullets in \texttt{explain.py} use additional cutoffs (e.g.\ title $\geq 0.65$, semantic narrative bands at 0.75 and 0.55).
+Hard constraint penalty default in \texttt{constraints.py}: factor $0.65$ when experience gap triggers.
+Feedback boost deltas when enabled (\texttt{feedback\_boost.py}): save $+0.04$, apply $+0.06$, dismiss $-0.06$.
+Cross-encoder rerank pool default: 20; disabled in production settings (\texttt{enable\_cross\_encoder\_rerank=false}).
+
+\leadpara{Vector-store update path.}
+On snapshot registration the owning agent (1)~embeds canonical document text, (2)~upserts into the active vector collection, and (3)~emits a profile-updated event.
+The Matchmaking agent reads snapshots, scores all or ANN-filtered pairs with the requested strategy, attaches explanations, and returns the top-$K$ list.
+
+\subsection{Reproducibility}\label{sec:4-benchmarks}
+
+\leadpara{Dataset files.}
+Primary evaluation corpus under \texttt{data/}: \texttt{cvs.json} (30 resumes), \texttt{jobs.json} (15 jobs), \texttt{eval\_pairs.json} (47 graded query--document pairs with relevance labels).
+Auxiliary assets: \texttt{fairness\_audit\_profiles.json}, frozen expected metrics \texttt{expected/paper\_progression\_summary.json}, trained auxiliary models \texttt{models/fusion.json} and \texttt{models/calibration.json}.
+Research export mirror: \texttt{data/research/} (\texttt{cvs.json}, \texttt{jobs.json}, \texttt{eval\_pairs.json}, \texttt{manifest.json}).
+
+\leadpara{Benchmark drivers.}
+Python modules under \texttt{backend/benchmarks/} share \texttt{eval\_data.py} snapshot builders and \texttt{metrics.py} rank metrics.
+Entry scripts include \texttt{run\_eval.py}, \texttt{run\_comparison.py}, \texttt{run\_ablation.py}, \texttt{run\_paper\_tables.py}, \texttt{run\_significance.py}, \texttt{run\_explainability\_eval.py}, \texttt{run\_fairness\_audit.py}, \texttt{run\_generate\_research\_dataset.py}, and orchestrator \texttt{research\_pipeline.py}.
+One-shot wrapper: \texttt{backend/scripts/run\_research\_pipeline.py} (default \texttt{--top-k 5}).
+
+\leadpara{Automated tests.}
+Unit tests: \texttt{tests/unit/}.
+Regression gate: \texttt{tests/benchmarks/test\_eval\_regression.py} recomputes semantic and multimodal rankings on the frozen corpus and compares nDCG@5 against \texttt{paper\_progression\_summary.json} with tolerance $\pm 0.04$ (Eq.~\ref{eq:regression}).
+Additional benchmark tests cover ablations, fusion tables, fairness audit, explainability checks, significance resampling, synthetic dataset validation, and the research export pipeline (\texttt{tests/benchmarks/*.py}).
+Run backend tests from \texttt{backend/} with \texttt{pytest} (declared in \texttt{requirements-min.txt}).
+
 \todo{Commit \texttt{phase11\_summary.csv} from \texttt{benchmarks/phase11.py} for ANN shortlist latency.}

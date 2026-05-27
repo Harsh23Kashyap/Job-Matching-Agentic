@@ -14,29 +14,22 @@ Academic grayscale diagrams for the multi-agent recruitment platform paper.
 
 ## Fig1 multi-agent diagram plan (draw.io)
 
-Recommended layout for `source/Fig1.drawio` re-export:
+Layout in `source/Fig1.drawio` (regenerate via `generate_jaamas_figures.py`):
 
 ```
-[Candidate Portal]     [Employer Portal]     [Admin Portal]
-        |                      |                    |
-        v                      v                    v
-              [ FastAPI Gateway / Auth ]
-                        |
-        +---------------+---------------+
-        v               v               v
- [Candidate Agent] [Employer Agent] [Matchmaking Agent]
-   owns CV state     owns job state    read-only scoring
-        |               |               ^
-        |  embed/upsert |  embed/upsert |
-        v               v               |
-      [ Vector Store (Chroma/Qdrant) ]--+
-        |
- [ Event Bus: ProfileUpdated / JobUpdated ]
-        |
- [ SQLite: auth, feedback, activity ]
+[ UI / Application Layer: Candidate Portal | Employer Portal | Admin/Evaluation ]
+
+[ Candidate Agent ]     [ Employer Agent ]     [ Matchmaking Agent (read-only) ]
+  Resume/CV Input         JD Input               Read Candidate Store  <--+
+  Resume Parsing          JD Parsing             Read Job Store        <--+
+  Embedding Gen           Embedding Gen          Semantic Search
+  Candidate Vector Store  Job Vector Store       Similarity Score
+  Candidate Profile/State Job Profile/State      Ranked Recommendations --> portals
+
+[ Shared Communication & State: Events | Snapshots/Contracts | Cache invalidation ]
 ```
 
-Visual rules: grayscale only; solid arrows = write path (owning agent); dashed = read/query; double-line box around Matchmaking agent labeled ``read-only''.
+Visual rules: grayscale only; solid arrows = owned write/processing path; dashed = read, query, or event.
 
 ## Regenerate
 
@@ -48,8 +41,8 @@ Requires draw.io CLI (`drawio`) on PATH.
 
 ## Known issue
 
-Fig1 and Fig4 exports may produce very short PDF bounding boxes.
-Re-export with full canvas crop before submission.
+~~Fig1 and Fig4 exports may produce very short PDF bounding boxes when using `--crop`.~~
+Export script uses full page bounds (`-b 10` without `--crop`). Re-run `generate_jaamas_figures.py` after editing draw.io sources.
 
 ## LaTeX
 

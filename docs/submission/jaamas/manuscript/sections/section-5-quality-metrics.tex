@@ -1,134 +1,216 @@
 \section{Quality Metrics}\label{sec:5}
 
-This section defines the scores used inside the Matchmaking agent and the offline metrics used to evaluate ranking quality, fairness sanity checks, and reproducibility.
-Implementation paths appear in \S\ref{sec:4}; measured results in \S\ref{sec:6}.
+This section defines the scores computed inside the Matchmaking agent and the ranking, explanation, and fairness criteria used in offline evaluation.
+Implementation modules appear in \S\ref{sec:4}; numeric outcomes appear in \S\ref{sec:6}.
 
 \begin{JFigure}{../figures/Fig5.pdf}
 \figcap{5}{Quality evaluation pipeline: labeled corpus, ranking drivers, metric aggregation, fairness audits, and regression gates against committed expected values.}
 \end{JFigure}
 
-\subsection{Evaluation corpus}\label{sec:5-corpus}
+\subsection{Evaluation corpus and protocol}\label{sec:5-corpus}
 
-We evaluate \emph{resume-to-jobs} retrieval on a demo corpus: 30 candidate resumes (queries), 15 job postings, and 47 graded relevance pairs in \texttt{data/eval\_pairs.json} (scale $r \in \{0,1,2\}$: none, partial, strong).
-Each query has one or two relevant jobs (21 strong, 26 partial labels).
-Table~\ref{tab:dataset} summarizes statistics.
-Snapshots are built with the same agent code path used in production.
+Offline evaluation treats each resume as a query and each job posting as a candidate document.
+The labeled set comprises 30 resumes, 15 jobs, and 47 graded query--document pairs in \texttt{data/eval\_pairs.json}.
+Relevance grades are $r \in \{0,1,2\}$ (none, partial, strong); queries with $r>0$ form the relevant set for binary metrics, while nDCG uses the full graded scale.
+Table~\ref{tab:dataset} summarizes corpus statistics.
+Snapshots are built with the same embedding path used in production (\S\ref{sec:4}).
+
+Unless a driver overrides \texttt{top\_k}, we report macro-averaged metrics at $K{=}5$ over all 30 queries.
+Each benchmark driver calls the shared \texttt{eval\_rankings()} routine (\texttt{benchmarks/metrics.py}) so that method comparisons differ only in the ranking function, not in metric code.
 
 \begin{JTable}
 \input{tables/tab-dataset.tex}
 \end{JTable}
 
-\subsection{Similarity and component scores}\label{sec:5-scoring}
+\subsection{Matching scores}\label{sec:5-matching-scores}
 
 All component scores are normalized to $[0,1]$.
-Let $\mathbf{e}_c, \mathbf{e}_j \in \mathbb{R}^{d}$ denote snapshot embeddings ($d{=}384$).
+Let $\mathbf{e}_c, \mathbf{e}_j \in \mathbb{R}^{d}$ denote candidate and job snapshot embeddings ($d{=}384$), and let $A$ and $B$ be canonical skill sets on the resume and required job skills respectively.
 
 \leadpara{Semantic similarity.}
-Cosine score:
+The semantic score measures how closely resume and job-description embeddings align.
+Cosine mode (portal default):
 \begin{equation}
   s_{\mathrm{sem}}^{\mathrm{cos}} =
     \frac{\mathbf{e}_c \cdot \mathbf{e}_j}{\|\mathbf{e}_c\|\,\|\mathbf{e}_j\|}.
   \label{eq:semantic-cosine}
 \end{equation}
-Euclidean-derived alternative: $s_{\mathrm{sem}}^{\mathrm{euc}} = 1 / (1 + \|\mathbf{e}_c - \mathbf{e}_j\|_2)$.
+Euclidean mode maps distance to similarity:
+\begin{equation}
+  s_{\mathrm{sem}}^{\mathrm{euc}} = \frac{1}{1 + \|\mathbf{e}_c - \mathbf{e}_j\|_2}.
+  \label{eq:semantic-euclidean}
+\end{equation}
 
 \leadpara{Skill overlap.}
-For canonical skill sets $A$ (resume) and $B$ (required job skills), Jaccard mode:
+The skill score measures overlap between resume skills and job requirements.
+Jaccard mode (portal default):
 \begin{equation}
   s_{\mathrm{skl}}^{\mathrm{jac}} =
-    |A \cap B| / |A \cup B| \quad (\text{0 if either set empty}).
+    \begin{cases}
+      |A \cap B| / |A \cup B| & \text{if } A \neq \emptyset \text{ and } B \neq \emptyset,\\
+      0 & \text{otherwise}.
+    \end{cases}
   \label{eq:jaccard}
 \end{equation}
-Soft-embed mode averages, over each $b \in B$, the maximum cosine between skill phrase embeddings.
+Embedding mode averages, for each required skill $b \in B$, the maximum cosine between $b$'s skill phrase embedding and any resume skill embedding:
+\begin{equation}
+  s_{\mathrm{skl}}^{\mathrm{emb}} =
+    \frac{1}{|B|} \sum_{b \in B}
+    \max_{a \in A} \cos\!\bigl(\mathbf{e}_a^{(\mathrm{skill})}, \mathbf{e}_b^{(\mathrm{skill})}\bigr).
+  \label{eq:skill-embed}
+\end{equation}
+
+\leadpara{Multimodal weighted score (research baseline).}
+A two-signal blend combines semantic and skill scores with weight $\alpha$ (default $\alpha{=}0.7$):
+\begin{equation}
+  s_{\mathrm{mm}} = \alpha\, s_{\mathrm{sem}} + (1-\alpha)\, s_{\mathrm{skl}}.
+  \label{eq:multimodal}
+\end{equation}
 
 \leadpara{Composite score (portal default).}
+The composite score is a fixed weighted sum over six interpretable components---semantic, skills, title token overlap, experience fit, compensation fit, and remote preference---then clipped to $[0,1]$:
 \begin{equation}
   s_{\mathrm{final}} =
-    \sum_{k} w_k s_k, \quad
+    \mathrm{clip}_{[0,1]}\!\left(
+    \sum_{k} w_k s_k
+    \right), \quad
     (w_{\mathrm{sem}}, w_{\mathrm{skl}}, w_{\mathrm{tit}}, w_{\mathrm{exp}}, w_{\mathrm{comp}}, w_{\mathrm{rem}})
     = (0.28, 0.27, 0.10, 0.15, 0.10, 0.10),
   \label{eq:composite}
 \end{equation}
-with $s_k$ the semantic, skill, title, experience, compensation, and remote components; result clipped to $[0,1]$.
+where $s_{\mathrm{tit}}$, $s_{\mathrm{exp}}$, $s_{\mathrm{comp}}$, and $s_{\mathrm{rem}}$ are rule-based scalars in \texttt{component\_scores.py} (piecewise mappings from experience gap, budget band, and remote-policy fields).
+Title overlap blends token coverage and Jaccard overlap between job-title tokens and resume summary/skills text.
 
-\leadpara{Multimodal baseline.}
-$s_{\mathrm{mm}} = \alpha s_{\mathrm{sem}} + (1-\alpha) s_{\mathrm{skl}}$ with default $\alpha{=}0.7$.
-
-\leadpara{Reciprocal rank fusion.}
-For ranked lists $\mathcal{L}_1,\ldots,\mathcal{L}_m$:
+\leadpara{Ensemble and optional adjustments.}
+Reciprocal rank fusion (RRF) merges $m$ ranked lists without retraining:
 \begin{equation}
   \mathrm{RRF}(x) = \sum_{i=1}^{m} \sum_{r} \mathbb{1}[\mathcal{L}_i[r] = x] \cdot \frac{1}{k + r},
   \label{eq:rrf}
 \end{equation}
-with $k{=}60$ by default.
-
-\leadpara{Optional adjustments.}
-Hard constraints multiply $s_{\mathrm{final}}$ by feasibility factor $\phi \in (0,1]$ when enabled.
-Platt calibration: $\hat{p}(s) = \sigma(a s + b)$ with fitted $(a,b)$.
-Feedback boost adds weighted save/apply/dismiss deltas when enabled (off in default portal).
+with smoothing constant $k{=}60$ by default.
+When enabled, hard constraints multiply $s_{\mathrm{final}}$ by a feasibility factor $\phi \in (0,1]$; Platt calibration maps scores to $\hat{p}(s)=\sigma(a s + b)$ with fitted $(a,b)$; feedback boost adds fixed save/apply/dismiss deltas.
+These optional paths are disabled in default portal requests (\S\ref{sec:4-params}).
 \todo{Report calibration error (ECE or Brier) on held-out eval pairs.}
 \todo{Report feedback-boost and calibration-on vs.\ calibration-off deltas on the eval corpus.}
 
-\subsection{Ranking metrics}\label{sec:5-ranking-metrics}
+\subsection{Ranking metrics}\label{sec:5-ranking}
 
-Given ranked list $\pi_q$ for query $q$ and relevant set $\mathcal{R}_q = \{ j : \mathrm{rel}_q(j) > 0 \}$, with top-$K$ prefix $\pi_q[:K]$ and default $K{=}5$:
+Given ranked list $\pi_q$ for query $q$, graded relevance map $\mathrm{rel}_q(\cdot)$, and relevant set $\mathcal{R}_q = \{ j : \mathrm{rel}_q(j) > 0 \}$, let $\pi_q[:K]$ denote the top-$K$ prefix.
 
-\begin{align}
-  \mathrm{P@}K(q) &= \frac{1}{K}\sum_{j \in \pi_q[:K]} \mathbb{1}[j \in \mathcal{R}_q],
-  \label{eq:p-at-k}\\
-  \mathrm{R@}K(q) &= \frac{1}{|\mathcal{R}_q|}\sum_{j \in \pi_q[:K]} \mathbb{1}[j \in \mathcal{R}_q],
-  \label{eq:r-at-k}
-\end{align}
-
-Graded nDCG:
+\leadpara{Precision@K.}
+Precision@K is the fraction of the top-$K$ slots occupied by relevant jobs:
 \begin{equation}
-  \mathrm{nDCG@}K(q) = \frac{\sum_{i=1}^{K} (2^{\mathrm{rel}_q(j_i)} - 1) / \log_2(i+1)}
-  {\mathrm{DCG@}K(q^\ast)},
+  \mathrm{P@}K(q) = \frac{1}{K}\sum_{j \in \pi_q[:K]} \mathbb{1}[j \in \mathcal{R}_q].
+  \label{eq:p-at-k}
+\end{equation}
+
+\leadpara{Recall@K.}
+Recall@K is the fraction of all relevant jobs for the query retrieved within the top-$K$:
+\begin{equation}
+  \mathrm{R@}K(q) = \frac{1}{|\mathcal{R}_q|}\sum_{j \in \pi_q[:K]} \mathbb{1}[j \in \mathcal{R}_q].
+  \label{eq:r-at-k}
+\end{equation}
+
+\leadpara{nDCG@K.}
+Normalized discounted cumulative gain rewards higher grades at higher ranks.
+For graded relevance:
+\begin{equation}
+  \mathrm{DCG@}K(q) = \sum_{i=1}^{K} \frac{2^{\mathrm{rel}_q(j_i)} - 1}{\log_2(i+1)},
+  \label{eq:dcg}
+\end{equation}
+\begin{equation}
+  \mathrm{nDCG@}K(q) = \frac{\mathrm{DCG@}K(q)}{\mathrm{DCG@}K(q^\ast)},
   \label{eq:ndcg}
 \end{equation}
-where $\pi_{q^\ast}$ is the ideal ranking.
-MRR and MAP treat relevance as binary ($r>0$).
-Metrics are macro-averaged over queries; significance tests use 5000 bootstrap resamples (seed~42).
+where $\pi_{q^\ast}$ is the ideal ranking that sorts jobs by $\mathrm{rel}_q$ descending.
 
-\subsection{Fairness and hard-negative diagnostics}\label{sec:5-fairness-negs}
+\leadpara{Mean reciprocal rank (MRR).}
+MRR treats relevance as binary ($r>0$) and measures how early the first relevant job appears:
+\begin{equation}
+  \mathrm{RR}(q) =
+    \begin{cases}
+      1 / \mathrm{rank}_q(j^\ast) & \text{if a relevant job } j^\ast \text{ appears at rank } \mathrm{rank}_q(j^\ast),\\
+      0 & \text{otherwise}.
+    \end{cases}
+  \label{eq:mrr}
+\end{equation}
+Macro-averaged $\mathrm{MRR} = \frac{1}{|\mathcal{Q}|}\sum_{q \in \mathcal{Q}} \mathrm{RR}(q)$.
 
-\leadpara{Proxy-group audit.}
-Experience tier and remote-preference groups; reports selection-rate parity and disparate-impact ratio.
-\todo{Persist \texttt{fairness\_eval.py} proxy-group ratios to \texttt{benchmark\_outputs/}.}
+\leadpara{Mean average precision (MAP).}
+MAP averages precision at each relevant hit, normalized by $|\mathcal{R}_q|$:
+\begin{equation}
+  \mathrm{AP}(q) = \frac{1}{|\mathcal{R}_q|}
+    \sum_{r=1}^{|\pi_q|}
+    \mathrm{P@}r(q) \cdot \mathbb{1}[\pi_q[r] \in \mathcal{R}_q],
+  \label{eq:map}
+\end{equation}
+where $\mathrm{P@}r(q)$ is precision computed over the length-$r$ prefix.
+Drivers report macro-averaged P@K, R@K, MRR, nDCG@K, and MAP unless noted otherwise.
 
-\leadpara{Synthetic counterfactual audit.}
-Ten fabricated profile pairs; flags rank or score instability under controlled field edits (Table~\ref{tab:fairness} in \S\ref{sec:6}).
+\subsection{Benchmark comparison criteria}\label{sec:5-benchmark-criteria}
 
-\leadpara{Hard-negative mining.}
-From top-$P{=}10$ multimodal pool, up to five unlabeled high-scoring jobs per query:
+\leadpara{Compared method families.}
+The research pipeline (\texttt{benchmarks/comparison.py}, \texttt{paper\_progression.py}, \texttt{ablation.py}, \texttt{table11\_fusion.py}) evaluates, on the \emph{same} labeled corpus:
+(i)~lexical baselines (TF--IDF cosine, BM25, exact skill overlap);
+(ii)~dense strategies (semantic cosine/euclidean, skills Jaccard/embedding, multimodal weighted);
+(iii)~composite and component ablations;
+(iv)~fusion variants (RRF, learned logistic regression, hierarchical blending);
+(v)~optional cross-encoder reranking and ANN shortlist sweeps (\texttt{phase11.py}).
+Primary comparison metrics are macro-averaged P@5, R@5, MRR, nDCG@5, and MAP at $K{=}5$.
+
+\leadpara{Statistical comparison.}
+Paired bootstrap tests (\texttt{benchmarks/significance.py}) resample queries with replacement ($N{=}5000$, seed~42) and compare method pairs on nDCG@K and MRR; a difference is flagged significant at $\alpha{=}0.05$ when the two-sided bootstrap $p$-value falls below 0.05.
+\todo{Report significance tables for portal-default composite vs.\ best research baseline in \S\ref{sec:6}.}
+
+\leadpara{Regression gate.}
+Continuous integration recomputes selected rankings and requires:
+\begin{equation}
+  \left| \widehat{\mathrm{nDCG@}5}_{\mathrm{run}} - \mathrm{nDCG@}5_{\mathrm{expected}} \right| \leq 0.04,
+  \label{eq:regression}
+\end{equation}
+against committed values in \texttt{data/expected/paper\_progression\_summary.json} (\texttt{tests/benchmarks/test\_eval\_regression.py}).
+
+\leadpara{Hard-negative mining (sanity check).}
+From the top-$P{=}10$ multimodal pool per query, hard negatives are high-scoring jobs outside the labeled relevant set:
 \begin{equation}
   \mathcal{H}_q = \left\{ j \in \pi_q[:P] : j \notin \mathcal{R}_q \right\}_{|\cdot|\leq 5}.
   \label{eq:hard-negs}
 \end{equation}
-Report: 30 queries, 150 pairs, zero overlap with declared relevant jobs.
+Success criterion: zero overlap between $\mathcal{H}_q$ and declared relevant jobs across all queries (label-set sanity, not ranking quality).
 
-\subsection{Benchmark drivers and regression gates}\label{sec:5-drivers}
-
-Drivers share \texttt{eval\_rankings()} but vary ranking strategy: comparison study (lexical vs.\ embedding), composite ablation, fusion ablation (\texttt{table11\_fusion.py}), paper progression ladder, and optional ANN latency sweeps (\texttt{phase11.py}).
 \todo{No committed \texttt{phase11} summary artifact at time of writing.}
 
-Table~\ref{tab:method-comparison} and Table~\ref{tab:progression} list method comparison and CI regression baselines; full numeric results appear in \S\ref{sec:6}.
+\subsection{Explanation quality criteria}\label{sec:5-explainability}
 
-\begin{JTable}
-\input{tables/tab-methods.tex}
-\end{JTable}
+Explainability is evaluated offline on ranked pairs using \texttt{benchmarks/explainability\_eval.py} and \texttt{explainability\_checks.py}.
+Two explainer modes are compared: rule-based bullets (\texttt{explain\_mode=rules}, portal default) and a grounded template explainer.
 
-\begin{JTable}
-\input{tables/tab-progression.tex}
-\end{JTable}
+\leadpara{Faithfulness.}
+For each explanation, three hard checks must pass: (1)~mention at least one matched or missing skill when such skills exist; (2)~introduce no skill strings outside the candidate/job vocabulary; (3)~align qualitative component claims (e.g.\ ``high semantic similarity'') with the underlying \texttt{ScoreBreakdown}.
+Faithfulness is the fraction of hard checks passed (0--1).
 
-Regression gate (\texttt{test\_eval\_regression.py}):
-\begin{equation}
-  \left| \widehat{\mathrm{nDCG@}5}_{\mathrm{run}} - \mathrm{nDCG@}5_{\mathrm{expected}} \right| \leq 0.04.
-  \label{eq:regression}
-\end{equation}
+\leadpara{Specificity.}
+Specificity scores how concrete the bullets are relative to generic-only templates (0--1 heuristic based on explicit skill references and parsed skill lists).
 
-\leadpara{Verified snapshot values (2026-05-27 artifacts, research driver config).}
-Multimodal weighted ($\alpha{=}0.7$): nDCG@5 $0.924$; RRF ensemble: $0.913$; full composite ablation (legacy weights 40/30/15/10/5): $0.942$.
-These may differ from portal defaults; see \S\ref{sec:6} for interpretation.
-\todo{Re-run ablation with portal weights 28/27/10/15/10/10 and update Table~\ref{tab:ablation}.}
+\leadpara{Consistency under profile variants.}
+For synthetic profile pairs, bullet-set Jaccard similarity and matched-skill equality are measured between explanations for two controlled variants of the same base profile.
+A pair is \emph{consistent} when Jaccard $\geq 0.5$ and matched-skill sets agree; drift is $1 - \text{Jaccard}$.
+An instance is \emph{flagged} when any hard check fails.
+
+\todo{Add explainability evaluation summary table to \S\ref{sec:6}.}
+
+\subsection{Fairness and sanity metrics}\label{sec:5-fairness}
+
+Fairness checks are proxy-based sanity audits on the synthetic demo corpus; they do not infer protected attributes from real users.
+
+\leadpara{Proxy-group selection rates.}
+Queries are grouped by experience tier (junior/mid/senior) and remote preference (remote-seeker vs.\ onsite-flexible).
+For each group $g$, selection rate is the fraction of queries whose top-$K$ average match score meets or exceeds the corpus median score (\texttt{core/fairness.py}).
+Disparate impact ratio (DIR) is $\min_g \mathrm{rate}_g / \max_g \mathrm{rate}_g$ (1.0 indicates parity).
+\todo{Persist \texttt{fairness\_eval.py} proxy-group ratios to committed \texttt{benchmark\_outputs/} artifacts.}
+
+\leadpara{Synthetic counterfactual audit.}
+Ten fabricated profile pairs in \texttt{fairness\_audit\_profiles.json} undergo controlled field edits (\texttt{benchmarks/fairness\_audit.py}).
+Per pair and job, the audit records rank change, absolute score delta, and explanation drift (bullet-set Jaccard) between variants.
+A case is flagged when top-$K$ rank shifts, score delta exceeds $0.01$, explanation drift is positive in the top-$K$ union, or the top-1 job changes.
+Reported aggregates include flagged-pair count and maximum score shift; numeric outcomes appear in \S\ref{sec:6}.

@@ -1,116 +1,138 @@
 # Handoff
-> Written: 2026-05-27 | Branch: main | Dir: /Users/harshkashyap/Projects/JobMatcher-v1/Job-Matching-Agentic
+> Written: 2026-05-27 | Branch: main (local edits uncommitted) | Dir: /Users/harshkashyap/Projects/JobMatcher-v1/Job-Matching-Agentic
 
 ## Goal
 
-Deliver a thesis-ready JobMatch product with reliable portals, composite matching, improved document parsing, skill normalization, and employer/candidate **quality intelligence** — then commit and push the large uncommitted feature batch on `main`.
+Deliver a thesis-ready **multi-agent JobMatch platform** and a **JAAMAS submission manuscript** reframed as an accessible multi-agent recruitment paper (not a technical report). Product code is committed and pushed at `010dadf`; this session completed major manuscript rewrites (§2–§7), professor QA, and a security-focused code review. Remaining work: commit manuscript, resolve `\todo` markers, fill author metadata, and optional API hardening before professor resubmission.
 
 ## Current state
 
-- **Done (committed & pushed):**
-  - Portal bug fixes, profile gates, employer job ownership — `9d1de25`
-  - HLD/SDD v1.1 alignment — `b760b8b`
-  - Prior research pipeline, composite scoring baseline, portal polish — older commits on `main`
-- **Done (local, uncommitted):**
-  - **API reliability:** `backend/gateway/errors.py`, `handlers.py`; consistent error envelopes; auth/store ownership hardening; route fixes in candidates, employers, matching, feedback, similar; `tests/integration/test_api_errors.py`
-  - **Matching quality:** 6-signal composite (semantic 28%, skills 27%, title 10%, experience 15%, compensation 10%, remote 10%); `MatchDetailsDrawer` breakdown; `frontend/src/utils/matchScoring.js`
-  - **Resume/JD parsing:** `document_parse.py`, `resume_structured_extract.py`, `job_structured_extract.py`, enhanced `resume_clean.py`; LLM merge; `ExtractedSectionsPanel`; integration tests
-  - **Skill normalization:** `shared/skill_catalog.json`; expanded `skill_catalog.py`; `frontend/src/utils/skillCatalog.js`; dedupe on save via `hooks/parser.py`
-  - **Employer job quality:** `backend/core/job_quality.py`, `POST /jobs/quality-check`, `JobQualityPanel` on `Jobs.jsx`; parse responses include `quality`
-  - **Candidate profile quality:** `backend/core/profile_quality.py`, `POST /candidates/quality-check`, `ProfileQualityPanel` on `Onboarding.jsx` + `Profile.jsx`; upload includes `quality`; fixed missing `profileLoaded` state in Onboarding
-- **In progress:** None actively coding — large diff sitting uncommitted (~37 modified + ~25 new files)
-- **Blocked:** None for local demo
+- **Done (committed & pushed on `main` @ `010dadf`):**
+  - Backend explainability, demo reset, frontend UX, tests, JAAMAS manuscript v1, portal/build artifacts, knowledge graph snapshot
+- **Done (local, not committed):**
+  - **§2 Literature Review** — rebuilt around 6 themes; 12 `\todo{Citation needed}` markers; only 7 bib entries
+  - **§4 Implementation** — consolidated backend/frontend/data/params/reproducibility (report-style, intentional)
+  - **§5 Quality Metrics** — all formulas/metrics; no numeric results; equations only in §5
+  - **§6 Results and Discussion** — narrative, interpreted tables, human-audience structure (7 subsections)
+  - **§7 Conclusion and Future Scope** — decision-support framing; 8 future-scope items
+  - **§3** — Fig1 multi-agent layout, expanded §3.4 communication, Algorithm 1 (`algorithms/alg-multi-agent-matching.tex`)
+  - **Fig1–Fig5 PDFs** + draw.io sources; Fig1 export fix (removed `--crop` from draw.io CLI)
+  - **Professor QA pass** — 10 PASS / 4 PARTIAL / 1 FAIL (citations); documented in chat, not in repo
+  - **Code review** — 13 security/findings (open admin registration, unauthenticated PII via match routes, etc.); **no fixes applied**
+  - Manuscript compiles to **33 pages** (`main.pdf` local)
+- **In progress:** None
+- **Blocked:** Springer upload (author placeholders); professor resubmission (visible `\todo`s + thin bibliography)
 
 ## Decisions made
 
 | Decision | Why | Alternatives rejected |
 |----------|-----|----------------------|
-| Rule-based quality modules (job + profile) | Instant debounced UX, testable without LLM | LLM-only quality scoring (cost, latency) |
-| `shared/skill_catalog.json` as synonym source | Single catalog for Python + Vite frontend | Duplicate maps in backend/frontend only |
-| Parse pipeline: clean → rules → LLM merge | Works when LLM unavailable; rules fill gaps | LLM-only extraction |
-| Quality on debounced `POST /*/quality-check` | Single source of truth; live form updates | Duplicate scoring logic in frontend only |
-| Profile quality replaces `ProfileStrength` in edit flows | Richer guidance; keep `ProfileStrength` on read-only summary | Two overlapping panels in edit mode |
-| Composite weights 28/27/10/15/10/10 | Better title/remote signals for match explain | Old 40/30/15/10/5 split |
+| 7-section structure with §4 Implementation + §5 Metrics | Professor feedback: separate code from formulas from results | Single Methodology section mixing all three |
+| §6 narrative-first (not table dump) | General-audience readability; professor feedback | Table-per-subsection without interpretation |
+| §2 themed literature (not paper-by-paper) | Stronger positioning vs algorithm-only demos | Old 4-subsection lite review |
+| Citation gaps as `\todo{Citation needed}` | User rule: no fake references | Invent bib entries to fill gaps |
+| Matching routes unauthenticated in code | Admin console + integration tests; documented in §4 | Auth-gate all `/match/*` (would break tests/admin) |
+| Portal composite default vs best research nDCG | Explainability over max offline score | Switch portal to soft-embed/learned fusion |
+| Code review findings documented, not fixed | User `/review` requested findings only | Silent hardening in same session |
+| Fig1 before agent subsections (not diagram-first) | Brief principles paragraph sets context | Move figure immediately after `\section` title |
 
 ## Open questions
 
-- [ ] Hypothesis: Full `pytest ../tests -q` still passes with all changes — worth running before commit
-- [ ] Unknown: Whether HLD/SDD should document new quality endpoints and composite weights — matters for thesis appendix alignment
-- [ ] Hunch: Uncommitted API reliability changes may need a quick smoke test of employer/candidate auth edge cases — evidence: large route diff
+- [ ] Hypothesis: Professor accepts 12 citation TODOs as “draft” or requires full bib before resubmission — evidence: QA marked **FAIL** on citations
+- [ ] Unknown: Commit manuscript as one commit or split (sections vs figures vs algorithms) — matters for review history
+- [ ] Unknown: Whether to add Sal Khan *Brave New Words* to `references.bib` — §1 cites narratively, no `\cite`
+- [ ] Unknown: Portal-weight composite ablation (28/27/10/15/10/10) — multiple `\todo`s; re-run or soften deployment claims?
+- [ ] Hunch: Code review security gaps will concern professor if live demo is network-exposed — evidence: open admin register, PII on unauthenticated match
 
 ## Blockers & dependencies
 
 | What | Who/Where | Status |
 |------|-----------|--------|
-| Commit/push of feature batch | User/agent | not done |
-| LLM keys for live parse | Local `.env` | optional for rule-only fallback |
+| Author name/email/affiliation in `main.tex` | User | placeholder (`First Author`, `example.edu`) |
+| CRediT roles in `declarations.tex` | User | `\todo` |
+| 12 literature citations in §2 | User/literature search | `\todo{Citation needed}` |
+| Professor resubmission | User | waiting on commit + todo cleanup |
+| Springer upload | User | not started |
 
-None.
+None blocking local compile or demo on localhost.
 
 ## Environment
 
-- **Branch:** `main`
-- **Uncommitted changes:** 37 modified files, ~25 untracked (quality modules, parsing, skill catalog, gateway errors, frontend panels, tests). ~1283 insertions / 408 deletions on tracked files.
-- **Recent commits:**
-  - `b760b8b` Align HLD and SDD v1.1 with implemented backend and frontend
-  - `9d1de25` Fix portal profile/match flows and harden employer job ownership
-  - `c1a451d` Polish portal theme, candidate profile flow, and employer jobs UX
-- **Build status:** Frontend `npm run build` passing (last run this session)
-- **Test status:** Targeted suites passing — profile quality (19), job quality (12), parsing (35), skill catalog (12); full suite not re-run this session
+- **Branch:** `main` (last push `010dadf`; **large local diff uncommitted**)
+- **Uncommitted changes:** Manuscript §1–§7, figures, `algorithms/`, `generate_jaamas_figures.py`, `jaamas-macros.tex`, knowledge graph v11, `HANDOFF.md`, `main.pdf`
+- **Untracked:** `docs/submission/jaamas/manuscript/algorithms/`, LaTeX aux (`main.aux`, `.bbl`, `.blg`, `.log`, `.out`)
+- **Recent commits (remote):**
+  - `010dadf` Update codebase knowledge graph
+  - `3631bcb` Portal docs, build pipeline, submission artifacts
+  - `cfae2c2` JAAMAS manuscript source, figures, tables
+  - `a7093b7` Tests (explainability, filters, demo reset)
+  - `3f29d75` Frontend explainability + filters
+- **Build status:** Manuscript compiles (33 pp.) via `pdflatex` + `bibtex`; full package not re-run via `build_all.sh` this session
+- **Test status:** 302 tests collected; full suite not re-run after manuscript edits
 - **Active processes:** None known
 
 ## What worked
 
-- Mirroring employer `JobQualityPanel` pattern for candidate `ProfileQualityPanel` (debounced API + parse snapshot on upload)
-- Shared JSON skill catalog imported by Vite (`with { type: "json" }`) and Python `skill_catalog.py`
-- Rule extract + LLM merge in `document_parse.py` with graceful `llm_status` fallbacks
-- Gateway `errors.py` + global handlers for consistent API envelopes
+- Research-paper-writing skill workflow: outline → rewrite → no invented numbers
+- Moving `tab-method-comparison` from §5 to §6 (definitions vs results separation)
+- §6 structure: evaluated → baselines → main result → agent usability → strengths → limits → implications
+- Algorithm 1 as architectural steps with formulas deferred to §5
+- draw.io export without `--crop` (fixes ~47 pt tall PDFs)
+- Professor QA checklist against 14 explicit criteria
+- `GIT_TERMINAL_PROMPT=0 git -c commit.gpgsign=false commit` when GPG/HEREDOC hangs
 
 ## What didn't work
 
-- Relying on case-sensitive skill overlap in tests after canonicalization — fixed by comparing `.lower()`
-- `profileLoaded` referenced in Onboarding without `useState` — fixed when wiring profile quality
-- Initial job quality test expected empty title on LLM-unavailable parse — updated for rule-based title inference
+- HEREDOC `git commit` hangs in Cursor shell — use simple `-m` or `-c commit.gpgsign=false`
+- Do not commit LaTeX `.aux/.log/.bbl/.blg/.out`
+- Cross-encoder rerank: higher latency, **lower** nDCG on demo corpus — do not oversell in abstract/future scope
+- Learned fusion trained on same 47 pairs used for eval — overfitting risk; already downgraded in §6/§7
+- `/review` found tests that **assert insecure behavior** (e.g. `test_register_admin`, unauthenticated match) — fixing auth requires test rewrites
 
 ## Commands
 
 ```bash
-# Backend tests (from backend/)
-cd backend && pytest ../tests -q
+# Manuscript compile (from manuscript dir)
+cd docs/submission/jaamas/manuscript && pdflatex main.tex && bibtex main && pdflatex main.tex && pdflatex main.tex
 
-# Targeted quality + parsing
-pytest ../tests/unit/test_profile_quality.py ../tests/unit/test_job_quality.py \
-  ../tests/integration/test_profile_quality_api.py ../tests/integration/test_job_quality_api.py \
-  ../tests/integration/test_resume_upload.py ../tests/integration/test_job_parse.py -q
+# Full JAAMAS package rebuild
+bash docs/submission/jaamas/build_all.sh
 
-# Frontend
-cd frontend && npm run build
-node --test ../tests/unit/test_skills_input.mjs ../tests/unit/test_profile_normalize.mjs
+# Backend tests (302 collected)
+cd backend && source .venv/bin/activate && pytest ../tests -q
 
 # Dev servers
-cd backend && uvicorn gateway.app:build_gateway --factory --reload --port 8001
+cd backend && uvicorn main:create_app --factory --reload --port 8001
 cd frontend && npm run dev
+
+# Regenerate draw.io figure sources
+python scripts/generate_jaamas_figures.py
+
+# Count remaining manuscript TODOs
+rg '\\todo' docs/submission/jaamas/manuscript
+
+# Demo reset (admin session, demo_mode on)
+curl -X POST http://localhost:8001/system/demo/reset -b cookies.txt
 ```
 
 ## Key files
 
 | File | Why It Matters |
 |------|---------------|
-| `backend/core/profile_quality.py` | Candidate completeness, summary/salary/parsing confidence, match suggestions |
-| `backend/core/job_quality.py` | Employer JD quality score, missing fields, salary/skill warnings |
-| `backend/core/document_parse.py` | Unified resume/JD parse; attaches `quality` on resume parse |
-| `backend/core/resume_structured_extract.py` | Rule-based resume field extraction |
-| `backend/core/job_structured_extract.py` | Rule-based JD field extraction |
-| `shared/skill_catalog.json` | Synonym + display name catalog (backend + frontend) |
-| `backend/gateway/errors.py` | Shared API error helpers and codes |
-| `backend/core/scoring.py` | Composite weights and component breakdown |
-| `frontend/src/components/ProfileQualityPanel.jsx` | Candidate quality UI |
-| `frontend/src/components/JobQualityPanel.jsx` | Employer quality UI |
-| `frontend/src/pages/candidate/Onboarding.jsx` | Upload → review with quality panel |
-| `frontend/src/pages/candidate/Profile.jsx` | Re-upload + edit with quality panel |
-| `frontend/src/pages/employer/Jobs.jsx` | JD import + form with job quality panel |
-| `backend/gateway/routes/candidates.py` | `/upload-resume`, `/quality-check`, profile upsert |
-| `backend/gateway/routes/employers.py` | `/parse-description`, `/quality-check`, job CRUD |
+| `docs/submission/jaamas/manuscript/sections/section-2-literature-review.tex` | Themed lit review; **12 citation TODOs** |
+| `docs/submission/jaamas/manuscript/sections/section-3-architecture.tex` | Multi-agent architecture, §3.4 communication, Fig1–3 |
+| `docs/submission/jaamas/manuscript/algorithms/alg-multi-agent-matching.tex` | Algorithm 1 (15 steps) |
+| `docs/submission/jaamas/manuscript/sections/section-4-implementation.tex` | All implementation detail consolidated here |
+| `docs/submission/jaamas/manuscript/sections/section-5-quality-metrics.tex` | Formulas + metric definitions only |
+| `docs/submission/jaamas/manuscript/sections/section-6-results-discussion.tex` | Interpreted results; 8 tables with narrative |
+| `docs/submission/jaamas/manuscript/sections/section-7-conclusion-future.tex` | Conclusion + 8 future-scope items |
+| `docs/submission/jaamas/manuscript/references.bib` | **Only 7 entries** — needs expansion |
+| `docs/submission/jaamas/manuscript/main.tex` | Abstract + author placeholders |
+| `docs/submission/jaamas/figures/Fig1.pdf` | Multi-agent block diagram (re-exported) |
+| `scripts/generate_jaamas_figures.py` | Fig source generator |
+| `backend/gateway/routes/matching.py` | Unauthenticated match routes (review finding) |
+| `backend/auth/routes.py` | Open admin registration (review finding) |
+| `.claude/knowledge_graph.md` | Codebase map (v11 local edits uncommitted) |
 
 ## External links
 
@@ -118,18 +140,28 @@ None.
 
 ## Memory snapshot
 
-- `.claude/knowledge_graph.md` exists (v8 from earlier session) — **stale** relative to quality intelligence and skill catalog; refresh after commit if continuing docs work
+- `.claude/knowledge_graph.md` v11 — JAAMAS paths, section map; **local edits uncommitted**
+- `.claude/knowledge_graph.json` — curated export; **local edits uncommitted**
+- Professor QA (2026-05-27): structure PASS; citations FAIL; config drift (portal vs ablation weights) MEDIUM risk
+- Code review (2026-05-27): do not expose API publicly without auth/PII hardening
 
 ## Persistent context
 
-- Knowledge graph: `.claude/knowledge_graph.md`
-- Design specs: `docs/design/HLD-multi-agent-system.md`, `docs/design/SDD-multi-agent-system.md` (v1.1; may not reflect latest composite weights or quality APIs)
-- Scope doc: `docs/design/V1-V2-SCOPE.md`
+- Knowledge graph: `.claude/knowledge_graph.md`, `.claude/knowledge_graph.json`
+- JAAMAS build: `docs/submission/jaamas/build_all.sh`, `docs/submission/jaamas/build/README.md`
+- Figures: `docs/submission/jaamas/figures/README.md`
+- Design: `docs/design/HLD-multi-agent-system.md`, `docs/design/SDD-multi-agent-system.md`
+- Demo: `docs/demo/DEMO-SCRIPT.md`
 
 ## Next steps
 
-1. Run full test suite — verify: `cd backend && pytest ../tests -q` exits 0
-2. Commit uncommitted work in logical chunks (API hardening, matching, parsing, skills, quality) or one feature commit — verify: `git status` clean after push
-3. Update HLD/SDD sections for composite weights, parse pipeline, `/quality-check` endpoints — verify: docs mention 6-signal breakdown and profile/job quality
-4. Optional: show `ProfileQualityPanel` on read-only profile view (`CandidateProfileSummary`) — verify: quality visible without entering edit mode
-5. Refresh `.claude/knowledge_graph.md` if continuing agent sessions — verify: new modules listed under `backend/core/`
+1. **Commit manuscript rewrite** (§2–§7, algorithms, figures, macros, `main.pdf`) — verify: `git status` clean except aux/knowledge graph
+2. **Fix intro contribution bullet** — change “matchmaking engine” → “Matchmaking agent” in `section-1-introduction.tex` — verify: `rg 'matchmaking engine' manuscript` → 0
+3. **Resolve or hide `\todo` markers** (~29 across manuscript/tables) — verify: `rg '\\todo' docs/submission/jaamas/manuscript` → 0 or only intentional deferrals
+4. **Add §2 bibliography entries** (12 citation TODOs minimum) — verify: `references.bib` ≥15 entries, BibTeX clean
+5. **Fill author block + CRediT** in `main.tex` / `declarations.tex` — verify: no `First Author` / `example.edu`
+6. **Run portal-weight composite ablation** OR downgrade table/claim in `tab-ablation.tex` — verify: weights 28/27/10/15/10/10 in artifact or footnote honest
+7. **Re-run `build_all.sh`** and sync cover letter + information sheet with §6 numbers — verify: portal PDFs match abstract
+8. **Optional API hardening** from code review (admin register lock, match auth, PII redaction) — verify: new integration tests for 401/403; **only if professor/demo requires network exposure**
+9. **Commit knowledge graph v11** — verify: `.claude/knowledge_graph.md` matches current manuscript paths
+10. **Run full test suite before submission tag** — verify: `pytest ../tests -q` → 302 passed

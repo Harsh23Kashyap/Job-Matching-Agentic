@@ -1,38 +1,41 @@
 \section{Introduction}\label{sec:1}
 
-For many job seekers, finding work still feels like shouting into a crowd.
-They rewrite the same resume for dozens of roles, wait weeks without feedback, and rarely learn why one posting surfaced in their results while another vanished after a single click.
-When the process does move forward, it often moves on the employer's timetable---not the candidate's---leaving people to guess what mattered most: their skills, their location, their salary expectations, or something they never saw in the job ad.
+Finding a job today often feels less like a conversation and more like waiting in line without a ticket number.
+People send the same resume to many openings, hear nothing for weeks, and cannot tell whether they were overlooked, filtered out, or simply lost in volume.
+When something does happen---an interview invite, a rejection, a role that disappears from a results page---the reason rarely travels back to the person who needed it most.
 
-Recruitment systems were built to help organizations sort large applicant pools, but the experience on both sides remains uneven.
-Candidates see opaque lists and generic rejections.
-Recruiters and hiring managers see dashboards that prioritize speed over clarity: filters that drop promising profiles, rankings that change without explanation, and little visibility into how a job requirement maps to a person's actual background.
-Trust erodes when neither party can answer a simple question---\emph{why this match, and why now?}
+Recruitment platforms were meant to bring order to hiring, yet both sides still describe the same discomfort from different angles.
+Candidates face lists that feel arbitrary and feedback that arrives too late to be useful.
+Recruiters and hiring managers face tools that move quickly but explain little: promising profiles vanish behind a filter, rankings shift without notice, and no screen makes it obvious how a written requirement relates to a real career path.
+Confidence drops when neither party can answer a plain question---\emph{why was this person shown this role, and what would need to change for the answer to differ?}
 
-The cost of getting filtering wrong is measured in time and money, not just frustration.
-Every unsuitable interview consumes calendar space, interviewer attention, and candidate hope.
-Every missed fit---someone qualified who never appeared on a shortlist---can mean a longer vacancy, a rushed hire, or lost talent to a competitor.
-At scale, small errors in matching compound into weeks of delay and substantial recruiting spend, even before anyone discusses compensation or start dates.
+Those mismatches carry a real price.
+Each interview with the wrong person consumes time on both calendars and attention that could have gone elsewhere.
+Each strong candidate who never reaches a shortlist can extend a vacancy, force a compromise hire, or send talent to a rival.
+Organizations feel the cost in recruiter hours and manager distraction long before salary is discussed; job seekers feel it in repeated preparation for roles that were never a genuine fit.
 
-A broader vision of computing may help reframe what hiring tools could become.
-In his writing on education and artificial intelligence, Sal Khan describes a future in which personal AI assistants walk alongside individuals---helping them understand options, prepare materials, and navigate complex decisions rather than replacing human judgment.
-That idea transfers naturally to the job market: a job seeker deserves an assistant that represents \emph{their} goals, history, and constraints, not merely a form field on an employer's website.
+Sal Khan, in \emph{Brave New Words}, argues that artificial intelligence should work as a personal guide---helping people understand choices, prepare thoughtfully, and move through complex decisions without replacing human judgment.
+His discussion of college admissions is especially relevant here: gatekeeping systems often reduce a person to a single snapshot, while a well-designed assistant could track growth, context, and intent over time.
+The same shift applies to hiring.
+A job seeker deserves software that stands for their goals and history, not only a row in an employer's applicant table.
 
-We take that vision seriously by giving each side of the market its own software agent.
-On the candidate side, a \textbf{client-side agent} accepts resumes and profile updates, helps organize skills and experience into a structured record, and keeps that record current as the person edits their materials.
-On the employer side, an \textbf{employer-side agent} accepts job descriptions and hiring requirements, structures them into a comparable record, and maintains them as roles evolve.
-Neither agent exists in isolation: a candidate's story and an employer's needs only become meaningful when they can be compared fairly, explained clearly, and updated when either party changes direction.
+We build toward that idea with a dedicated representative on each side of the market.
+A \textbf{candidate-side agent}---sometimes called a client-side agent in our implementation---accepts resumes and profile updates, turns them into a structured record of skills and experience, and keeps that record current as the person revises their materials.
+An \textbf{employer-side agent} performs the parallel work for hiring: it accepts job descriptions and requirements, organizes them into a structured job record, and updates that record when a role changes.
+Each agent owns its side of the story; neither is asked to manage the other's data.
 
-Collaboration among agents is therefore the design center, not an afterthought.
-If candidate information and job information live in separate silos with no shared language, both portals revert to blind search.
-If a single monolithic program owns every edit and every score, users cannot tell who changed what or why a ranking shifted.
-JobMatch instead assigns clear ownership---candidates control candidate state, employers control job state---and introduces a dedicated \textbf{matchmaking agent} that reads both sides, scores possible pairings, and returns ranked recommendations with reasons attached.
-When a resume or job description changes, the owning agent updates its record and notifies the matchmaking layer so suggestions stay fresh.
+Separate ownership only helps if the two sides can still meet on common ground.
+When candidate records and job records never connect, both portals collapse into blind browsing.
+When one large program controls every edit and every score, users cannot see who changed what or why a recommendation moved.
+JobMatch therefore treats \textbf{collaboration among agents} as the core design problem.
+Candidate and employer agents maintain their own state; a neutral \textbf{matchmaking agent} reads both, compares them, and returns ranked recommendations together with reasons a human can inspect.
+When either side updates a resume or a job description, the owning agent refreshes its record and shares what the matchmaking layer needs so suggestions stay current.
 
-Together, these pieces form \textbf{JobMatch}, a multi-agentic job-matching system implemented as a research prototype with separate web experiences for candidates, employers, and administrators.
-The system parses resumes and job descriptions into structured states, builds comparable representations of people and roles, and routes matching work through the matchmaking agent.
-Users remain in charge: they review parsed fields, inspect why a pairing scored as it did, and explicitly choose to save, apply, or shortlist---the software suggests; it does not hire on anyone's behalf.
-We evaluate the matching core offline on a labeled demo corpus (30 resumes, 15 jobs, 47 graded relevance pairs) using standard quality metrics and reproducible benchmark comparisons; we report numbers only from committed artifacts and do not claim production hiring effectiveness.
+These components form \textbf{JobMatch}, a multi-agentic job-matching system delivered as a research prototype with separate web experiences for candidates, employers, and administrators.
+The platform parses resumes and job descriptions into structured states, builds comparable representations of people and roles, and routes matching through the matchmaking agent to produce ordered recommendations.
+Users remain in control throughout: they review extracted fields, read why a pairing ranked as it did, and decide whether to save, apply, or shortlist.
+The system advises; it does not hire or reject on anyone's behalf.
+We evaluate the matching core offline on a labeled demo corpus---30 resumes, 15 jobs, and 47 graded relevance pairs---using standard quality metrics and reproducible benchmark comparisons reported in later sections.
 
 This paper makes the following contributions:
 \begin{itemize}[noitemsep]
@@ -45,9 +48,9 @@ This paper makes the following contributions:
 \end{itemize}
 
 The remainder of the paper is organized as follows.
-Section~\ref{sec:2} reviews recruitment systems, AI agents in hiring, and semantic matching.
-Section~\ref{sec:3} presents the architecture of the multi-agent system.
-Section~\ref{sec:4} describes implementation details.
-Section~\ref{sec:5} defines quality metrics and the evaluation protocol.
-Section~\ref{sec:6} reports results and discussion.
+Section~\ref{sec:2} reviews recruitment systems, AI agents in hiring, and related matching approaches.
+Section~\ref{sec:3} presents the multi-agent architecture (candidate, employer, and matchmaking agents; communication; overall workflow).
+Section~\ref{sec:4} describes implementation details (libraries, APIs, data structures, and parameters).
+Section~\ref{sec:5} defines quality metrics, similarity scores, and evaluation criteria.
+Section~\ref{sec:6} reports benchmark results and discussion.
 Section~\ref{sec:7} concludes and outlines future scope.

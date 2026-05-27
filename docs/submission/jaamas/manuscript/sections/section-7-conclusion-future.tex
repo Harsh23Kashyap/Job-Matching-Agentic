@@ -1,20 +1,64 @@
 \section{Conclusion and Future Scope}\label{sec:7}
 
-JobMatch demonstrates that hiring support can be organized as a \textbf{multi-agent recruitment system} rather than a monolithic search box.
-Candidate and Employer agents own profile state and shared embeddings; a read-only Matchmaking agent scores and explains candidate--job pairs; role-separated portals keep human users in control of applications and shortlists.
+\subsection{Conclusion}\label{sec:7-conclusion}
 
-Offline evaluation on 30 resumes, 15 jobs, and 47 graded pairs shows that multimodal soft-embed and learned fusion reach the highest nDCG@5 values in research drivers ($0.969$ and $0.968$), while the production portal favors a fixed composite strategy for interpretability.
-Cross-encoder reranking reduces nDCG@5 by $0.108$ at substantially higher latency; hard-negative mining yields 150 pairs with zero label conflicts; a synthetic fairness audit flags 6/10 fabricated pairs.
-These results are reproducible from committed benchmark artifacts but do not establish production hiring effectiveness.
+Job seekers and recruiters still meet through software that ranks quickly but explains little.
+A person updates a résumé or a job description; the other side sees a new list with no clear link to what changed.
+Candidates prepare for interviews that should never have been suggested; recruiters shortlist profiles without seeing which requirements drove the order.
+The human problem is therefore one of \emph{trust and accountability}: both sides need to know who owns each record, what evidence supports each match, and who makes the final call.
 
-\textbf{Future scope.}
-Larger held-out evaluation on the research corpus (\texttt{data/research/}: 100$\times$50, 5000 labels) with portal-weight composite ablation.
-ANN latency artifacts from \texttt{phase11.py} to separate retrieval from scoring cost at scale.
-Committed proxy-group fairness exports and explanation-quality tables.
-Optional studies of calibration and feedback boost with metrics reported under \S\ref{sec:5}.
-Field studies of recruiter and candidate trust in agent-mediated explanations remain outside this artifact but are necessary before operational deployment claims.
+JobMatch addresses that problem with a multi-agent architecture rather than a monolithic applicant-tracking matcher.
+Three agents divide the work by role.
+The \textbf{Candidate agent} accepts résumes, builds a structured profile and embedding, and refreshes that state when the job seeker edits their materials.
+The \textbf{Employer agent} does the same for job descriptions: parse postings, version requirements, and update vectors when a role changes.
+The \textbf{Matchmaking agent} remains read-only with respect to both stores: it reads versioned snapshots from each side, scores candidate--job pairs, and returns ranked lists with structured explanations.
+Candidate, employer, and admin portals sit on top of this layout so that each party manages its own data while sharing only what matching requires.
 
-\todo{Run composite ablation with portal weights 28/27/10/15/10/10.}
-\todo{Commit \texttt{phase11\_summary.csv} and \texttt{fairness\_eval} JSON exports.}
+We evaluated the Matchmaking agent offline on a labeled demo corpus---30 résumés, 15 jobs, and 47 graded relevance pairs---using the metrics defined in \S\ref{sec:5} and reported in \S\ref{sec:6}.
+Hybrid rankers that combine semantic text similarity with explicit skill overlap beat semantic search alone; on this small pool, keyword methods such as BM25 remain competitive.
+The best research configurations reach nDCG@5 $\approx 0.97$ and recall@5 $= 1.00$, but precision@5 stays near $0.31$, so even strong setups surface imperfect top-five lists.
+The live portal therefore defaults to a fixed composite score whose channels map directly to user-visible explanations, rather than to the single highest offline nDCG variant.
+These results are reproducible from committed benchmark artifacts; they characterize ranking behavior on a controlled corpus, not hiring quality in production.
 
-The platform's contribution is an integrated, explainable, multi-agent research prototype with traceable evaluation---a foundation for broader-audience hiring tools that show their work, not just their scores.
+JobMatch is intentionally built as \textbf{decision-support software}, not an automated hiring replacement.
+It suggests, ranks, and explains; users save, apply, shortlist, or pass---the system does not hire, reject, or negotiate on anyone's behalf.
+The contribution is an integrated research prototype: role-aware agents, shared snapshots, explainable composite ranking, role-separated portals, and offline evaluation tied to the same scoring code the gateways invoke.
+Whether this design improves real-world trust, time-to-shortlist, or fairness is not settled by laboratory metrics alone and remains for field study.
+
+\subsection{Future scope}\label{sec:7-future}
+
+The following directions extend JobMatch while preserving human authority over consequential hiring actions.
+
+\leadpara{Stronger LLM-based résumé and job-description parsing.}
+Today's prototype uses lightweight JSON-oriented parsing (\S\ref{sec:4}).
+Large language models could extract skills, seniority, and requirements from noisy PDFs and informal postings, with users confirming fields before snapshots enter the vector store.
+
+\leadpara{Cross-encoder reranking.}
+A cross-encoder second stage exists in the codebase but is off by default: on the demo corpus it added roughly two orders of magnitude latency while \emph{reducing} nDCG@5 (\S\ref{sec:6}).
+Future work should retest reranking on larger corpora and tighter shortlists, where gains at rank~1 may justify the extra cost.
+
+\leadpara{Larger real-world datasets.}
+A synthetic scale corpus already lives under \texttt{data/research/} (100 candidates, 50 jobs, 5000 labeled pairs).
+The next step is held-out evaluation on real or expert-labeled résumé--job pairs, including composite ablation under portal-default weights (28/27/10/15/10/10) \todo{Run composite ablation with portal weights 28/27/10/15/10/10.}.
+
+\leadpara{Human evaluator studies.}
+Offline precision and nDCG do not measure whether explanations help people decide faster or with more confidence.
+Structured studies with recruiters and job seekers---testing comprehension, trust, and behavior after viewing match reasons---are needed before deployment claims.
+
+\leadpara{Fairness and bias auditing.}
+The current synthetic counterfactual audit detects rank instability under controlled profile edits but is not demographic fairness certification (\S\ref{sec:6}).
+Future work should expand audit suites, commit proxy-group disparate-impact ratios, and publish explanation-quality summaries alongside ranking tables \todo{Commit \texttt{fairness\_eval} JSON exports and explanation-quality tables.}.
+
+\leadpara{Privacy-preserving profile sharing.}
+Separate agent ownership raises consent and minimization questions: which fields cross the Matchmaking boundary, when embeddings suffice instead of raw text, and how updates propagate with auditable permission.
+Field-level redaction, encrypted snapshot exchange, and privacy-preserving aggregate feedback deserve systematic study.
+
+\leadpara{Recruiter and candidate feedback loops.}
+The platform logs match feedback (save, dismiss, apply) but disables score boosting from that history in default portal settings (\S\ref{sec:4-params}).
+Future work can evaluate boost policies offline, keep humans authoritative over outcomes, and measure whether logged preferences improve relevance without obscuring reasons.
+
+\leadpara{Deployment-scale latency evaluation.}
+Interactive matching must stay responsive as job pools grow from dozens to thousands of roles.
+ANN shortlist sweeps (\texttt{phase11.py}) should produce committed latency tables that separate vector retrieval from pairwise scoring on Chroma and Qdrant backends \todo{Commit \texttt{phase11\_summary.csv}.}.
+
+Across these items, the design goal stays constant: agents keep profiles current, the Matchmaking layer shows its work, and people retain the decisions that matter.
