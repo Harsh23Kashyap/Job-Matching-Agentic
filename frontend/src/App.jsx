@@ -20,6 +20,7 @@ import ErrorPage from "./pages/errors/ErrorPage.jsx";
 import { ERROR_CODES } from "./pages/errors/errorConfig.js";
 import "./App.css";
 import "./theme/auth.css";
+import "./theme/responsive.css";
 
 function HomeRedirect() {
   const { user, loading } = useAuth();

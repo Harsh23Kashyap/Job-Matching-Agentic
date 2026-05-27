@@ -42,7 +42,7 @@ test("resolveMatchExplanation falls back to legacy score fields", () => {
   const explanation = resolveMatchExplanation(row);
   assert.deepEqual(explanation.matched_skills, ["React"]);
   assert.deepEqual(explanation.missing_skills, ["GraphQL"]);
-  assert.equal(explanation.semantic.label, "Good fit");
-  assert.equal(explanation.experience.label, "Strong fit");
+  assert.equal(explanation.semantic.label, "Good");
+  assert.equal(explanation.experience.label, "Strong");
   assert.ok(explanation.score_breakdown.length >= 5);
 });

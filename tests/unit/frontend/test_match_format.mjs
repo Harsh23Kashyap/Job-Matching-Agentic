@@ -19,7 +19,7 @@ test("matchTier labels use score bands", () => {
   assert.equal(matchTier(0.82).label, "Strong");
   assert.equal(matchTier(0.62).label, "Good");
   assert.equal(matchTier(0.45).label, "Moderate");
-  assert.equal(matchTier(0.2).label, "Low");
+  assert.equal(matchTier(0.2).label, "Weak");
 });
 
 test("formatSkillExperienceLine", () => {

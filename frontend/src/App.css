@@ -19,9 +19,9 @@
   --mobile-tab-height: 64px;
   --page-gutter: 24px;
   --page-top-spacing: 12px;
-  --page-max-width: 1120px;
-  --page-max-form: 1120px;
-  --page-max-jobs: 1120px;
+  --page-max-width: 1160px;
+  --page-max-form: 1160px;
+  --page-max-jobs: 1160px;
   --field-gap: 20px;
   --sticky-footer-offset: 0px;
 }
@@ -78,7 +78,7 @@ body {
 }
 
 .app {
-  min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
   background: var(--bg-base);
@@ -1128,7 +1128,7 @@ body {
 
 /* Auth & portal */
 .auth-split {
-  min-height: 100vh;
+  min-height: 100dvh;
   display: grid;
   grid-template-columns: 1fr 1fr;
   background: var(--bg-base);
@@ -4645,7 +4645,7 @@ button:focus-visible {
 
 .match-drawer {
   width: min(400px, 100vw);
-  height: 100dvh;
+  max-height: 100dvh;
   background: var(--card);
   border-left: 1px solid var(--border);
   box-shadow: -20px 0 60px rgba(0, 0, 0, 0.35);

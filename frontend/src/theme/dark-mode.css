@@ -342,6 +342,14 @@
   background: var(--drawer-scrim);
 }
 
+@media (max-width: 640px) {
+  :root[data-theme="dark"] .match-drawer {
+    background: var(--card);
+    border-top: 1px solid var(--border);
+    border-left: none;
+  }
+}
+
 :root[data-theme="dark"] .match-drawer {
   background: var(--card);
   color: var(--card-foreground);
