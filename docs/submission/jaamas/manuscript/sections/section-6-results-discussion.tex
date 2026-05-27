@@ -1,0 +1,107 @@
+\section{Results and Discussion}\label{sec:6}
+
+We report macro-averaged ranking metrics at $K{=}5$ on the corpus defined in \S\ref{sec:5}.
+All numbers come from committed benchmark artifacts; we do not extrapolate to production hiring outcomes.
+Results appear first; subsections thereafter interpret findings, state limits, and connect them to the multi-agent platform goals.
+
+\subsection{Progression of retrieval strategies}\label{sec:6-progression}
+
+Table~\ref{tab:progression} summarizes the paper-progression driver (\texttt{paper\_progression.py}), which exhaustively ranks all 15 jobs per query.
+Among configurations in \texttt{data/expected/paper\_progression\_summary.json}, multimodal soft-embed ($\alpha{=}0.7$) achieves the highest nDCG@5 ($0.969$) and recall@5 ($1.000$).
+Lexical baselines (TF--IDF, BM25) remain competitive (nDCG@5 $\approx 0.901$--$0.905$), indicating that keyword overlap still matters when the job pool is small.
+
+RRF over four lists reaches nDCG@5 $0.935$, above semantic cosine ($0.911$) but below the best multimodal run.
+Cross-encoder reranking on pool${=}10$ raises nDCG@5 to $0.939$---still below soft-embed without reranking.
+
+\begin{JTable}
+\input{tables/tab-progression.tex}
+\end{JTable}
+
+\subsection{Fusion and constraint variants}\label{sec:6-fusion}
+
+Table~\ref{tab:fusion} reports the fusion driver (\texttt{table11\_fusion.py}).
+Learned logistic-regression fusion reaches nDCG@5 $0.968$ (P@5 $0.307$, R@5 $0.983$), within $0.001$ nDCG of the best soft-embed progression run.
+Fixed multimodal ($\alpha{=}0.7$) and hierarchical blending tie at nDCG@5 $0.924$.
+Post-hoc constraint filtering lowers nDCG@5 to $0.908$.
+
+\begin{JTable}
+\input{tables/tab-fusion.tex}
+\end{JTable}
+
+Table~\ref{tab:model-params} lists fitted calibration and fusion parameters ($a{=}2.078$, $b{=}2.112$ for Platt scaling).
+
+\begin{JTable}
+\input{tables/tab-model-params.tex}
+\end{JTable}
+
+\subsection{Composite ablation and latency}\label{sec:6-ablation-latency}
+
+Table~\ref{tab:ablation} ablates composite components under research weights (40/30/15/10/5, no title term).
+Full composite reaches nDCG@5 $0.942$ vs.\ $0.917$ for semantic+skills and $0.878$ for semantic-only.
+Single constraint channels alone score nDCG@5 $\leq 0.393$.
+
+Table~\ref{tab:latency} reports latency: multimodal weighted ${\sim}0.26$\,ms/query over 15 jobs; soft skill embedding ${\sim}15.5$\,ms/query; cross-encoder rerank ${\sim}142$\,ms/query with nDCG@5 falling from $0.942$ to $0.834$ ($\Delta{=}{-}0.108$).
+
+\begin{JTable}
+\input{tables/tab-ablation.tex}
+\end{JTable}
+
+\begin{JTable}
+\input{tables/tab-latency.tex}
+\end{JTable}
+
+\subsection{Hard-negative mining}\label{sec:6-hard-negs}
+
+Table~\ref{tab:hard-negs}: 30 queries, 150 hard-negative pairs, zero overlap with declared relevant jobs.
+Negatives are high-scoring \emph{unlabeled} jobs, not confirmed irrelevants.
+
+\begin{JTable}
+\input{tables/tab-hard-negs.tex}
+\end{JTable}
+
+\subsection{Fairness audit}\label{sec:6-fairness}
+
+Table~\ref{tab:fairness}: synthetic counterfactual audit flags 6/10 fabricated pairs; max score shift $0.024$.
+Engineering sanity check only---not demographic fairness validation.
+
+\begin{JTable}
+\input{tables/tab-fairness.tex}
+\end{JTable}
+
+\subsection{Which strategy should the platform use?}\label{sec:6-best-strategy}
+
+Research drivers favor multimodal soft-embed (nDCG@5 $0.969$) and learned fusion ($0.968$), while the live portal defaults to composite weighting for interpretability (28/27/10/15/10/10).
+We do not claim one universally dominant strategy on this corpus.
+Combining semantic and skill signals consistently beats semantic-only retrieval; hard post-filter constraints hurt graded nDCG.
+\todo{Publish composite ablation under portal weights for deployment alignment.}
+
+\subsection{Fusion stability and overfitting risk}\label{sec:6-fusion-stability}
+
+RRF diversifies rankings without beating the best single multimodal run on this small corpus.
+Learned fusion ties soft-embed offline but trains on the same 47 labeled pairs used for evaluation---an exploratory upper bound, not a validated upgrade.
+
+\subsection{Latency--quality trade-offs}\label{sec:6-latency}
+
+Lightweight scorers dominate on a 15-job pool.
+Cross-encoder reranking adds two orders of magnitude latency for lower nDCG in the committed report---consistent with keeping it disabled in default portal settings.
+\todo{Publish \texttt{phase11.py} ANN shortlist latency at larger pool sizes.}
+
+\subsection{Implications for the multi-agent design}\label{sec:6-agentic}
+
+Offline metrics validate the Matchmaking agent's scoring core under manual labels.
+They do not test whether event-driven cache invalidation or role-separated portals improve real hiring outcomes.
+The defensible claim is \emph{bounded automation}: agents synchronize profiles and suggest explainable matches; users decide what to do next.
+
+\subsection{Limitations}\label{sec:6-limitations}
+
+\begin{itemize}[noitemsep]
+  \item Small demo corpus (30 queries, 15 jobs); high recall@5 narrows nDCG spreads.
+  \item Manual and synthetic labels, not ATS-sampled judgments.
+  \item No production hiring outcomes measured.
+  \item Fairness scope limited to synthetic counterfactuals; proxy-group ratios uncommitted.
+  \item Configuration drift across drivers (portal vs.\ ablation weights).
+  \item Learned fusion and calibration fit on eval data shared with test queries.
+\end{itemize}
+
+In sum, benchmarks support composite, explainable matchmaking on a controlled corpus.
+They do not yet justify strong claims about fairness, efficiency, or hiring quality at scale.

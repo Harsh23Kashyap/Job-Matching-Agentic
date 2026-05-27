@@ -1,0 +1,21 @@
+\caption{Evaluation corpus statistics.}
+\label{tab:dataset}
+\begin{tabular}{@{}ll@{}}
+\toprule
+Statistic & Value \\
+\midrule
+Task & Resume $\rightarrow$ jobs (candidate-initiated retrieval) \\
+Candidates (queries) & 30 \\
+Job postings (corpus) & 15 \\
+Graded query--document pairs & 47 \\
+Queries with $\geq 1$ relevant job & 30 \\
+Relevance scale & 0 (none), 1 (partial), 2 (strong) \\
+Grade-2 (strong) labels & 21 \\
+Grade-1 (partial) labels & 26 \\
+Labels per query (min / max) & 1 / 2 \\
+Embedding model & \texttt{all-MiniLM-L6-v2} ($d{=}384$) \\
+Label source & \texttt{data/eval\_pairs.json} v1.0 \\
+\bottomrule
+\end{tabular}
+\par\vspace{0.4em}
+\footnotesize{Starter labeled set for offline benchmarks; not derived from live portal traffic.}

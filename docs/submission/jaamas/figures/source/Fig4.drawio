@@ -1,0 +1,64 @@
+<mxfile host="app.diagrams.net" modified="2026-05-27T00:00:00.000Z" agent="generate_jaamas_figures.py" version="22.1.0">
+  <diagram name="Fig4" id="Fig4">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="420" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="2" value="Fig. 4  Matching pipeline (hybrid retrieval and scoring)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e8e8e8;strokeColor=#333333;fontColor=#1a1a1a;fontSize=13;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="20" y="12" width="1160" height="28" as="geometry"/>
+        </mxCell>
+        <mxCell id="3" value="Text<br>normalization" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#333333;fontColor=#1a1a1a;fontSize=11;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="30" y="120" width="118" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="4" value="Skill<br>extraction" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#333333;fontColor=#1a1a1a;fontSize=11;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="166" y="120" width="118" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="5" value="Lexical<br>retrieval" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#333333;fontColor=#1a1a1a;fontSize=11;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="302" y="120" width="118" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="6" value="Embedding<br>retrieval" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#333333;fontColor=#1a1a1a;fontSize=11;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="438" y="120" width="118" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="7" value="Constraint<br>scoring" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#333333;fontColor=#1a1a1a;fontSize=11;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="574" y="120" width="118" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="8" value="Fusion<br>(RRF)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#333333;fontColor=#1a1a1a;fontSize=11;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="710" y="120" width="118" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="9" value="Calibration<br>(optional)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e8e8e8;strokeColor=#333333;fontColor=#1a1a1a;fontSize=11;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="846" y="120" width="118" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="10" value="Explanation" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#333333;fontColor=#1a1a1a;fontSize=11;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="982" y="120" width="118" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="11" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#333333;strokeWidth=1;endArrow=block;endFill=1;fontColor=#1a1a1a;fontSize=10;" edge="1" parent="1" source="3" target="4" exitX="1" exitY="0.5" entryX="0" entryY="0.5">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="12" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#333333;strokeWidth=1;endArrow=block;endFill=1;fontColor=#1a1a1a;fontSize=10;" edge="1" parent="1" source="4" target="5" exitX="1" exitY="0.5" entryX="0" entryY="0.5">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="13" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#333333;strokeWidth=1;endArrow=block;endFill=1;fontColor=#1a1a1a;fontSize=10;" edge="1" parent="1" source="5" target="6" exitX="1" exitY="0.5" entryX="0" entryY="0.5">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="14" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#333333;strokeWidth=1;endArrow=block;endFill=1;fontColor=#1a1a1a;fontSize=10;" edge="1" parent="1" source="6" target="7" exitX="1" exitY="0.5" entryX="0" entryY="0.5">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="15" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#333333;strokeWidth=1;endArrow=block;endFill=1;fontColor=#1a1a1a;fontSize=10;" edge="1" parent="1" source="7" target="8" exitX="1" exitY="0.5" entryX="0" entryY="0.5">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="16" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#333333;strokeWidth=1;endArrow=block;endFill=1;fontColor=#1a1a1a;fontSize=10;" edge="1" parent="1" source="8" target="9" exitX="1" exitY="0.5" entryX="0" entryY="0.5">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="17" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#333333;strokeWidth=1;endArrow=block;endFill=1;fontColor=#1a1a1a;fontSize=10;" edge="1" parent="1" source="9" target="10" exitX="1" exitY="0.5" entryX="0" entryY="0.5">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="18" value="Portal default: composite six-signal score merges semantic, skills, title, experience, compensation, remote" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ededed;strokeColor=#333333;fontColor=#1a1a1a;fontSize=10;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="120" y="240" width="960" height="36" as="geometry"/>
+        </mxCell>
+        <mxCell id="19" value="Dashed path: feedback-aware boost when explicitly enabled on match request" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e8e8e8;strokeColor=#333333;fontColor=#1a1a1a;fontSize=10;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="120" y="290" width="720" height="32" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

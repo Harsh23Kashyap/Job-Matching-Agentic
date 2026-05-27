@@ -1,0 +1,134 @@
+\section{Quality Metrics}\label{sec:5}
+
+This section defines the scores used inside the Matchmaking agent and the offline metrics used to evaluate ranking quality, fairness sanity checks, and reproducibility.
+Implementation paths appear in \S\ref{sec:4}; measured results in \S\ref{sec:6}.
+
+\begin{JFigure}{../figures/Fig5.pdf}
+\figcap{5}{Quality evaluation pipeline: labeled corpus, ranking drivers, metric aggregation, fairness audits, and regression gates against committed expected values.}
+\end{JFigure}
+
+\subsection{Evaluation corpus}\label{sec:5-corpus}
+
+We evaluate \emph{resume-to-jobs} retrieval on a demo corpus: 30 candidate resumes (queries), 15 job postings, and 47 graded relevance pairs in \texttt{data/eval\_pairs.json} (scale $r \in \{0,1,2\}$: none, partial, strong).
+Each query has one or two relevant jobs (21 strong, 26 partial labels).
+Table~\ref{tab:dataset} summarizes statistics.
+Snapshots are built with the same agent code path used in production.
+
+\begin{JTable}
+\input{tables/tab-dataset.tex}
+\end{JTable}
+
+\subsection{Similarity and component scores}\label{sec:5-scoring}
+
+All component scores are normalized to $[0,1]$.
+Let $\mathbf{e}_c, \mathbf{e}_j \in \mathbb{R}^{d}$ denote snapshot embeddings ($d{=}384$).
+
+\leadpara{Semantic similarity.}
+Cosine score:
+\begin{equation}
+  s_{\mathrm{sem}}^{\mathrm{cos}} =
+    \frac{\mathbf{e}_c \cdot \mathbf{e}_j}{\|\mathbf{e}_c\|\,\|\mathbf{e}_j\|}.
+  \label{eq:semantic-cosine}
+\end{equation}
+Euclidean-derived alternative: $s_{\mathrm{sem}}^{\mathrm{euc}} = 1 / (1 + \|\mathbf{e}_c - \mathbf{e}_j\|_2)$.
+
+\leadpara{Skill overlap.}
+For canonical skill sets $A$ (resume) and $B$ (required job skills), Jaccard mode:
+\begin{equation}
+  s_{\mathrm{skl}}^{\mathrm{jac}} =
+    |A \cap B| / |A \cup B| \quad (\text{0 if either set empty}).
+  \label{eq:jaccard}
+\end{equation}
+Soft-embed mode averages, over each $b \in B$, the maximum cosine between skill phrase embeddings.
+
+\leadpara{Composite score (portal default).}
+\begin{equation}
+  s_{\mathrm{final}} =
+    \sum_{k} w_k s_k, \quad
+    (w_{\mathrm{sem}}, w_{\mathrm{skl}}, w_{\mathrm{tit}}, w_{\mathrm{exp}}, w_{\mathrm{comp}}, w_{\mathrm{rem}})
+    = (0.28, 0.27, 0.10, 0.15, 0.10, 0.10),
+  \label{eq:composite}
+\end{equation}
+with $s_k$ the semantic, skill, title, experience, compensation, and remote components; result clipped to $[0,1]$.
+
+\leadpara{Multimodal baseline.}
+$s_{\mathrm{mm}} = \alpha s_{\mathrm{sem}} + (1-\alpha) s_{\mathrm{skl}}$ with default $\alpha{=}0.7$.
+
+\leadpara{Reciprocal rank fusion.}
+For ranked lists $\mathcal{L}_1,\ldots,\mathcal{L}_m$:
+\begin{equation}
+  \mathrm{RRF}(x) = \sum_{i=1}^{m} \sum_{r} \mathbb{1}[\mathcal{L}_i[r] = x] \cdot \frac{1}{k + r},
+  \label{eq:rrf}
+\end{equation}
+with $k{=}60$ by default.
+
+\leadpara{Optional adjustments.}
+Hard constraints multiply $s_{\mathrm{final}}$ by feasibility factor $\phi \in (0,1]$ when enabled.
+Platt calibration: $\hat{p}(s) = \sigma(a s + b)$ with fitted $(a,b)$.
+Feedback boost adds weighted save/apply/dismiss deltas when enabled (off in default portal).
+\todo{Report calibration error (ECE or Brier) on held-out eval pairs.}
+\todo{Report feedback-boost and calibration-on vs.\ calibration-off deltas on the eval corpus.}
+
+\subsection{Ranking metrics}\label{sec:5-ranking-metrics}
+
+Given ranked list $\pi_q$ for query $q$ and relevant set $\mathcal{R}_q = \{ j : \mathrm{rel}_q(j) > 0 \}$, with top-$K$ prefix $\pi_q[:K]$ and default $K{=}5$:
+
+\begin{align}
+  \mathrm{P@}K(q) &= \frac{1}{K}\sum_{j \in \pi_q[:K]} \mathbb{1}[j \in \mathcal{R}_q],
+  \label{eq:p-at-k}\\
+  \mathrm{R@}K(q) &= \frac{1}{|\mathcal{R}_q|}\sum_{j \in \pi_q[:K]} \mathbb{1}[j \in \mathcal{R}_q],
+  \label{eq:r-at-k}
+\end{align}
+
+Graded nDCG:
+\begin{equation}
+  \mathrm{nDCG@}K(q) = \frac{\sum_{i=1}^{K} (2^{\mathrm{rel}_q(j_i)} - 1) / \log_2(i+1)}
+  {\mathrm{DCG@}K(q^\ast)},
+  \label{eq:ndcg}
+\end{equation}
+where $\pi_{q^\ast}$ is the ideal ranking.
+MRR and MAP treat relevance as binary ($r>0$).
+Metrics are macro-averaged over queries; significance tests use 5000 bootstrap resamples (seed~42).
+
+\subsection{Fairness and hard-negative diagnostics}\label{sec:5-fairness-negs}
+
+\leadpara{Proxy-group audit.}
+Experience tier and remote-preference groups; reports selection-rate parity and disparate-impact ratio.
+\todo{Persist \texttt{fairness\_eval.py} proxy-group ratios to \texttt{benchmark\_outputs/}.}
+
+\leadpara{Synthetic counterfactual audit.}
+Ten fabricated profile pairs; flags rank or score instability under controlled field edits (Table~\ref{tab:fairness} in \S\ref{sec:6}).
+
+\leadpara{Hard-negative mining.}
+From top-$P{=}10$ multimodal pool, up to five unlabeled high-scoring jobs per query:
+\begin{equation}
+  \mathcal{H}_q = \left\{ j \in \pi_q[:P] : j \notin \mathcal{R}_q \right\}_{|\cdot|\leq 5}.
+  \label{eq:hard-negs}
+\end{equation}
+Report: 30 queries, 150 pairs, zero overlap with declared relevant jobs.
+
+\subsection{Benchmark drivers and regression gates}\label{sec:5-drivers}
+
+Drivers share \texttt{eval\_rankings()} but vary ranking strategy: comparison study (lexical vs.\ embedding), composite ablation, fusion ablation (\texttt{table11\_fusion.py}), paper progression ladder, and optional ANN latency sweeps (\texttt{phase11.py}).
+\todo{No committed \texttt{phase11} summary artifact at time of writing.}
+
+Table~\ref{tab:method-comparison} and Table~\ref{tab:progression} list method comparison and CI regression baselines; full numeric results appear in \S\ref{sec:6}.
+
+\begin{JTable}
+\input{tables/tab-methods.tex}
+\end{JTable}
+
+\begin{JTable}
+\input{tables/tab-progression.tex}
+\end{JTable}
+
+Regression gate (\texttt{test\_eval\_regression.py}):
+\begin{equation}
+  \left| \widehat{\mathrm{nDCG@}5}_{\mathrm{run}} - \mathrm{nDCG@}5_{\mathrm{expected}} \right| \leq 0.04.
+  \label{eq:regression}
+\end{equation}
+
+\leadpara{Verified snapshot values (2026-05-27 artifacts, research driver config).}
+Multimodal weighted ($\alpha{=}0.7$): nDCG@5 $0.924$; RRF ensemble: $0.913$; full composite ablation (legacy weights 40/30/15/10/5): $0.942$.
+These may differ from portal defaults; see \S\ref{sec:6} for interpretation.
+\todo{Re-run ablation with portal weights 28/27/10/15/10/10 and update Table~\ref{tab:ablation}.}

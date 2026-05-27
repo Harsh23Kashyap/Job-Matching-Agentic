@@ -1,0 +1,20 @@
+\section{Conclusion and Future Scope}\label{sec:7}
+
+JobMatch demonstrates that hiring support can be organized as a \textbf{multi-agent recruitment system} rather than a monolithic search box.
+Candidate and Employer agents own profile state and shared embeddings; a read-only Matchmaking agent scores and explains candidate--job pairs; role-separated portals keep human users in control of applications and shortlists.
+
+Offline evaluation on 30 resumes, 15 jobs, and 47 graded pairs shows that multimodal soft-embed and learned fusion reach the highest nDCG@5 values in research drivers ($0.969$ and $0.968$), while the production portal favors a fixed composite strategy for interpretability.
+Cross-encoder reranking reduces nDCG@5 by $0.108$ at substantially higher latency; hard-negative mining yields 150 pairs with zero label conflicts; a synthetic fairness audit flags 6/10 fabricated pairs.
+These results are reproducible from committed benchmark artifacts but do not establish production hiring effectiveness.
+
+\textbf{Future scope.}
+Larger held-out evaluation on the research corpus (\texttt{data/research/}: 100$\times$50, 5000 labels) with portal-weight composite ablation.
+ANN latency artifacts from \texttt{phase11.py} to separate retrieval from scoring cost at scale.
+Committed proxy-group fairness exports and explanation-quality tables.
+Optional studies of calibration and feedback boost with metrics reported under \S\ref{sec:5}.
+Field studies of recruiter and candidate trust in agent-mediated explanations remain outside this artifact but are necessary before operational deployment claims.
+
+\todo{Run composite ablation with portal weights 28/27/10/15/10/10.}
+\todo{Commit \texttt{phase11\_summary.csv} and \texttt{fairness\_eval} JSON exports.}
+
+The platform's contribution is an integrated, explainable, multi-agent research prototype with traceable evaluation---a foundation for broader-audience hiring tools that show their work, not just their scores.

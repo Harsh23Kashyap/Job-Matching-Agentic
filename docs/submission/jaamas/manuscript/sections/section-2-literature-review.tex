@@ -1,0 +1,37 @@
+\section{Literature Review}\label{sec:2}
+
+Recruitment technology spans applicant tracking, job boards, and recommender-style matching.
+We group prior work into four themes and state how JobMatch differs: it is a \emph{multi-agent} platform with shared representations and human-in-the-loop portals, not a standalone semantic search engine.
+
+\subsection{Recruitment systems and hiring workflows}\label{sec:2-recruitment}
+
+Enterprise hiring stacks combine document ingestion, applicant tracking, and recruiter workflows.
+Candidates experience opaque ranking when systems expose only a score or a yes/no filter; recruiters struggle when they cannot see which requirements drove a shortlist.
+JobMatch addresses this gap at the \emph{workflow} level: candidate and employer agents own their respective data, a matchmaking agent explains pairings, and users retain explicit control over applications and shortlists (\S\ref{sec:3}--\S\ref{sec:4}).
+
+\subsection{AI agents in hiring and multi-agent coordination}\label{sec:2-agents}
+
+Multi-agent systems assign specialized roles that communicate through messages or events~\cite{Wooldridge2009}.
+In hiring, a natural decomposition separates candidate-side state, employer-side state, and read-only scoring.
+Prior agentic hiring proposals often emphasize autonomous negotiation or interview bots; JobMatch instead documents \emph{bounded} agents that synchronize profiles and rankings while humans approve actions.
+Agent communication in our system uses an in-process event bus; profile updates invalidate match caches without cross-agent mutation of stored records.
+
+\subsection{Semantic matching and hybrid retrieval}\label{sec:2-semantic}
+
+Job--candidate matching builds on information retrieval: lexical methods (TF--IDF, BM25)~\cite{Manning2008,Robertson2009}, dense embeddings~\cite{Reimers2019}, and rank fusion~\cite{Cormack2009}.
+Hybrid pipelines combine semantic similarity with structured skill overlap and constraint checks.
+Much published work treats matching as a single retrieval formula evaluated on static corpora.
+JobMatch integrates these signals inside a composite ranker with structured explanations, and reports lexical, dense, fusion, and reranking variants on the \emph{same} labeled corpus (Tables~\ref{tab:method-comparison},~\ref{tab:progression}).
+
+\subsection{Explainability, calibration, and fairness}\label{sec:2-xai}
+
+Explainable ranking methods attribute scores to input features~\cite{Ribeiro2016}; calibration maps scores to probability scales~\cite{Platt1999}.
+Fairness concerns in hiring include disparate impact across groups and sensitivity to non-qualification text.
+JobMatch attaches rule-structured explanations at scoring time and supports optional calibration and feedback boosts (disabled in the default portal).
+We report a synthetic counterfactual audit only (Table~\ref{tab:fairness}) and do not claim demographic fairness certification.
+
+\subsection{Limitations of current approaches and our positioning}\label{sec:2-gap}
+
+Existing systems often (i)~hide ranking logic from one or both sides of the market, (ii)~collapse profile editing and scoring into one service, or (iii)~evaluate retrieval in isolation from deployable workflows.
+JobMatch contributes an integrated research prototype: role-aware agents, shared snapshots, explainable composite ranking, and reproducible offline evaluation tied to the same code paths that power the portals.
+We do not assert state-of-the-art hiring accuracy; the contribution is traceable multi-agent design plus measured ranking behavior on a small demo corpus.

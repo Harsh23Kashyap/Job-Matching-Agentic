@@ -1,0 +1,20 @@
+\caption{Primary user-facing workflows by role ($K{=}10$ composite matching unless noted).}
+\label{tab:workflows}
+\small
+\begin{tabular}{@{}p{0.11\linewidth}p{0.17\linewidth}p{0.22\linewidth}p{0.38\linewidth}@{}}
+\toprule
+Role & Portal route & User goal & API / agent path \\
+\midrule
+Candidate & \texttt{/candidate/onboarding} & Upload resume, review extraction, create profile & \texttt{POST /candidates/upload-resume} $\rightarrow$ \texttt{PUT /candidates/me} $\rightarrow$ Candidate agent registers snapshot + embedding \\
+Candidate & \texttt{/candidate/profile} & Edit skills, experience, pay, remote prefs & \texttt{GET/PUT /candidates/me}; quality via \texttt{POST /candidates/quality-check} \\
+Candidate & \texttt{/candidate/matches} & View ranked jobs, filter, explain scores & \texttt{POST /match/candidate-to-jobs} (composite); profile readiness gate before search \\
+Candidate & \texttt{/candidate/saved} & Saved jobs and applications & \texttt{GET/PUT /candidates/me/saved-jobs}; \texttt{POST /candidates/me/applications} \\
+Employer & \texttt{/employer/jobs} & Import JD, post/edit/close roles & \texttt{POST /jobs/upload-description} or \texttt{/parse-description} $\rightarrow$ \texttt{POST /jobs} or \texttt{PUT /jobs/mine/\{id\}} $\rightarrow$ Employer agent \\
+Employer & \texttt{/employer/matches} & Rank candidates for a owned job & \texttt{POST /match/job-to-candidates} (composite); job ownership required \\
+Employer & \texttt{/employer/applications} & Review applicants per posting & \texttt{GET /jobs/mine/applications} (SQLite activity store) \\
+Admin & \texttt{/admin/console} & Monitor agents, run matches, inspect fairness & \texttt{GET /agents/status}, \texttt{/agents/events/recent}, \texttt{/system/config}; optional \texttt{/match/*} and \texttt{/system/fairness} \\
+\bottomrule
+\end{tabular}
+\normalsize
+\par\vspace{0.4em}
+\footnotesize{All authenticated routes use cookie sessions (\texttt{withCredentials}) and FastAPI \texttt{require\_role} guards. Match endpoints invoke the Matchmaking agent read-only over snapshots.}

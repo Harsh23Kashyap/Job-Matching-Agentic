@@ -1,0 +1,29 @@
+flowchart TB
+  subgraph portals [Role portals]
+    CP[Candidate Portal]
+    EP[Employer Portal]
+    AC[Admin Console]
+  end
+  GW[API Gateway]
+  BUS[Event Bus]
+  CA[Candidate Agent]
+  EA[Employer Agent]
+  MA[Matchmaking Agent]
+  MC[Matching Core]
+  VS[(Vector Stores)]
+  SQL[(SQL / Auth / Activity)]
+  EV[Benchmark / Evaluation]
+  CP --> GW
+  EP --> GW
+  AC --> GW
+  GW --> BUS
+  BUS --> CA
+  BUS --> EA
+  BUS --> MA
+  MA --> MC
+  CA --> VS
+  EA --> VS
+  MC -. read .-> VS
+  GW --> SQL
+  AC -. offline .-> EV
+  EV -.-> MC

@@ -1,0 +1,20 @@
+% Minimal Springer-safe figure/table environments for JAAMAS draft
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{booktabs}
+\usepackage{array}
+
+\newenvironment{JFigure}[1]{%
+  \begin{figure}[!t]
+  \centering
+  \JFig{#1}%
+}{%
+  \end{figure}
+}
+
+\newenvironment{JTable}{%
+  \begin{table}[!t]
+  \centering
+}{%
+  \end{table}
+}

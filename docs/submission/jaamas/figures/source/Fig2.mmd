@@ -1,0 +1,14 @@
+sequenceDiagram
+  participant C as Candidate
+  participant P as Parser
+  participant CA as Candidate Agent
+  participant MA as Matchmaking Agent
+  participant MC as Matching Core
+  participant UI as Portal
+  C->>P: Upload / edit resume
+  P->>CA: Extracted fields
+  CA->>MA: Profile snapshot
+  MA->>MC: Retrieve jobs
+  MC->>MA: Scores + explanations
+  MA->>UI: Ranked matches
+  UI->>C: Save / apply

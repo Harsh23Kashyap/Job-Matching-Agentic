@@ -1,0 +1,15 @@
+\caption{Hard-negative mining summary (multimodal top-10 pool, $K{=}5$ negatives per query).}
+\label{tab:hard-negs}
+\begin{tabular}{@{}lr@{}}
+\toprule
+Statistic & Value \\
+\midrule
+Queries mined & 30 \\
+Negatives per query (target / observed) & 5 / 5 \\
+Total hard-negative pairs & 150 \\
+Negatives with graded relevance $>0$ & 0 \\
+Negatives overlapping declared relevant set & 0 \\
+\bottomrule
+\end{tabular}
+\par\vspace{0.4em}
+\footnotesize{Source: \texttt{backend/benchmark\_outputs/hard\_negatives.json}. Mined with multimodal weighted scoring ($\alpha{=}0.7$) over 15 jobs; negatives are high-scoring non-labeled jobs, not confirmed irrelevant documents.}

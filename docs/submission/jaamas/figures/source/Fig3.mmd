@@ -1,0 +1,14 @@
+sequenceDiagram
+  participant E as Employer
+  participant P as Parser
+  participant EA as Employer Agent
+  participant MA as Matchmaking Agent
+  participant MC as Matching Core
+  participant UI as Portal
+  E->>P: Upload / paste JD
+  P->>EA: Extracted requirements
+  EA->>MA: Job snapshot
+  MA->>MC: Retrieve candidates
+  MC->>MA: Rank + fairness flags
+  MA->>UI: Shortlist
+  UI->>E: Save / contact

@@ -1,0 +1,114 @@
+\section{Implementation}\label{sec:4}
+
+This section describes how the architecture in \S\ref{sec:3} is built: technology stack, data structures, gateway APIs, matching pipeline modules, and portal behavior.
+Mathematical definitions of scores and metrics appear in \S\ref{sec:5}.
+
+\begin{JFigure}{../figures/Fig4.pdf}
+\figcap{4}{Implementation of the matching pipeline: retrieval backends, composite scoring modules, optional fusion and calibration, and structured explanation generation consumed by portals.}
+\end{JFigure}
+
+\subsection{Technology stack}\label{sec:4-stack}
+
+JobMatch is a monolithic deployable application, not a microservice mesh.
+\textbf{Backend:} Python~3, FastAPI gateway (\texttt{backend/gateway/}), three domain agents (\texttt{backend/agents/}), matching core (\texttt{backend/core/}), SQLite for auth and activity, Chroma or Qdrant for vectors.
+\textbf{Frontend:} React SPA with role-specific layouts (\texttt{frontend/src/layouts/}), shared API client (\texttt{frontend/src/api/client.js}), and explainability components (\texttt{MatchExplainability}, \texttt{MatchDetailsDrawer}).
+\textbf{Embeddings:} \texttt{all-MiniLM-L6-v2} (384 dimensions) via Sentence-Transformers.
+\textbf{Benchmarks:} Python drivers under \texttt{backend/benchmarks/} with regression tests in \texttt{tests/benchmarks/}.
+
+\subsection{Data structures: profiles and snapshots}\label{sec:4-data}
+
+\leadpara{Candidate profile and snapshot.}
+The portal stores editable fields: name, skills, experience years, salary expectation, remote preference, summary, and canonical resume text.
+On save, the Candidate agent produces a snapshot with normalized skills, constraint scalars, document hash, version counter, and embedding vector.
+Only snapshots enter the Matchmaking agent.
+
+\leadpara{Job profile and snapshot.}
+Employer postings store title, description, required and preferred skills, experience requirement, budget band, remote policy, and metadata.
+The Employer agent emits a parallel snapshot with embedding of the job description text.
+
+\leadpara{Match results and explanations.}
+Each \texttt{MatchResult} includes identifiers, final score, strategy name, and an optional \texttt{MatchExplanation} object: matched and missing skills, fit rows for experience, compensation, remote, and semantic dimensions, plus per-component score breakdown for composite ranking.
+
+\leadpara{Feedback and activity.}
+Match feedback (\texttt{save}, \texttt{dismiss}, \texttt{apply}) and broader user feedback (\texttt{contact}, \texttt{reject}) are event logs in SQLite.
+They do not alter embeddings unless the user submits a new profile version.
+
+\subsection{Gateway API surface}\label{sec:4-api}
+
+Table~\ref{tab:workflows} summarizes primary flows; key endpoint groups follow.
+
+\leadpara{Authentication.}
+\texttt{POST /auth/register}, \texttt{POST /auth/login}, \texttt{POST /auth/logout}, \texttt{GET /auth/me} with server-side session cookies.
+
+\leadpara{Candidate routes.}
+\texttt{GET/PUT /candidates/me}, \texttt{POST /candidates/upload-resume}, quality and suggestion endpoints, saved jobs and applications.
+
+\leadpara{Employer routes.}
+\texttt{GET/POST /jobs}, \texttt{PUT /jobs/mine/\{job\_id\}}, description upload and parse endpoints, applicant lists.
+
+\leadpara{Matching routes.}
+\texttt{POST /match/candidate-to-jobs}, \texttt{POST /match/job-to-candidates}, \texttt{POST /match/ensemble}, \texttt{POST /match/daily-batch}.
+
+\leadpara{Admin and system routes.}
+\texttt{GET /agents/status}, \texttt{GET /agents/events/recent}, \texttt{GET /system/config}, \texttt{GET /system/fairness}, demo reset when enabled.
+
+\begin{JTable}
+\input{tables/tab-workflows.tex}
+\end{JTable}
+
+\subsection{Portal defaults and request parameters}\label{sec:4-params}
+
+The frontend sends identical match defaults for candidate and employer views (\texttt{DEFAULT\_CANDIDATE\_MATCH}, \texttt{DEFAULT\_EMPLOYER\_MATCH}):
+\texttt{strategy=composite}, \texttt{topK=10}, \texttt{metric=cosine}, \texttt{skillsMode=jaccard}, \texttt{semanticWeight=0.7}, \texttt{fusionMode=fixed}, \texttt{applyConstraints=false}, \texttt{autoStrategy=false}, \texttt{useCalibration=false}, \texttt{useFeedbackBoost=false}, \texttt{explainMode=rules}.
+
+Composite weights in \texttt{backend/core/scoring.py} are semantic 28\%, skills 27\%, title 10\%, experience 15\%, compensation 10\%, remote 10\%.
+API defaults in \texttt{MatchRequest} differ (e.g., \texttt{top\_k=5}, \texttt{strategy=semantic}) when clients omit overrides; portals always pass composite explicitly.
+
+\subsection{Matching core modules}\label{sec:4-matching}
+
+\leadpara{Retrieval.}
+\texttt{VectorStorePort} abstracts \texttt{upsert}, \texttt{search}, and \texttt{delete}.
+Production uses ANN search for large pools; the demo corpus often uses exhaustive scoring over 15 jobs.
+Lexical rankers (BM25, TF--IDF) and exact skill overlap exist for offline benchmarks only.
+
+\leadpara{Composite and multimodal scoring.}
+\texttt{scoring.py} implements composite, multimodal weighted, semantic-only, and skill-only strategies.
+\texttt{matchmaking\_scoring.py} orchestrates fusion modes, optional hard constraints, feedback boost, and Platt calibration when flags are enabled.
+
+\leadpara{Fusion and routing.}
+\texttt{rrf.py} merges multiple ranked lists (default $k{=}60$).
+\texttt{fusion.py} loads a learned logistic model from \texttt{data/models/fusion.json}.
+\texttt{strategy\_router.py} selects strategy triples when \texttt{auto\_strategy=true} based on skill count and summary length.
+
+\leadpara{Cross-encoder reranking.}
+Optional second stage (\texttt{cross\_encoder\_rerank.py}, pool default 20) is disabled in production settings (\texttt{enable\_cross\_encoder\_rerank=false}).
+
+\leadpara{Explainability.}
+\texttt{match\_explanation.py} builds structured payloads; \texttt{explain.py} adds rule-based bullets.
+Fit labels (Strong, Good, Moderate, Weak) derive from score bands documented in \S\ref{sec:5}.
+
+\leadpara{Fairness utilities.}
+\texttt{fairness.py} computes proxy-group selection rates; \texttt{benchmarks/fairness\_audit.py} runs synthetic counterfactual tests offline.
+
+\leadpara{Calibration and feedback.}
+Platt parameters persist in \texttt{data/models/calibration.json} ($a{\approx}2.078$, $b{\approx}2.112$).
+Feedback boost deltas: save $+0.04$, apply $+0.06$, dismiss $-0.06$ per historical action when enabled.
+
+\subsection{Role portals and user experience}\label{sec:4-ui}
+
+One React SPA mounts three guarded route trees.
+\textbf{Candidate portal:} onboarding, profile editor, job matches with explanation cards and save/apply actions.
+\textbf{Employer portal:} job list, reverse candidate match, applicant tracking.
+\textbf{Admin console:} agent status, event tail, fairness summary, manual match triggers for debugging.
+
+Parsing panels show extracted resume or job fields before the user confirms; quality panels warn about missing skills or incomplete budgets.
+The matches view refreshes when a \texttt{PROFILE\_UPDATED} event propagates after profile save.
+Client-side filters (e.g., remote-friendly) read explanation fields rather than duplicating constraint logic.
+
+Users always act explicitly on matches; the system does not auto-apply or auto-reject.
+
+\subsection{Offline benchmark integration}\label{sec:4-benchmarks}
+
+Research drivers (\texttt{comparison.py}, \texttt{ablation.py}, \texttt{paper\_progression.py}, \texttt{table11\_fusion.py}, \texttt{negative\_mining.py}) call the same scoring core with frozen corpus files under \texttt{data/}.
+Regression test \texttt{test\_eval\_regression.py} compares live runs against \texttt{data/expected/paper\_progression\_summary.json} with $\pm 0.04$ nDCG tolerance.
+\todo{Commit \texttt{phase11\_summary.csv} from \texttt{benchmarks/phase11.py} for ANN shortlist latency.}
