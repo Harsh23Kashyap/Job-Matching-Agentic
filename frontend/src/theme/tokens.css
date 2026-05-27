@@ -89,6 +89,12 @@
   --portal-accent-soft: var(--accent);
   --portal-accent-hover: var(--primary-hover);
 
+  --error-art-doc: color-mix(in srgb, var(--muted) 72%, var(--card));
+  --error-art-stroke: var(--border);
+  --error-art-line: color-mix(in srgb, var(--border) 80%, var(--muted));
+  --error-art-icon-bg: color-mix(in srgb, var(--status-strong-bg) 85%, var(--card));
+  --error-art-accent: color-mix(in srgb, var(--primary) 24%, var(--muted));
+
   --on-primary: var(--primary-foreground);
   --role-icon-bg: color-mix(in srgb, var(--accent) 72%, var(--background));
   --role-icon-fg: var(--primary);
@@ -125,7 +131,7 @@
   --illustration-sand: var(--chart-3);
   --summary-accent-value: var(--portal-accent-hover);
   --inline-hint: var(--muted-foreground);
-  --drawer-scrim: color-mix(in srgb, var(--foreground) 28%, transparent);
+  --drawer-scrim: rgba(20, 20, 20, 0.42);
   --sticky-footer-bg: color-mix(in srgb, var(--card) 94%, transparent);
   --sticky-footer-border: var(--border-subtle);
   --toast-bg: var(--foreground);
@@ -136,24 +142,26 @@
 :root[data-theme="dark"] {
   color-scheme: dark;
 
-  --background: #1a1f24;
-  --foreground: #ece8e1;
-  --muted: #2a3139;
-  --muted-foreground: #b0b8c0;
-  --card: #222830;
-  --card-foreground: #ece8e1;
-  --border: #3a424c;
-  --input: #2a3139;
-  --primary: #8aa892;
-  --primary-foreground: #1a1f24;
-  --secondary: #323b44;
-  --secondary-foreground: #d4dce4;
-  --accent: #2a3530;
+  /* 3-layer surfaces */
+  --background: #11161d;
+  --foreground: #f4f1ea;
+  --muted: #202934;
+  --muted-foreground: #aab4ad;
+  --card: #1b222b;
+  --card-foreground: #f4f1ea;
+  --border: rgba(255, 255, 255, 0.08);
+  --border-active: rgba(132, 170, 145, 0.45);
+  --input: #202934;
+  --primary: #84aa91;
+  --primary-foreground: #11161d;
+  --secondary: #202934;
+  --secondary-foreground: #b8c0c8;
+  --accent: #243028;
   --accent-foreground: #c8d8cc;
   --destructive: #e08888;
-  --destructive-foreground: #1a1f24;
+  --destructive-foreground: #11161d;
 
-  --primary-hover: #9bb8a3;
+  --primary-hover: #98bba4;
 
   --status-strong-bg: #243028;
   --status-strong-fg: #a8cdb4;
@@ -174,25 +182,26 @@
   --status-fail-bg: color-mix(in srgb, #f04438 22%, transparent);
   --status-fail-fg: #fda29b;
 
-  --auth-panel: #252b32;
-  --border-subtle: #2f363e;
-  --border-input: #3a424c;
+  --auth-panel: #1b222b;
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-input: rgba(255, 255, 255, 0.12);
   --accent-hover: var(--primary-hover);
   --accent-light: var(--accent);
   --info: #9aa3b0;
-  --healthy: #8aa892;
+  --healthy: #84aa91;
   --warning: #c4a574;
   --critical: #e08888;
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
-  --shadow-md: 0 12px 30px rgba(0, 0, 0, 0.25);
-  --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.35);
-  --focus-ring: 0 0 0 3px color-mix(in srgb, var(--primary) 28%, transparent);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.48);
+  --focus-ring: 0 0 0 3px color-mix(in srgb, var(--primary) 32%, transparent);
   --focus-ring-error: 0 0 0 3px color-mix(in srgb, var(--destructive) 30%, transparent);
 
   --warning-bg: var(--status-moderate-bg);
   --warning-border: var(--status-moderate-border);
-  --bg-elevated: #2e363f;
-  --text-tertiary: #a8b0b8;
+  --bg-elevated: #202934;
+  --text-tertiary: #87919c;
+  --text-secondary: #b8c0c8;
   --bg-muted: var(--muted);
   --nav-backdrop: color-mix(in srgb, var(--card) 90%, transparent);
   --chip-border: color-mix(in srgb, var(--primary) 22%, var(--border));
@@ -210,12 +219,22 @@
   --illustration-sand: var(--chart-3);
   --summary-accent-value: var(--portal-accent);
   --inline-hint: var(--muted-foreground);
-  --drawer-scrim: rgba(0, 0, 0, 0.55);
+  --drawer-scrim: rgba(20, 20, 20, 0.42);
   --sticky-footer-bg: color-mix(in srgb, var(--card) 96%, var(--background));
   --sticky-footer-border: var(--border);
   --toast-bg: var(--card);
   --toast-fg: var(--card-foreground);
   --toast-border: color-mix(in srgb, var(--primary) 35%, var(--border));
+
+  --portal-accent: var(--primary);
+  --portal-accent-soft: var(--accent);
+  --portal-accent-hover: var(--primary-hover);
+
+  --error-art-doc: color-mix(in srgb, var(--muted) 65%, var(--card));
+  --error-art-stroke: var(--border-input);
+  --error-art-line: color-mix(in srgb, var(--muted-foreground) 28%, var(--muted));
+  --error-art-icon-bg: color-mix(in srgb, var(--status-strong-bg) 95%, var(--card));
+  --error-art-accent: color-mix(in srgb, var(--primary) 35%, var(--muted));
 
   --role-icon-bg: color-mix(in srgb, var(--accent) 88%, var(--card));
   --role-icon-fg: var(--accent-foreground);
@@ -225,7 +244,9 @@
   --btn-primary-bg: var(--primary);
   --btn-primary-fg: var(--primary-foreground);
   --btn-primary-hover: var(--primary-hover);
+  --btn-secondary-bg: color-mix(in srgb, var(--input) 70%, var(--card));
   --btn-secondary-fg: var(--secondary-foreground);
+  --btn-secondary-border: rgba(255, 255, 255, 0.12);
 }
 
 /* Utility classes (Tailwind-style semantic names) */

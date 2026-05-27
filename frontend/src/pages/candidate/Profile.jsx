@@ -1,12 +1,13 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import PageHeader from "../../components/PageHeader.jsx";
 import ProfileForm from "../../components/ProfileForm.jsx";
+import ProfileFormFooter from "../../components/ProfileFormFooter.jsx";
+import ProfileHelperPanel from "../../components/ProfileHelperPanel.jsx";
 import FormSection from "../../components/FormSection.jsx";
-import ProfileStrength from "../../components/ProfileStrength.jsx";
 import CandidateProfileSummary from "../../components/CandidateProfileSummary.jsx";
 import ExtractedSectionsPanel from "../../components/ExtractedSectionsPanel.jsx";
-import ProfileQualityPanel from "../../components/ProfileQualityPanel.jsx";
+import ResumeUploadZone from "../../components/ResumeUploadZone.jsx";
 import ResumePreview from "../../components/ResumePreview.jsx";
 import Button from "../../components/Button.jsx";
 import EmptyStatePanel from "../../components/EmptyStatePanel.jsx";
@@ -29,9 +30,10 @@ import {
   profileFromApi,
   profileToPayload,
 } from "../../utils/profileFields.js";
+import { profileFieldsDirty } from "../../utils/profileDirty.js";
 import { mergeExtractedIntoFields } from "../../utils/profileNormalize.js";
 import { mergeSkills } from "../../utils/skills.js";
-import { profileStrength, validateProfileFields } from "../../utils/validation.js";
+import { validateProfileFields } from "../../utils/validation.js";
 
 function scrollToFirstFieldError() {
   requestAnimationFrame(() => {
@@ -44,10 +46,111 @@ function scrollToFirstFieldError() {
   });
 }
 
+function ProfileEditShell({
+  title,
+  subtitle,
+  inlineAction,
+  fields,
+  setFields,
+  baselineFields,
+  fieldErrors,
+  setFieldErrors,
+  error,
+  errorRef,
+  saving,
+  onSave,
+  onBack,
+  backLabel = "Cancel",
+  saveLabel = "Update profile",
+  reuploading,
+  uploadProgress,
+  file,
+  onFileChange,
+  resumePreview,
+  extractedSections,
+  quality,
+  qualityLoading,
+  suggestedSkills,
+  onAddSuggestedSkill,
+  addingSkill,
+  showIncompleteEmpty = false,
+  allowCleanSave = false,
+}) {
+  const dirty = profileFieldsDirty(fields, baselineFields);
+  const canSave = !saving && !reuploading && (dirty || allowCleanSave);
+
+  return (
+    <>
+      <PageHeader eyebrow="Candidate" title={title} subtitle={subtitle} inlineAction={inlineAction} />
+      {showIncompleteEmpty && (
+        <EmptyStatePanel>
+          <ProfileIncompleteEmpty
+            action={
+              <button type="button" className="btn-secondary" onClick={() => document.getElementById("pf-name")?.focus()}>
+                Add your name
+              </button>
+            }
+          />
+        </EmptyStatePanel>
+      )}
+      <div className="candidate-form-shell">
+        <section className="portal-panel portal-panel--form candidate-profile-edit-panel">
+          <FormSection
+            title="Update from resume"
+            helper="Upload a new PDF, DOCX, or TXT to refresh skills and contact fields."
+            className="profile-reupload-bar"
+          >
+            <ResumeUploadZone
+              file={file}
+              onFileChange={onFileChange}
+              uploading={reuploading}
+              progress={uploadProgress}
+            />
+          </FormSection>
+          {resumePreview && <ResumePreview text={resumePreview} defaultCollapsed />}
+          <ExtractedSectionsPanel extracted={extractedSections || {}} />
+          <ProfileForm
+            fields={fields}
+            errors={fieldErrors}
+            onChange={setFields}
+            suggestedSkills={suggestedSkills}
+            onAddSuggestedSkill={onAddSuggestedSkill}
+            addingSkill={addingSkill}
+            footer={
+              <ProfileFormFooter dirty={dirty}>
+                {onBack && (
+                  <button type="button" className="btn-secondary" onClick={onBack}>
+                    {backLabel}
+                  </button>
+                )}
+                <Button loading={saving} loadingLabel="Updating…" onClick={onSave} disabled={!canSave}>
+                  {saveLabel}
+                </Button>
+              </ProfileFormFooter>
+            }
+          />
+          {error && (
+            <p ref={errorRef} className="auth-error" role="alert">
+              {error}
+            </p>
+          )}
+        </section>
+        <ProfileHelperPanel
+          fields={fields}
+          quality={quality}
+          loading={qualityLoading}
+          extractedSections={extractedSections}
+        />
+      </div>
+    </>
+  );
+}
+
 export default function Profile() {
   const navigate = useNavigate();
   const { showToast } = useToast();
   const [fields, setFields] = useState({ ...EMPTY_PROFILE_FIELDS, id: "" });
+  const [baselineFields, setBaselineFields] = useState(null);
   const [fieldErrors, setFieldErrors] = useState({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -55,16 +158,15 @@ export default function Profile() {
   const [profileRecord, setProfileRecord] = useState(null);
   const [editing, setEditing] = useState(false);
   const [reuploading, setReuploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [reuploadFile, setReuploadFile] = useState(null);
   const [resumePreview, setResumePreview] = useState("");
   const [extractedSections, setExtractedSections] = useState(null);
   const [parseStatus, setParseStatus] = useState(null);
   const [quality, setQuality] = useState(null);
   const [qualityLoading, setQualityLoading] = useState(false);
   const [addingSkill, setAddingSkill] = useState("");
-  const fileRef = useRef(null);
   const errorRef = useRef(null);
-
-  const strength = useMemo(() => profileStrength(fields), [fields]);
 
   const profileReady = Boolean(profileRecord && isCandidateProfileReady(profileRecord));
   const hasQualityInput = Boolean(fields.name?.trim() || fields.skills?.trim() || fields.summary?.trim());
@@ -99,6 +201,23 @@ export default function Profile() {
     };
   }, [fields, editing, profileReady, showQualityPanel, parseStatus]);
 
+  useEffect(() => {
+    if (!reuploading) {
+      setUploadProgress(0);
+      return undefined;
+    }
+    setUploadProgress(12);
+    const id = window.setInterval(() => {
+      setUploadProgress((p) => (p >= 88 ? p : p + 9));
+    }, 280);
+    return () => window.clearInterval(id);
+  }, [reuploading]);
+
+  const handleReuploadFileChange = (file) => {
+    setReuploadFile(file);
+    if (file) handleReupload(file);
+  };
+
   const handleAddSuggestedSkill = (skill) => {
     if (!editing) setEditing(true);
     setAddingSkill(skill);
@@ -118,7 +237,9 @@ export default function Profile() {
           return;
         }
         setProfileRecord(profile);
-        setFields(profileFromApi(profile));
+        const mapped = profileFromApi(profile);
+        setFields(mapped);
+        setBaselineFields(mapped);
         setError("");
         setEditing(isProfileStale(profile) || !isCandidateProfileReady(profile));
       })
@@ -139,24 +260,28 @@ export default function Profile() {
       setQuality(data.quality || null);
       setFields((prev) => mergeExtractedIntoFields(prev, data.extracted_fields || {}));
       setResumePreview(resumePreviewFromUpload(data));
+      setUploadProgress(100);
       showToast("Resume parsed. Review quality tips and updates, then save.");
     } catch (err) {
       setError(apiErrorMessage(err, "Upload failed. Try a PDF, DOCX, or TXT under 5MB."));
       errorRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
     } finally {
       setReuploading(false);
-      if (fileRef.current) fileRef.current.value = "";
+      setReuploadFile(null);
     }
   };
 
   const handleCancelEdit = () => {
     if (profileRecord) {
-      setFields(profileFromApi(profileRecord));
+      const mapped = profileFromApi(profileRecord);
+      setFields(mapped);
+      setBaselineFields(mapped);
     }
     setFieldErrors({});
     setResumePreview("");
     setExtractedSections(null);
     setParseStatus(null);
+    setReuploadFile(null);
     setEditing(false);
   };
 
@@ -173,7 +298,9 @@ export default function Profile() {
     const wasFirstSave = !profileRecord;
     try {
       const saved = await upsertCandidateProfile(profileToPayload(fields));
-      setFields(profileFromApi(saved));
+      const mapped = profileFromApi(saved);
+      setFields(mapped);
+      setBaselineFields(mapped);
       setProfileRecord(saved);
       setEditing(false);
       notifyProfileUpdated();
@@ -184,7 +311,7 @@ export default function Profile() {
       showToast(
         "Profile updated.",
         <Link to="/candidate/matches" className="btn-secondary btn-sm">
-          Find jobs
+          Find matching jobs
         </Link>,
       );
     } catch (err) {
@@ -213,34 +340,35 @@ export default function Profile() {
   if (isProfileStale(profileRecord)) {
     return (
       <>
-        <PageHeader
-          eyebrow="Candidate"
-          title="Restore your profile"
-          subtitle="Re-save your details to reload your profile and run job search again."
-        />
         <EmptyStatePanel>
           <ProfileStaleEmpty />
         </EmptyStatePanel>
-        <section className="portal-panel portal-panel--form candidate-profile-edit-panel">
-          <ProfileStrength percent={strength.percent} hint={strength.hint} />
-          <ProfileForm
-            fields={fields}
-            errors={fieldErrors}
-            onChange={setFields}
-            footer={
-              <div className="form-actions form-actions--sticky portal-form-footer">
-                <Button loading={saving} loadingLabel="Saving…" onClick={handleSave}>
-                  Save profile
-                </Button>
-              </div>
-            }
-          />
-          {error && (
-            <p ref={errorRef} className="auth-error" role="alert">
-              {error}
-            </p>
-          )}
-        </section>
+        <ProfileEditShell
+          title="Restore your profile"
+          subtitle="Re-save your details to reload your profile and run job search again."
+          fields={fields}
+          setFields={setFields}
+          baselineFields={baselineFields}
+          fieldErrors={fieldErrors}
+          setFieldErrors={setFieldErrors}
+          error={error}
+          errorRef={errorRef}
+          saving={saving}
+          onSave={handleSave}
+          reuploading={reuploading}
+          uploadProgress={uploadProgress}
+          file={reuploadFile}
+          onFileChange={handleReuploadFileChange}
+          resumePreview={resumePreview}
+          extractedSections={extractedSections}
+          quality={quality}
+          qualityLoading={qualityLoading}
+          suggestedSkills={quality?.skill_suggestions || []}
+          onAddSuggestedSkill={handleAddSuggestedSkill}
+          addingSkill={addingSkill}
+          saveLabel="Save profile"
+          allowCleanSave
+        />
       </>
     );
   }
@@ -273,90 +401,49 @@ export default function Profile() {
 
   if (!isCandidateProfileReady(profileRecord) || editing) {
     return (
-      <>
-        <PageHeader
-          eyebrow="Candidate"
-          title={isCandidateProfileReady(profileRecord) ? "Edit profile" : "Finish your profile"}
-          subtitle={
-            isCandidateProfileReady(profileRecord)
-              ? "Update skills and preferences so matches stay accurate."
-              : "Your account already has profile data. Add a name and save to enable job search."
-          }
-          inlineAction={
-            isCandidateProfileReady(profileRecord) ? (
-              <button type="button" className="btn-ghost btn-ghost--sm" onClick={handleCancelEdit}>
-                Cancel
-              </button>
-            ) : (
-              <Link to="/candidate/matches" className="btn-secondary">
-                Jobs
-              </Link>
-            )
-          }
-        />
-        {!isCandidateProfileReady(profileRecord) && (
-          <EmptyStatePanel>
-            <ProfileIncompleteEmpty
-              action={
-                <button type="button" className="btn-secondary" onClick={() => document.getElementById("pf-name")?.focus()}>
-                  Add your name
-                </button>
-              }
-            />
-          </EmptyStatePanel>
-        )}
-        <section className="portal-panel portal-panel--form candidate-profile-edit-panel">
-          <FormSection
-            title="Update from resume"
-            helper="Upload a new PDF, DOCX, or TXT to refresh skills and contact fields."
-            className="profile-reupload-bar"
-          >
-            <input
-              ref={fileRef}
-              type="file"
-              accept=".pdf,.docx,.txt"
-              className="visually-hidden"
-              id="profile-reupload"
-              onChange={(e) => handleReupload(e.target.files?.[0])}
-            />
-            <Button loading={reuploading} loadingLabel="Parsing…" onClick={() => fileRef.current?.click()}>
-              Re-upload resume
-            </Button>
-          </FormSection>
-          {resumePreview && <ResumePreview text={resumePreview} defaultCollapsed />}
-          <ExtractedSectionsPanel extracted={extractedSections || {}} />
-          {(showQualityPanel || qualityLoading) && (
-            <ProfileQualityPanel
-              quality={quality}
-              loading={qualityLoading}
-              onAddSkill={handleAddSuggestedSkill}
-              addingSkill={addingSkill}
-            />
-          )}
-          <ProfileForm
-            fields={fields}
-            errors={fieldErrors}
-            onChange={setFields}
-            footer={
-              <div className="form-actions form-actions--sticky portal-form-footer">
-                {isCandidateProfileReady(profileRecord) && (
-                  <button type="button" className="btn-secondary" onClick={handleCancelEdit}>
-                    Cancel
-                  </button>
-                )}
-                <Button loading={saving} loadingLabel="Saving…" onClick={handleSave}>
-                  Save profile
-                </Button>
-              </div>
-            }
-          />
-          {error && (
-            <p ref={errorRef} className="auth-error" role="alert">
-              {error}
-            </p>
-          )}
-        </section>
-      </>
+      <ProfileEditShell
+        title={isCandidateProfileReady(profileRecord) ? "Edit profile" : "Finish your profile"}
+        subtitle={
+          isCandidateProfileReady(profileRecord)
+            ? "Update skills and preferences so matches stay accurate."
+            : "Your account already has profile data. Add a name and save to enable job search."
+        }
+        inlineAction={
+          isCandidateProfileReady(profileRecord) ? (
+            <button type="button" className="btn-ghost btn-ghost--sm" onClick={handleCancelEdit}>
+              Cancel
+            </button>
+          ) : (
+            <Link to="/candidate/matches" className="btn-secondary">
+              Find matching jobs
+            </Link>
+          )
+        }
+        fields={fields}
+        setFields={setFields}
+        baselineFields={baselineFields}
+        fieldErrors={fieldErrors}
+        setFieldErrors={setFieldErrors}
+        error={error}
+        errorRef={errorRef}
+        saving={saving}
+        onSave={handleSave}
+        onBack={isCandidateProfileReady(profileRecord) ? handleCancelEdit : undefined}
+        backLabel="Cancel"
+        reuploading={reuploading}
+        uploadProgress={uploadProgress}
+        file={reuploadFile}
+        onFileChange={handleReuploadFileChange}
+        resumePreview={resumePreview}
+        extractedSections={extractedSections}
+        quality={quality}
+        qualityLoading={qualityLoading}
+        suggestedSkills={quality?.skill_suggestions || []}
+        onAddSuggestedSkill={handleAddSuggestedSkill}
+        addingSkill={addingSkill}
+        showIncompleteEmpty={!isCandidateProfileReady(profileRecord)}
+        allowCleanSave={!isCandidateProfileReady(profileRecord)}
+      />
     );
   }
 
@@ -368,35 +455,37 @@ export default function Profile() {
         subtitle="What employers see when they review your matches."
         inlineAction={
           <Link to="/candidate/matches" className="btn-secondary">
-            Find jobs
+            Find matching jobs
           </Link>
         }
       />
-      {(showQualityPanel || qualityLoading) && (
-        <ProfileQualityPanel
+      <div className="candidate-form-shell">
+        <section className="portal-panel portal-panel--elevated candidate-profile-panel">
+          <CandidateProfileSummary
+            fields={fields}
+            quality={quality}
+            qualityLoading={qualityLoading}
+            onEdit={() => setEditing(true)}
+            footer={
+              <div className="candidate-profile-summary__footer-actions">
+                <Link to="/candidate/matches" className="btn-primary">
+                  Find matching jobs
+                </Link>
+                <Link to="/candidate/onboarding" className="btn-ghost btn-ghost--sm">
+                  Re-upload resume
+                </Link>
+              </div>
+            }
+          />
+        </section>
+        <ProfileHelperPanel
+          fields={fields}
           quality={quality}
           loading={qualityLoading}
-          onAddSkill={handleAddSuggestedSkill}
-          addingSkill={addingSkill}
+          extractedSections={extractedSections}
+          hideScore
         />
-      )}
-      <section className="portal-panel portal-panel--elevated candidate-profile-panel">
-        <CandidateProfileSummary
-          fields={fields}
-          strength={strength}
-          onEdit={() => setEditing(true)}
-          footer={
-            <div className="candidate-profile-summary__footer-actions">
-              <Link to="/candidate/matches" className="btn-primary">
-                Find jobs
-              </Link>
-              <Link to="/candidate/onboarding" className="btn-ghost btn-ghost--sm">
-                Re-upload resume
-              </Link>
-            </div>
-          }
-        />
-      </section>
+      </div>
     </>
   );
 }

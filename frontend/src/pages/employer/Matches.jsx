@@ -4,10 +4,8 @@ import PageHeader from "../../components/PageHeader.jsx";
 import EmployerCandidateResults, { EmployerNoJobsEmpty } from "../../components/EmployerCandidateResults.jsx";
 import { EmployerAllClosedEmpty } from "../../components/EmptyState.jsx";
 import EmptyStatePanel from "../../components/EmptyStatePanel.jsx";
-import Button from "../../components/Button.jsx";
 import { useToast } from "../../components/Toast.jsx";
 import { apiErrorMessage, fetchMyJobs, runMatch, DEFAULT_EMPLOYER_MATCH } from "../../api/client.js";
-import { matchPercent, countStrongMatches } from "../../utils/format.js";
 import { JOBS_UPDATED_EVENT } from "../../utils/profileEvents.js";
 
 function resolveJobSelection(openJobs, queryValue) {
@@ -131,17 +129,6 @@ export default function EmployerMatches() {
     setError(null);
   };
 
-  const heroStats = useMemo(() => {
-    if (!response?.results?.length) return [];
-    const strong = countStrongMatches(response.results);
-    const top = response.results[0]?.similarity ?? 0;
-    return [
-      { label: "Candidates reviewed", value: response.evaluated_count ?? response.results.length },
-      { label: "Strong matches", value: strong },
-      { label: "Top match", value: matchPercent(top) },
-    ];
-  }, [response]);
-
   if (jobsLoading) {
     return (
       <>
@@ -204,7 +191,7 @@ export default function EmployerMatches() {
   const subtitle = response
     ? `${matchCount} candidate${matchCount === 1 ? "" : "s"} ranked for ${selectedJob?.title || "this role"}.`
     : selectedJob?.title
-      ? `Ranked candidates for ${selectedJob.title}.`
+      ? `Select a role and refresh matches to rank candidates.`
       : "Candidates ranked by fit for your open roles.";
 
   return (
@@ -213,27 +200,22 @@ export default function EmployerMatches() {
         eyebrow="Employer"
         title="Candidate matches"
         subtitle={subtitle}
-        stats={heroStats}
         inlineAction={
-          <div className="hero-toolbar employer-matches-toolbar">
-            <label className="hero-toolbar-field">
-              <span className="field-label">Select role</span>
-              <select
-                className="portal-select"
-                value={selectedJobId}
-                onChange={(e) => handleRoleChange(e.target.value)}
-              >
-                {openJobs.map((job) => (
-                  <option key={job.id} value={job.id}>
-                    {job.title}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <Button loading={loading} loadingLabel="Refreshing…" onClick={handleRefresh} disabled={!selectedJobId}>
-              {response ? "Refresh matches" : "Find candidates"}
-            </Button>
-          </div>
+          <label className="hero-toolbar-field employer-matches-role-field">
+            <span className="visually-hidden">Select role</span>
+            <select
+              className="portal-select"
+              value={selectedJobId}
+              onChange={(e) => handleRoleChange(e.target.value)}
+              aria-label="Select role"
+            >
+              {openJobs.map((job) => (
+                <option key={job.id} value={job.id}>
+                  {job.title}
+                </option>
+              ))}
+            </select>
+          </label>
         }
       />
       <EmployerCandidateResults

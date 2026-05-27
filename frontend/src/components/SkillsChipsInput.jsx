@@ -6,7 +6,16 @@ import {
   splitSkillTokens,
 } from "../utils/skills.js";
 
-export default function SkillsChipsInput({ id, value, onChange, error, required }) {
+export default function SkillsChipsInput({
+  id,
+  value,
+  onChange,
+  error,
+  required,
+  suggestedSkills = [],
+  onAddSuggested,
+  addingSkill = "",
+}) {
   const chips = parseSkillsInput(value);
   const [draft, setDraft] = useState("");
   const inputRef = useRef(null);
@@ -102,6 +111,27 @@ export default function SkillsChipsInput({ id, value, onChange, error, required 
           value=""
           onChange={() => {}}
         />
+      )}
+      {suggestedSkills.length > 0 && (
+        <div className="skills-suggestions">
+          <p className="skills-suggestions__label">Suggested skills</p>
+          <div className="skills-suggestions__list">
+            {suggestedSkills.map((skill) => {
+              const added = chips.includes(skill);
+              return (
+                <button
+                  key={skill}
+                  type="button"
+                  className={`skill-suggestion-chip${added ? " skill-suggestion-chip--added" : ""}`}
+                  disabled={added || addingSkill === skill}
+                  onClick={() => onAddSuggested?.(skill)}
+                >
+                  {addingSkill === skill ? "Adding…" : added ? skill : `+ ${skill}`}
+                </button>
+              );
+            })}
+          </div>
+        </div>
       )}
     </div>
   );

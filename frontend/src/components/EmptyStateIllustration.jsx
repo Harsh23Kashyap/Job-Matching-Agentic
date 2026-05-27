@@ -139,18 +139,63 @@ function EmployerJobsArt({ reducedMotion, pathId }) {
   );
 }
 
+function JobsSearchArt({ reducedMotion, pathId }) {
+  return (
+    <svg className="empty-state-illustration empty-state-illustration--jobs" viewBox="0 0 360 200" fill="none" aria-hidden="true">
+      <g className="empty-state-ghost-cards" opacity="0.42">
+        <g className={reducedMotion ? undefined : "empty-illustration__float-a"}>
+          <rect x="20" y="108" width="88" height="56" rx="10" stroke={STROKE} strokeWidth="1" />
+          <line x1="36" y1="128" x2="92" y2="128" stroke={STROKE} strokeWidth="1" opacity="0.35" />
+          <line x1="36" y1="142" x2="76" y2="142" stroke={STROKE} strokeWidth="1" opacity="0.28" />
+        </g>
+        <g className={reducedMotion ? undefined : "empty-illustration__float-b"}>
+          <rect x="136" y="118" width="88" height="56" rx="10" stroke={STROKE} strokeWidth="1" opacity="0.85" />
+          <rect x="152" y="132" width="16" height="16" rx="4" stroke={STROKE} strokeWidth="1" opacity="0.35" />
+          <line x1="174" y1="136" x2="208" y2="136" stroke={STROKE} strokeWidth="1" opacity="0.32" />
+          <line x1="174" y1="150" x2="198" y2="150" stroke={STROKE} strokeWidth="1" opacity="0.26" />
+        </g>
+        <g className={reducedMotion ? undefined : "empty-illustration__float-a"} opacity="0.72">
+          <rect x="252" y="104" width="88" height="56" rx="10" stroke={STROKE} strokeWidth="1" />
+          <line x1="268" y1="124" x2="324" y2="124" stroke={STROKE} strokeWidth="1" opacity="0.32" />
+          <line x1="268" y1="138" x2="304" y2="138" stroke={STROKE} strokeWidth="1" opacity="0.26" />
+        </g>
+      </g>
+      <path
+        id={pathId}
+        className={reducedMotion ? undefined : "empty-illustration__dash"}
+        d="M108 136 Q180 72 252 136"
+        stroke={OLIVE}
+        strokeWidth="1.2"
+        opacity="0.55"
+      />
+      <circle cx="180" cy="88" r="14" stroke={STROKE} strokeWidth="1.2" opacity="0.5" />
+      <path d="M174 88 H186 M180 82 V94" stroke={SAND} strokeWidth="1" opacity="0.45" />
+      {!reducedMotion && (
+        <circle r="2.5" fill={OLIVE} opacity="0.6">
+          <animateMotion dur="16s" repeatCount="indefinite">
+            <mpath href={`#${pathId}`} />
+          </animateMotion>
+        </circle>
+      )}
+    </svg>
+  );
+}
+
 /**
- * @param {"profile-needed"|"ready"|"no-results"|"employer-jobs"} variant
+ * @param {"profile-needed"|"ready"|"jobs-search"|"no-results"|"employer-jobs"} variant
  */
 export default function EmptyStateIllustration({ variant = "ready" }) {
   const rawId = useId().replace(/:/g, "");
   const readyPathId = `empty-ready-path-${rawId}`;
+  const jobsSearchPathId = `empty-jobs-search-path-${rawId}`;
   const employerPathId = `empty-employer-path-${rawId}`;
   const reducedMotion = useReducedMotion();
 
   switch (variant) {
     case "profile-needed":
       return <ProfileNeededArt reducedMotion={reducedMotion} />;
+    case "jobs-search":
+      return <JobsSearchArt reducedMotion={reducedMotion} pathId={jobsSearchPathId} />;
     case "no-results":
       return <NoResultsArt reducedMotion={reducedMotion} />;
     case "employer-jobs":

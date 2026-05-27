@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, useCallback, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import PageHeader from "../../components/PageHeader.jsx";
 import CandidateJobResults from "../../components/CandidateJobResults.jsx";
@@ -7,7 +7,6 @@ import EmptyStatePanel from "../../components/EmptyStatePanel.jsx";
 import Button from "../../components/Button.jsx";
 import { useToast } from "../../components/Toast.jsx";
 import { apiErrorMessage, fetchMyProfileOrNull, runMatch, DEFAULT_CANDIDATE_MATCH } from "../../api/client.js";
-import { matchPercent } from "../../utils/format.js";
 import { hasCandidateProfile, isCandidateProfileReady, isProfileStale } from "../../utils/profileFields.js";
 import { PROFILE_UPDATED_EVENT } from "../../utils/profileEvents.js";
 
@@ -111,17 +110,6 @@ export default function CandidateMatches() {
     handleFindJobs,
   ]);
 
-  const heroStats = useMemo(() => {
-    if (!response?.results?.length) return [];
-    const good = response.results.filter((r) => r.similarity >= 0.6).length;
-    const top = response.results[0]?.similarity ?? 0;
-    return [
-      { label: "Roles reviewed", value: response.evaluated_count ?? response.results.length },
-      { label: "Strong fits", value: good },
-      { label: "Top match", value: matchPercent(top) },
-    ];
-  }, [response]);
-
   if (profileLoading) {
     return (
       <>
@@ -208,9 +196,8 @@ export default function CandidateMatches() {
     );
   }
 
-  const matchCount = response?.results?.length || 0;
   const subtitle = response
-    ? `${matchCount} role${matchCount === 1 ? "" : "s"} matched for ${profile.name}.`
+    ? "Ranked by fit with your skills, experience, and preferences."
     : `Matching roles for ${profile.name} based on your profile.`;
 
   const handleRefresh = () => handleFindJobs({ silent: false });
@@ -221,21 +208,13 @@ export default function CandidateMatches() {
         eyebrow="Candidate"
         title="Jobs for you"
         subtitle={subtitle}
-        stats={heroStats}
-        inlineAction={
-          response || error ? (
-            <Button loading={loading} loadingLabel="Searching…" onClick={handleRefresh}>
-              Refresh matches
-            </Button>
-          ) : null
-        }
       />
       {!response && !error ? (
-        <EmptyStatePanel>
+        <EmptyStatePanel patternVariant="jobs">
           <JobsReadyEmpty
             action={
               <Button loading={loading} loadingLabel="Searching…" onClick={handleRefresh}>
-                Find jobs
+                Find matching jobs
               </Button>
             }
           />

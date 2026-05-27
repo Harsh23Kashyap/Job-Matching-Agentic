@@ -1,43 +1,107 @@
 {
   "version": "2.0",
   "last_updated": "2026-05-28",
-  "graph_version": "v13",
+  "graph_version": "v14",
   "project": "Job-Matching-Agentic",
   "branch": "main",
   "commit_pushed": "9db6abc",
   "local_uncommitted": [
+    "portal UI polish (page-shell, applicants feed, match dedupe, drawer scroll)",
     "external live jobs API",
     "test reorg unit/backend + unit/frontend",
-    "error page UX + PortalShell fix",
-    "HANDOFF.md",
-    "knowledge_graph v13"
+    "error page UX",
+    "HANDOFF.md"
   ],
   "architecture": "multi-agent rewrite (Candidate, Employer, Matchmaking)",
-  "entry_count": 42,
-  "manuscript": {
-    "path": "docs/submission/jaamas/manuscript/main.tex",
-    "status": "committed @ 9db6abc",
-    "pages": 33,
-    "todos_approx": 29,
-    "citation_todos": 12
-  },
-  "live_jobs": {
-    "enabled_env": "REAL_JOBS_ENABLE",
-    "base_url_env": "REAL_JOBS_BASE_URL",
-    "core_module": "backend/core/real_jobs_sync.py",
-    "service": "backend/services/real_jobs_service.py",
-    "routes": "backend/gateway/routes/real_jobs.py",
-    "snapshot": "data/jobs_live.json",
-    "contract_doc": "docs/design/external-live-jobs-api-HANDOFF.md",
-    "cli": "backend/scripts/sync_real_jobs_once.py"
-  },
-  "tests": {
-    "pytest_collected": 310,
-    "layout": "tests/unit/backend, tests/unit/frontend, tests/integration, tests/benchmarks",
-    "runner": "scripts/run_tests.sh",
-    "last_verified": "2026-05-28"
+  "entry_count": 48,
+  "ui_polish_v14": {
+    "shell": "frontend/src/theme/page-shell.css",
+    "max_width": "1120px",
+    "pages": [
+      "candidate/matches",
+      "candidate/profile",
+      "employer/jobs",
+      "employer/matches",
+      "employer/applications"
+    ],
+    "patterns": [
+      "hero stats/refresh deduped on match pages",
+      "flat applicant feed with search/filter",
+      "match drawer 400px 100dvh 96px bottom pad",
+      "post-role panel scroll-safe"
+    ]
   },
   "entries": [
+    {
+      "path": "frontend/src/theme/page-shell.css",
+      "language": "css",
+      "purpose": "Shared portal layout: 1120px shell, form footer, scroll padding, post-role panel",
+      "importance": "HIGH",
+      "indexed": "2026-05-28"
+    },
+    {
+      "path": "frontend/src/pages/employer/Applications.jsx",
+      "language": "javascript",
+      "purpose": "Flat applicant feed with search, role filter, sort, interactive rows",
+      "importance": "HIGH",
+      "indexed": "2026-05-28"
+    },
+    {
+      "path": "frontend/src/pages/employer/Matches.jsx",
+      "language": "javascript",
+      "purpose": "Employer matches: hero role dropdown only; stats/refresh in results card",
+      "importance": "HIGH",
+      "indexed": "2026-05-28"
+    },
+    {
+      "path": "frontend/src/pages/candidate/Matches.jsx",
+      "language": "javascript",
+      "purpose": "Candidate matches: hero title/subtitle only; stats/refresh in results card",
+      "importance": "HIGH",
+      "indexed": "2026-05-28"
+    },
+    {
+      "path": "frontend/src/components/CandidateJobResults.jsx",
+      "language": "javascript",
+      "purpose": "Candidate results panel with MatchSummaryCards and toolbar refresh",
+      "importance": "HIGH",
+      "indexed": "2026-05-28"
+    },
+    {
+      "path": "frontend/src/components/EmployerCandidateResults.jsx",
+      "language": "javascript",
+      "purpose": "Employer results panel with inner stats and toolbar refresh",
+      "importance": "HIGH",
+      "indexed": "2026-05-28"
+    },
+    {
+      "path": "frontend/src/components/MatchDetailsDrawer.jsx",
+      "language": "javascript",
+      "purpose": "Match side drawer 400px, 100dvh scroll, explainability + coach",
+      "importance": "HIGH",
+      "indexed": "2026-05-28"
+    },
+    {
+      "path": "frontend/src/pages/employer/Jobs.jsx",
+      "language": "javascript",
+      "purpose": "My jobs list + post-role panel with scroll-safe sticky footer",
+      "importance": "HIGH",
+      "indexed": "2026-05-28"
+    },
+    {
+      "path": "frontend/src/layouts/PortalShell.jsx",
+      "language": "javascript",
+      "purpose": "Portal shell with unified 1120px container routes",
+      "importance": "HIGH",
+      "indexed": "2026-05-28"
+    },
+    {
+      "path": "frontend/src/App.css",
+      "language": "css",
+      "purpose": "Design system imports theme layers; drawer, applicant rows, match cards",
+      "importance": "MEDIUM",
+      "indexed": "2026-05-28"
+    },
     {
       "path": "backend/core/real_jobs_sync.py",
       "language": "python",
@@ -60,42 +124,6 @@
       "indexed": "2026-05-28"
     },
     {
-      "path": "backend/agents/employer_agent.py",
-      "language": "python",
-      "purpose": "Employer Agent with replace_corpus for live job feeds",
-      "key_elements": ["replace_corpus", "register"],
-      "importance": "HIGH",
-      "indexed": "2026-05-28"
-    },
-    {
-      "path": "scripts/run_tests.sh",
-      "language": "bash",
-      "purpose": "Unified pytest + node frontend utils runner",
-      "importance": "MEDIUM",
-      "indexed": "2026-05-28"
-    },
-    {
-      "path": "frontend/src/pages/errors/ErrorPage.jsx",
-      "language": "javascript",
-      "purpose": "Centered error UX with broken-route illustration",
-      "importance": "MEDIUM",
-      "indexed": "2026-05-28"
-    },
-    {
-      "path": "frontend/src/layouts/PortalShell.jsx",
-      "language": "javascript",
-      "purpose": "Portal shell nav; Link-based active state (no isActive DOM leak)",
-      "importance": "HIGH",
-      "indexed": "2026-05-28"
-    },
-    {
-      "path": "docs/design/external-live-jobs-api-HANDOFF.md",
-      "language": "markdown",
-      "purpose": "Six-contract live jobs API spec ported from legacy repo",
-      "importance": "HIGH",
-      "indexed": "2026-05-28"
-    },
-    {
       "path": "HANDOFF.md",
       "language": "markdown",
       "purpose": "Session continuation: next steps, blockers, env snapshot",
@@ -104,20 +132,30 @@
     }
   ],
   "relationships": [
-    { "from": "backend/gateway/routes/real_jobs.py", "to": "backend/services/real_jobs_service.py", "type": "HTTP → sync" },
-    { "from": "backend/services/real_jobs_service.py", "to": "backend/core/real_jobs_sync.py", "type": "fetch + snapshot" },
-    { "from": "backend/services/real_jobs_service.py", "to": "backend/agents/employer_agent.py", "type": "replace_corpus" },
-    { "from": "backend/gateway/routes/matching.py", "to": "backend/services/real_jobs_service.py", "type": "daily-batch pre-sync" }
+    { "from": "frontend/src/layouts/PortalShell.jsx", "to": "frontend/src/theme/page-shell.css", "type": "wraps pages in unified shell" },
+    { "from": "frontend/src/pages/employer/Applications.jsx", "to": "frontend/src/pages/employer/Matches.jsx", "type": "View links with ?job=" },
+    { "from": "frontend/src/pages/employer/Matches.jsx", "to": "frontend/src/components/EmployerCandidateResults.jsx", "type": "delegates stats + refresh" },
+    { "from": "frontend/src/pages/candidate/Matches.jsx", "to": "frontend/src/components/CandidateJobResults.jsx", "type": "delegates stats + refresh" },
+    { "from": "frontend/src/components/MatchDetailsDrawer.jsx", "to": "frontend/src/App.css", "type": "drawer layout styles" },
+    { "from": "backend/gateway/routes/real_jobs.py", "to": "backend/services/real_jobs_service.py", "type": "HTTP → sync" }
   ],
   "key_flows": [
-    "Provider GET ?limit&skip → real_jobs_sync → jobs_live.json → EmployerAgent.replace_corpus",
-    "POST /real-jobs/sync → fetch → snapshot → replace corpus → optional reindex",
-    "bash scripts/run_tests.sh → 310 pytest + node utils"
+    "PortalShell → page-container 1120px → page hero → results card (stats + toolbar + list)",
+    "Applications search/filter → flat applicant-row → /employer/matches?job=",
+    "Match row View details → MatchDetailsDrawer (400px, scroll-safe bottom)"
+  ],
+  "remaining_stale": [
+    "frontend/src/pages/candidate/Profile.jsx",
+    "frontend/src/pages/candidate/Onboarding.jsx",
+    "frontend/src/components/MatchExplainability.jsx",
+    "frontend/src/components/SystemConfigPanel.jsx",
+    "backend/gateway/app.py",
+    "README.md"
   ],
   "next_steps": [
-    "Commit product work (live jobs, tests, error UX)",
+    "Commit portal UI polish + prior product work",
+    "Refresh remaining stale graph entries on next /knowledge refresh",
     "Set REAL_JOBS_BASE_URL and smoke-test sync",
-    "Resolve manuscript todos and citations",
-    "Optional admin UI for live jobs sync"
+    "Resolve manuscript todos and citations"
   ]
 }

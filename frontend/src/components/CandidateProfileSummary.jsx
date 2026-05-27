@@ -1,5 +1,5 @@
 import { SkillChipList } from "./SkillChip.jsx";
-import ProfileStrength from "./ProfileStrength.jsx";
+import ProfileQualityScore from "./ProfileQualityScore.jsx";
 import {
   formatCandidateExperience,
   formatExpectedCompensation,
@@ -20,7 +20,8 @@ function MetaItem({ label, value, muted = false }) {
 
 export default function CandidateProfileSummary({
   fields,
-  strength,
+  quality,
+  qualityLoading = false,
   onEdit,
   editAction,
   footer,
@@ -42,6 +43,7 @@ export default function CandidateProfileSummary({
               No summary yet. Add a short intro when you edit your profile.
             </p>
           )}
+          <ProfileQualityScore quality={quality} loading={qualityLoading} compact />
         </div>
         {editAction ?? (
           onEdit && (
@@ -51,8 +53,6 @@ export default function CandidateProfileSummary({
           )
         )}
       </header>
-
-      <ProfileStrength percent={strength.percent} hint={strength.hint} />
 
       <div className="candidate-profile-summary__meta">
         <MetaItem label="Experience" value={experience || "Not set"} muted={!experience} />

@@ -15,7 +15,7 @@ import SimilarRecommendations from "./SimilarRecommendations.jsx";
 
 function MatchDrawerCard({ title, children, className = "" }) {
   return (
-    <section className={`match-drawer-card ${className}`.trim()}>
+    <section className={`match-drawer-card drawer-section ${className}`.trim()}>
       {title && <h3 className="match-drawer-card__title">{title}</h3>}
       {children}
     </section>

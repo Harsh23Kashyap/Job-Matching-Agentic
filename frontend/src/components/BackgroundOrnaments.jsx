@@ -133,11 +133,44 @@ function AuthAmbientArt({ reducedMotion, pathId }) {
 function OnboardingArt({ reducedMotion }) {
   return (
     <>
+      <svg className="bg-pattern__layer bg-pattern__grid bg-pattern__breathe" viewBox="0 0 240 160" fill="none" aria-hidden="true">
+        <defs>
+          <pattern id="onboard-dot-grid" width="16" height="16" patternUnits="userSpaceOnUse">
+            <circle cx="1.5" cy="1.5" r="1" fill="var(--bg-ornament-sage)" opacity="0.35" />
+          </pattern>
+        </defs>
+        <rect width="240" height="160" fill="url(#onboard-dot-grid)" />
+      </svg>
       <svg className="bg-pattern__layer bg-pattern__doc bg-pattern__float-a" viewBox="0 0 120 160" fill="none" aria-hidden="true">
         <rect x="8" y="8" width="104" height="144" rx="10" stroke="var(--bg-ornament-sage)" strokeWidth="1" />
         <line x1="28" y1="36" x2="92" y2="36" stroke="var(--bg-ornament-sage)" strokeWidth="1" opacity="0.55" />
         <line x1="28" y1="56" x2="80" y2="56" stroke="var(--bg-ornament-sage)" strokeWidth="1" opacity="0.4" />
         <line x1="28" y1="72" x2="70" y2="72" stroke="var(--bg-ornament-sage)" strokeWidth="1" opacity="0.3" />
+        <line x1="28" y1="88" x2="60" y2="88" stroke="var(--bg-ornament-sage)" strokeWidth="1" opacity="0.25" />
+      </svg>
+      <svg className="bg-pattern__layer bg-pattern__doc bg-pattern__doc--b bg-pattern__float-b" viewBox="0 0 100 130" fill="none" aria-hidden="true">
+        <rect x="6" y="6" width="88" height="118" rx="8" stroke="var(--bg-ornament-sage)" strokeWidth="1" />
+        <line x1="22" y1="30" x2="78" y2="30" stroke="var(--bg-ornament-sage)" strokeWidth="1" opacity="0.45" />
+        <line x1="22" y1="48" x2="66" y2="48" stroke="var(--bg-ornament-sage)" strokeWidth="1" opacity="0.35" />
+        <line x1="22" y1="64" x2="58" y2="64" stroke="var(--bg-ornament-sage)" strokeWidth="1" opacity="0.28" />
+      </svg>
+      <svg className="bg-pattern__layer bg-pattern__connector" viewBox="0 0 160 100" fill="none" aria-hidden="true">
+        <path
+          className={reducedMotion ? undefined : "bg-pattern__dash"}
+          d="M8 82 Q48 82 72 52 T140 28"
+          stroke="var(--bg-ornament-sage)"
+          strokeWidth="1"
+          opacity="0.5"
+        />
+        <circle cx="8" cy="82" r="3" fill="var(--bg-ornament-sage)" opacity="0.45" />
+        <circle cx="72" cy="52" r="2.5" fill="var(--bg-ornament-olive)" opacity="0.4" />
+        <circle cx="140" cy="28" r="3" fill="var(--bg-ornament-sage)" opacity="0.45" />
+      </svg>
+      <svg className="bg-pattern__layer bg-pattern__role-card bg-pattern__breathe" viewBox="0 0 168 52" fill="none" aria-hidden="true">
+        <rect x="2" y="2" width="164" height="48" rx="10" stroke="var(--bg-ornament-sage)" strokeWidth="1" />
+        <text x="14" y="30" fill="var(--bg-ornament-sage)" fontSize="11" fontFamily="system-ui, sans-serif" opacity="0.55">
+          Backend Engineer · 92%
+        </text>
       </svg>
       <svg className="bg-pattern__layer bg-pattern__arrow bg-pattern__float-b" viewBox="0 0 80 80" fill="none" aria-hidden="true">
         <path d="M40 58 V26 M40 26 L30 36 M40 26 L50 36" stroke="var(--bg-ornament-sage)" strokeWidth="1" strokeLinecap="round" />

@@ -1,5 +1,5 @@
 # Codebase Knowledge Graph
-> Last updated: 2026-05-28 (v13 · live jobs API + test reorg + error UX; last push `9db6abc`) | Entries: 490+ | Modules: 15
+> Last updated: 2026-05-28 (v14 · portal UI polish: shared shell, applicants feed, drawer scroll, deduped match stats) | Entries: 495+ | Modules: 15
 
 ---
 
@@ -10,7 +10,7 @@
 **Authors:** Harsh Kashyap, Taranumpreet Kaur Wasu (Thapar Institute). Supervisor: Dr Parteek Bhatia (WSU).
 
 **Repository:** https://github.com/Harsh23Kashyap/Job-Matching-Agentic  
-**Branch:** `main` @ `9db6abc` (pushed) · **Local uncommitted:** live jobs API, test reorg (`unit/backend` + `unit/frontend`), error page UX, PortalShell nav fix, HANDOFF v13 · **Recent commit:** manuscript §2–§7 rewrite @ `9db6abc`
+**Branch:** `main` @ `9db6abc` (pushed) · **Local uncommitted:** portal UI polish (page-shell.css, applicants feed, employer/candidate match dedupe, drawer/post-role scroll), prior live jobs + test reorg + error UX · **Recent commit:** manuscript §2–§7 rewrite @ `9db6abc`
 
 **Legacy note:** Entries under [Module: backend (legacy monolith)](#module-backend-legacy-monolith) describe the **pre-rewrite** `app.py` monolith. Current runtime uses `main.py` → `bootstrap.py` → `gateway/app.py`. See [Module: rewrite (current)](#module-rewrite-current) and [Module: research evaluation](#module-research-evaluation).
 
@@ -32,6 +32,7 @@
 - **Match explainability** · `core/match_explanation.py` → structured `explanation` on every `MatchResult` (matched/missing skills, experience/compensation/remote fit, semantic reason, score breakdown); compact UI via `MatchExplainability.jsx`
 - **Search & filters** · role search, skill chips, remote, salary/budget, experience, match score range, sort (best/newest/compensation); `matchFilters.js`, `MatchResultsFilters.jsx` on both result panels
 - **Demo data mode** · `demo_reset.py`, `seed_demo_activity()` pre-seeds saved jobs/applications/employer shortlist; `POST /system/demo/reset` (admin); reset button in `SystemConfigPanel.jsx`; `DEMO_MODE` config flag
+- **Frontend layout polish (v14)** · unified `1120px` page shell (`page-shell.css`); employer/candidate match pages dedupe hero stats/refresh; flat applicant feed with search/filter; match drawer `400px`/`100dvh`; post-role panel scroll-safe
 - **External live jobs** · `core/real_jobs_sync.py` + `RealJobsService`; `GET/POST /real-jobs/*`; snapshot `data/jobs_live.json`; `EmployerAgent.replace_corpus()`; daily-batch pre-sync when `REAL_JOBS_ENABLE=true`
 - **Frontend state management** · profile/job cross-page events (`profileEvents.js`); stale-while-revalidate refresh; row-action guards; optimistic employer job close; `searchAfterSave` + `?job=` auto-match navigation
 - **Resume/JD parsing pipeline:** clean → rule extract → LLM merge (`document_parse.py`, structured extract modules)
@@ -72,6 +73,8 @@ cd frontend && npm run dev
 | Cross-page sync | `notifyProfileUpdated` / `notifyJobsUpdated` → Matches/Saved/employer pages invalidate or silent refetch |
 | Auto-search | Onboarding/Profile first save → `navigate(..., { searchAfterSave: true })` → Matches auto-runs once |
 | Employer deep link | `/employer/matches?job=job_01` → auto-match after role resolves |
+| Applicant feed | `Applications.jsx` → flat rows · search/role/sort · link to matches |
+| Shared page shell | `PortalShell` → `page-container` 1120px · `page-shell.css` tokens |
 
 ### Key docs
 
@@ -2065,7 +2068,12 @@ benchmarks.phase11
 | `docs/submission/jaamas/build_all.sh` | portal scripts, make_overleaf_zip | One-command submission rebuild |
 | `scripts/generate_jaamas_figures.py` | `figures/source/*.drawio` | Programmatic draw.io diagram sources |
 | `core/match_explanation.py` | `agents/matchmaking_agent.py` | Builds structured `MatchExplanation` on every MatchResult |
-| `frontend/src/components/MatchExplainability.jsx` | `CandidateJobResults`, `EmployerCandidateResults`, `MatchDetailsDrawer` | Compact + full explainability UI |
+| `frontend/src/layouts/PortalShell.jsx` | `page-shell.css`, route pages | Unified 1120px shell for matches/profile/jobs/applications |
+| `frontend/src/theme/page-shell.css` | `App.css`, portal pages | Shared max-width, form footer, applicant grid, post-role scroll |
+| `frontend/src/pages/employer/Applications.jsx` | `candidate_activity_store` via API | Flat applicant feed · search, role filter, sort, View → matches |
+| `frontend/src/pages/employer/Matches.jsx` | `EmployerCandidateResults` | Hero: role dropdown only; stats/refresh inside results card |
+| `frontend/src/pages/candidate/Matches.jsx` | `CandidateJobResults` | Hero: title/subtitle only; stats/refresh inside results card |
+| `frontend/src/components/MatchDetailsDrawer.jsx` | `MatchExplainability`, result panels | Side drawer 400px · 100dvh · 96px bottom padding |
 | `frontend/src/utils/matchFilters.js` | `MatchResultsFilters.jsx` | Client-side filter/sort for match rows |
 | `frontend/src/utils/profileEvents.js` | candidate/employer pages | Cross-page invalidation: PROFILE_UPDATED, JOBS_UPDATED |
 | `demo_seed.py` | `demo_reset.py`, `gateway/app.py` | Demo accounts + `seed_demo_activity()` sample matches |
@@ -2374,8 +2382,27 @@ frontend/src/
 
 ### frontend/src/layouts/PortalShell.jsx
 **Language:** javascript | **Importance:** HIGH | **Indexed:** 2026-05-28  
-**Purpose:** Candidate/employer portal shell · top nav + mobile tabs. Uses `Link` + `linkIsActive()` (not NavLink) to avoid `isActive` DOM leak.  
-**Core Logic:** Custom `item.isActive(pathname)` for Jobs tab covering matches + saved routes.
+**Purpose:** Candidate/employer portal shell · top nav + mobile tabs + centered page container.  
+**Key Elements:** `UNIFIED_SHELL_PREFIXES`, `pageContainerClass`, `linkIsActive`, theme toggle  
+**Core Logic:** Routes under matches/profile/saved/jobs/applications share `page-container--jobs` at 1120px max-width. Custom `item.isActive(pathname)` for Jobs tab covering matches + saved routes. Uses `Link` (not NavLink) to avoid `isActive` DOM leak.
+
+---
+
+### frontend/src/theme/page-shell.css
+**Language:** css | **Importance:** HIGH | **Indexed:** 2026-05-28  
+**Purpose:** Shared portal layout tokens and rhythm · one max-width, form footer, scroll-safe padding.  
+**Key Elements:** `--page-max-width: 1120px`, `.main-container`, `.scroll-content`, `.form-footer-inner`, `.post-role-panel`, `.job-meta-grid`, `.applicant-row` patterns  
+**Dependencies:** imported by: `App.css` | used by: all portal pages  
+**Core Logic:** Hero margin 24px; page bottom padding 96px; employer post-role panel max-height + internal scroll; sticky form footer aligned to form width (760px).
+
+---
+
+### frontend/src/pages/employer/Applications.jsx
+**Language:** javascript | **Importance:** HIGH | **Indexed:** 2026-05-28  
+**Purpose:** Employer applicant feed · flat list of applications across roles.  
+**Key Elements:** search, role filter, sort (newest/match), `applicant-row--interactive`  
+**Dependencies:** imports from: `fetchEmployerApplications` | used by: employer portal `/employer/applications`  
+**Core Logic:** Client-side filter/sort; each row links to `/employer/matches?job={title}`; columns: candidate, role, match %, date, status + View.
 
 ---
 
@@ -2521,10 +2548,11 @@ frontend/src/
 ---
 
 ### frontend/src/components/MatchDetailsDrawer.jsx
-**Language:** javascript | **Importance:** HIGH | **Indexed:** 2026-05-27 (refreshed)  
-**Purpose:** Product match detail panel · full explainability, six-bar score breakdown, resume coach, similar recs.  
-**Key Elements:** `ScoreBar`, `MatchExplainability` (variant=full), `ResumeImprovementPanel`  
-**Used by:** CandidateJobResults, EmployerCandidateResults
+**Language:** javascript | **Importance:** HIGH | **Indexed:** 2026-05-28  
+**Purpose:** Product match detail side panel · score hero, full explainability, resume coach, similar recs.  
+**Key Elements:** `MatchDrawerCard`, `drawer-section`, `MatchExplainability` (variant=full), `ResumeImprovementPanel`  
+**Used by:** CandidateJobResults, EmployerCandidateResults  
+**Core Logic:** Fixed overlay + 400px aside; `100dvh` scroll with 96px bottom padding; Escape closes; body scroll locked.
 
 ---
 
@@ -2578,10 +2606,10 @@ frontend/src/
 ---
 
 ### frontend/src/pages/candidate/Matches.jsx
-**Language:** javascript | **Importance:** HIGH | **Indexed:** 2026-05-27 (refreshed)  
+**Language:** javascript | **Importance:** HIGH | **Indexed:** 2026-05-28  
 **Purpose:** Candidate jobs page · profile gates, find/refresh matches, cross-page invalidation.  
 **Key Elements:** `invalidateMatches`, `loadProfile({ silent })`, `searchAfterSave`, `PROFILE_UPDATED_EVENT` listener  
-**Core Logic:** Profile update event silently refetches profile and invalidates cached match results. Auto-search once when navigated with `searchAfterSave` state from onboarding/profile first save. No tab-visibility refetch.
+**Core Logic:** Hero is title + subtitle only (no duplicate refresh). MatchSummaryCards + toolbar refresh live inside `CandidateJobResults`. Auto-search once when navigated with `searchAfterSave` from onboarding/profile.
 
 ---
 
@@ -2602,34 +2630,59 @@ frontend/src/
 ---
 
 ### frontend/src/pages/employer/Jobs.jsx
-**Language:** javascript | **Importance:** HIGH | **Indexed:** 2026-05-27 (refreshed)  
+**Language:** javascript | **Importance:** HIGH | **Indexed:** 2026-05-28  
 **Purpose:** Employer job list + post/edit · JD import, JobQualityPanel, optimistic close.  
-**Key Elements:** `load({ silent })`, `notifyJobsUpdated`, optimistic status patch with rollback  
-**Core Logic:** After save notifies JOBS_UPDATED; no redundant full reload after successful save.
+**Key Elements:** `load({ silent })`, `notifyJobsUpdated`, `post-role-panel`, `form-footer-inner`  
+**Core Logic:** Two-column grid (list + form). Posting panel scroll-safe (`max-height`, 120px bottom pad) so sticky footer does not clip fields. After save notifies JOBS_UPDATED.
 
 ---
 
 ### frontend/src/pages/employer/Matches.jsx
-**Language:** javascript | **Importance:** HIGH | **Indexed:** 2026-05-27 (refreshed)  
-**Purpose:** Employer candidate matching · role picker by job.id, auto-match on ?job= param.  
-**Key Elements:** `JOBS_UPDATED_EVENT`, `resolveJobSelection`, `autoMatchDone`, silent job refetch  
-**Core Logic:** Listens for job updates; auto-runs match silently when URL has ?job= after role resolves.
+**Language:** javascript | **Importance:** HIGH | **Indexed:** 2026-05-28  
+**Purpose:** Employer candidate matching · role picker in hero, results card owns stats + refresh.  
+**Key Elements:** `JOBS_UPDATED_EVENT`, `resolveJobSelection`, `autoMatchDone`, `employer-matches-role-field`  
+**Core Logic:** Hero: eyebrow, title, subtitle, role dropdown only (no duplicate stats or refresh). `EmployerCandidateResults` shows MatchSummaryCards + MatchResultsFilters refresh. Auto-match on `?job=` param.
 
 ---
 
 ### frontend/src/components/CandidateJobResults.jsx
-**Language:** javascript | **Importance:** HIGH | **Indexed:** 2026-05-27 (refreshed)  
-**Purpose:** Candidate match results · filters, explainability, save/apply/dismiss with action guards.  
-**Key Elements:** `runRowAction`, `pendingAction`, stale-while-revalidate refresh (`results-panel--refreshing`), MatchResultsFilters  
-**Core Logic:** Skeleton only on first load; refresh keeps rows visible. One in-flight row action at a time. Feedback fetch scoped to session_id.
+**Language:** javascript | **Importance:** HIGH | **Indexed:** 2026-05-28  
+**Purpose:** Candidate match results · single stats row, toolbar refresh, collapsed list cards + drawer.  
+**Key Elements:** `MatchSummaryCards`, `matches-toolbar`, `runRowAction`, `pendingAction`, `scroll-content`  
+**Core Logic:** ResultsPanel with stats then filters (refresh only in toolbar). List cards use `MatchExplainability` variant=list; full breakdown in drawer. Stale-while-revalidate refresh keeps rows visible.
 
 ---
 
 ### frontend/src/components/EmployerCandidateResults.jsx
-**Language:** javascript | **Importance:** HIGH | **Indexed:** 2026-05-27 (refreshed)  
-**Purpose:** Employer candidate match results · filters, explainability, save/reject/contact with action guards.  
-**Key Elements:** same refresh/action patterns as CandidateJobResults  
-**Used by:** `pages/employer/Matches.jsx`
+**Language:** javascript | **Importance:** HIGH | **Indexed:** 2026-05-28  
+**Purpose:** Employer candidate match results · inner stats + toolbar refresh, save/reject/contact guards.  
+**Key Elements:** `MatchSummaryCards`, `matches-toolbar`, same refresh/action patterns as CandidateJobResults  
+**Used by:** `pages/employer/Matches.jsx`  
+**Core Logic:** No hero duplicate stats; refresh label toggles Find candidates / Refresh matches. Removed redundant “Showing matches for” line.
+
+---
+
+### frontend/src/components/EmployerJobCard.jsx
+**Language:** javascript | **Importance:** MEDIUM | **Indexed:** 2026-05-28  
+**Purpose:** Compact employer job posting card in My jobs list.  
+**Key Elements:** title + status + remote badge row, 5-col `job-meta-grid`, skill chips, View candidates / Edit / Close  
+**Used by:** `EmployerJobList.jsx`, `pages/employer/Jobs.jsx`
+
+---
+
+### frontend/src/components/ProfileFormFooter.jsx
+**Language:** javascript | **Importance:** MEDIUM | **Indexed:** 2026-05-28  
+**Purpose:** Sticky profile/onboarding form footer · unsaved status + actions.  
+**Key Elements:** `form-footer`, `form-footer-inner--wide`, dirty state text  
+**Used by:** `ProfileForm.jsx`, onboarding/profile pages
+
+---
+
+### frontend/src/components/JobPostingForm.jsx
+**Language:** javascript | **Importance:** MEDIUM | **Indexed:** 2026-05-28  
+**Purpose:** Employer job posting form sections · role basics, work setup, requirements, comp, description.  
+**Key Elements:** `FormSection`, `SkillsChipsInput`, `CompensationInput`, `description-field` max-width  
+**Used by:** `pages/employer/Jobs.jsx`
 
 ---
 
@@ -2671,9 +2724,9 @@ frontend/src/
 ---
 
 ### HANDOFF.md
-**Language:** markdown | **Importance:** HIGH | **Indexed:** 2026-05-27  
-**Purpose:** Session continuation doc — goal, git state, manuscript §2–§7 status, professor QA, security review, next steps.  
-**Core Logic:** Authoritative for “what to do next”; synced with graph v12 handoff block above.
+**Language:** markdown | **Importance:** HIGH | **Indexed:** 2026-05-28  
+**Purpose:** Session continuation doc — goal, git state, manuscript status, UI polish v14, next steps.  
+**Core Logic:** Authoritative for “what to do next”; synced with graph v14 handoff block above.
 
 ---
 
@@ -3303,8 +3356,10 @@ backend/
 ---
 
 ### frontend/src/App.css
-**Language:** css | **Importance:** MEDIUM | **Indexed:** 2026-05-27  
-**Purpose:** FORGE design system · CSS variables for light/dark, dashboard grid, control panel, ranking cards, detail drawer, ops strip, responsive breakpoints (~800+ lines).
+**Language:** css | **Importance:** MEDIUM | **Indexed:** 2026-05-28  
+**Purpose:** Primary design system · imports theme layers (tokens, dark-mode, polish, page-shell, candidate-onboarding).  
+**Key Elements:** portal panels, match drawer (400px/100dvh), applicant-row grid, employer job cards, match summary cards, responsive breakpoints  
+**Core Logic:** `--page-max-width: 1120px`; drawer scrim via tokens; `.scroll-content` 96px bottom pad; compact summary cards (72px min-height).
 
 ---
 

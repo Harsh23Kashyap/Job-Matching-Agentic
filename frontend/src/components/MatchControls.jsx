@@ -9,6 +9,27 @@ const DEFAULT_ENSEMBLE = [
   { strategy: "multimodal", metric: "cosine", weight: 1.0, skills_mode: "embedding", semantic_weight: 0.7 },
 ];
 
+const DEFAULTS = {
+  mode: "candidate_to_jobs",
+  queryKey: "",
+  strategy: "semantic",
+  metric: "cosine",
+  skillsMode: "jaccard",
+  semanticWeight: 0.7,
+  topK: 5,
+  ensemble: false,
+  ensembleChecks: [true, true, true, true],
+  ensembleWeights: [1, 1, 1, 1],
+  fusionMode: "fixed",
+  applyConstraints: false,
+  autoStrategy: false,
+  useCalibration: false,
+  useFeedbackBoost: false,
+  explainMode: "rules",
+  useCrossEncoder: false,
+  rerankPool: 20,
+};
+
 function defaultEnsembleWeights() {
   return DEFAULT_ENSEMBLE.map((s) => s.weight);
 }
@@ -24,27 +45,27 @@ function loadSavedConfig() {
   }
 }
 
-export default function MatchControls({ onRun, onDailyBatch, loading }) {
+export default function MatchControls({ onRun, onDailyBatch, loading, lastRun }) {
   const saved = loadSavedConfig();
-  const [mode, setMode] = useState(saved?.mode || "candidate_to_jobs");
-  const [queryKey, setQueryKey] = useState(saved?.queryKey || "");
-  const [strategy, setStrategy] = useState(saved?.strategy || "semantic");
-  const [metric, setMetric] = useState(saved?.metric || "cosine");
-  const [skillsMode, setSkillsMode] = useState(saved?.skillsMode || "jaccard");
-  const [semanticWeight, setSemanticWeight] = useState(saved?.semanticWeight ?? 0.7);
-  const [topK, setTopK] = useState(saved?.topK ?? 5);
-  const [ensemble, setEnsemble] = useState(saved?.ensemble ?? false);
-  const [ensembleChecks, setEnsembleChecks] = useState(saved?.ensembleChecks ?? [true, true, true, true]);
+  const [mode, setMode] = useState(saved?.mode || DEFAULTS.mode);
+  const [queryKey, setQueryKey] = useState(saved?.queryKey || DEFAULTS.queryKey);
+  const [strategy, setStrategy] = useState(saved?.strategy || DEFAULTS.strategy);
+  const [metric, setMetric] = useState(saved?.metric || DEFAULTS.metric);
+  const [skillsMode, setSkillsMode] = useState(saved?.skillsMode || DEFAULTS.skillsMode);
+  const [semanticWeight, setSemanticWeight] = useState(saved?.semanticWeight ?? DEFAULTS.semanticWeight);
+  const [topK, setTopK] = useState(saved?.topK ?? DEFAULTS.topK);
+  const [ensemble, setEnsemble] = useState(saved?.ensemble ?? DEFAULTS.ensemble);
+  const [ensembleChecks, setEnsembleChecks] = useState(saved?.ensembleChecks ?? DEFAULTS.ensembleChecks);
   const [ensembleWeights, setEnsembleWeights] = useState(saved?.ensembleWeights ?? defaultEnsembleWeights());
-  const [fusionMode, setFusionMode] = useState(saved?.fusionMode || "fixed");
-  const [applyConstraints, setApplyConstraints] = useState(saved?.applyConstraints ?? false);
-  const [autoStrategy, setAutoStrategy] = useState(saved?.autoStrategy ?? false);
-  const [useCalibration, setUseCalibration] = useState(saved?.useCalibration ?? false);
-  const [useFeedbackBoost, setUseFeedbackBoost] = useState(saved?.useFeedbackBoost ?? false);
-  const [explainMode, setExplainMode] = useState(saved?.explainMode || "rules");
-  const [useCrossEncoder, setUseCrossEncoder] = useState(saved?.useCrossEncoder ?? false);
+  const [fusionMode, setFusionMode] = useState(saved?.fusionMode || DEFAULTS.fusionMode);
+  const [applyConstraints, setApplyConstraints] = useState(saved?.applyConstraints ?? DEFAULTS.applyConstraints);
+  const [autoStrategy, setAutoStrategy] = useState(saved?.autoStrategy ?? DEFAULTS.autoStrategy);
+  const [useCalibration, setUseCalibration] = useState(saved?.useCalibration ?? DEFAULTS.useCalibration);
+  const [useFeedbackBoost, setUseFeedbackBoost] = useState(saved?.useFeedbackBoost ?? DEFAULTS.useFeedbackBoost);
+  const [explainMode, setExplainMode] = useState(saved?.explainMode || DEFAULTS.explainMode);
+  const [useCrossEncoder, setUseCrossEncoder] = useState(saved?.useCrossEncoder ?? DEFAULTS.useCrossEncoder);
   const [crossEncoderEnabled, setCrossEncoderEnabled] = useState(false);
-  const [rerankPool, setRerankPool] = useState(saved?.rerankPool ?? 20);
+  const [rerankPool, setRerankPool] = useState(saved?.rerankPool ?? DEFAULTS.rerankPool);
   const [names, setNames] = useState([]);
   const [titles, setTitles] = useState([]);
 
@@ -89,7 +110,7 @@ export default function MatchControls({ onRun, onDailyBatch, loading }) {
         explainMode,
         useCrossEncoder,
         rerankPool,
-      })
+      }),
     );
   }, [
     mode,
@@ -137,15 +158,41 @@ export default function MatchControls({ onRun, onDailyBatch, loading }) {
     rerankPool,
   });
 
+  const resetDefaults = () => {
+    localStorage.removeItem(STORAGE_KEY);
+    setMode(DEFAULTS.mode);
+    setQueryKey(names[0] || "");
+    setStrategy(DEFAULTS.strategy);
+    setMetric(DEFAULTS.metric);
+    setSkillsMode(DEFAULTS.skillsMode);
+    setSemanticWeight(DEFAULTS.semanticWeight);
+    setTopK(DEFAULTS.topK);
+    setEnsemble(DEFAULTS.ensemble);
+    setEnsembleChecks([...DEFAULTS.ensembleChecks]);
+    setEnsembleWeights(defaultEnsembleWeights());
+    setFusionMode(DEFAULTS.fusionMode);
+    setApplyConstraints(DEFAULTS.applyConstraints);
+    setAutoStrategy(DEFAULTS.autoStrategy);
+    setUseCalibration(DEFAULTS.useCalibration);
+    setUseFeedbackBoost(DEFAULTS.useFeedbackBoost);
+    setExplainMode(DEFAULTS.explainMode);
+    setUseCrossEncoder(DEFAULTS.useCrossEncoder);
+    setRerankPool(DEFAULTS.rerankPool);
+  };
+
+  const semanticDisabled = ensemble || strategy === "semantic";
+  const semanticPct = Math.round(semanticWeight * 100);
+
   return (
-    <section className="panel span-5">
+    <section className="panel admin-match-controls">
       <div className="panel-header">
         <IconMatch size={18} />
-        <h2>Match Controls</h2>
+        <h2>Match controls</h2>
       </div>
 
       <div className="control-section">
         <p className="control-section-title">Direction</p>
+        <p className="control-section-help">Choose whether to rank jobs for a candidate or candidates for a job.</p>
         <div className="pill-group">
           <button
             type="button"
@@ -202,35 +249,38 @@ export default function MatchControls({ onRun, onDailyBatch, loading }) {
               <option value="embedding">Soft embedding</option>
             </select>
           </div>
-          <div className="field">
-            <label htmlFor="weight">Semantic weight</label>
+          <div className="field field--full">
+            <label htmlFor="weight">Semantic weight · {semanticPct}%</label>
             <input
               id="weight"
-              type="number"
+              type="range"
               min="0"
-              max="1"
-              step="0.05"
-              value={semanticWeight}
-              onChange={(e) => setSemanticWeight(Number(e.target.value))}
-              disabled={ensemble || strategy === "semantic"}
+              max="100"
+              step="5"
+              value={semanticPct}
+              onChange={(e) => setSemanticWeight(Number(e.target.value) / 100)}
+              disabled={semanticDisabled}
+              className="admin-range"
             />
+            <p className="control-section-help">Higher values prioritize resume meaning over skill overlap.</p>
           </div>
           <div className="field">
             <label htmlFor="topk">Top K</label>
             <input id="topk" type="number" min="1" max="15" value={topK} onChange={(e) => setTopK(Number(e.target.value))} />
+            <p className="control-section-help">Number of results to return.</p>
           </div>
           {mode === "candidate_to_jobs" && (
-            <label className="checkbox-row" style={{ alignSelf: "end", paddingBottom: 8 }}>
-              <input type="checkbox" checked={ensemble} onChange={(e) => setEnsemble(e.target.checked)} />
-              Ensemble (RRF)
+            <label className="admin-toggle-row">
+              <input type="checkbox" className="admin-toggle" checked={ensemble} onChange={(e) => setEnsemble(e.target.checked)} />
+              <span>Ensemble (RRF)</span>
             </label>
           )}
         </div>
       </div>
 
       {ensemble && mode === "candidate_to_jobs" && (
-        <div className="ensemble-box">
-          <p>Ensemble searches</p>
+        <div className="ensemble-box control-section">
+          <p className="control-section-title">Ensemble searches</p>
           {DEFAULT_ENSEMBLE.map((s, i) => (
             <label key={i} className="checkbox-row ensemble-row">
               <input
@@ -268,7 +318,7 @@ export default function MatchControls({ onRun, onDailyBatch, loading }) {
 
       {!ensemble && (
         <div className="control-section">
-          <p className="control-section-title">Advanced ML</p>
+          <p className="control-section-title">Advanced settings</p>
           <div className="controls-grid">
             <div className="field">
               <label htmlFor="fusion">Fusion mode</label>
@@ -286,44 +336,63 @@ export default function MatchControls({ onRun, onDailyBatch, loading }) {
               </select>
             </div>
           </div>
-          <div className="ensemble-box" style={{ marginTop: 12 }}>
-            <label className="checkbox-row">
-              <input type="checkbox" checked={applyConstraints} onChange={(e) => setApplyConstraints(e.target.checked)} />
-              Apply constraints (exp / remote / salary)
+        </div>
+      )}
+
+      {!ensemble && (
+        <div className="control-section">
+          <p className="control-section-title">Constraints</p>
+          <label className="admin-toggle-row admin-toggle-row--block">
+            <input
+              type="checkbox"
+              className="admin-toggle"
+              checked={applyConstraints}
+              onChange={(e) => setApplyConstraints(e.target.checked)}
+            />
+            <span>Apply experience, remote, and salary constraints</span>
+          </label>
+          <div className="admin-constraint-chips">
+            <span className={`admin-constraint-chip${applyConstraints ? " admin-constraint-chip--on" : ""}`}>Experience</span>
+            <span className={`admin-constraint-chip${applyConstraints ? " admin-constraint-chip--on" : ""}`}>Remote</span>
+            <span className={`admin-constraint-chip${applyConstraints ? " admin-constraint-chip--on" : ""}`}>Salary</span>
+          </div>
+          <div className="admin-advanced-toggles">
+            <label className="admin-toggle-row">
+              <input type="checkbox" className="admin-toggle" checked={autoStrategy} onChange={(e) => setAutoStrategy(e.target.checked)} />
+              <span>Auto strategy routing</span>
             </label>
-            <label className="checkbox-row">
-              <input type="checkbox" checked={autoStrategy} onChange={(e) => setAutoStrategy(e.target.checked)} />
-              Auto strategy routing
+            <label className="admin-toggle-row">
+              <input type="checkbox" className="admin-toggle" checked={useCalibration} onChange={(e) => setUseCalibration(e.target.checked)} />
+              <span>Platt calibration</span>
             </label>
-            <label className="checkbox-row">
-              <input type="checkbox" checked={useCalibration} onChange={(e) => setUseCalibration(e.target.checked)} />
-              Platt calibration
+            <label className="admin-toggle-row">
+              <input type="checkbox" className="admin-toggle" checked={useFeedbackBoost} onChange={(e) => setUseFeedbackBoost(e.target.checked)} />
+              <span>Feedback boost</span>
             </label>
-            <label className="checkbox-row">
-              <input type="checkbox" checked={useFeedbackBoost} onChange={(e) => setUseFeedbackBoost(e.target.checked)} />
-              Feedback boost
-            </label>
-            {crossEncoderEnabled && mode === "candidate_to_jobs" && (
-              <label className="checkbox-row">
-                <input type="checkbox" checked={useCrossEncoder} onChange={(e) => setUseCrossEncoder(e.target.checked)} />
-                Cross-encoder rerank (top {rerankPool} → top K)
-              </label>
-            )}
-            {crossEncoderEnabled && mode === "job_to_candidates" && (
-              <label className="checkbox-row">
-                <input type="checkbox" checked={useCrossEncoder} onChange={(e) => setUseCrossEncoder(e.target.checked)} />
-                Cross-encoder rerank candidates (top {rerankPool})
+            {crossEncoderEnabled && (
+              <label className="admin-toggle-row">
+                <input type="checkbox" className="admin-toggle" checked={useCrossEncoder} onChange={(e) => setUseCrossEncoder(e.target.checked)} />
+                <span>Cross-encoder rerank (top {rerankPool})</span>
               </label>
             )}
           </div>
         </div>
       )}
 
-      <div className="actions">
+      {lastRun && (
+        <p className="admin-last-run admin-last-run--inline">
+          Last run: {lastRun.resultCount} results · {lastRun.ms}ms · {lastRun.label}
+        </p>
+      )}
+
+      <div className="actions admin-match-actions">
         <button type="button" className="btn-primary" disabled={loading || !queryKey} onClick={() => onRun(buildConfig())}>
           {loading ? "Running…" : "Run match"}
         </button>
-        <button type="button" className="btn-secondary" disabled={loading} onClick={() => onDailyBatch(buildConfig())}>
+        <button type="button" className="btn-secondary" disabled={loading} onClick={resetDefaults}>
+          Reset
+        </button>
+        <button type="button" className="btn-secondary btn-ghost" disabled={loading} onClick={() => onDailyBatch(buildConfig())}>
           Daily batch
         </button>
       </div>

@@ -33,7 +33,7 @@ export function formatCompensationPreview(amount, currency = "INR") {
   const formatted = formatAmount(amount, currency);
   if (!formatted) return "";
   const meta = CURRENCY_META[currency] || CURRENCY_META.INR;
-  return `Shown as ${meta.symbol}${formatted} total compensation / year`;
+  return `${meta.symbol}${formatted} per year`;
 }
 
 export function formatCompensationRangePreview(minAmount, maxAmount, currency = "INR") {
@@ -106,11 +106,11 @@ export function matchPercent(score) {
 
 export function matchTier(score) {
   const pct = Math.round(Number(score) * 100);
-  if (Number.isNaN(pct)) return { label: "Low", className: "match-tier--low" };
+  if (Number.isNaN(pct)) return { label: "Weak", className: "match-tier--low" };
   if (pct >= 80) return { label: "Strong", className: "match-tier--strong" };
   if (pct >= 60) return { label: "Good", className: "match-tier--good" };
   if (pct >= 40) return { label: "Moderate", className: "match-tier--moderate" };
-  return { label: "Low", className: "match-tier--low" };
+  return { label: "Weak", className: "match-tier--low" };
 }
 
 export function matchDisplayScore(row) {

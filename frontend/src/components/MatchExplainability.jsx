@@ -1,5 +1,7 @@
 import SkillChip, { SkillChipList } from "./SkillChip.jsx";
 import { matchPercent, matchScoreValue } from "../utils/format.js";
+import { describeMatchDrivers } from "../utils/matchScoring.js";
+import { normalizeSkillList } from "../utils/skillCatalog.js";
 import {
   fitLevelClass,
   formatContributionPts,
@@ -64,9 +66,42 @@ export default function MatchExplainability({ row, variant = "compact", classNam
   if (!row) return null;
 
   const explanation = resolveMatchExplanation(row);
-  const { matched_skills: matched, missing_skills: missing } = explanation;
+  const matched = normalizeSkillList(explanation.matched_skills || []);
+  const missing = normalizeSkillList(explanation.missing_skills || []);
   const breakdown = explanation.score_breakdown || [];
   const finalScore = explanation.final_score ?? matchScoreValue(row);
+
+  if (variant === "list") {
+    const reason =
+      describeMatchDrivers(row) ||
+      explanation.semantic?.reason ||
+      explanation.experience?.reason ||
+      null;
+
+    return (
+      <div className={`match-explain match-explain--list ${className}`.trim()}>
+        <div className="match-explain__skills">
+          <div className="match-explain__skill-group">
+            <span className="match-explain__skill-label">Matched</span>
+            {matched.length > 0 ? (
+              <SkillChipList skills={matched} limit={5} variant="match" />
+            ) : (
+              <SkillChip variant="empty">No direct overlap</SkillChip>
+            )}
+          </div>
+          <div className="match-explain__skill-group">
+            <span className="match-explain__skill-label">Missing</span>
+            {missing.length > 0 ? (
+              <SkillChipList skills={missing} limit={4} variant="missing" />
+            ) : (
+              <SkillChip variant="empty">No major gaps</SkillChip>
+            )}
+          </div>
+        </div>
+        {reason && <p className="match-explain__reason">{reason}</p>}
+      </div>
+    );
+  }
 
   if (variant === "compact") {
     return (

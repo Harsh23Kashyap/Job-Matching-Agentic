@@ -84,7 +84,7 @@ export default function ErrorPage({ code: codeProp }) {
     : {
         code: null,
         title: "Something went wrong",
-        description: "We couldn't load this page. You can return home and try again.",
+        description: "We couldn't load this page. Please go home and try again.",
         primary: { label: "Go home" },
         secondary: null,
         onPrimary: () => navigate("/"),

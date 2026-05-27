@@ -1,0 +1,181 @@
+/*
+ * Shared page shell — one max-width, centered content, form footer rhythm.
+ */
+
+:root {
+  --page-max-width: 1120px;
+  --form-section-max: 760px;
+  --form-description-max: 920px;
+}
+
+.page-container,
+.main-container {
+  max-width: var(--page-max-width);
+  width: 100%;
+  margin-inline: auto;
+  padding-inline: 0;
+}
+
+.page-container--form,
+.page-container--jobs {
+  max-width: var(--page-max-width);
+}
+
+[data-portal="candidate"] .page-hero,
+[data-portal="employer"] .page-hero,
+.page-hero {
+  margin-bottom: 24px;
+  padding-bottom: 12px;
+}
+
+[data-portal="candidate"] .page-container,
+[data-portal="employer"] .page-container,
+.page-container {
+  gap: 16px;
+}
+
+.page-shell.page {
+  max-width: var(--page-max-width);
+  margin-inline: auto;
+}
+
+.scroll-content {
+  padding-bottom: 96px;
+}
+
+.matches-card {
+  margin-top: 0;
+}
+
+/* Post role panel — scrollable when stacked or sticky footer overlaps */
+.post-role-panel.portal-panel {
+  max-height: calc(100dvh - 120px);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.post-role-panel .portal-section-body {
+  overflow-y: auto;
+  max-height: calc(100dvh - 220px);
+  padding-bottom: 120px;
+}
+
+@media (max-width: 640px) {
+  .post-role-panel.portal-panel {
+    max-height: none;
+    overflow: visible;
+  }
+
+  .post-role-panel .portal-section-body {
+    max-height: calc(85dvh - 80px);
+    overflow-y: auto;
+    padding-bottom: 120px;
+  }
+}
+
+.form-page.portal-panel .portal-section-body,
+.employer-posting-panel.form-page .portal-section-body {
+  padding-bottom: 120px;
+}
+
+.form-section,
+.employer-job-form-fields .portal-form-section {
+  max-width: var(--form-section-max);
+}
+
+.description-field {
+  max-width: var(--form-description-max);
+}
+
+.form-row,
+.form-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 640px) {
+  .form-row,
+  .form-row-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Sticky form footer */
+.form-footer,
+.portal-form-footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 20;
+  margin: 24px 0 0;
+  padding: 16px 0 calc(16px + env(safe-area-inset-bottom, 0px));
+  background: var(--background);
+  border-top: 1px solid var(--border);
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.form-footer-inner {
+  width: 100%;
+  max-width: var(--form-section-max);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.form-footer-inner--wide {
+  max-width: var(--page-max-width);
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.form-actions--sticky.form-footer-inner,
+.form-actions--sticky:not(.form-footer) {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+/* Employer job cards — compact meta row */
+.job-meta-grid,
+.employer-role-card__meta-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 16px 24px;
+  margin-bottom: 10px;
+}
+
+@media (max-width: 900px) {
+  .job-meta-grid,
+  .employer-role-card__meta-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.employer-role-card.portal-card {
+  padding: 14px 16px;
+}
+
+.employer-role-card__head {
+  margin-bottom: 10px;
+}
+
+.employer-role-card__skills {
+  margin-bottom: 10px;
+}
+
+.employer-role-card__actions {
+  padding-top: 10px;
+}
+
+.muted,
+.form-helper {
+  color: var(--muted-foreground);
+}

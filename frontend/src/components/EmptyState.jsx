@@ -59,10 +59,12 @@ export function JobsReadyEmpty({ action }) {
   return (
     <EmptyState
       variant="jobs"
-      illustrationVariant="ready"
-      title="Search matched roles"
-      description="Your profile is saved. Run a search to see openings ranked for you."
+      illustrationVariant="jobs-search"
+      patternVariant="jobs"
+      title="Find roles matched to your profile"
+      description="Your profile is saved. Start a match search to see ranked openings."
       action={action}
+      helperText="No search has been run yet"
     />
   );
 }

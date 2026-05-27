@@ -79,7 +79,7 @@ export default function CompensationInput({
     }
   }, [amount, currency, mode]);
 
-  const placeholder = currency === "INR" ? "12,00,000" : "120,000";
+  const placeholder = currency === "INR" ? "₹12,00,000" : "120,000";
   const hasError = Boolean(error || minError || maxError);
   const preview =
     mode === "single"

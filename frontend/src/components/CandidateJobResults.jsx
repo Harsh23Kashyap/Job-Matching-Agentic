@@ -73,7 +73,7 @@ function ApplyAction({ row, applied, onApply, disabled = false }) {
     return <span className="row-action-status">Apply unavailable</span>;
   }
   return (
-    <button type="button" className="row-action-btn" onClick={onApply} disabled={disabled}>
+    <button type="button" className="row-action-btn row-action-btn--pill row-action-btn--primary" onClick={onApply} disabled={disabled}>
       Apply
     </button>
   );
@@ -93,18 +93,18 @@ function JobMatchCard({ row, onViewDetails, saved, applied, notInterested, onSav
         <span className="col-label">Match</span>
         <div className="match-pill-stack">
           <span className={`match-badge match-badge--pill ${tier.className}`}>
-            {matchDisplayScore(row)} match
+            {matchDisplayScore(row)}
           </span>
           <span className={`match-tier-pill ${tier.className}`}>{tier.label}</span>
         </div>
       </div>
       <div className="job-match-col job-match-col--actions">
         <span className="col-label">Actions</span>
-        <div className="row-actions">
-          <button type="button" className="row-action-btn" onClick={() => onViewDetails(row)}>
+        <div className="row-actions row-actions--pills">
+          <button type="button" className="row-action-btn row-action-btn--pill" onClick={() => onViewDetails(row)}>
             View details
           </button>
-          <button type="button" className="row-action-btn" onClick={() => onSave(row)} disabled={busy}>
+          <button type="button" className="row-action-btn row-action-btn--pill" onClick={() => onSave(row)} disabled={busy}>
             {saved ? "Unsave" : "Save"}
           </button>
           {notInterested ? (
@@ -112,7 +112,7 @@ function JobMatchCard({ row, onViewDetails, saved, applied, notInterested, onSav
           ) : (
             <button
               type="button"
-              className="row-action-btn row-action-btn--ghost"
+              className="row-action-btn row-action-btn--pill row-action-btn--ghost"
               onClick={() => onDismiss(row)}
               disabled={busy}
             >
@@ -122,7 +122,7 @@ function JobMatchCard({ row, onViewDetails, saved, applied, notInterested, onSav
           <ApplyAction row={row} applied={applied} onApply={() => onApply(row)} disabled={busy} />
         </div>
       </div>
-      <MatchExplainability row={row} variant="compact" className="job-match-row__explain" />
+      <MatchExplainability row={row} variant="list" className="job-match-row__explain" />
     </article>
   );
 }
@@ -269,7 +269,7 @@ export default function CandidateJobResults({ response, error, onRefresh, loadin
     <>
       <ResultsPanel
         backgroundVariant="jobs"
-        className={`candidate-results${refreshing ? " results-panel--refreshing" : ""}`}
+        className={`candidate-results matches-card scroll-content${refreshing ? " results-panel--refreshing" : ""}`}
       >
         {error && (
           <div className="notice-warning match-error-banner">
@@ -283,7 +283,7 @@ export default function CandidateJobResults({ response, error, onRefresh, loadin
           </div>
         )}
         <MatchSummaryCards response={response} updatedAt={updatedAt} />
-        <div ref={filtersRef}>
+        <div ref={filtersRef} className="matches-toolbar">
           <MatchResultsFilters
             variant="candidate-jobs"
             filters={filters}
@@ -292,9 +292,10 @@ export default function CandidateJobResults({ response, error, onRefresh, loadin
             skillOptions={skillOptions}
             onRefresh={onRefresh}
             loading={loading}
+            refreshLabel="Refresh matches"
           />
         </div>
-        <div className="job-match-list">
+        <div className="job-match-list scroll-content">
           <div className="job-match-list-head" aria-hidden="true">
             <span>Role</span>
             <span>Match</span>

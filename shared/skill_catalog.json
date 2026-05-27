@@ -106,7 +106,8 @@
     "azure cloud": "azure",
     "microsoft azure": "azure",
     "linux/unix": "linux",
-    "unix/linux": "linux"
+    "unix/linux": "linux",
+    "teraform": "terraform"
   },
   "display": {
     "react": "React",

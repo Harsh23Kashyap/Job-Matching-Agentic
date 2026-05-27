@@ -285,7 +285,7 @@ export default function EmployerCandidateResults({
     <>
       <ResultsPanel
         backgroundVariant="employer-candidates"
-        className={`candidate-results employer-candidate-results${refreshing ? " results-panel--refreshing" : ""}`}
+        className={`candidate-results employer-candidate-results matches-card scroll-content${refreshing ? " results-panel--refreshing" : ""}`}
       >
         {error && (
           <div className="notice-warning match-error-banner">
@@ -298,13 +298,8 @@ export default function EmployerCandidateResults({
             )}
           </div>
         )}
-        {jobTitle && (
-          <p className="employer-match-context">
-            Showing matches for <strong>{jobTitle}</strong>
-          </p>
-        )}
         <MatchSummaryCards response={response} refreshedAt={refreshedAt} />
-        <div ref={filtersRef}>
+        <div ref={filtersRef} className="matches-toolbar">
           <MatchResultsFilters
             variant="employer-candidates"
             filters={filters}
@@ -313,10 +308,10 @@ export default function EmployerCandidateResults({
             skillOptions={skillOptions}
             onRefresh={onRefresh}
             loading={loading}
-            refreshLabel="Refresh matches"
+            refreshLabel={response ? "Refresh matches" : "Find candidates"}
           />
         </div>
-        <div className="employer-candidate-list">
+        <div className="employer-candidate-list scroll-content">
           {showSkeleton ? (
             <MatchSkeletonRows />
           ) : filtered.length === 0 ? (

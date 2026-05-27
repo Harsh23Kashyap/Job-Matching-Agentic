@@ -6,7 +6,7 @@ export const DEMO_ACCOUNTS = [
     label: "Candidate",
     email: "demo.candidate@test.com",
     password: DEMO_PASSWORD,
-    hint: "Profile loaded. Open Jobs, then Find jobs.",
+    hint: "Profile loaded. Open Jobs, then Search jobs.",
   },
   {
     id: "employer",

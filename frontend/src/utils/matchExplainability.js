@@ -16,11 +16,11 @@ export function fitLevelClass(label = "") {
 
 function fitLabelFromScore(score) {
   if (score == null || Number.isNaN(Number(score))) return "Not scored";
-  const value = Number(score);
-  if (value >= 0.85) return "Strong fit";
-  if (value >= 0.65) return "Good fit";
-  if (value >= 0.45) return "Moderate fit";
-  return "Weak fit";
+  const pct = Math.round(Number(score) * 100);
+  if (pct >= 80) return "Strong";
+  if (pct >= 60) return "Good";
+  if (pct >= 40) return "Moderate";
+  return "Weak";
 }
 
 function semanticReason(score) {

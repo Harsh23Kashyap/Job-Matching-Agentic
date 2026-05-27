@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
-import { fetchResumeSuggestions, apiErrorMessage } from "../api/client.js";
+import { fetchMyProfileOrNull, fetchResumeSuggestions, upsertCandidateProfile, apiErrorMessage } from "../api/client.js";
+import { copyToClipboard } from "../utils/copyToClipboard.js";
+import { profileFromApi, profileToPayload } from "../utils/profileFields.js";
+import { notifyProfileUpdated } from "../utils/profileEvents.js";
 import SkillChip, { SkillChipList } from "./SkillChip.jsx";
+import { useToast } from "./Toast.jsx";
 
 function ChecklistStatus({ status }) {
   const label = status === "pass" ? "Pass" : status === "fail" ? "Needs work" : "Review";
@@ -8,9 +12,12 @@ function ChecklistStatus({ status }) {
 }
 
 export default function ResumeImprovementPanel({ jobId, jobTitle, onClose }) {
+  const { showToast } = useToast();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [data, setData] = useState(null);
+  const [applying, setApplying] = useState(false);
+  const [currentSummary, setCurrentSummary] = useState("");
 
   useEffect(() => {
     let cancelled = false;
@@ -18,8 +25,14 @@ export default function ResumeImprovementPanel({ jobId, jobTitle, onClose }) {
       setLoading(true);
       setError("");
       try {
-        const result = await fetchResumeSuggestions(jobId);
-        if (!cancelled) setData(result);
+        const [result, profile] = await Promise.all([
+          fetchResumeSuggestions(jobId),
+          fetchMyProfileOrNull(),
+        ]);
+        if (!cancelled) {
+          setData(result);
+          setCurrentSummary(profile?.summary?.trim() || "");
+        }
       } catch (err) {
         if (!cancelled) setError(apiErrorMessage(err, "Could not load resume suggestions."));
       } finally {
@@ -51,6 +64,46 @@ export default function ResumeImprovementPanel({ jobId, jobTitle, onClose }) {
   }
 
   if (!data) return null;
+
+  const bulletsText = (data.bullet_improvements || [])
+    .map((row) => `• ${row.suggested}`)
+    .join("\n");
+  const canApplySummary =
+    Boolean(data.suggested_summary?.trim()) &&
+    data.suggested_summary.trim() !== currentSummary;
+
+  const handleCopySummary = async () => {
+    const ok = await copyToClipboard(data.suggested_summary || "");
+    showToast(ok ? "Summary copied to clipboard." : "Could not copy summary.");
+  };
+
+  const handleCopyBullets = async () => {
+    const ok = await copyToClipboard(bulletsText);
+    showToast(ok ? "Bullets copied to clipboard." : "Could not copy bullets.");
+  };
+
+  const handleApplySummary = async () => {
+    if (!canApplySummary || applying) return;
+    setApplying(true);
+    try {
+      const profile = await fetchMyProfileOrNull();
+      if (!profile) {
+        showToast("Set up your profile before applying suggestions.");
+        return;
+      }
+      const fields = profileFromApi(profile);
+      const saved = await upsertCandidateProfile(
+        profileToPayload({ ...fields, summary: data.suggested_summary.trim() }),
+      );
+      setCurrentSummary(saved.summary?.trim() || data.suggested_summary.trim());
+      notifyProfileUpdated();
+      showToast("Summary applied to your saved profile.");
+    } catch (err) {
+      showToast(apiErrorMessage(err, "Could not update your profile."));
+    } finally {
+      setApplying(false);
+    }
+  };
 
   return (
     <section className="match-drawer-card resume-coach-panel" aria-labelledby="resume-coach-title">
@@ -97,13 +150,35 @@ export default function ResumeImprovementPanel({ jobId, jobTitle, onClose }) {
       </div>
 
       <div className="resume-coach-section">
-        <h4>Suggested summary rewrite</h4>
+        <div className="resume-coach-section-head">
+          <h4>Suggested summary rewrite</h4>
+          <div className="resume-coach-copy-actions">
+            <button type="button" className="btn-secondary btn-sm" onClick={handleCopySummary}>
+              Copy summary
+            </button>
+            {canApplySummary && (
+              <button
+                type="button"
+                className="btn-primary btn-sm"
+                onClick={handleApplySummary}
+                disabled={applying}
+              >
+                {applying ? "Applying…" : "Apply to profile"}
+              </button>
+            )}
+          </div>
+        </div>
         <blockquote className="resume-coach-quote">{data.suggested_summary}</blockquote>
       </div>
 
       {data.bullet_improvements?.length > 0 && (
         <div className="resume-coach-section">
-          <h4>Suggested bullet improvements</h4>
+          <div className="resume-coach-section-head">
+            <h4>Suggested bullet improvements</h4>
+            <button type="button" className="btn-secondary btn-sm" onClick={handleCopyBullets}>
+              Copy bullets
+            </button>
+          </div>
           <ul className="resume-coach-bullets">
             {data.bullet_improvements.map((row, index) => (
               <li key={`${row.original}-${index}`}>

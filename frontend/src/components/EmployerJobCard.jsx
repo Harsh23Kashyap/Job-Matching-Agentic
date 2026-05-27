@@ -21,13 +21,11 @@ export default function EmployerJobCard({ job, onEdit, onClose, closing }) {
         <div className="employer-role-card__title-row">
           <h3 className="employer-role-card__title">{job.title}</h3>
           <JobStatusBadge status={job.status} />
-        </div>
-        <div className="employer-role-card__badges">
           {job.remote_policy && <span className="job-card-badge">Remote</span>}
         </div>
       </div>
 
-      <div className="employer-role-card__meta-grid">
+      <div className="employer-role-card__meta-grid job-meta-grid">
         <div className="employer-role-card__meta-item">
           <span className="employer-role-card__meta-label">Company</span>
           <span className="employer-role-card__meta-value">{job.company || "—"}</span>

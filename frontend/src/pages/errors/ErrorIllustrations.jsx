@@ -8,16 +8,16 @@ export function ErrorArtBrokenRoute() {
       aria-hidden="true"
       className="error-art-svg error-art-svg--broken"
     >
-      <rect x="24" y="28" width="58" height="74" rx="10" fill="#f5f0e8" stroke="#ded6ca" strokeWidth="1.5" />
-      <rect x="34" y="42" width="38" height="6" rx="3" fill="#e5d8c7" />
-      <rect x="34" y="54" width="28" height="5" rx="2.5" fill="#e5d8c7" opacity="0.85" />
-      <rect x="34" y="65" width="32" height="5" rx="2.5" fill="#e5d8c7" opacity="0.7" />
-      <path d="M82 65h18" stroke="#52635a" strokeWidth="2" strokeLinecap="round" strokeDasharray="3 5" />
-      <circle cx="118" cy="65" r="16" fill="#e8efe9" stroke="#52635a" strokeWidth="1.5" />
-      <path d="M118 57v9" stroke="#52635a" strokeWidth="2.5" strokeLinecap="round" />
-      <circle cx="118" cy="72" r="1.5" fill="#52635a" />
-      <circle cx="146" cy="98" r="5" fill="#52635a" opacity="0.25" />
-      <circle cx="158" cy="88" r="3" fill="#c9d5cc" opacity="0.5" />
+      <rect x="24" y="28" width="58" height="74" rx="10" fill="var(--error-art-doc)" stroke="var(--error-art-stroke)" strokeWidth="1.5" />
+      <rect x="34" y="42" width="38" height="6" rx="3" fill="var(--error-art-line)" />
+      <rect x="34" y="54" width="28" height="5" rx="2.5" fill="var(--error-art-line)" opacity="0.85" />
+      <rect x="34" y="65" width="32" height="5" rx="2.5" fill="var(--error-art-line)" opacity="0.7" />
+      <path d="M82 65h18" stroke="var(--primary)" strokeWidth="2" strokeLinecap="round" strokeDasharray="3 5" />
+      <circle cx="118" cy="65" r="16" fill="var(--error-art-icon-bg)" stroke="var(--primary)" strokeWidth="1.5" />
+      <path d="M118 57v9" stroke="var(--primary)" strokeWidth="2.5" strokeLinecap="round" />
+      <circle cx="118" cy="72" r="1.5" fill="var(--primary)" />
+      <circle cx="146" cy="98" r="5" fill="var(--primary)" opacity="0.25" />
+      <circle cx="158" cy="88" r="3" fill="var(--error-art-accent)" opacity="0.5" />
     </svg>
   );
 }

@@ -3,9 +3,11 @@ import { useNavigate } from "react-router-dom";
 import PageHeader from "../../components/PageHeader.jsx";
 import Stepper from "../../components/Stepper.jsx";
 import ProfileForm from "../../components/ProfileForm.jsx";
+import ProfileFormFooter from "../../components/ProfileFormFooter.jsx";
+import ProfileHelperPanel from "../../components/ProfileHelperPanel.jsx";
+import ResumeUploadZone from "../../components/ResumeUploadZone.jsx";
 import ResumePreview from "../../components/ResumePreview.jsx";
 import ExtractedSectionsPanel from "../../components/ExtractedSectionsPanel.jsx";
-import ProfileQualityPanel from "../../components/ProfileQualityPanel.jsx";
 import Button from "../../components/Button.jsx";
 import { useToast } from "../../components/Toast.jsx";
 import { IconAlert } from "../../components/icons.jsx";
@@ -24,6 +26,7 @@ import {
   profileFromApi,
   profileToPayload,
 } from "../../utils/profileFields.js";
+import { profileFieldsDirty } from "../../utils/profileDirty.js";
 import { mergeExtractedIntoFields } from "../../utils/profileNormalize.js";
 import { mergeSkills } from "../../utils/skills.js";
 import { validateProfileFields } from "../../utils/validation.js";
@@ -46,11 +49,13 @@ export default function Onboarding() {
   const [step, setStep] = useState(1);
   const [file, setFile] = useState(null);
   const [fields, setFields] = useState(EMPTY_PROFILE_FIELDS);
+  const [baselineFields, setBaselineFields] = useState(null);
   const [preview, setPreview] = useState("");
   const [fieldErrors, setFieldErrors] = useState({});
   const [error, setError] = useState("");
   const [showFallbackNotice, setShowFallbackNotice] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [saving, setSaving] = useState(false);
   const [hasExistingProfile, setHasExistingProfile] = useState(false);
   const [profileReady, setProfileReady] = useState(false);
@@ -66,19 +71,27 @@ export default function Onboarding() {
       .then((profile) => {
         if (profile && !isProfileStale(profile)) {
           setHasExistingProfile(true);
-          setFields(profileFromApi(profile));
+          const mapped = profileFromApi(profile);
+          setFields(mapped);
+          setBaselineFields(mapped);
           setProfileReady(isCandidateProfileReady(profile));
         } else if (isProfileStale(profile)) {
           setHasExistingProfile(true);
-          setFields(profileFromApi(profile));
+          const mapped = profileFromApi(profile);
+          setFields(mapped);
+          setBaselineFields(mapped);
         }
       })
       .finally(() => setProfileLoaded(true));
   }, []);
 
-  const goToReview = (data) => {
+  const dirty = profileFieldsDirty(fields, baselineFields);
+
+  const goToReview = (data, mergedFields) => {
     setExtractedSections(data.extracted_fields || null);
-    setFields((prev) => mergeExtractedIntoFields(prev, data.extracted_fields || {}));
+    const nextFields = mergedFields ?? mergeExtractedIntoFields(fields, data.extracted_fields || {});
+    setFields(nextFields);
+    setBaselineFields(nextFields);
     setPreview(resumePreviewFromUpload(data));
     setParseStatus(data.llm_status || null);
     setQuality(data.quality || null);
@@ -116,6 +129,18 @@ export default function Onboarding() {
     };
   }, [fields, step, hasQualityInput, parseStatus]);
 
+  useEffect(() => {
+    if (!uploading) {
+      setUploadProgress(0);
+      return undefined;
+    }
+    setUploadProgress(12);
+    const id = window.setInterval(() => {
+      setUploadProgress((p) => (p >= 88 ? p : p + 9));
+    }, 280);
+    return () => window.clearInterval(id);
+  }, [uploading]);
+
   const handleAddSuggestedSkill = (skill) => {
     setAddingSkill(skill);
     setFields((prev) => ({
@@ -133,7 +158,9 @@ export default function Onboarding() {
     setShowFallbackNotice(false);
     try {
       const data = await uploadResume(file);
-      goToReview(data);
+      const merged = mergeExtractedIntoFields(fields, data.extracted_fields || {});
+      goToReview(data, merged);
+      setUploadProgress(100);
       showToast("Resume parsed. Review your details, then save.");
     } catch (err) {
       setError(apiErrorMessage(err, "Upload failed. Try a PDF, DOCX, or TXT under 5MB."));
@@ -141,6 +168,14 @@ export default function Onboarding() {
     } finally {
       setUploading(false);
     }
+  };
+
+  const handleManualEntry = () => {
+    setError("");
+    setShowFallbackNotice(false);
+    setFieldErrors({});
+    setBaselineFields({ ...fields });
+    setStep(2);
   };
 
   const handleSave = async () => {
@@ -156,7 +191,9 @@ export default function Onboarding() {
     setFieldErrors({});
     try {
       const saved = await upsertCandidateProfile(profileToPayload(fields));
-      setFields(profileFromApi(saved));
+      const mapped = profileFromApi(saved);
+      setFields(mapped);
+      setBaselineFields(mapped);
       setHasExistingProfile(true);
       setProfileReady(isCandidateProfileReady(saved));
       showToast(wasUpdate ? "Profile updated." : "Profile saved.");
@@ -170,7 +207,7 @@ export default function Onboarding() {
     }
   };
 
-  const fieldsFilled = Boolean(fields.name?.trim() && fields.skills?.trim());
+  const canSave = !saving && !uploading && (dirty || !hasExistingProfile);
 
   return (
     <>
@@ -183,109 +220,114 @@ export default function Onboarding() {
             : "Upload a resume or enter details manually. Used to rank job matches."
         }
       />
-      <section className="portal-panel portal-panel--form onboarding-panel">
-        <Stepper steps={["Upload resume", "Review profile"]} current={step} />
+      <div className="candidate-form-shell">
+        <section className="portal-panel portal-panel--form onboarding-panel">
+          <Stepper steps={["Upload resume", "Review profile"]} current={step} />
 
-        {step === 1 && (
-          <div className="onboarding-upload">
-            <h2>Upload resume</h2>
-            <p className="form-helper onboarding-upload__intro">
-              PDF, DOCX, or TXT, max 5 MB. We extract contact details, skills, experience, education, projects, and summary. Nothing saves until you confirm.
-            </p>
-            {!profileLoaded && (
-              <p className="form-helper onboarding-upload__status">Checking for an existing profile…</p>
-            )}
-            {hasExistingProfile && profileLoaded && (
-              <p className="form-helper onboarding-upload__status">
-                You already have a profile. A new upload merges into the form. Save when you're done.
+          {step === 1 && (
+            <div className="onboarding-upload">
+              <h2>Upload resume</h2>
+              <p className="form-helper onboarding-upload__intro">
+                PDF, DOCX, or TXT, max 5 MB. We extract contact details, skills, experience, education, projects, and summary. Nothing saves until you confirm.
               </p>
-            )}
-            <label className="dropzone">
-              <input
-                type="file"
-                accept=".pdf,.docx,.txt"
-                onChange={(e) => setFile(e.target.files?.[0] || null)}
-              />
-              {file ? file.name : "Choose a file or drag it here"}
-            </label>
-            <div className="onboarding-upload__actions">
-              <Button loading={uploading} loadingLabel="Parsing resume…" onClick={handleUpload} disabled={!file || saving}>
-                Upload and parse
-              </Button>
-              <button
-                type="button"
-                className="btn-secondary"
-                onClick={() => {
-                  setError("");
-                  setShowFallbackNotice(false);
-                  setFieldErrors({});
-                  setStep(2);
-                }}
-              >
-                Enter details manually
-              </button>
-              {profileReady && (
-                <button
-                  type="button"
-                  className="btn-primary"
-                  onClick={() => navigate("/candidate/matches", { state: { searchAfterSave: true } })}
-                >
-                  Continue to jobs
-                </button>
+              {!profileLoaded && (
+                <p className="form-helper onboarding-upload__status">Checking for an existing profile…</p>
               )}
+              {hasExistingProfile && profileLoaded && (
+                <p className="form-helper onboarding-upload__status">
+                  You already have a profile. A new upload merges into the form. Save when you're done.
+                </p>
+              )}
+              <ResumeUploadZone
+                file={file}
+                onFileChange={setFile}
+                uploading={uploading}
+                progress={uploadProgress}
+              />
+              <div className="onboarding-upload__actions">
+                <Button
+                  loading={uploading}
+                  loadingLabel="Reading your resume…"
+                  onClick={handleUpload}
+                  disabled={!file || saving}
+                >
+                  Upload and parse
+                </Button>
+                <button type="button" className="btn-secondary" onClick={handleManualEntry} disabled={uploading}>
+                  Enter details manually
+                </button>
+                {profileReady && (
+                  <button
+                    type="button"
+                    className="btn-secondary"
+                    onClick={() => navigate("/candidate/matches", { state: { searchAfterSave: true } })}
+                  >
+                    Find matching jobs
+                  </button>
+                )}
+              </div>
             </div>
-          </div>
-        )}
+          )}
+
+          {step === 2 && (
+            <>
+              <h2>Review profile</h2>
+              <p className="form-helper onboarding-review__intro">
+                Work through each section. Edit skills as chips or paste a comma-separated list.
+              </p>
+              {showFallbackNotice && (
+                <div className="notice-warning">
+                  <IconAlert />
+                  <span>
+                    Some fields didn't parse from your resume. Use the text below and fill in what's missing.
+                  </span>
+                </div>
+              )}
+              {preview && <ResumePreview text={preview} defaultCollapsed={Boolean(fields.name?.trim() && fields.skills?.trim())} />}
+              <ExtractedSectionsPanel extracted={extractedSections || {}} />
+              <ProfileForm
+                fields={fields}
+                errors={fieldErrors}
+                onChange={setFields}
+                requireSkills
+                suggestedSkills={quality?.skill_suggestions || []}
+                onAddSuggestedSkill={handleAddSuggestedSkill}
+                addingSkill={addingSkill}
+                footer={
+                  <ProfileFormFooter dirty={dirty}>
+                    <button type="button" className="btn-secondary" onClick={() => setStep(1)}>
+                      Back
+                    </button>
+                    <Button
+                      loading={saving}
+                      loadingLabel={hasExistingProfile ? "Updating…" : "Saving…"}
+                      onClick={handleSave}
+                      disabled={!canSave}
+                    >
+                      {hasExistingProfile ? "Update profile" : "Save profile"}
+                    </Button>
+                  </ProfileFormFooter>
+                }
+              />
+            </>
+          )}
+
+          {error && (
+            <p className="auth-error" ref={errorRef} role="alert">
+              {error}
+            </p>
+          )}
+        </section>
 
         {step === 2 && (
-          <>
-            <h2>Review profile</h2>
-            <p className="form-helper onboarding-review__intro">
-              Check everything below. Edit skills as chips or paste a comma-separated list.
-            </p>
-            {showFallbackNotice && (
-              <div className="notice-warning">
-                <IconAlert />
-                <span>
-                  Some fields didn't parse from your resume. Use the text below and fill in what's missing.
-                </span>
-              </div>
-            )}
-            {preview && <ResumePreview text={preview} defaultCollapsed={fieldsFilled} />}
-            <ExtractedSectionsPanel extracted={extractedSections || {}} />
-            {(hasQualityInput || qualityLoading) && (
-              <ProfileQualityPanel
-                quality={quality}
-                loading={qualityLoading}
-                onAddSkill={handleAddSuggestedSkill}
-                addingSkill={addingSkill}
-              />
-            )}
-            <ProfileForm
-              fields={fields}
-              errors={fieldErrors}
-              onChange={setFields}
-              requireSkills
-              footer={
-                <div className="form-actions form-actions--sticky">
-                  <button type="button" className="btn-secondary" onClick={() => setStep(1)}>
-                    Back
-                  </button>
-                  <Button loading={saving} loadingLabel={hasExistingProfile ? "Updating…" : "Saving…"} onClick={handleSave} disabled={uploading}>
-                    {hasExistingProfile ? "Update profile" : "Save profile"}
-                  </Button>
-                </div>
-              }
-            />
-          </>
+          <ProfileHelperPanel
+            fields={fields}
+            quality={quality}
+            loading={qualityLoading}
+            extractedSections={extractedSections}
+          />
         )}
-
-        {error && (
-          <p className="auth-error" ref={errorRef} role="alert">
-            {error}
-          </p>
-        )}
-      </section>
+      </div>
     </>
   );
 }

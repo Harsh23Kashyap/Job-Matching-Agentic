@@ -1,0 +1,236 @@
+/*
+ * Dark admin console polish — Linear / Vercel-style depth, contrast, and motion.
+ */
+
+:root[data-theme="dark"] .btn-primary:hover:not(:disabled) {
+  background: #98bba4;
+  box-shadow: 0 4px 18px rgba(132, 170, 145, 0.28);
+}
+
+:root[data-theme="dark"] .btn-secondary {
+  background: var(--btn-secondary-bg);
+  color: var(--btn-secondary-fg);
+  border-color: var(--btn-secondary-border);
+}
+
+:root[data-theme="dark"] .btn-secondary:hover:not(:disabled) {
+  background: var(--input);
+  border-color: rgba(255, 255, 255, 0.18);
+  color: var(--foreground);
+}
+
+:root[data-theme="dark"] .panel,
+:root[data-theme="dark"] .portal-panel,
+:root[data-theme="dark"] .kpi-card,
+:root[data-theme="dark"] .admin-stat-card,
+:root[data-theme="dark"] .admin-system-flow {
+  background: var(--card);
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.03) inset, var(--shadow-sm);
+}
+
+:root[data-theme="dark"] .panel:focus-within,
+:root[data-theme="dark"] .admin-match-controls:focus-within,
+:root[data-theme="dark"] .admin-agent-card--healthy,
+:root[data-theme="dark"] .admin-stat-card--healthy {
+  border-color: var(--border-active);
+}
+
+:root[data-theme="dark"] .field select,
+:root[data-theme="dark"] .field input,
+:root[data-theme="dark"] .field textarea,
+:root[data-theme="dark"] .controls-grid select,
+:root[data-theme="dark"] .controls-grid input {
+  background: var(--input);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: var(--foreground);
+}
+
+:root[data-theme="dark"] .field select:focus,
+:root[data-theme="dark"] .field input:focus,
+:root[data-theme="dark"] .controls-grid select:focus,
+:root[data-theme="dark"] .controls-grid input:focus {
+  border-color: var(--border-active);
+  box-shadow: var(--focus-ring);
+}
+
+:root[data-theme="dark"] .control-section-title,
+:root[data-theme="dark"] .admin-workspace-label,
+:root[data-theme="dark"] .admin-kv-row dt,
+:root[data-theme="dark"] .kpi-meta dt,
+:root[data-theme="dark"] .admin-stat-card__label,
+:root[data-theme="dark"] .summary-label {
+  color: var(--text-tertiary);
+}
+
+:root[data-theme="dark"] .control-section-help,
+:root[data-theme="dark"] .panel-meta,
+:root[data-theme="dark"] .admin-event-refresh,
+:root[data-theme="dark"] .auth-sub {
+  color: var(--text-secondary);
+}
+
+:root[data-theme="dark"] .pill-group {
+  background: var(--input);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+:root[data-theme="dark"] .pill-option.active {
+  background: var(--card);
+  color: var(--foreground);
+  box-shadow: 0 0 0 1px rgba(132, 170, 145, 0.35);
+}
+
+:root[data-theme="dark"] .admin-section-nav {
+  background: color-mix(in srgb, var(--card) 92%, var(--background));
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+:root[data-theme="dark"] .agent-event-item,
+:root[data-theme="dark"] .admin-kv-row,
+:root[data-theme="dark"] .admin-match-preview__list li {
+  background: var(--card);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+:root[data-theme="dark"] .agent-event-item:hover {
+  border-color: rgba(132, 170, 145, 0.28);
+  background: color-mix(in srgb, var(--input) 55%, var(--card));
+}
+
+:root[data-theme="dark"] .admin-demo-access-card {
+  background: color-mix(in srgb, var(--card) 88%, #3a3228);
+  border-color: rgba(196, 165, 116, 0.28);
+}
+
+:root[data-theme="dark"] .bg-pattern--admin.bg-pattern--page {
+  opacity: 0.085;
+}
+
+:root[data-theme="dark"] .bg-pattern--admin .bg-pattern__admin-scene line,
+:root[data-theme="dark"] .bg-pattern--admin .bg-pattern__admin-scene path,
+:root[data-theme="dark"] .bg-pattern--admin .bg-pattern__admin-scene rect {
+  stroke: rgba(148, 163, 184, 0.1);
+}
+
+:root[data-theme="dark"] .bg-pattern--admin .bg-pattern__admin-scene circle[fill] {
+  fill: rgba(132, 170, 145, 0.22);
+}
+
+/* Admin shell layout */
+.admin-console-shell {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 20px;
+  position: relative;
+  z-index: 1;
+}
+
+.admin-console-main {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.admin-system-flow {
+  align-self: start;
+}
+
+.admin-system-flow__head h3 {
+  margin: 0 0 4px;
+  font-size: calc(14px * var(--font-scale));
+}
+
+.admin-system-flow__head p {
+  margin: 0 0 12px;
+  font-size: calc(12px * var(--font-scale));
+  color: var(--text-secondary);
+}
+
+.admin-system-flow__svg {
+  width: 100%;
+  max-width: 220px;
+  margin: 0 auto 12px;
+  display: block;
+}
+
+.admin-system-flow__steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.admin-system-flow__step {
+  display: grid;
+  grid-template-columns: 1.5rem 1fr;
+  gap: 10px;
+  align-items: start;
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--input) 35%, var(--card));
+}
+
+.admin-system-flow__index {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: calc(11px * var(--font-scale));
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.admin-system-flow__copy {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.admin-system-flow__copy strong {
+  font-size: calc(12px * var(--font-scale));
+  font-weight: 600;
+}
+
+.admin-system-flow__copy span {
+  font-size: calc(11px * var(--font-scale));
+  color: var(--text-secondary);
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+}
+
+.admin-system-flow__footnote {
+  margin: 14px 0 0;
+  font-size: calc(11px * var(--font-scale));
+  line-height: 1.45;
+  color: var(--text-tertiary);
+}
+
+@media (min-width: 1200px) {
+  .admin-console-shell {
+    grid-template-columns: minmax(0, 1fr) minmax(260px, 300px);
+    align-items: start;
+  }
+
+  .admin-system-flow {
+    position: sticky;
+    top: calc(var(--nav-height) + 56px);
+  }
+}
+
+@media (max-width: 1199px) {
+  .admin-system-flow {
+    order: -1;
+  }
+
+  .admin-system-flow__svg {
+    display: none;
+  }
+
+  .admin-system-flow__steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 8px;
+  }
+}

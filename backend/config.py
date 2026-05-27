@@ -24,6 +24,8 @@ class Settings(BaseSettings):
     chroma_persist_dir: Path = Path(__file__).resolve().parent / "chroma_db"
     vector_store: str = "chroma"
     qdrant_persist_dir: Path = Path(__file__).resolve().parent / "qdrant_db"
+    # Optional Qdrant server URL (e.g. http://localhost:6333). When set, ignores local path mode.
+    qdrant_url: str | None = None
     sqlite_path: Path = Path(__file__).resolve().parent / "app.db"
     session_secret: str = "dev-change-me"
     parser_backend: str = "json"

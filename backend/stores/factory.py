@@ -22,6 +22,7 @@ def create_store(
         return QdrantVectorStore(
             persist_dir=str(settings.qdrant_persist_dir),
             collection_name=name,
+            url=settings.qdrant_url or None,
         )
     if backend != "chroma":
         raise ValueError(f"Unsupported vector_store: {settings.vector_store}")

@@ -1,11 +1,12 @@
 import FormField from "./FormField.jsx";
-import FormSection from "./FormSection.jsx";
+import FormAccordionSection from "./FormAccordionSection.jsx";
 import CompensationInput from "./CompensationInput.jsx";
 import ExperienceInput from "./ExperienceInput.jsx";
 import CustomCheckbox from "./CustomCheckbox.jsx";
 import SkillsChipsInput from "./SkillsChipsInput.jsx";
 import LinksChipsInput from "./LinksChipsInput.jsx";
 import { SUMMARY_MAX } from "../utils/validation.js";
+import { parseSkillsInput } from "../utils/skills.js";
 
 export default function ProfileForm({
   fields,
@@ -13,27 +14,37 @@ export default function ProfileForm({
   onChange,
   footer,
   requireSkills = false,
+  suggestedSkills = [],
+  onAddSuggestedSkill,
+  addingSkill = "",
 }) {
+  const skillCount = parseSkillsInput(fields.skills).length;
+
   return (
     <div className="portal-form-wrap">
-      <div className="portal-form-fields">
-        <FormField
-          label="Name"
-          helper="As it appears on your resume."
-          error={errors.name}
-          htmlFor="pf-name"
+      <div className="portal-form-fields portal-form-fields--accordion">
+        <FormAccordionSection
+          id="profile-section-basics"
+          title="Basics"
+          helper="Your name as it appears on your resume."
+          defaultOpen
+          badge={fields.name?.trim() ? "Done" : "Required"}
         >
-          <input
-            id="pf-name"
-            value={fields.name}
-            onChange={(e) => onChange({ ...fields, name: e.target.value })}
-            required
-          />
-        </FormField>
+          <FormField label="Name" error={errors.name} htmlFor="pf-name">
+            <input
+              id="pf-name"
+              value={fields.name}
+              onChange={(e) => onChange({ ...fields, name: e.target.value })}
+              required
+            />
+          </FormField>
+        </FormAccordionSection>
 
-        <FormSection
-          title="Contact & links"
-          helper="Filled from your resume when we can parse them. Edit anything that's wrong."
+        <FormAccordionSection
+          id="profile-section-contact"
+          title="Contact"
+          helper="Filled from your resume when we can parse them."
+          badge={fields.email || fields.phone ? "Added" : "Optional"}
         >
           <FormField
             label="Email"
@@ -110,82 +121,98 @@ export default function ProfileForm({
               error={errors.other_links}
             />
           </FormField>
-        </FormSection>
+        </FormAccordionSection>
 
-        <FormField
-          label="Skills"
+        <FormAccordionSection
+          id="profile-section-skills"
+          title="Skills"
           helper="Press Enter after each skill, or paste a comma-separated list."
-          error={errors.skills}
-          htmlFor="pf-skills"
+          defaultOpen
+          badge={skillCount ? `${skillCount} added` : "Required"}
         >
-          <SkillsChipsInput
-            id="pf-skills"
-            value={fields.skills}
-            onChange={(v) => onChange({ ...fields, skills: v })}
-            error={errors.skills}
-            required={requireSkills}
-          />
-        </FormField>
+          <FormField error={errors.skills} htmlFor="pf-skills">
+            <SkillsChipsInput
+              id="pf-skills"
+              value={fields.skills}
+              onChange={(v) => onChange({ ...fields, skills: v })}
+              error={errors.skills}
+              required={requireSkills}
+              suggestedSkills={suggestedSkills}
+              onAddSuggested={onAddSuggestedSkill}
+              addingSkill={addingSkill}
+            />
+          </FormField>
+        </FormAccordionSection>
 
-        <FormField
-          label="Years of experience"
+        <FormAccordionSection
+          id="profile-section-experience"
+          title="Experience"
           helper="Total years in relevant roles. Internships optional."
-          error={errors.experience_years}
-          htmlFor="pf-exp"
+          badge={fields.experience_years ? `${fields.experience_years} yrs` : null}
         >
-          <ExperienceInput
-            id="pf-exp"
-            value={fields.experience_years}
-            onChange={(v) => onChange({ ...fields, experience_years: v })}
-            error={errors.experience_years}
-          />
-        </FormField>
+          <FormField error={errors.experience_years} htmlFor="pf-exp">
+            <ExperienceInput
+              id="pf-exp"
+              value={fields.experience_years}
+              onChange={(v) => onChange({ ...fields, experience_years: v })}
+              error={errors.experience_years}
+            />
+          </FormField>
+        </FormAccordionSection>
 
-        <FormField
-          label="Expected annual total compensation"
-          helper="Optional. Annual total comp (base, bonus, equity). Pick currency, then a whole number."
-          error={errors.preferred_salary}
-          htmlFor="pf-salary"
-          optional
+        <FormAccordionSection
+          id="profile-section-preferences"
+          title="Preferences"
+          helper="Used to filter compensation and remote-fit in matches."
         >
-          <CompensationInput
-            id="pf-salary"
-            amount={fields.preferred_salary}
-            currency={fields.preferred_currency || "INR"}
-            onAmountChange={(v) => onChange({ ...fields, preferred_salary: v ?? "" })}
-            onCurrencyChange={(v) => onChange({ ...fields, preferred_currency: v })}
+          <FormField
+            label="Expected annual compensation"
+            helper="Optional. Enter total yearly compensation in selected currency."
             error={errors.preferred_salary}
+            htmlFor="pf-salary"
+            optional
+          >
+            <CompensationInput
+              id="pf-salary"
+              amount={fields.preferred_salary}
+              currency={fields.preferred_currency || "INR"}
+              onAmountChange={(v) => onChange({ ...fields, preferred_salary: v ?? "" })}
+              onCurrencyChange={(v) => onChange({ ...fields, preferred_currency: v })}
+              error={errors.preferred_salary}
+            />
+          </FormField>
+
+          <CustomCheckbox
+            id="pf-remote"
+            checked={fields.remote_preference}
+            onChange={(v) => onChange({ ...fields, remote_preference: v })}
+            label="Open to remote work"
+            helper="Includes remote-friendly roles in search results."
           />
-        </FormField>
+        </FormAccordionSection>
 
-        <CustomCheckbox
-          id="pf-remote"
-          checked={fields.remote_preference}
-          onChange={(v) => onChange({ ...fields, remote_preference: v })}
-          label="Open to remote work"
-          helper="Includes remote-friendly roles in search results."
-        />
-
-        <FormField
-          label="Summary"
+        <FormAccordionSection
+          id="profile-section-summary"
+          title="Summary"
           helper="Two or three sentences. Shown to employers on match cards."
-          error={errors.summary}
-          htmlFor="pf-summary"
+          badge={(fields.summary || "").length >= 80 ? "Strong" : null}
         >
-          <textarea
-            id="pf-summary"
-            rows={4}
-            maxLength={SUMMARY_MAX}
-            placeholder="Example: Backend engineer with experience in Java, Spring Boot, distributed systems, and AI tooling."
-            value={fields.summary}
-            onChange={(e) => onChange({ ...fields, summary: e.target.value })}
-          />
-          <span className="char-count">
-            {(fields.summary || "").length}/{SUMMARY_MAX} characters
-          </span>
-        </FormField>
+          <FormField error={errors.summary} htmlFor="pf-summary">
+            <textarea
+              id="pf-summary"
+              rows={4}
+              maxLength={SUMMARY_MAX}
+              placeholder="Example: Backend engineer with experience in Java, Spring Boot, distributed systems, and AI tooling."
+              value={fields.summary}
+              onChange={(e) => onChange({ ...fields, summary: e.target.value })}
+            />
+            <span className="char-count">
+              {(fields.summary || "").length}/{SUMMARY_MAX} characters
+            </span>
+          </FormField>
+        </FormAccordionSection>
       </div>
-      {footer && <div className="portal-form-footer">{footer}</div>}
+      {footer && <div className="portal-form-footer-wrap">{footer}</div>}
     </div>
   );
 }

@@ -1,6 +1,32 @@
 import { useEffect, useState } from "react";
 import { fetchSystemConfig, resetDemoData, setVectorStore } from "../api/client.js";
+import { copyToClipboard } from "../utils/copyToClipboard.js";
 import Button from "./Button.jsx";
+import FriendlyError from "./FriendlyError.jsx";
+import { IconCopy } from "./icons.jsx";
+
+function CopyRow({ label, value }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    const ok = await copyToClipboard(value);
+    if (ok) {
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1500);
+    }
+  };
+
+  return (
+    <div className="admin-demo-copy-row">
+      <span className="admin-demo-copy-row__label">{label}</span>
+      <code className="admin-demo-copy-row__value">{value}</code>
+      <button type="button" className="admin-copy-btn" onClick={handleCopy} aria-label={`Copy ${label}`}>
+        <IconCopy size={14} />
+        {copied ? "Copied" : "Copy"}
+      </button>
+    </div>
+  );
+}
 
 export default function SystemConfigPanel() {
   const [config, setConfig] = useState(null);
@@ -59,8 +85,8 @@ export default function SystemConfigPanel() {
 
   if (!config) {
     return (
-      <div className="span-12 panel">
-        <p>{error || "Loading system config…"}</p>
+      <div className="span-12 panel" id="admin-section-system">
+        <p>{error ? <FriendlyError message={error} /> : "Loading system config…"}</p>
       </div>
     );
   }
@@ -68,35 +94,31 @@ export default function SystemConfigPanel() {
   const demo = config.demo_accounts;
   const snapshot = config.demo_snapshot;
 
+  const rows = [
+    { label: "Vector store", value: config.vector_store },
+    { label: "Embedding model", value: config.embedding_model },
+    { label: "Read-only", value: config.read_only ? "Yes" : "No" },
+    { label: "Demo mode", value: config.demo_mode ? "On" : "Off" },
+  ];
+
   return (
-    <section className="panel span-12 system-config-panel">
+    <section className="panel span-12 system-config-panel admin-system-panel" id="admin-section-system">
       <div className="panel-header">
-        <h2>System</h2>
+        <h2>System configuration</h2>
       </div>
-      <dl className="system-config-grid">
-        <div>
-          <dt>Vector store</dt>
-          <dd>{config.vector_store}</dd>
-        </div>
-        <div>
-          <dt>Embedding model</dt>
-          <dd>{config.embedding_model}</dd>
-        </div>
-        <div>
-          <dt>Read-only</dt>
-          <dd>{config.read_only ? "Yes" : "No"}</dd>
-        </div>
-        <div>
-          <dt>Demo mode</dt>
-          <dd>{config.demo_mode ? "On" : "Off"}</dd>
-        </div>
-        <div style={{ gridColumn: "1 / -1" }}>
-          <dt>Note</dt>
-          <dd>{config.read_only_note}</dd>
-        </div>
+      <dl className="admin-kv-list">
+        {rows.map((row) => (
+          <div key={row.label} className="admin-kv-row">
+            <dt>{row.label}</dt>
+            <dd>{row.value}</dd>
+          </div>
+        ))}
       </dl>
+      {config.read_only_note && (
+        <p className="admin-system-note">{config.read_only_note}</p>
+      )}
       {!config.read_only && (
-        <div className="pill-group" style={{ marginTop: 12 }}>
+        <div className="pill-group admin-vector-switch" style={{ marginTop: 12 }}>
           {["chroma", "qdrant"].map((backend) => (
             <button
               key={backend}
@@ -112,38 +134,23 @@ export default function SystemConfigPanel() {
       )}
 
       {config.demo_mode && demo && (
-        <div className="demo-data-panel">
-          <h3>Demo data</h3>
-          <p className="demo-data-panel__intro">
-            Sample corpus, accounts, and pre-seeded activity for live demos. Log in with any demo account below.
+        <div className="admin-demo-access-card">
+          <h3>Demo access</h3>
+          <p className="admin-demo-access-card__intro">
+            Sample corpus and pre-seeded activity for live demos. Credentials are for localhost only.
           </p>
-          <dl className="system-config-grid demo-data-grid">
-            <div>
-              <dt>Corpus</dt>
-              <dd>
-                {snapshot
-                  ? `${snapshot.candidates_in_corpus} candidates · ${snapshot.jobs_in_corpus} jobs`
-                  : "Loading…"}
-              </dd>
-            </div>
-            <div>
-              <dt>Sample activity</dt>
-              <dd>
-                {snapshot
-                  ? `${snapshot.saved_jobs} saved · ${snapshot.applications} applied · ${snapshot.employer_shortlist} shortlist`
-                  : "—"}
-              </dd>
-            </div>
-            <div style={{ gridColumn: "1 / -1" }}>
-              <dt>Accounts</dt>
-              <dd className="demo-account-list">
-                <span>Candidate: {demo.candidate_email}</span>
-                <span>Employer: {demo.employer_email}</span>
-                <span>Admin: {demo.admin_email}</span>
-                <span>Password: {demo.password}</span>
-              </dd>
-            </div>
-          </dl>
+          {snapshot && (
+            <p className="admin-demo-access-card__snapshot">
+              Corpus: {snapshot.candidates_in_corpus} candidates · {snapshot.jobs_in_corpus} jobs ·{" "}
+              {snapshot.saved_jobs} saved · {snapshot.applications} applied · {snapshot.employer_shortlist} shortlist
+            </p>
+          )}
+          <div className="admin-demo-copy-list">
+            <CopyRow label="Candidate" value={demo.candidate_email} />
+            <CopyRow label="Employer" value={demo.employer_email} />
+            <CopyRow label="Admin" value={demo.admin_email} />
+            <CopyRow label="Password" value={demo.password} />
+          </div>
           {!config.read_only && (
             <div className="demo-data-panel__actions">
               <Button
@@ -160,7 +167,7 @@ export default function SystemConfigPanel() {
         </div>
       )}
 
-      {error && <p className="auth-error">{error}</p>}
+      {error && <FriendlyError message={error} />}
     </section>
   );
 }

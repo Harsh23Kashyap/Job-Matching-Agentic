@@ -310,7 +310,7 @@ export default function EmployerJobs() {
 
         <PortalSection
           span={7}
-          className="employer-posting-panel"
+          className="employer-posting-panel form-page post-role-panel"
           title={editingJobId ? "Edit role" : "Post a new role"}
           description={
             editingJobId
@@ -367,23 +367,25 @@ export default function EmployerJobs() {
               errors={fieldErrors}
               onChange={setFields}
               footer={
-                <div className="form-actions form-actions--sticky portal-form-footer employer-form-footer">
-                  {editingJobId ? (
-                    <Button className="btn-secondary" type="button" onClick={resetForm}>
-                      Cancel
+                <div className="form-footer portal-form-footer employer-form-footer">
+                  <div className="form-footer-inner">
+                    {editingJobId ? (
+                      <Button className="btn-secondary" type="button" onClick={resetForm}>
+                        Cancel
+                      </Button>
+                    ) : (
+                      <span className="employer-form-footer__hint form-helper muted">
+                        Job title required. Skills and pay range improve match quality.
+                      </span>
+                    )}
+                    <Button
+                      loading={saving}
+                      loadingLabel={editingJobId ? "Saving…" : "Posting…"}
+                      type="submit"
+                    >
+                      {editingJobId ? "Save changes" : "Post role"}
                     </Button>
-                  ) : (
-                    <span className="employer-form-footer__hint form-helper">
-                      Job title required. Skills and pay range improve match quality.
-                    </span>
-                  )}
-                  <Button
-                    loading={saving}
-                    loadingLabel={editingJobId ? "Saving…" : "Posting…"}
-                    type="submit"
-                  >
-                    {editingJobId ? "Save changes" : "Post role"}
-                  </Button>
+                  </div>
                 </div>
               }
             />

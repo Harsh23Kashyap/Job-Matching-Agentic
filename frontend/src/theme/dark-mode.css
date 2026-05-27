@@ -59,16 +59,43 @@
   border-color: var(--border);
 }
 
-:root[data-theme="dark"] .summary-card--accent {
-  background: color-mix(in srgb, var(--portal-accent-soft) 80%, var(--card));
-  border-color: color-mix(in srgb, var(--portal-accent) 28%, var(--border));
+:root[data-theme="dark"] .summary-card--accent,
+:root[data-theme="dark"] .highlight-card {
+  background: #26352d;
+  color: #f3f7f2;
+  border-color: #3d5a46;
 }
 
 :root[data-theme="dark"] .summary-card--accent .summary-value {
-  color: var(--summary-accent-value);
+  color: #f3f7f2;
+}
+
+:root[data-theme="dark"] .summary-card--accent .summary-label {
+  color: #aab4ad;
 }
 
 :root[data-theme="dark"] .summary-label {
+  color: var(--muted-foreground);
+}
+
+:root[data-theme="dark"] .applicant-row {
+  background: var(--card);
+  border-color: var(--border);
+}
+
+:root[data-theme="dark"] .applicant-row--interactive:hover {
+  background: color-mix(in srgb, var(--portal-accent-soft) 55%, var(--card));
+  border-color: color-mix(in srgb, var(--portal-accent) 30%, var(--border));
+}
+
+:root[data-theme="dark"] .applicant-status {
+  background: color-mix(in srgb, var(--portal-accent-soft) 70%, var(--card));
+  border-color: color-mix(in srgb, var(--portal-accent) 25%, var(--border));
+  color: var(--portal-accent-hover);
+}
+
+:root[data-theme="dark"] .applicant-row__date,
+:root[data-theme="dark"] .applicant-row__role {
   color: var(--muted-foreground);
 }
 
@@ -160,15 +187,25 @@
 }
 
 :root[data-theme="dark"] .signal-chip {
-  background: color-mix(in srgb, var(--muted) 65%, var(--card));
-  color: var(--secondary-foreground);
-  border-color: var(--border);
+  background: color-mix(in srgb, var(--muted) 55%, var(--card));
+  color: var(--foreground);
+  border-color: var(--border-input);
 }
 
 :root[data-theme="dark"] .signal-chip--match {
-  background: color-mix(in srgb, var(--portal-accent-soft) 90%, var(--card));
-  color: var(--portal-accent-hover);
-  border-color: var(--chip-border);
+  background: color-mix(in srgb, var(--status-strong-bg) 85%, var(--card));
+  color: var(--status-strong-fg);
+  border-color: var(--status-strong-border);
+}
+
+:root[data-theme="dark"] .signal-chip--missing {
+  background: color-mix(in srgb, var(--status-moderate-bg) 95%, var(--card));
+  color: var(--status-moderate-fg);
+  border-color: var(--status-moderate-border);
+}
+
+:root[data-theme="dark"] .signal-chip--empty {
+  color: var(--text-secondary);
 }
 
 :root[data-theme="dark"] .match-badge--pill {
@@ -283,11 +320,10 @@
 }
 
 /* Sticky footers */
-:root[data-theme="dark"] .form-actions--sticky.portal-form-footer,
+:root[data-theme="dark"] .form-footer,
 :root[data-theme="dark"] .portal-form-footer {
-  background: var(--sticky-footer-bg);
-  border-top-color: var(--sticky-footer-border);
-  box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.28);
+  background: var(--background);
+  border-top-color: var(--border);
 }
 
 /* Skeleton */
@@ -314,7 +350,7 @@
 
 :root[data-theme="dark"] .match-drawer-card {
   background: color-mix(in srgb, var(--muted) 50%, var(--card));
-  border-color: var(--border);
+  border-color: var(--border-input);
 }
 
 :root[data-theme="dark"] .match-drawer-score-display {
@@ -336,6 +372,68 @@
 
 :root[data-theme="dark"] .job-match-row:hover {
   background: var(--table-row-hover);
+}
+
+/* Job match list — lift contrast for actions, chips, explainability */
+:root[data-theme="dark"] .job-match-col h3 {
+  color: var(--foreground);
+}
+
+:root[data-theme="dark"] .row-action-btn--pill {
+  color: var(--foreground);
+  border-color: color-mix(in srgb, var(--primary) 34%, var(--border-input));
+  background: color-mix(in srgb, var(--muted) 62%, var(--card));
+}
+
+:root[data-theme="dark"] .row-action-btn--pill:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--muted) 78%, var(--card));
+  border-color: color-mix(in srgb, var(--primary) 48%, var(--border-input));
+  color: var(--foreground);
+}
+
+:root[data-theme="dark"] .row-action-btn--pill.row-action-btn--ghost {
+  color: var(--text-secondary);
+}
+
+:root[data-theme="dark"] .row-action-btn--pill.row-action-btn--primary {
+  color: var(--primary-foreground);
+}
+
+:root[data-theme="dark"] .match-explain__skill-label {
+  color: var(--text-secondary);
+}
+
+:root[data-theme="dark"] .match-explain__reason {
+  color: var(--text-secondary);
+}
+
+:root[data-theme="dark"] .match-explain-fit__label,
+:root[data-theme="dark"] .match-explain-breakdown__head > span:first-child {
+  color: var(--foreground);
+}
+
+:root[data-theme="dark"] .match-explain-breakdown__weight,
+:root[data-theme="dark"] .match-explain-breakdown__contrib,
+:root[data-theme="dark"] .match-explain-fit__reason {
+  color: var(--text-secondary);
+}
+
+:root[data-theme="dark"] .match-explain-breakdown__head strong,
+:root[data-theme="dark"] .match-explain-fit__score {
+  color: var(--foreground);
+}
+
+:root[data-theme="dark"] .match-explain-breakdown__bar {
+  background: color-mix(in srgb, var(--muted) 80%, var(--card));
+}
+
+:root[data-theme="dark"] .match-drawer-score-row__label,
+:root[data-theme="dark"] .match-drawer-card__title {
+  color: var(--text-secondary);
+}
+
+:root[data-theme="dark"] .match-drawer-score-row__value {
+  color: var(--foreground);
 }
 
 /* Step badge */
@@ -390,15 +488,66 @@
   border-top-color: var(--border);
 }
 
-/* Ambient backgrounds: stronger dots on dark, still low */
+/* Ambient backgrounds */
 :root[data-theme="dark"] .bg-pattern--page {
-  opacity: 0.048;
+  opacity: 0.055;
+}
+
+:root[data-theme="dark"] .bg-pattern--panel,
+:root[data-theme="dark"] .bg-pattern--inline {
+  opacity: 0.045;
+}
+
+:root[data-theme="dark"] .bg-pattern--admin.bg-pattern--page {
+  opacity: 0.07;
 }
 
 :root[data-theme="dark"] .bg-pattern--auth {
-  opacity: 0.058;
+  opacity: 0.055;
+}
+
+:root[data-theme="dark"] .bg-pattern--onboarding.bg-pattern--page {
+  opacity: 0.065;
 }
 
 :root[data-theme="dark"] .bg-blob {
   opacity: 0.48;
+}
+
+/* Error pages */
+:root[data-theme="dark"] .error-shell {
+  background: var(--background);
+}
+
+:root[data-theme="dark"] .error-topbar {
+  background: var(--card);
+  border-bottom-color: var(--border);
+}
+
+:root[data-theme="dark"] .error-card {
+  background: var(--card);
+  border-color: var(--border-input);
+  box-shadow: var(--shadow-lg);
+}
+
+:root[data-theme="dark"] .error-card h1 {
+  color: var(--foreground);
+}
+
+:root[data-theme="dark"] .error-desc {
+  color: var(--text-secondary);
+}
+
+:root[data-theme="dark"] .error-blob {
+  background: color-mix(in srgb, var(--primary) 16%, var(--muted));
+  opacity: 0.42;
+}
+
+:root[data-theme="dark"] .error-bg {
+  background-image: radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.05) 1px, transparent 0);
+}
+
+:root[data-theme="dark"] .error-contours path,
+:root[data-theme="dark"] .error-lines path {
+  stroke: var(--primary);
 }

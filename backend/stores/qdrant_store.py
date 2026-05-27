@@ -10,6 +10,33 @@ from stores.base import SearchHit
 _POINT_NAMESPACE = uuid.UUID("6ba7b810-9dad-11d1-80b4-00c04fd430c8")
 _DEFAULT_VECTOR_SIZE = 384
 
+# Embedded Qdrant (path=...) allows only one client per storage directory.
+# Bootstrap opens separate candidate/job collections on the same path, so reuse one client.
+_CLIENTS: dict[str, QdrantClient] = {}
+
+
+def get_qdrant_client(*, persist_dir: str | None = None, url: str | None = None) -> QdrantClient:
+    if url:
+        key = f"url:{url.rstrip('/')}"
+        if key not in _CLIENTS:
+            _CLIENTS[key] = QdrantClient(url=url)
+        return _CLIENTS[key]
+    if not persist_dir:
+        raise ValueError("persist_dir or url is required")
+    key = f"path:{persist_dir}"
+    if key not in _CLIENTS:
+        _CLIENTS[key] = QdrantClient(path=persist_dir)
+    return _CLIENTS[key]
+
+
+def reset_qdrant_clients_for_tests() -> None:
+    """Close cached clients (tests only)."""
+    for client in _CLIENTS.values():
+        close = getattr(client, "close", None)
+        if callable(close):
+            close()
+    _CLIENTS.clear()
+
 
 def _flatten_metadata(metadata: dict) -> dict:
     flat: dict[str, Any] = {}
@@ -28,9 +55,15 @@ def _point_id(entity_id: str) -> str:
 
 
 class QdrantVectorStore:
-    def __init__(self, persist_dir: str, collection_name: str) -> None:
+    def __init__(
+        self,
+        persist_dir: str,
+        collection_name: str,
+        *,
+        url: str | None = None,
+    ) -> None:
         self.collection_name = collection_name
-        self._client = QdrantClient(path=persist_dir)
+        self._client = get_qdrant_client(persist_dir=persist_dir, url=url)
         self._vector_size = _DEFAULT_VECTOR_SIZE
         self._ensure_collection()
 

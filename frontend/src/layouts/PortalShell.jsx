@@ -6,8 +6,9 @@ import PortalBackground from "../components/PortalBackground.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useTheme } from "../hooks/useTheme.js";
 
-const JOBS_LAYOUT_PREFIXES = [
+const UNIFIED_SHELL_PREFIXES = [
   "/candidate/matches",
+  "/candidate/profile",
   "/candidate/saved",
   "/employer/jobs",
   "/employer/matches",
@@ -15,7 +16,7 @@ const JOBS_LAYOUT_PREFIXES = [
 ];
 
 function pageContainerClass(pathname) {
-  if (JOBS_LAYOUT_PREFIXES.some((prefix) => pathname.startsWith(prefix))) {
+  if (UNIFIED_SHELL_PREFIXES.some((prefix) => pathname.startsWith(prefix))) {
     return "page-container page-container--jobs";
   }
   return "page-container page-container--form";

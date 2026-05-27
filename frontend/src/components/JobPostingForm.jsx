@@ -149,6 +149,7 @@ export default function JobPostingForm({ fields, errors = {}, onChange, footer }
         <FormSection
           title="Role description"
           helper="Full posting: responsibilities, team, benefits if you list them."
+          className="description-field"
         >
           <FormField label="Description" error={errors.description} htmlFor="ej-desc">
             <textarea
