@@ -109,7 +109,13 @@ class UserStore:
                 (user_id,),
             ).fetchone()
             if existing is not None:
-                raise ProfileAlreadyLinkedError("candidate")
+                if existing["candidate_id"] == candidate_id:
+                    return
+                conn.execute(
+                    "UPDATE candidate_ownership SET candidate_id = ? WHERE user_id = ?",
+                    (candidate_id, user_id),
+                )
+                return
             conn.execute(
                 "INSERT INTO candidate_ownership (user_id, candidate_id) VALUES (?, ?)",
                 (user_id, candidate_id),

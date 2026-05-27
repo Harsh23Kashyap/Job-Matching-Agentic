@@ -93,6 +93,8 @@ class MatchResult(BaseModel):
     contact_phone: str | None = None
     contact_linkedin: str | None = None
     contact_portfolio: str | None = None
+    apply_url: str | None = None
+    apply_available: bool = True
     calibrated_similarity: float | None = None
     constraint_notes: list[str] = Field(default_factory=list)
     routing_reason: str | None = None

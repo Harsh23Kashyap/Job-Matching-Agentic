@@ -1,21 +1,34 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { resumePreviewMeta } from "../utils/resumeClean.js";
 
 export default function ResumePreview({ text, defaultCollapsed = true }) {
   const [open, setOpen] = useState(!defaultCollapsed);
+  const meta = useMemo(() => resumePreviewMeta(text), [text]);
+
   if (!text) return null;
 
   return (
-    <div className="resume-preview-card">
-      <div className="resume-preview-card-head">
-        <div>
-          <h3>Resume text preview</h3>
-          <p className="field-helper">We extracted text from your resume. Review if needed.</p>
+    <details className={`resume-preview-card ${open ? "resume-preview-card--open" : ""}`} open={open}>
+      <summary
+        className="resume-preview-summary"
+        onClick={(e) => {
+          e.preventDefault();
+          setOpen((prev) => !prev);
+        }}
+      >
+        <div className="resume-preview-summary-text">
+          <span className="resume-preview-title">Extracted resume text</span>
+          <span className="resume-preview-meta">
+            {meta.lines} line{meta.lines === 1 ? "" : "s"} · {meta.chars} chars
+          </span>
         </div>
-        <button type="button" className="btn-secondary btn-sm" onClick={() => setOpen(!open)}>
-          {open ? "Hide preview" : "Show preview"}
-        </button>
-      </div>
-      {open && <div className="resume-preview-body">{text}</div>}
-    </div>
+        <span className="resume-preview-toggle">{open ? "Hide" : "Show"}</span>
+      </summary>
+      {open && (
+        <div className="resume-preview-body" aria-label="Cleaned resume text preview">
+          {text}
+        </div>
+      )}
+    </details>
   );
 }

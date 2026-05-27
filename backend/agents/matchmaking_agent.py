@@ -129,6 +129,8 @@ class MatchmakingAgent(BaseAgent):
     ) -> MatchResult:
         matched, missing = skill_overlap_details(candidate.skills, job.required_skills)
         contact: dict[str, str | None] = {}
+        apply_url: str | None = None
+        apply_available = True
         if include_contact:
             profile = self.candidate_agent.get_by_id(candidate.id)
             if profile is not None:
@@ -138,6 +140,13 @@ class MatchmakingAgent(BaseAgent):
                     "contact_linkedin": profile.linkedin or None,
                     "contact_portfolio": profile.portfolio or None,
                 }
+        else:
+            job_profile = self.employer_agent.get_by_id(job.id)
+            if job_profile is not None:
+                link = getattr(job_profile, "link", None)
+                apply_url = link.strip() if isinstance(link, str) and link.strip() else None
+                accepts = getattr(job_profile, "accepts_applications", True)
+                apply_available = accepts if isinstance(accepts, bool) else True
         return MatchResult(
             target_id=target_id,
             target_label=target_label,
@@ -152,6 +161,8 @@ class MatchmakingAgent(BaseAgent):
             calibrated_similarity=breakdown.calibrated_score,
             constraint_notes=constraint_notes or [],
             routing_reason=breakdown.routing_reason,
+            apply_url=apply_url,
+            apply_available=apply_available,
             **contact,
         )
 

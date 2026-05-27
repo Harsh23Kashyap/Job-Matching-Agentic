@@ -113,7 +113,7 @@ export default function ProfileForm({
 
         <FormField
           label="Skills"
-          helper="Add skills one at a time, or paste a comma-separated list."
+          helper="Add skills as chips, or paste a comma-separated list (e.g. Python, C/C++, REST APIs)."
           error={errors.skills}
           htmlFor="pf-skills"
         >
@@ -142,9 +142,10 @@ export default function ProfileForm({
 
         <FormField
           label="Expected annual total compensation"
-          helper="Annual total compensation including base salary, bonus, stocks/RSUs, and other recurring compensation."
+          helper="Annual total compensation expectation. Includes base salary, bonus, stocks/RSUs, and recurring compensation."
           error={errors.preferred_salary}
           htmlFor="pf-salary"
+          optional
         >
           <CompensationInput
             id="pf-salary"

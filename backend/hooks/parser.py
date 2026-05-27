@@ -1,4 +1,5 @@
 from contracts.profiles import CandidateProfile, JobProfile
+from core.compensation import normalize_preferred_currency, normalize_preferred_salary
 
 
 class JsonParser:
@@ -8,8 +9,8 @@ class JsonParser:
             name=raw["name"],
             skills=list(raw.get("skills", [])),
             experience_years=float(raw.get("experience_years", 0)),
-            preferred_salary=raw.get("preferred_salary"),
-            preferred_currency=str(raw.get("preferred_currency") or "INR"),
+            preferred_salary=normalize_preferred_salary(raw.get("preferred_salary")),
+            preferred_currency=normalize_preferred_currency(raw.get("preferred_currency")),
             remote_preference=bool(raw.get("remote_preference", False)),
             summary=str(raw.get("summary", "")),
             email=str(raw.get("email") or "").strip(),
@@ -33,4 +34,5 @@ class JsonParser:
             location=raw.get("location"),
             job_type=raw.get("job_type"),
             link=raw.get("link"),
+            accepts_applications=bool(raw.get("accepts_applications", True)),
         )

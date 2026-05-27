@@ -1,97 +1,107 @@
 import { useRef, useState } from "react";
-
-function parseSkills(value) {
-  if (!value?.trim()) return [];
-  return value.split(",").map((s) => s.trim()).filter(Boolean);
-}
+import {
+  commitSkillDraft,
+  parseSkillsInput,
+  skillsToFieldValue,
+  splitSkillTokens,
+} from "../utils/skills.js";
 
 export default function SkillsChipsInput({ id, value, onChange, error, required }) {
-  const chips = parseSkills(value);
-  const [adding, setAdding] = useState(false);
+  const chips = parseSkillsInput(value);
   const [draft, setDraft] = useState("");
   const inputRef = useRef(null);
 
-  const commit = (raw) => {
-    const next = raw.trim();
-    if (!next) {
-      setAdding(false);
-      return;
-    }
-    const merged = [...new Set([...chips, ...next])];
-    onChange(merged.join(", "));
+  const updateSkills = (nextSkills) => {
+    onChange(skillsToFieldValue(nextSkills));
+  };
+
+  const commitDraft = (raw) => {
+    const next = commitSkillDraft(chips, raw);
+    if (next.length === chips.length && !splitSkillTokens(raw).length) return;
+    updateSkills(next);
     setDraft("");
-    setAdding(false);
   };
 
   const remove = (skill) => {
-    onChange(chips.filter((s) => s !== skill).join(", "));
+    updateSkills(chips.filter((item) => item !== skill));
   };
 
-  const startAdding = () => {
-    setAdding(true);
-    setTimeout(() => inputRef.current?.focus(), 0);
+  const handleChange = (event) => {
+    const next = event.target.value;
+    if (/[,;\n|\t]/.test(next)) {
+      commitDraft(next);
+      return;
+    }
+    setDraft(next);
   };
 
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter" || e.key === ",") {
-      e.preventDefault();
-      commit(draft.replace(/,$/, ""));
+  const handleKeyDown = (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      commitDraft(draft);
     }
-    if (e.key === "Escape") {
-      setDraft("");
-      setAdding(false);
-    }
-    if (e.key === "Backspace" && !draft && chips.length) {
+    if (event.key === "Backspace" && !draft && chips.length) {
       remove(chips[chips.length - 1]);
     }
   };
 
-  const handlePaste = (e) => {
-    const pasted = e.clipboardData.getData("text");
-    if (!pasted.includes(",") && !pasted.includes(";") && !pasted.includes("\n")) return;
-    e.preventDefault();
-    const parts = pasted.split(/[,;\n]+/).map((s) => s.trim()).filter(Boolean);
-    if (parts.length) {
-      onChange([...new Set([...chips, ...parts])].join(", "));
-      setDraft("");
-      setAdding(false);
-    }
+  const handlePaste = (event) => {
+    const pasted = event.clipboardData.getData("text");
+    if (!/[,;\n|\t]/.test(pasted)) return;
+    event.preventDefault();
+    commitDraft(draft ? `${draft},${pasted}` : pasted);
+  };
+
+  const handleBlur = () => {
+    if (draft.trim()) commitDraft(draft);
+  };
+
+  const handleContainerClick = () => {
+    inputRef.current?.focus();
   };
 
   return (
     <div className={`skills-chips-input${error ? " has-error" : ""}`}>
-      <div className="skills-chips-scroll">
+      <div
+        className="skills-chips-scroll"
+        onClick={handleContainerClick}
+        role="group"
+        aria-label="Skills"
+      >
         <div className="skills-chips-wrap">
           {chips.map((skill) => (
             <span key={skill} className="skill-chip">
-              {skill}
+              <span className="skill-chip-label">{skill}</span>
               <button type="button" aria-label={`Remove ${skill}`} onClick={() => remove(skill)}>
                 ×
               </button>
             </span>
           ))}
-          {adding ? (
-            <input
-              ref={inputRef}
-              id={id}
-              type="text"
-              className="skill-chip-input"
-              value={draft}
-              placeholder="Skill name"
-              onChange={(e) => setDraft(e.target.value)}
-              onKeyDown={handleKeyDown}
-              onPaste={handlePaste}
-              onBlur={() => commit(draft.replace(/,$/, ""))}
-            />
-          ) : (
-            <button type="button" className="skill-chip skill-chip--add" onClick={startAdding}>
-              + Add skill
-            </button>
-          )}
+          <input
+            ref={inputRef}
+            id={id}
+            type="text"
+            className="skill-chip-input skill-chip-input--inline"
+            placeholder={chips.length ? "Add another…" : "Add a skill…"}
+            value={draft}
+            onChange={handleChange}
+            onKeyDown={handleKeyDown}
+            onPaste={handlePaste}
+            onBlur={handleBlur}
+            aria-invalid={Boolean(error)}
+          />
         </div>
       </div>
       {!chips.length && required && (
-        <input type="text" required className="skills-required-fallback" tabIndex={-1} aria-hidden="true" value="" onChange={() => {}} />
+        <input
+          type="text"
+          required
+          className="skills-required-fallback"
+          tabIndex={-1}
+          aria-hidden="true"
+          value=""
+          onChange={() => {}}
+        />
       )}
     </div>
   );

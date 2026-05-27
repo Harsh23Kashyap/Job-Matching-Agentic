@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { deriveWhyMatch, explainMatchScore, matchPercent, matchSkills, matchTier } from "../utils/format.js";
+import { deriveWhyMatch, explainMatchScore, formatCandidateMatchScore, matchSkills, matchTier } from "../utils/format.js";
 
 export default function MatchDetailsDrawer({ row, whyLine, onClose, subtitle = "Match details" }) {
   useEffect(() => {
@@ -38,7 +38,10 @@ export default function MatchDetailsDrawer({ row, whyLine, onClose, subtitle = "
         </header>
 
         <div className="match-drawer-pills">
-          <span className={`match-badge match-badge--pill ${tier.className}`}>{matchPercent(row.similarity)} match</span>
+          <span className={`match-badge match-badge--pill ${tier.className}`}>
+            {formatCandidateMatchScore(row.similarity)} match
+          </span>
+          <span className={`match-tier-pill ${tier.className}`}>{tier.label}</span>
         </div>
 
         <section className="match-drawer-section">
@@ -96,9 +99,9 @@ export default function MatchDetailsDrawer({ row, whyLine, onClose, subtitle = "
           <h3>Match score explanation</h3>
           <p className="match-drawer-note match-drawer-note--lead">{explainMatchScore(row)}</p>
           <ul className="match-drawer-scores">
-            <li><span>Overall fit</span><strong>{matchPercent(row.similarity)}</strong></li>
-            <li><span>Skills overlap</span><strong>{row.skills_score != null ? matchPercent(row.skills_score) : "—"}</strong></li>
-            <li><span>Profile alignment</span><strong>{matchPercent(row.semantic_score)}</strong></li>
+            <li><span>Overall fit</span><strong>{formatCandidateMatchScore(row.similarity)}</strong></li>
+            <li><span>Skills overlap</span><strong>{row.skills_score != null ? formatCandidateMatchScore(row.skills_score) : "—"}</strong></li>
+            <li><span>Profile alignment</span><strong>{formatCandidateMatchScore(row.semantic_score)}</strong></li>
             <li><span>Rank</span><strong>#{row.rank}</strong></li>
           </ul>
         </section>

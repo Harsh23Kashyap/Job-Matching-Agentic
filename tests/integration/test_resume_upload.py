@@ -43,9 +43,33 @@ def test_upload_llm_unavailable_returns_manual_fallback(mock_factory, client):
     data = resp.json()
     assert data["llm_status"] == "unavailable"
     assert "raw_text_preview" in data
+    assert "cleaned_text" in data
+    assert "(cid:" not in data["cleaned_text"]
     assert data["extracted_fields"]["name"] == ""
     assert data["extracted_fields"]["email"] == "harsh@example.com"
     assert "linkedin.com/in/harsh" in data["extracted_fields"]["linkedin"]
+
+
+@patch("gateway.routes.candidates.create_llm_parser")
+def test_upload_strips_cid_noise_from_cleaned_text(mock_factory, client):
+    from hooks.llm_parser import LlmParser, LlmUnavailableError
+
+    mock_parser = LlmParser(client.app.state.container.settings)
+    mock_parser.parse_candidate_from_text = lambda _text: (_ for _ in ()).throw(LlmUnavailableError("off"))
+    mock_factory.return_value = mock_parser
+
+    _register_candidate(client, "cand-cid@test.com")
+    content = b"Harsh Kashyap (cid:131)\nSkills \xc2\xa7 Python\nharsh@example.com"
+    resp = client.post(
+        "/candidates/upload-resume",
+        files={"file": ("resume.txt", io.BytesIO(content), "text/plain")},
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert "(cid:" not in data["cleaned_text"]
+    assert "\xc2\xa7" not in data["cleaned_text"]
+    assert "harsh@example.com" in data["cleaned_text"]
+    assert data["extracted_fields"]["email"] == "harsh@example.com"
 
 
 @patch("gateway.routes.candidates.create_llm_parser")
@@ -160,6 +184,29 @@ def test_candidate_profile_put_me(client):
     assert body["name"] == "Put User Updated"
     assert body["preferred_currency"] == "USD"
     assert body["preferred_salary"] == 120000
+
+
+def test_candidate_profile_put_me_creates_and_links(client):
+    _register_candidate(client, "putcreate@test.com")
+    me_before = client.get("/candidates/me")
+    assert me_before.status_code == 404
+
+    created = client.put(
+        "/candidates/me",
+        json={
+            "name": "Create Via Put",
+            "skills": ["Python"],
+            "experience_years": 2,
+            "summary": "New profile",
+        },
+    )
+    assert created.status_code == 200
+    profile_id = created.json()["id"]
+
+    me_after = client.get("/candidates/me")
+    assert me_after.status_code == 200
+    assert me_after.json()["id"] == profile_id
+    assert me_after.json()["name"] == "Create Via Put"
 
 
 def test_employer_jobs_mine(client):

@@ -1,5 +1,11 @@
 import { useEffect, useState } from "react";
-import { CURRENCIES, formatAmount, formatCompensationPreview, parseAmount } from "../utils/format.js";
+import {
+  CURRENCIES,
+  filterAmountInput,
+  formatAmount,
+  formatCompensationPreview,
+  parseAmount,
+} from "../utils/format.js";
 
 export default function CompensationInput({
   id,
@@ -14,6 +20,10 @@ export default function CompensationInput({
   useEffect(() => {
     setDisplay(amount ? formatAmount(amount, currency) : "");
   }, [amount, currency]);
+
+  const handleChange = (event) => {
+    setDisplay(filterAmountInput(event.target.value));
+  };
 
   const handleBlur = () => {
     const parsed = parseAmount(display);
@@ -43,12 +53,14 @@ export default function CompensationInput({
           id={id}
           type="text"
           inputMode="numeric"
+          autoComplete="off"
           className="compensation-amount input-no-spinner"
-          placeholder="12,00,000"
+          placeholder={currency === "INR" ? "12,00,000" : "120,000"}
           value={display}
-          onChange={(e) => setDisplay(e.target.value.replace(/[^\d,]/g, ""))}
+          onChange={handleChange}
           onBlur={handleBlur}
           aria-label="Expected annual total compensation"
+          aria-invalid={Boolean(error)}
         />
         <span className="compensation-suffix">per year</span>
       </div>

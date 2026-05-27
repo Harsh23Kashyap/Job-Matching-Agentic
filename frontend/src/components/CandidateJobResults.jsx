@@ -1,5 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
-import { deriveWhyMatch, matchPercent, matchSkills, matchTier, pluralGoodMatches } from "../utils/format.js";
+import {
+  deriveWhyMatch,
+  formatCandidateMatchScore,
+  isApplyAvailable,
+  matchSkills,
+  matchTier,
+  pluralGoodMatches,
+} from "../utils/format.js";
 import { createApplication, fetchMyApplications, fetchSavedJobs, updateSavedJob } from "../api/client.js";
 import { IconAlert } from "./icons.jsx";
 import { JobsResultsDecor } from "./PortalBackground.jsx";
@@ -33,7 +40,7 @@ function MatchSummaryCards({ response, updatedAt }) {
         <span className="summary-label">{pluralGoodMatches(good)}</span>
       </div>
       <div className="summary-card">
-        <span className="summary-value">{matchPercent(top)}</span>
+        <span className="summary-value">{formatCandidateMatchScore(top)}</span>
         <span className="summary-label">Top match</span>
       </div>
       <div className="summary-card">
@@ -58,6 +65,20 @@ function MatchSkeletonRows() {
   );
 }
 
+function ApplyAction({ row, applied, onApply }) {
+  if (applied) {
+    return <span className="row-action-status">Applied</span>;
+  }
+  if (!isApplyAvailable(row)) {
+    return <span className="row-action-status">Apply unavailable</span>;
+  }
+  return (
+    <button type="button" className="row-action-btn" onClick={onApply}>
+      Apply
+    </button>
+  );
+}
+
 function JobMatchCard({ row, onViewDetails, saved, applied, onSave, onApply }) {
   const { showToast } = useToast();
   const tier = matchTier(row.similarity);
@@ -70,8 +91,9 @@ function JobMatchCard({ row, onViewDetails, saved, applied, onSave, onApply }) {
   };
 
   const handleApply = async () => {
+    if (!isApplyAvailable(row) || applied) return;
     await onApply(row);
-    showToast(applied ? `Already applied to ${row.target_label}.` : `Applied to ${row.target_label}.`);
+    showToast(`Applied to ${row.target_label}.`);
   };
 
   return (
@@ -82,19 +104,29 @@ function JobMatchCard({ row, onViewDetails, saved, applied, onSave, onApply }) {
       </div>
       <div className="job-match-col job-match-col--match">
         <span className="col-label">Match</span>
-        <span className={`match-badge match-badge--pill ${tier.className}`}>{matchPercent(row.similarity)} match</span>
+        <div className="match-pill-stack">
+          <span className={`match-badge match-badge--pill ${tier.className}`}>
+            {formatCandidateMatchScore(row.similarity)} match
+          </span>
+          <span className={`match-tier-pill ${tier.className}`}>{tier.label}</span>
+        </div>
       </div>
       <div className="job-match-col job-match-col--why">
         <span className="col-label">Why it matches</span>
-        <p>{whyLine}</p>
+        <p className="job-match-why">{whyLine}</p>
       </div>
       <div className="job-match-col job-match-col--skills">
         <span className="col-label">Skills</span>
         {matched.length > 0 ? (
           <div className="signal-chips">
-            {matched.slice(0, 4).map((s) => (
-              <span key={s} className="signal-chip signal-chip--match">{s}</span>
+            {matched.slice(0, 4).map((skill) => (
+              <span key={skill} className="signal-chip signal-chip--match">
+                {skill}
+              </span>
             ))}
+            {matched.length > 4 && (
+              <span className="signal-chip signal-chip--more">+{matched.length - 4}</span>
+            )}
           </div>
         ) : (
           <span className="signal-chip signal-chip--empty">No direct overlap</span>
@@ -109,9 +141,7 @@ function JobMatchCard({ row, onViewDetails, saved, applied, onSave, onApply }) {
           <button type="button" className="row-action-btn" onClick={handleSave}>
             {saved ? "Unsave" : "Save"}
           </button>
-          <button type="button" className="row-action-btn row-action-btn--muted" onClick={handleApply} disabled={applied}>
-            {applied ? "Applied" : "Apply"}
-          </button>
+          <ApplyAction row={row} applied={applied} onApply={handleApply} />
         </div>
       </div>
     </article>
@@ -147,12 +177,12 @@ export default function CandidateJobResults({ response, error, onRefresh, loadin
         return next;
       });
     } catch {
-      /* toast handled by caller */
+      /* ignore */
     }
   };
 
   const handleApply = async (row) => {
-    if (appliedIds.has(row.target_id)) return;
+    if (appliedIds.has(row.target_id) || !isApplyAvailable(row)) return;
     try {
       await createApplication(row.target_id, row.target_label, row.similarity);
       setAppliedIds((prev) => new Set(prev).add(row.target_id));
@@ -163,6 +193,7 @@ export default function CandidateJobResults({ response, error, onRefresh, loadin
 
   const filtered = useMemo(() => {
     if (!response?.results) return [];
+    const listOrder = new Map(response.results.map((row, index) => [row.target_id, index]));
     let rows = [...response.results];
     if (search.trim()) {
       const q = search.toLowerCase();
@@ -173,8 +204,13 @@ export default function CandidateJobResults({ response, error, onRefresh, loadin
     if (remoteOnly) {
       rows = rows.filter((r) => (r.why_ranked || []).some((line) => /remote/i.test(line)));
     }
-    if (sort === "best") rows.sort((a, b) => b.similarity - a.similarity);
-    if (sort === "title") rows.sort((a, b) => a.target_label.localeCompare(b.target_label));
+    if (sort === "best") {
+      rows.sort((a, b) => b.similarity - a.similarity);
+    } else if (sort === "title") {
+      rows.sort((a, b) => a.target_label.localeCompare(b.target_label));
+    } else if (sort === "recent") {
+      rows.sort((a, b) => (listOrder.get(b.target_id) ?? 0) - (listOrder.get(a.target_id) ?? 0));
+    }
     return rows;
   }, [response, search, minMatch, remoteOnly, sort]);
 
@@ -196,9 +232,6 @@ export default function CandidateJobResults({ response, error, onRefresh, loadin
       <section className="portal-panel portal-panel--elevated candidate-results">
         <JobsResultsDecor />
         <MatchSummaryCards response={response} updatedAt={updatedAt} />
-        {response.routing_reason && (
-          <p className="auth-sub routing-hint">Strategy: {response.routing_reason}</p>
-        )}
         <div className="results-filters">
           <input
             type="search"
@@ -208,22 +241,29 @@ export default function CandidateJobResults({ response, error, onRefresh, loadin
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
-          <label className="filter-pill">
-            <input type="checkbox" checked={remoteOnly} onChange={(e) => setRemoteOnly(e.target.checked)} />
+          <label className={`filter-pill${remoteOnly ? " filter-pill--active" : ""}`}>
+            <input
+              type="checkbox"
+              className="visually-hidden"
+              checked={remoteOnly}
+              onChange={(e) => setRemoteOnly(e.target.checked)}
+            />
             Remote only
           </label>
           <select className="filter-select" value={minMatch} onChange={(e) => setMinMatch(e.target.value)} aria-label="Minimum match">
             <option value="0">Any match</option>
-            <option value="40">40%+ match</option>
-            <option value="60">60%+ match</option>
-            <option value="80">80%+ match</option>
+            <option value="50">50%+</option>
+            <option value="60">60%+</option>
+            <option value="70">70%+</option>
+            <option value="80">80%+</option>
           </select>
           <select className="filter-select" value={sort} onChange={(e) => setSort(e.target.value)} aria-label="Sort results">
             <option value="best">Best match</option>
             <option value="title">Role title</option>
+            <option value="recent">Recently added</option>
           </select>
           <button type="button" className="btn-secondary filter-refresh" onClick={onRefresh} disabled={loading}>
-            {loading ? "Refreshing matches…" : "Refresh"}
+            {loading ? "Refreshing…" : "Refresh"}
           </button>
         </div>
         <div className="job-match-list">

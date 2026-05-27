@@ -7,6 +7,10 @@ PHONE_RE = re.compile(
 URL_RE = re.compile(r"https?://[^\s<>\"']+|(?:www\.)[^\s<>\"']+", re.IGNORECASE)
 LINKEDIN_RE = re.compile(r"https?://(?:[\w.-]+\.)?linkedin\.com/in/[\w%-]+/?", re.IGNORECASE)
 GITHUB_PROFILE_RE = re.compile(r"https?://(?:[\w.-]+\.)?github\.com/[\w-]+/?$", re.IGNORECASE)
+LEETCODE_RE = re.compile(
+    r"https?://(?:[\w.-]+\.)?leetcode\.com/(?:u/)?[\w-]+/?",
+    re.IGNORECASE,
+)
 
 CONTACT_KEYS = ("email", "phone", "linkedin", "portfolio", "other_links")
 
@@ -42,17 +46,29 @@ def extract_contact_from_text(text: str) -> dict:
         m = LINKEDIN_RE.search(text)
         linkedin = _normalize_url(m.group(0)) if m else ""
 
+    leetcode = next((u for u in urls if "leetcode.com/" in u.lower()), "")
+    if not leetcode:
+        m = LEETCODE_RE.search(text)
+        leetcode = _normalize_url(m.group(0)) if m else ""
+
     portfolio = ""
     for u in urls:
         lower = u.lower()
-        if "linkedin.com" in lower:
+        if "linkedin.com" in lower or "leetcode.com" in lower:
             continue
         if GITHUB_PROFILE_RE.match(u) or any(x in lower for x in (".github.io", "behance.net", "dribbble.com")):
             portfolio = u
             break
 
-    used = {linkedin, portfolio}
-    other_links = [u for u in urls if u not in used and "linkedin.com" not in u.lower()][:5]
+    used = {linkedin, portfolio, leetcode}
+    other_links = [
+        u
+        for u in urls
+        if u not in used and "linkedin.com" not in u.lower() and "leetcode.com" not in u.lower()
+    ][:5]
+    if leetcode and leetcode not in other_links:
+        other_links.insert(0, leetcode)
+    other_links = _unique(other_links)[:8]
 
     return {
         "email": emails[0] if emails else "",

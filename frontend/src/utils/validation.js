@@ -1,3 +1,5 @@
+import { parseAmount } from "./format.js";
+
 const SUMMARY_MAX = 500;
 
 function isValidUrl(value) {
@@ -30,9 +32,9 @@ export function validateProfileFields(fields, { requireSkills = false } = {}) {
   }
 
   if (fields.preferred_salary !== "" && fields.preferred_salary != null) {
-    const sal = Number(String(fields.preferred_salary).replace(/[^\d]/g, ""));
-    if (Number.isNaN(sal) || sal < 0) {
-      errors.preferred_salary = "Enter a valid annual salary.";
+    const sal = parseAmount(fields.preferred_salary);
+    if (sal == null) {
+      errors.preferred_salary = "Enter a valid annual compensation amount (whole numbers only).";
     }
   }
 
@@ -70,7 +72,7 @@ export function profileStrength(fields) {
   else hints.push("Add years of experience");
 
   if (fields.preferred_salary) score += 10;
-  else hints.push("Add salary preference");
+  else hints.push("Add expected compensation");
 
   if (fields.summary?.trim()) score += 10;
   else hints.push("Add a short summary");

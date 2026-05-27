@@ -1,4 +1,5 @@
 import { parseAmount } from "./format.js";
+import { skillsToPayload } from "./skills.js";
 
 export const EMPTY_PROFILE_FIELDS = {
   name: "",
@@ -54,7 +55,7 @@ export function profileToPayload(fields) {
   return {
     id: fields.id,
     name: fields.name.trim(),
-    skills: fields.skills.split(",").map((s) => s.trim()).filter(Boolean),
+    skills: skillsToPayload(fields.skills),
     experience_years: Number(fields.experience_years) || 0,
     preferred_salary: parseAmount(fields.preferred_salary),
     preferred_currency: fields.preferred_currency || "INR",

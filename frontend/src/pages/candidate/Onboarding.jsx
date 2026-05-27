@@ -5,9 +5,10 @@ import Stepper from "../../components/Stepper.jsx";
 import ProfileForm from "../../components/ProfileForm.jsx";
 import ResumePreview from "../../components/ResumePreview.jsx";
 import Button from "../../components/Button.jsx";
+import { useToast } from "../../components/Toast.jsx";
 import { IconAlert } from "../../components/icons.jsx";
 import { fetchMyProfile, upsertCandidateProfile, uploadResume } from "../../api/client.js";
-import { cleanResumeText } from "../../utils/resumeClean.js";
+import { resumePreviewFromUpload } from "../../utils/resumeClean.js";
 import {
   EMPTY_PROFILE_FIELDS,
   fieldsFromExtracted,
@@ -18,6 +19,7 @@ import { validateProfileFields } from "../../utils/validation.js";
 
 export default function Onboarding() {
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const [step, setStep] = useState(1);
   const [file, setFile] = useState(null);
   const [fields, setFields] = useState(EMPTY_PROFILE_FIELDS);
@@ -39,7 +41,7 @@ export default function Onboarding() {
 
   const goToReview = (data) => {
     setFields((prev) => ({ ...prev, ...fieldsFromExtracted(data.extracted_fields || {}) }));
-    setPreview(cleanResumeText(data.raw_text_preview || ""));
+    setPreview(resumePreviewFromUpload(data));
     setShowFallbackNotice(Boolean(data.llm_status && data.llm_status !== "ok"));
     setError("");
     setFieldErrors({});
@@ -74,6 +76,7 @@ export default function Onboarding() {
       const payload = profileToPayload(fields);
       if (fields.id) payload.id = fields.id;
       await upsertCandidateProfile(payload);
+      showToast("Profile updated. You can refresh matches now.");
       navigate("/candidate/matches");
     } catch (err) {
       const detail = err.response?.data?.detail;
@@ -148,7 +151,7 @@ export default function Onboarding() {
                   <button type="button" className="btn-secondary" onClick={() => setStep(1)}>
                     Back
                   </button>
-                  <Button loading={loading} loadingLabel="Saving…" onClick={handleSave}>
+                  <Button loading={loading} loadingLabel={hasExistingProfile ? "Updating…" : "Saving…"} onClick={handleSave}>
                     {hasExistingProfile ? "Update profile" : "Save profile"}
                   </Button>
                 </div>

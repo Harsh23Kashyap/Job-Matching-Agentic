@@ -1,10 +1,17 @@
-export default function FormField({ label, helper, error, htmlFor, children }) {
+export default function FormField({ label, helper, error, htmlFor, optional, children }) {
   return (
-    <label className="form-field" htmlFor={htmlFor}>
-      <span className="form-field-label field-label">{label}</span>
-      {helper && <span className="field-helper">{helper}</span>}
-      {children}
-      {error && <span className="field-error">{error}</span>}
-    </label>
+    <div className="form-field">
+      <label className="form-field-label field-label" htmlFor={htmlFor}>
+        {label}
+        {optional && <span className="field-optional">Optional</span>}
+      </label>
+      {helper && <p className="field-helper">{helper}</p>}
+      <div className="form-field-control">{children}</div>
+      {error && (
+        <p className="field-error" role="alert">
+          {error}
+        </p>
+      )}
+    </div>
   );
 }

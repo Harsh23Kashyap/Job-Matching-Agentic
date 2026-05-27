@@ -1,4 +1,4 @@
-import { NavLink, Outlet } from "react-router-dom";
+import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { Logo, IconMoon, IconSun } from "../components/icons.jsx";
 import UserMenu from "../components/UserMenu.jsx";
 import PortalBackground from "../components/PortalBackground.jsx";
@@ -11,9 +11,24 @@ const PORTAL_LABELS = {
   admin: "Admin console",
 };
 
+const JOBS_LAYOUT_PREFIXES = [
+  "/candidate/matches",
+  "/candidate/saved",
+  "/employer/matches",
+  "/employer/applications",
+];
+
+function pageContainerClass(pathname) {
+  if (JOBS_LAYOUT_PREFIXES.some((prefix) => pathname.startsWith(prefix))) {
+    return "page-container page-container--jobs";
+  }
+  return "page-container page-container--form";
+}
+
 export default function PortalShell({ portal = "candidate", subtitle, navItems = [] }) {
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const { pathname } = useLocation();
 
   return (
     <div className="app" data-portal={portal}>
@@ -52,7 +67,7 @@ export default function PortalShell({ portal = "candidate", subtitle, navItems =
 
       <main className="page-shell page">
         <PortalBackground />
-        <div className="page-container">
+        <div className={pageContainerClass(pathname)}>
           <Outlet />
         </div>
       </main>

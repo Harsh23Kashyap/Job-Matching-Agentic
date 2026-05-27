@@ -39,11 +39,17 @@ export function formatInr(amount) {
   return formatted ? `₹ ${formatted}` : "";
 }
 
+export function filterAmountInput(raw) {
+  return String(raw ?? "").replace(/[^\d,]/g, "");
+}
+
 export function parseAmount(input) {
   if (input == null || input === "") return null;
   const digits = String(input).replace(/[^\d]/g, "");
   if (!digits) return null;
-  return Number(digits);
+  const amount = Number(digits);
+  if (!Number.isFinite(amount) || amount <= 0) return null;
+  return Math.round(amount);
 }
 
 export function parseInr(input) {
@@ -56,11 +62,28 @@ export function matchPercent(score) {
 }
 
 export function matchTier(score) {
-  const pct = Number(score) * 100;
+  const pct = Math.round(Number(score) * 100);
+  if (Number.isNaN(pct)) return { label: "Low fit", className: "match-tier--low" };
   if (pct >= 80) return { label: "Strong fit", className: "match-tier--strong" };
   if (pct >= 60) return { label: "Good fit", className: "match-tier--good" };
   if (pct >= 40) return { label: "Moderate fit", className: "match-tier--moderate" };
   return { label: "Low fit", className: "match-tier--low" };
+}
+
+export function formatCandidateMatchScore(score) {
+  return matchPercent(score);
+}
+
+export function formatSkillExperienceLine(matched) {
+  if (!matched?.length) return "";
+  if (matched.length === 1) return `Matches your ${matched[0]} experience.`;
+  if (matched.length === 2) return `Matches your ${matched[0]} and ${matched[1]} experience.`;
+  const head = matched.slice(0, -1).join(", ");
+  return `Matches your ${head}, and ${matched[matched.length - 1]} experience.`;
+}
+
+export function isApplyAvailable(row) {
+  return row?.apply_available !== false;
 }
 
 export function humanizeStrategy(strategy) {
@@ -102,24 +125,11 @@ export function parseWhySignals(lines = []) {
 }
 
 export function deriveWhyMatch(row) {
-  const { matched } = parseWhySignals(row.why_ranked);
+  const { matched } = matchSkills(row);
   const sim = Number(row.similarity) || 0;
-  const skillsScore = row.skills_score != null ? Number(row.skills_score) : null;
 
-  if (matched.length >= 3) {
-    return `Strong overlap with ${matched.slice(0, 2).join(", ")} and related skills.`;
-  }
-  if (matched.length === 2) {
-    return `Matches your ${matched.join(" and ")} experience.`;
-  }
-  if (matched.length === 1) {
-    return `Matches your ${matched[0]} experience.`;
-  }
-  if (skillsScore != null && skillsScore >= 0.5) {
-    return "Similar to your cloud and backend skills.";
-  }
-  if (sim >= 0.65) {
-    return "Strong backend overlap based on your profile.";
+  if (matched.length >= 1) {
+    return formatSkillExperienceLine(matched);
   }
   if (sim >= 0.45) {
     return "Limited direct skill overlap, but role context is close.";

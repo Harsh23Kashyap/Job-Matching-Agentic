@@ -101,17 +101,10 @@ export async function updateCandidateProfile(profile) {
   return data;
 }
 
-/** Create or update the logged-in candidate profile. */
+/** Create or update the logged-in candidate profile (always upsert). */
 export async function upsertCandidateProfile(profile) {
-  try {
-    const existing = await fetchMyProfile();
-    if (existing?.id) {
-      return updateCandidateProfile({ ...profile, id: existing.id });
-    }
-  } catch (err) {
-    if (err.response?.status !== 404) throw err;
-  }
-  return saveCandidateProfile(profile);
+  const { data } = await api.put("/candidates/me", profile);
+  return data;
 }
 
 export async function uploadJobDescription(file) {

@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useMemo, useState, useCallback } from "react";
+import { Link, useLocation } from "react-router-dom";
 import PageHeader from "../../components/PageHeader.jsx";
 import CandidateJobResults from "../../components/CandidateJobResults.jsx";
 import { ProfileNeededEmpty, JobsReadyEmpty } from "../../components/EmptyState.jsx";
@@ -8,6 +8,7 @@ import { fetchMyProfile, runMatch, DEFAULT_CANDIDATE_MATCH } from "../../api/cli
 import { matchPercent } from "../../utils/format.js";
 
 export default function CandidateMatches() {
+  const location = useLocation();
   const [profile, setProfile] = useState(null);
   const [profileLoading, setProfileLoading] = useState(true);
   const [response, setResponse] = useState(null);
@@ -15,12 +16,17 @@ export default function CandidateMatches() {
   const [loading, setLoading] = useState(false);
   const [lastUpdated, setLastUpdated] = useState(null);
 
-  useEffect(() => {
+  const loadProfile = useCallback(() => {
+    setProfileLoading(true);
     fetchMyProfile()
       .then(setProfile)
       .catch(() => setProfile(null))
       .finally(() => setProfileLoading(false));
   }, []);
+
+  useEffect(() => {
+    loadProfile();
+  }, [loadProfile, location.pathname]);
 
   const handleFindJobs = async () => {
     if (!profile) return;

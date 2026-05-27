@@ -3,9 +3,11 @@ import { Link } from "react-router-dom";
 import PageHeader from "../../components/PageHeader.jsx";
 import ProfileForm from "../../components/ProfileForm.jsx";
 import ProfileStrength from "../../components/ProfileStrength.jsx";
+import ResumePreview from "../../components/ResumePreview.jsx";
 import Button from "../../components/Button.jsx";
 import { useToast } from "../../components/Toast.jsx";
 import { fetchMyProfile, uploadResume, upsertCandidateProfile } from "../../api/client.js";
+import { resumePreviewFromUpload } from "../../utils/resumeClean.js";
 import { EMPTY_PROFILE_FIELDS, fieldsFromExtracted, profileFromApi, profileToPayload } from "../../utils/profileFields.js";
 import { profileStrength, validateProfileFields } from "../../utils/validation.js";
 
@@ -18,6 +20,7 @@ export default function Profile() {
   const [error, setError] = useState("");
   const [hasProfile, setHasProfile] = useState(false);
   const [reuploading, setReuploading] = useState(false);
+  const [resumePreview, setResumePreview] = useState("");
   const fileRef = useRef(null);
 
   const strength = useMemo(() => profileStrength(fields), [fields]);
@@ -27,8 +30,11 @@ export default function Profile() {
       .then((p) => {
         setHasProfile(true);
         setFields(profileFromApi(p));
+        setError("");
       })
-      .catch(() => setError("No profile yet."))
+      .catch(() => {
+        setHasProfile(false);
+      })
       .finally(() => setLoading(false));
   }, []);
 
@@ -39,6 +45,7 @@ export default function Profile() {
     try {
       const data = await uploadResume(file);
       setFields((prev) => ({ ...prev, ...fieldsFromExtracted(data.extracted_fields || {}) }));
+      setResumePreview(resumePreviewFromUpload(data));
       showToast("Resume parsed — review updated fields and save.");
     } catch (err) {
       setError(err.response?.data?.detail?.error || err.message || "Upload failed");
@@ -58,7 +65,8 @@ export default function Profile() {
     setError("");
     setFieldErrors({});
     try {
-      await upsertCandidateProfile(profileToPayload(fields));
+      const saved = await upsertCandidateProfile(profileToPayload(fields));
+      setFields(profileFromApi(saved));
       setHasProfile(true);
       showToast(
         "Profile updated. You can refresh matches now.",
@@ -67,7 +75,7 @@ export default function Profile() {
         </Link>,
       );
     } catch (err) {
-      setError(err.response?.data?.detail?.error || err.message);
+      setError(err.response?.data?.detail?.error || err.message || "Save failed");
     } finally {
       setSaving(false);
     }
@@ -119,6 +127,7 @@ export default function Profile() {
             Re-upload resume
           </Button>
         </div>
+        {resumePreview && <ResumePreview text={resumePreview} defaultCollapsed />}
         <ProfileStrength percent={strength.percent} hint={strength.hint} />
         <ProfileForm
           fields={fields}
@@ -126,7 +135,10 @@ export default function Profile() {
           onChange={setFields}
           footer={
             <div className="form-actions form-actions--sticky">
-              <Button loading={saving} loadingLabel="Saving…" onClick={handleSave}>
+              <Link to="/candidate/matches" className="btn-secondary">
+                Back to jobs
+              </Link>
+              <Button loading={saving} loadingLabel={hasProfile ? "Updating…" : "Saving…"} onClick={handleSave}>
                 {hasProfile ? "Update profile" : "Save profile"}
               </Button>
             </div>

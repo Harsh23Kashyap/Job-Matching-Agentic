@@ -19,6 +19,12 @@ def test_extract_github_as_portfolio():
     assert result["portfolio"] == "https://github.com/harshkashyap"
 
 
+def test_extract_leetcode_in_other_links():
+    text = "Profile: https://leetcode.com/u/harshkashyap"
+    result = extract_contact_from_text(text)
+    assert any("leetcode.com" in link for link in result["other_links"])
+
+
 def test_merge_contact_fields_prefers_primary():
     primary = {"email": "primary@test.com", "phone": "", "linkedin": "", "portfolio": "", "other_links": []}
     fallback = {"email": "fallback@test.com", "phone": "+1 555", "linkedin": "", "portfolio": "", "other_links": ["https://x.com"]}

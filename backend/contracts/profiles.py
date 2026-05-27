@@ -33,6 +33,7 @@ class JobProfile(BaseModel):
     company: str | None = None
     location: str | None = None
     job_type: str | None = None
+    accepts_applications: bool = True
     link: str | None = None
     version: int = 1
     document_text: str = ""
