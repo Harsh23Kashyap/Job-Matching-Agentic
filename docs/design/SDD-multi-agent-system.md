@@ -1,19 +1,19 @@
 # Software Design Document (SDD)
 ## Multi-Agent Job Matching System
 
-**Version:** 1.0  
+**Version:** 1.1  
 **Date:** 2026-05-27  
-**Status:** Draft · awaiting approval before implementation  
-**Parent:** [HLD-multi-agent-system.md](./HLD-multi-agent-system.md) v1.0  
+**Status:** Implemented · reflects codebase @ `9d1de25`  
+**Parent:** [HLD-multi-agent-system.md](./HLD-multi-agent-system.md) v1.1  
 **Authors:** Harsh Kashyap, Taranumpreet Kaur Wasu  
 
 ---
 
 ## 1. Purpose
 
-This SDD specifies **implementable** design for the greenfield multi-agent system: package layout, classes, interfaces, Pydantic schemas, event contracts, REST API, matching algorithm, configuration, bootstrap sequence, and test plan.
+This SDD specifies the **implemented** multi-agent system: package layout, classes, interfaces, Pydantic schemas, event contracts, REST API, matching algorithm, configuration, bootstrap sequence, role portals, auth/ownership, and test plan.
 
-**Implementation gate:** No Python application code until this document is approved.
+**Original gate (v1.0):** No application code until SDD approved — **completed**. This v1.1 revision documents as-built behavior including product extensions (auth, LLM parsing, composite scoring, research pipeline).
 
 ---
 
@@ -28,108 +28,60 @@ This SDD specifies **implementable** design for the greenfield multi-agent syste
 
 ---
 
-## 3. Repository layout
+## 3. Repository layout (as-built)
 
 ```text
 Job-Matching-Agentic/
-├── README.md
-├── pyproject.toml                 # or requirements-min.txt + requirements-dev.txt
 ├── data/
-│   ├── cvs.json                   # preserved eval corpus
-│   ├── jobs.json
-│   ├── eval_pairs.json
-│   └── daily_recommendations_*.json   # runtime output (gitignored)
+│   ├── cvs.json, jobs.json, eval_pairs.json
+│   ├── models/                    # fusion.json, calibration.json (optional)
+│   └── research/                  # 100×50 scale corpus (generated)
 ├── backend/
 │   ├── main.py                    # uvicorn entry: create_app()
-│   ├── config.py                  # Settings from env
-│   ├── bootstrap.py               # wire bus + agents + gateway
-│   │
-│   ├── agents/
-│   │   ├── __init__.py
-│   │   ├── base.py                # BaseAgent, AgentContext
-│   │   ├── candidate_agent.py
-│   │   ├── employer_agent.py
-│   │   └── matchmaking_agent.py
-│   │
-│   ├── bus/
-│   │   ├── __init__.py
-│   │   ├── event_bus.py           # AgentEventBus
-│   │   └── events.py              # event type enums + payload models
-│   │
-│   ├── contracts/
-│   │   ├── __init__.py
-│   │   ├── interfaces.py          # Protocols: ICandidateAgent, etc.
-│   │   ├── snapshots.py             # CandidateSnapshot, JobSnapshot
-│   │   ├── profiles.py              # CandidateProfile, JobProfile
-│   │   ├── matching.py              # MatchRequest, MatchResult, StrategyConfig
-│   │   └── agent_status.py          # AgentStatusResponse
-│   │
-│   ├── core/
-│   │   ├── document_text.py       # normative templates (field order preserved)
-│   │   ├── skill_catalog.py
-│   │   ├── embedding.py           # SentenceTransformer singleton
-│   │   ├── similarity.py          # cosine, euclidean-derived
-│   │   ├── skills.py              # Jaccard + soft embed
-│   │   ├── scoring.py             # compute_semantic, compute_multimodal_weighted
-│   │   ├── rrf.py                 # reciprocal rank fusion
-│   │   └── explain.py             # rule-based why_ranked (v1)
-│   │
-│   ├── hooks/
-│   │   ├── __init__.py
-│   │   ├── parser.py              # Parser protocol + JsonParser (v1)
-│   │   └── explainer.py           # Explainer protocol + RuleExplainer (v1)
-│   │
-│   ├── stores/
-│   │   ├── base.py
-│   │   ├── chroma_store.py
-│   │   ├── qdrant_store.py
-│   │   └── factory.py
-│   │
+│   ├── bootstrap.py               # SystemContainer wiring
+│   ├── bootstrap_reindex.py       # Chroma ↔ Qdrant hot-switch
+│   ├── config.py                  # Settings (Pydantic)
+│   ├── demo_seed.py               # Idempotent demo accounts
+│   ├── agents/                    # candidate, employer, matchmaking
+│   ├── auth/                      # UserStore, routes, deps, passwords
+│   ├── bus/                       # AgentEventBus, EventType
+│   ├── contracts/                 # profiles, snapshots, matching, interfaces
+│   ├── core/                      # scoring, fusion, calibration, constraints,
+│   │                              # strategy_router, resume_clean, similar_entities, …
+│   ├── hooks/                     # JsonParser, LlmParser, RuleExplainer, GroundedLlmExplainer
+│   ├── stores/                    # chroma, qdrant, feedback_store, candidate_activity_store
 │   ├── gateway/
-│   │   ├── __init__.py
-│   │   ├── app.py                 # FastAPI factory
+│   │   ├── app.py                 # FastAPI + session middleware + demo seed
+│   │   ├── middleware.py          # ReadOnlyMiddleware
 │   │   └── routes/
-│   │       ├── candidates.py
-│   │       ├── employers.py
+│   │       ├── agents.py
+│   │       ├── candidates.py      # profile CRUD, upload, saved, applications
+│   │       ├── employers.py       # jobs CRUD, JD parse, ownership guard
 │   │       ├── matching.py
-│   │       ├── agents.py          # GET /agents/status
-│   │       └── system.py          # vector store config
-│   │
-│   └── benchmarks/                # preserved drivers (adapt imports to agents)
-│       ├── paper_progression.py
-│       ├── phase11.py
-│       └── metrics.py
-│
-├── frontend/
-│   ├── src/
-│   │   ├── main.jsx
-│   │   ├── App.jsx
-│   │   ├── api/client.js
-│   │   └── components/
-│   │       ├── AgentStatusPanel.jsx
-│   │       ├── MatchControls.jsx
-│   │       └── ResultsPanel.jsx
-│   └── ...
-│
-├── tests/
-│   ├── conftest.py
-│   ├── unit/
-│   │   ├── test_event_bus.py
-│   │   ├── test_candidate_agent.py
-│   │   ├── test_employer_agent.py
-│   │   ├── test_matchmaking_agent.py
-│   │   ├── test_scoring.py
-│   │   └── test_snapshots.py
-│   ├── integration/
-│   │   ├── test_bootstrap.py
-│   │   ├── test_match_flow.py
-│   │   └── test_api_gateway.py
-│   └── benchmarks/
-│       └── test_eval_regression.py
-│
-└── docs/design/
-    ├── HLD-multi-agent-system.md
-    └── SDD-multi-agent-system.md   # this file
+│   │       ├── similar.py
+│   │       ├── feedback.py
+│   │       └── system.py
+│   ├── benchmarks/                # research_pipeline, comparison, ablation, …
+│   ├── scripts/run_research_pipeline.py
+│   └── reports/                   # research_run_* artifacts
+├── frontend/src/
+│   ├── App.jsx                    # Routes + AuthProvider + Toast + ApiErrorBridge
+│   ├── api/client.js              # All HTTP calls; DEFAULT_*_MATCH configs
+│   ├── context/AuthContext.jsx
+│   ├── layouts/                   # PortalShell, Candidate|Employer|Admin, AuthLayout
+│   ├── pages/
+│   │   ├── Login.jsx, Register.jsx
+│   │   ├── candidate/             # Onboarding, Profile, Matches, Saved
+│   │   ├── employer/              # Jobs, Matches, Applications
+│   │   ├── admin/AdminConsole.jsx
+│   │   └── errors/
+│   ├── components/                # MatchDetailsDrawer, EmptyState, forms, results, …
+│   ├── theme/                     # tokens, dark-mode, polish, auth, ambient
+│   └── utils/                     # profileFields, jobFields, validation, profileEvents
+└── tests/
+    ├── unit/                      # Python + node (.mjs)
+    ├── integration/               # API flows, profile, employer jobs
+    └── benchmarks/
 ```
 
 ---
@@ -367,17 +319,12 @@ class JobSnapshot(BaseModel):
 File: `backend/contracts/matching.py`
 
 ```python
-Strategy = Literal["semantic", "multimodal"]
+Strategy = Literal["semantic", "multimodal", "composite"]
 Metric = Literal["cosine", "euclidean"]
-SkillsMode = Literal["jaccard", "embedding"]   # embedding = soft overlap; benchmark + future API
-
-
-class StrategyConfig(BaseModel):
-    strategy: Strategy = "semantic"
-    metric: Metric = "cosine"
-    semantic_weight: float = 0.7                 # multimodal only
-    skills_mode: SkillsMode = "jaccard"
-    weight: float = 1.0                          # ensemble list weight
+SkillsMode = Literal["jaccard", "embedding"]
+RetrievalMode = Literal["exhaustive", "ann"]
+FusionMode = Literal["fixed", "learned", "hierarchical"]
+ExplainMode = Literal["rules", "llm"]
 
 
 class MatchRequest(BaseModel):
@@ -387,8 +334,16 @@ class MatchRequest(BaseModel):
     metric: Metric = "cosine"
     skills_mode: SkillsMode = "jaccard"
     semantic_weight: float = 0.7
-    retrieval: Literal["exhaustive", "ann"] = "exhaustive"
-    candidate_pool: int = Field(default=120, ge=1)  # ann only
+    retrieval: RetrievalMode = "exhaustive"
+    candidate_pool: int = Field(default=120, ge=1)
+    use_cross_encoder: bool = False
+    rerank_pool: int = Field(default=20, ge=1, le=50)
+    fusion_mode: FusionMode = "fixed"
+    apply_constraints: bool = False
+    auto_strategy: bool = False
+    use_calibration: bool = False
+    use_feedback_boost: bool = False
+    explain_mode: ExplainMode = "rules"
 
 
 class EnsembleSearchConfig(BaseModel):
@@ -410,21 +365,41 @@ class EnsembleRequest(BaseModel):
 class ScoreBreakdown(BaseModel):
     semantic_score: float
     skills_score: float | None = None
+    experience_score: float | None = None
+    compensation_score: float | None = None
+    location_score: float | None = None
     final_score: float
     strategy_used: str
     metric_used: str
     skills_mode_used: str | None = None
+    constraint_factor: float | None = None
+    calibrated_score: float | None = None
+    fusion_mode_used: str | None = None
+    feedback_delta: float | None = None
+    routing_reason: str | None = None
 
 
 class MatchResult(BaseModel):
-    target_id: str                               # job_id or candidate_id
-    target_label: str                            # job title or candidate name
+    target_id: str
+    target_label: str
     rank: int
     similarity: float
     semantic_score: float
     skills_score: float | None = None
+    experience_score: float | None = None
+    compensation_score: float | None = None
+    location_score: float | None = None
+    final_score: float | None = None
+    matched_skills: list[str] = []
+    missing_skills: list[str] = []
     why_ranked: list[str] = []
-    sources: list[EnsembleSource] | None = None  # ensemble only
+    sources: list[EnsembleSource] | None = None   # ensemble only
+    contact_email: str | None = None              # job→candidates direction
+    contact_phone: str | None = None
+    contact_linkedin: str | None = None
+    apply_url: str | None = None                  # candidate→jobs direction
+    apply_available: bool = True
+    rerank: RerankDiagnostics | None = None       # on MatchResponse
 
 
 class MatchResponse(BaseModel):
@@ -656,7 +631,21 @@ def rrf_fuse(runs: list[list[RankedItem]], key_fn, k: int = 60) -> list[FusedIte
     return sort_by_score(scores)
 ```
 
-### 9.4 Retrieval modes
+### 9.6 Composite strategy (product default)
+
+File: `backend/core/scoring.py` · `compute_composite`
+
+| Signal | Weight |
+|--------|--------|
+| Semantic (embedding cosine) | 40% |
+| Skills overlap | 30% |
+| Experience fit | 15% |
+| Compensation alignment | 10% |
+| Location / remote | 5% |
+
+Matchmaking pipeline (`core/matchmaking_scoring.py`): resolve routing → retrieve (exhaustive/ANN) → `score_pair_advanced` (fusion mode, constraints, feedback boost, calibration) → optional cross-encoder rerank → explain → `MatchCompleted` event.
+
+### 9.7 Retrieval modes
 
 | Mode | When | Implementation |
 |------|------|----------------|
@@ -680,45 +669,37 @@ Bullets (max 4):
 File: `backend/bootstrap.py`
 
 ```python
-def create_system(settings: Settings) -> SystemContainer:
+def create_system(settings: Settings | None = None) -> SystemContainer:
+    settings = settings or Settings()
     bus = AgentEventBus()
-    store_factory = VectorStoreFactory(settings)
-    candidate_store = store_factory.create("candidates_collection")
-    job_store = store_factory.create("jobs_collection")
     parser = JsonParser()
-    embedder = EmbeddingService(settings.embedding_model)
-
-    candidate_agent = CandidateAgent(
-        bus=bus, store=candidate_store, parser=parser, embedder=embedder, settings=settings
-    )
-    employer_agent = EmployerAgent(
-        bus=bus, store=job_store, parser=parser, embedder=embedder, settings=settings
-    )
-    scorer = ScoringEngine(embedder=embedder)
     explainer = RuleExplainer()
-    matchmaker = MatchmakingAgent(
-        bus=bus,
-        candidate_agent=candidate_agent,
-        employer_agent=employer_agent,
-        scorer=scorer,
-        explainer=explainer,
-    )
+    candidate_store = create_store(settings, "candidates_collection")
+    job_store = create_store(settings, "jobs_collection")
+    feedback_store = FeedbackStore(settings.sqlite_path)
+    activity_store = CandidateActivityStore(settings.sqlite_path)
+    fusion_model = LearnedFusionModel.load(settings.fusion_model_path)
+    calibrator = PlattCalibrator.load(settings.calibration_model_path)
 
-    # wire subscriptions
+    candidate_agent = CandidateAgent(bus, candidate_store, parser, settings)
+    employer_agent = EmployerAgent(bus, job_store, parser, settings)
+    matchmaker = MatchmakingAgent(
+        bus, candidate_agent, employer_agent, explainer, settings,
+        fusion_model, calibrator, feedback_store,
+    )
     matchmaker.register_handlers(bus)
 
-    # load corpus
-    n_c = candidate_agent.bootstrap_from_file(settings.data_dir / "cvs.json")
-    n_j = employer_agent.bootstrap_from_file(settings.data_dir / "jobs.json")
+    n_c = candidate_agent.bootstrap_from_file(settings.cvs_path)
+    n_j = employer_agent.bootstrap_from_file(settings.jobs_path)
+    bus.publish(CORPUS_BOOTSTRAPPED event)
 
-    bus.publish(AgentEvent(
-        event_type=EventType.CORPUS_BOOTSTRAPPED,
-        publisher_id="system",
-        payload=CorpusBootstrappedPayload(...).model_dump(),
-    ))
-
-    return SystemContainer(bus=bus, candidate=candidate_agent, employer=employer_agent, matchmaker=matchmaker)
+    return SystemContainer(
+        bus, settings, candidate_agent, employer_agent, matchmaker,
+        feedback_store, activity_store,
+    )
 ```
+
+Gateway (`gateway/app.py`) attaches `UserStore`, demo seed (`seed_demo=True`), `ReadOnlyMiddleware`, and session middleware before mounting routers.
 
 File: `backend/main.py`
 
@@ -732,72 +713,126 @@ def create_app() -> FastAPI:
 
 ## 11. REST API specification
 
-Base URL: `http://localhost:8000`  
-All JSON request/response bodies. FastAPI auto-generates OpenAPI at `/docs`.
+Base URL: `http://localhost:8001`  
+All JSON bodies. OpenAPI at `/docs`. Session cookie auth for role routes (`withCredentials: true` on frontend).
 
-### 11.1 Agent observability
+### 11.1 Auth routes (`/auth`)
 
-| Method | Path | Handler | Response |
-|--------|------|---------|----------|
-| GET | `/agents/status` | all agents `.status()` | `{ candidates: AgentStatus, employer: AgentStatus, matchmaking: AgentStatus }` |
-| GET | `/agents/events/recent` | bus ring log (optional v1.1) | `{ events: AgentEvent[] }` last 20 |
+| Method | Path | Auth | Response |
+|--------|------|------|----------|
+| POST | `/auth/register` | — | User + session |
+| POST | `/auth/login` | — | User + session |
+| POST | `/auth/logout` | session | 204 |
+| GET | `/auth/me` | session | `{ id, email, role }` |
 
-### 11.2 Candidate agent routes
+### 11.2 Agent observability
+
+| Method | Path | Response |
+|--------|------|----------|
+| GET | `/agents/status` | `{ candidates, employer, matchmaking: AgentStatus }` |
+| GET | `/agents/events/recent` | Last 50 bus events |
+
+### 11.3 Candidate routes (`/candidates`)
+
+| Method | Path | Auth | Response |
+|--------|------|------|----------|
+| GET | `/candidates` | — | `{ names: string[] }` |
+| GET | `/candidates/full` | — | `CandidateProfile[]` (no embeddings) |
+| GET | `/candidates/{name}` | — | `CandidateProfile` or 404 |
+| POST | `/candidates` | optional | Register or upsert if logged-in candidate |
+| GET | `/candidates/me` | candidate | Profile or 404 (`NOT_FOUND` / `PROFILE_NOT_FOUND`) |
+| PUT | `/candidates/me` | candidate | Upsert profile + ownership link |
+| POST | `/candidates/upload-resume` | candidate | Parsed fields + `llm_status` |
+| POST | `/candidates/me/resume-suggestions` | candidate | ATS suggestions vs job |
+| GET/PUT | `/candidates/me/saved-jobs` | candidate | Saved jobs list / update |
+| GET/POST | `/candidates/me/applications` | candidate | Applications list / record |
+
+### 11.4 Employer routes (`/jobs`)
+
+| Method | Path | Auth | Response |
+|--------|------|------|----------|
+| GET | `/jobs` | — | `{ titles: string[] }` |
+| GET | `/jobs/full` | — | `JobProfile[]` |
+| GET | `/jobs/{title}` | — | `JobProfile` or 404 |
+| POST | `/jobs` | optional | Register job; employer gets ownership via `link_job_if_unowned`; 403 if id owned by another user |
+| GET | `/jobs/mine` | employer | Owned jobs |
+| PUT | `/jobs/mine/{job_id}` | employer | Update owned job |
+| PATCH | `/jobs/mine/{job_id}/status` | employer | open / closed / draft |
+| GET | `/jobs/mine/applications` | employer | Applications to owned jobs |
+| POST | `/jobs/upload-description` | employer | LLM JD parse from file |
+| POST | `/jobs/parse-description` | employer | LLM JD parse from text |
+
+### 11.5 Matchmaking routes
 
 | Method | Path | Body | Response |
 |--------|------|------|----------|
-| GET | `/candidates` | · | `{ names: string[] }` |
-| GET | `/candidates/full` | · | `CandidateProfile[]` (embeddings omitted) |
-| GET | `/candidates/{name}` | · | `CandidateProfile` or 404 |
-| POST | `/candidates` | raw CV JSON | `CandidateProfile` 201 |
-
-### 11.3 Employer agent routes
-
-| Method | Path | Body | Response |
-|--------|------|------|----------|
-| GET | `/jobs` | · | `{ titles: string[] }` |
-| GET | `/jobs/full` | · | `JobProfile[]` |
-| GET | `/jobs/{title}` | · | `JobProfile` or 404 |
-| POST | `/jobs` | raw job JSON | `JobProfile` 201 |
-
-### 11.4 Matchmaking routes
-
-| Method | Path | Body | Response |
-|--------|------|------|----------|
-| POST | `/match/candidate-to-jobs` | `MatchRequest` (query_key=name) | `MatchResponse` |
-| POST | `/match/job-to-candidates` | `MatchRequest` (query_key=title) | `MatchResponse` |
+| POST | `/match/candidate-to-jobs` | `MatchRequest` (`query_key` = candidate **name**) | `MatchResponse` |
+| POST | `/match/job-to-candidates` | `MatchRequest` (`query_key` = job **title**) | `MatchResponse` |
 | POST | `/match/ensemble` | `EnsembleRequest` | `MatchResponse` |
 | POST | `/match/daily-batch` | `DailyBatchRequest` | `DailyBatchResponse` |
 
-**Legacy alias routes (optional, for benchmark/UI migration):**
+**Product default** (frontend `DEFAULT_CANDIDATE_MATCH` / `DEFAULT_EMPLOYER_MATCH`): `strategy: "composite"`, `topK: 10`, `metric: "cosine"`, `skillsMode: "jaccard"`, `semanticWeight: 0.7`.
 
-| Legacy | New |
-|--------|-----|
-| POST `/match-resume` | POST `/match/candidate-to-jobs` |
-| POST `/match-job` | POST `/match/job-to-candidates` |
-| POST `/match-resume-ensemble` | POST `/match/ensemble` |
-| POST `/agent/run-daily-recommendations` | POST `/match/daily-batch` |
+**Legacy aliases:** `/match-resume`, `/match-job`, `/match-resume-ensemble`, `/agent/run-daily-recommendations`.
 
-### 11.5 System routes
+### 11.6 Similar routes (`/similar`)
 
-| Method | Path | Body | Response |
+| Method | Path | Auth | Response |
 |--------|------|------|----------|
-| GET | `/system/config` | · | `{ vector_store, strategies, metrics, skills_modes }` |
-| POST | `/system/vector-store` | `{ vector_store: "chroma"\|"qdrant" }` | triggers re-bootstrap reindex |
+| GET | `/similar/jobs/{job_id}` | candidate | Similar jobs |
+| GET | `/similar/candidates/{candidate_id}` | employer | Similar candidates |
 
-### 11.6 Error responses
+### 11.7 Feedback routes (`/feedback`)
+
+| Method | Path | Auth | Response |
+|--------|------|------|----------|
+| GET | `/feedback/me` | session | User feedback actions |
+| POST | `/feedback/actions` | session | save / unsave / apply / reject / contact |
+| POST | `/feedback` | optional | Legacy pair feedback |
+| GET | `/feedback/counts` | — | Pair-level counts |
+
+### 11.8 System routes (`/system`)
+
+| Method | Path | Response |
+|--------|------|----------|
+| GET | `/system/config` | Feature flags, models, strategies |
+| POST | `/system/vector-store` | Switch Chroma ↔ Qdrant (reindex) |
+| GET | `/system/fairness` | Fairness audit report |
+
+### 11.9 Error responses
 
 ```python
 class ErrorResponse(BaseModel):
     error: str
-    code: str          # NOT_FOUND | VALIDATION | AGENT_ERROR
+    code: str   # NOT_FOUND | PROFILE_NOT_FOUND | JOB_NOT_OWNED | VALIDATION | …
 ```
 
 | Condition | HTTP | code |
 |-----------|------|------|
 | Unknown candidate/job | 404 | NOT_FOUND |
+| Auth link but profile missing in agent | 404 | PROFILE_NOT_FOUND |
+| POST job id owned by another employer | 403 | JOB_NOT_OWNED |
 | Empty ensemble searches | 400 | VALIDATION |
-| Invalid vector_store | 422 | VALIDATION |
+
+### 11.10 Auth and ownership (`backend/auth/`)
+
+**UserStore** (SQLite `app.db`):
+
+| Table | Purpose |
+|-------|---------|
+| `users` | id, email, password_hash, role |
+| `candidate_ownership` | user_id → candidate_id (1:1 per user) |
+| `job_ownership` | job_id → user_id (many jobs per employer) |
+
+| Method | Behavior |
+|--------|----------|
+| `link_candidate(user_id, candidate_id)` | Idempotent upsert of candidate link |
+| `get_candidate_id(user_id)` | Lookup for GET/PUT `/candidates/me` |
+| `get_job_owner(job_id)` | Lookup for POST `/jobs` ownership guard |
+| `link_job_if_unowned(user_id, job_id)` | Insert only if unowned; return False if other user owns |
+| `list_job_ids(user_id)` | Employer job list for `/jobs/mine` |
+
+**Deps:** `require_role("candidate"|"employer"|"admin")`, `get_optional_user` for public POST with optional auth.
 
 ---
 
@@ -814,15 +849,22 @@ class Settings(BaseSettings):
     vector_store: Literal["chroma", "qdrant"] = "chroma"
     chroma_persist_dir: Path = Path("backend/chroma_db")
     qdrant_persist_dir: Path = Path("backend/qdrant_db")
-    chroma_space: Literal["cosine", "l2"] = "cosine"
-    default_strategy: Strategy = "semantic"
-    default_metric: Metric = "cosine"
-    rrf_k: int = 60
+    sqlite_path: Path = Path("backend/app.db")
+    session_secret: str = "dev-change-me"
     host: str = "0.0.0.0"
-    port: int = 8000
+    port: int = 8001
+    read_only: bool = False
+    seed_demo: bool = True
+    rrf_k: int = 60
+    enable_cross_encoder_rerank: bool = False
+    parser_backend: str = "json"          # bootstrap; HTTP uses LlmParser
+    fusion_model_path: Path = Path("data/models/fusion.json")
+    calibration_model_path: Path = Path("data/models/calibration.json")
+    ollama_base_url: str = "http://localhost:11434"
+    openai_api_key: str | None = None
 ```
 
-Environment variables mirror legacy names where possible (`VECTOR_STORE`, `EMBEDDING_MODEL`, `CHROMA_SPACE`).
+Environment variables mirror legacy names where possible (`VECTOR_STORE`, `EMBEDDING_MODEL`, `SEED_DEMO`, `READ_ONLY`).
 
 ---
 
@@ -854,52 +896,91 @@ Phase11 benchmarks may append suffix via env `CHROMA_COLLECTION_SUFFIX` / `QDRAN
 
 ---
 
-## 14. LLM hooks (v1 stubs)
+## 14. LLM hooks (implemented)
 
-File: `backend/hooks/parser.py`
+| File | Class | Role |
+|------|-------|------|
+| `hooks/parser.py` | `JsonParser` | Bootstrap corpus validation |
+| `hooks/llm_parser.py` | `LlmParser` | Resume/JD text → structured JSON via Ollama or OpenAI |
+| `hooks/parser_factory.py` | `create_llm_parser()` | Factory + entity ID slugs |
+| `hooks/explainer.py` | `RuleExplainer` | Default `why_ranked` bullets |
+| `hooks/grounded_explainer.py` | `GroundedLlmExplainer` | Optional LLM bullets with grounding |
+| `core/resume_suggestions.py` | — | ATS gap analysis for drawer coach |
 
-```python
-class JsonParser:
-    """v1: Pydantic validation only."""
-    def parse_candidate(self, raw: dict) -> CandidateProfile: ...
-    def parse_job(self, raw: dict) -> JobProfile: ...
-
-
-class LlmParser(Parser):  # v2 stub · raises NotImplementedError until configured
-    ...
-```
-
-File: `backend/hooks/explainer.py`
-
-```python
-class RuleExplainer:
-    def explain(self, candidate, job, scores) -> list[str]: ...
-
-
-class LlmExplainer(Explainer):  # v2 stub
-    ...
-```
-
-Factory in `bootstrap.py` selects implementation via `settings.parser_backend = "json" | "llm"`.
+HTTP upload routes call `LlmParser`; on `LlmUnavailableError` return manual fallback with `llm_status: "unavailable"`. Gateway sanitizes CID noise and contact fields before persist (`_sanitize_profile_payload`).
 
 ---
 
 ## 15. Frontend integration
 
-File: `frontend/src/api/client.js`
+### 15.1 Routes (`frontend/src/App.jsx`)
+
+| Path | Page | Role |
+|------|------|------|
+| `/login`, `/register` | Auth | public |
+| `/error/{401,402,403,501,502}` | Branded errors | public |
+| `/candidate/onboarding` | Resume upload + review | candidate |
+| `/candidate/profile` | View / edit / stale restore | candidate |
+| `/candidate/matches` | Job search + results | candidate |
+| `/candidate/saved` | Saved + applications | candidate |
+| `/employer/jobs` | Post / edit / close roles | employer |
+| `/employer/matches` | Candidate ranking per role | employer |
+| `/employer/applications` | Application feed | employer |
+| `/admin/console` | Agent + match tooling | admin |
+
+### 15.2 API client (`frontend/src/api/client.js`)
 
 | UI action | API call |
 |-----------|----------|
-| Load dropdowns | GET `/candidates`, GET `/jobs` |
-| Agent panel | GET `/agents/status` (poll every 10s or on match) |
-| Run match | POST `/match/candidate-to-jobs` or `/match/job-to-candidates` |
-| Ensemble | POST `/match/ensemble` |
-| Daily batch | POST `/match/daily-batch` |
-| Switch store | POST `/system/vector-store` |
+| Login / register | `POST /auth/*` |
+| Profile gate | `fetchMyProfileOrNull()` → null \| `PROFILE_STALE_MARKER` \| profile |
+| Save profile | `PUT /candidates/me` |
+| Upload resume | `POST /candidates/upload-resume` |
+| Find jobs | `POST /match/candidate-to-jobs` (`DEFAULT_CANDIDATE_MATCH`, composite) |
+| Find candidates | `POST /match/job-to-candidates` |
+| Post job | `POST /jobs` |
+| JD paste/upload | `POST /jobs/parse-description`, `/jobs/upload-description` |
+| Feedback | `POST /feedback/actions` |
+| Agent panel | `GET /agents/status`, `/agents/events/recent` |
+| Admin match | `runMatch`, ensemble, daily batch |
+| Switch store | `POST /system/vector-store` |
 
-**New component:** `AgentStatusPanel.jsx` · three cards showing `entity_count`, `store_version`, `last_event`, `healthy`.
+**Env:** `VITE_API_BASE_URL` empty → Vite dev proxy to `:8001`.
 
-**Env:** `VITE_API_BASE_URL=http://localhost:8000`
+### 15.3 Profile utilities (`frontend/src/utils/profileFields.js`)
+
+| Function | Purpose |
+|----------|---------|
+| `hasCandidateProfile` | Record or stale marker exists |
+| `isProfileStale` | `__profileStale` from `PROFILE_NOT_FOUND` |
+| `isCandidateProfileReady` | `id` + `name` present (enables match) |
+| `profileToPayload` | Omits empty `id` on first save |
+
+### 15.4 Key components
+
+| Component | Purpose |
+|-----------|---------|
+| `AgentStatusPanel`, `AgentEventStrip` | Admin observability |
+| `MatchDetailsDrawer` | Score breakdown, resume coach, similar recs |
+| `CandidateJobResults`, `EmployerCandidateResults` | Filterable match tables |
+| `EmptyState.jsx` | ProfileNeeded, ProfileStale, JobsReady, EmployerAllClosed, … |
+| `ProfileForm`, `JobPostingForm`, `JdImportPanel` | Portal forms |
+| `PortalShell` | Nav, theme toggle, mobile tabs |
+
+### 15.5 Theme
+
+`tokens.css` (semantic variables) → `dark-mode.css` → `polish.css` → `App.css`. Auth pages use `auth.css`. `useTheme.js` persists `jm_theme` in localStorage. Portal accent via `data-portal` on `<html>` (candidate / employer / admin).
+
+### 15.6 Auth flow
+
+| Step | Behavior |
+|------|----------|
+| Bootstrap | `AuthContext` calls `GET /auth/me` on mount |
+| Register | Role picker → candidate routes to `/candidate/onboarding`; employer/admin to role home |
+| Login | Redirect to `location.state.from` or role home (`/candidate/matches`, `/employer/jobs`, `/admin/console`) |
+| Guards | `ProtectedRoute` → 401/403 error pages; wrong role blocked |
+| Logout | `POST /auth/logout` → `/login` |
+| Demo | `demo.candidate@test.com`, `demo.employer@test.com`, `demo.admin@test.com` / `demo1234` |
 
 ---
 
@@ -961,82 +1042,70 @@ sequenceDiagram
 
 ---
 
-## 18. Test plan
+## 18. Test plan (as-built)
 
 ### 18.1 Unit tests
 
-| Test file | Cases |
-|-----------|-------|
-| `test_event_bus.py` | subscribe/publish; multiple handlers; handler exception logged not raised |
-| `test_candidate_agent.py` | register bumps version; publishes event; get_by_name; snapshot immutability |
-| `test_employer_agent.py` | same for jobs |
-| `test_matchmaking_agent.py` | mock ICandidateAgent/IEmployerAgent; exhaustive rank order; cache invalidation on event |
-| `test_scoring.py` | semantic-only; multimodal jaccard w=0.7; soft overlap perfect match; invalid weight |
-| `test_snapshots.py` | snapshot excludes internal fields; embedding required |
-| `test_rrf.py` | consensus ordering matches legacy `research_sweep` fixture |
-| `test_explain.py` | bullets for high semantic, skill overlap |
+Python under `tests/unit/` and node under `tests/unit/*.mjs` (e.g. `test_profile_fields.mjs`, `test_profile_normalize.mjs`).
+
+| Area | Examples |
+|------|----------|
+| Event bus | subscribe/publish, handler isolation |
+| Agents | register, version bump, event publish |
+| Scoring | semantic, multimodal, composite, RRF |
+| Profile utils | payload omit id, stale marker, readiness gates |
 
 ### 18.2 Integration tests
 
-| Test file | Cases |
-|-----------|-------|
-| `test_bootstrap.py` | loads 30 candidates + 15 jobs; store counts; CORPUS_BOOTSTRAPPED fired |
-| `test_match_flow.py` | end-to-end Rahul Sharma → ML Engineer rank 1 (eval pair) |
-| `test_api_gateway.py` | all routes 200/404; OpenAPI schema valid |
-| `test_agent_isolation.py` | matchmaker cannot import candidate store directly (lint or architectural test) |
+| File | Cases |
+|------|-------|
+| `test_candidate_profile_flow.py` | PUT upsert, stale profile recovery, match after save |
+| `test_resume_upload.py` | LLM fallback, CID cleanup, employer jobs mine, repost, cross-owner 403 |
+| `test_feature_reverification.py` | Composite, JD parse, feedback, profile endpoints |
+| `test_bootstrap.py` | Corpus load counts |
+| `test_match_flow.py` | End-to-end Rahul Sharma → ranked jobs |
 
-### 18.3 Benchmark regression
+### 18.3 Benchmark / research tests
 
-| Test | Assert |
-|------|--------|
-| `test_eval_regression.py` | soft embed nDCG@5 ≈ 0.968515; semantic ≈ 0.911094 |
-| `test_eval_pairs_integrity.py` | 47 pairs, 30 queries unchanged |
+| Suite | Location |
+|-------|----------|
+| Benchmark regression | `tests/benchmarks/` (~38 tests) |
+| Research pipeline smoke | `backend/scripts/run_research_pipeline.py --skip-cross-encoder` |
 
-**Target:** ≥40 tests in v1; expand to 63+ as features parity with legacy.
+**Current counts:** 200+ pytest integration/unit; 5+ node unit tests; 38 benchmark tests (see `HANDOFF.md`).
 
-### 18.4 Test fixtures (`conftest.py`)
+### 18.4 Test fixtures (`tests/conftest.py`)
 
-```python
-@pytest.fixture
-def event_bus() -> AgentEventBus: ...
-
-@pytest.fixture
-def system(tmp_path) -> SystemContainer:
-    # copy data/*.json to tmp_path; create_system with test settings
-
-@pytest.fixture
-def sample_candidate() -> CandidateProfile: ...  # Rahul Sharma
-@pytest.fixture
-def sample_job() -> JobProfile: ...                # ML Engineer
-```
+`system` fixture builds `create_system()` with test data dir; `client` fixture wraps FastAPI TestClient with session cookies.
 
 ---
 
-## 19. Implementation order (post-SDD approval)
+## 19. Implementation status
 
-| Step | Deliverable | Est. |
-|------|-------------|------|
-| 1 | `contracts/`, `bus/`, `config.py` | 0.5 day |
-| 2 | `core/` (document_text, embedding, scoring) | 1 day |
-| 3 | `stores/` + factory | 0.5 day |
-| 4 | `CandidateAgent`, `EmployerAgent` | 1 day |
-| 5 | `MatchmakingAgent` + explain + rrf | 1 day |
-| 6 | `bootstrap.py` + unit tests | 0.5 day |
-| 7 | `gateway/` routes + integration tests | 1 day |
-| 8 | Frontend agent panel + API client | 1 day |
-| 9 | Benchmark adapter + regression gate | 1 day |
-
-**Total:** ~7–8 dev days for v1.
+| Step | Deliverable | Status |
+|------|-------------|--------|
+| 1 | `contracts/`, `bus/`, `config.py` | Done |
+| 2 | `core/` scoring stack | Done |
+| 3 | `stores/` + factory + SQLite stores | Done |
+| 4 | Three agents | Done |
+| 5 | Matchmaking + composite + explain | Done |
+| 6 | `bootstrap.py` + tests | Done |
+| 7 | Gateway routes + auth | Done |
+| 8 | Role portals + theme | Done |
+| 9 | Benchmark + research pipeline | Done |
+| 10 | Product hardening (stale profile, ownership, empty states) | Done @ `9d1de25` |
 
 ---
 
-## 20. Security and ethics (v1)
+## 20. Security and ethics
 
-- No authentication (local demo / research corpus).  
-- No PII beyond synthetic names in eval JSON.  
-- `POST /candidates` and `POST /jobs` disabled in production demo mode via `settings.read_only=true` (optional).  
-- Match results include `why_ranked` for transparency (Khan Part VIII guardrail).  
-- Agent status endpoint documents corpus size and versions for auditability.
+- **Authentication:** Session cookies; bcrypt passwords in SQLite; role-based route guards.  
+- **Ownership:** Candidate and job mutations require linked account; cross-tenant job id blocked.  
+- **Read-only demo:** `settings.read_only=true` blocks mutations except login/register (`ReadOnlyMiddleware`).  
+- **PII:** Eval corpus uses synthetic names; live profiles may include contact fields (email, phone) stored in agent memory + SQLite activity.  
+- **Transparency:** `why_ranked` bullets and `MatchDetailsDrawer` score breakdown; fairness report via `/system/fairness`.  
+- **Feedback:** Product default has `use_feedback_boost=false`; optional boost when enabled (+0.04 save, +0.06 apply, −0.06 dismiss). Saved/applied state persisted in SQLite activity store.
+- **Demo accounts:** Seeded with known password (`demo1234`) — not for production deployment as-is.
 
 ---
 
@@ -1048,7 +1117,7 @@ def sample_job() -> JobProfile: ...                # ML Engineer
 | Taranumpreet Kaur Wasu | Author | ☐ | |
 | Dr Parteek Bhatia | Supervisor | ☐ | |
 
-**Next step after approval:** Phase 2 implementation · begin with `contracts/` + `bus/` + `core/document_text.py`.
+**Next step:** Run 100×50 research pipeline eval; align paper §3 with as-built portals and composite scoring.
 
 ---
 
@@ -1084,11 +1153,14 @@ apply_link: {url}
 
 | Paper § | SDD section |
 |---------|-------------|
-| §3.1 Candidate Agent | §8.1, §11.2 |
-| §3.2 Employer Agent | §8.2, §11.3 |
-| §3.3 Matchmaking Agent | §8.3, §11.4 |
-| §3.4 Agent Communication | §7 |
-| §3.5 Workflow | §10, §17 |
+| §3.1 Candidate Agent | §8.1, §11.3 |
+| §3.2 Employer Agent | §8.2, §11.4 |
+| §3.3 Matchmaking Agent | §8.3, §11.5, §9 |
+| §3.4 UI / portals | HLD §9, SDD §15 |
+| §3.5 Auth / ownership | HLD §19, SDD §11.10 |
+| Research eval | HLD §20, `run_research_pipeline.py` |
+| Agent Communication | §7 |
+| Workflow | §10, §17 |
 | §4 Implementation | §3, §12, §14 |
 | §5 Quality Metrics | §9, §16, §18.3 |
 | Algorithm in paper | §9.1 |

@@ -1,24 +1,24 @@
 # High-Level Design (HLD)
 ## Multi-Agent Job Matching System
 
-**Version:** 1.0  
+**Version:** 1.1  
 **Date:** 2026-05-27  
-**Status:** Approved for SDD · see [SDD-multi-agent-system.md](./SDD-multi-agent-system.md)  
+**Status:** Implemented · `main` @ `9d1de25` · see [SDD-multi-agent-system.md](./SDD-multi-agent-system.md)  
 **Authors:** Harsh Kashyap, Taranumpreet Kaur Wasu  
 
 ---
 
 ## 1. Executive summary
 
-This document defines the high-level architecture for a **greenfield rewrite** of the Agentic Job Matching system. The current implementation is a **monolithic FastAPI service** with 14 REST endpoints and shared global state. The target is a **multi-agent recruitment system** with three collaborating agents:
+This document defines the high-level architecture for the **Agentic Job Matching** system. The legacy monolithic FastAPI service (`app.py`) has been replaced by a **multi-agent recruitment platform** with three collaborating agents:
 
-1. **Candidate Agent** · owns resume/CV lifecycle and candidate representations  
-2. **Employer Agent** · owns job description lifecycle and job representations  
-3. **Matchmaking Agent** · reads from both sides, performs semantic matching, produces ranked recommendations  
+1. **Candidate Agent** · owns resume/CV lifecycle, candidate embeddings, and profile state  
+2. **Employer Agent** · owns job description lifecycle, job embeddings, and posting state  
+3. **Matchmaking Agent** · reads from both sides, performs composite/semantic matching, produces ranked recommendations with explanations  
 
-Agents communicate through an **in-process event bus** (event-driven monolith). Each agent maintains **explicit state** and **data ownership**. An **LLM layer** is reserved for future parsing and explanation but is **not required for v1**.
+Agents communicate through an **in-process event bus** (event-driven monolith). Each agent maintains **explicit state** and **data ownership**. A **FastAPI gateway** exposes REST APIs; a **React portal** provides role-based UX for candidates, employers, and admins.
 
-The **evaluation corpus** (`cvs.json`, `jobs.json`, `eval_pairs.json`) and **benchmark drivers** (`paper_progression`, `phase11`) are preserved. All other application code is rewritten.
+**Also shipped beyond the original HLD v1.0 scope:** session auth with SQLite ownership links, LLM resume/JD parsing (Ollama/OpenAI), composite five-signal scoring, role portals, feedback/activity persistence, similar-entity discovery, offline research evaluation pipeline, and demo seed on startup.
 
 ---
 
@@ -34,35 +34,48 @@ The **evaluation corpus** (`cvs.json`, `jobs.json`, `eval_pairs.json`) and **ben
 
 Two autonomous representatives · one advocating for the candidate, one for the employer · should **collaborate through a shared matchmaking layer** rather than forcing humans through manual keyword search.
 
-### 2.3 Why move from API monolith to agents
+### 2.3 Architecture outcome (implemented)
 
-| Current (API monolith) | Target (multi-agent) |
-|------------------------|----------------------|
+| Legacy (API monolith) | Current (multi-agent) |
+|------------------------|------------------------|
 | `app.py` owns everything | Each agent owns a domain |
-| Shared `resumes[]`, `jobs[]` arrays | Agent-local state + published snapshots |
-| Match = function call over globals | Match = orchestrated cross-agent workflow |
-| "Agentic" = batch HTTP endpoints | Agentic = stateful agents + events + roles |
-| Hard to explain in paper §3 | Maps directly to professor's three-agent diagram |
+| Shared `resumes[]`, `jobs[]` arrays | Agent-local state + vector collections |
+| Match = function call over globals | Match = orchestrated cross-agent workflow via gateway |
+| Single UI | Role portals: candidate, employer, admin |
+| No auth | Session auth + SQLite ownership links |
 
 ---
 
 ## 3. Goals and non-goals
 
-### 3.1 Goals (v1)
+### 3.1 Goals (v1 · shipped)
 
-- Implement three agents with **clear boundaries**, **owned state**, and **documented communication**.  
-- Support full workflow: ingest CV → ingest JD → match → rank → display in UI.  
-- Preserve **reproducible evaluation** on existing 30/15/47 graded corpus.  
-- Design **LLM hook points** without requiring LLM in v1.  
-- Enable paper §3 architecture diagram and §3.4 agent communication narrative.
+- Three agents with **clear boundaries**, **owned state**, and **documented communication**  
+- Full workflow: ingest CV/JD (JSON + LLM upload) → match → rank → role portals  
+- **Reproducible evaluation** on 30/15/47 graded corpus + offline research pipeline  
+- **LLM hooks** for resume/JD parsing and grounded explanations (with rule fallback)  
+- Paper §3 architecture diagram and agent communication narrative  
 
-### 3.2 Non-goals (v1)
+### 3.2 Non-goals (deferred)
 
-- Microservices / separate deployable services  
+- Microservices / separate deployable services per agent  
 - Redis or external message broker (in-process bus only)  
-- LLM-powered parsing or reranking (deferred to v2 hooks)  
-- Real-time external job API sync (can re-add after core agents work)  
-- Autonomous agent policy selection (user/UI still triggers workflows)
+- Real-time external job board sync  
+- Autonomous agent policy selection without user trigger  
+
+### 3.3 Implementation status (2026-05-27)
+
+| Layer | Status | Notes |
+|-------|--------|-------|
+| Three agents + event bus | Shipped | `backend/agents/`, `backend/bus/` |
+| Composite matching | Shipped | Default product strategy; semantic 40%, skills 30%, experience 15%, compensation 10%, location 5% |
+| Auth + ownership | Shipped | Cookie sessions; candidate/job links in SQLite |
+| Candidate portal | Shipped | Onboarding, profile, matches, saved |
+| Employer portal | Shipped | Jobs CRUD, JD import, candidate matches, applications |
+| Admin console | Shipped | Agent status, match controls, fairness report |
+| LLM parsing | Shipped | Resume + JD via Ollama/OpenAI; manual fallback |
+| Research pipeline | Shipped | `run_research_pipeline.py` · 9-stage offline eval |
+| Demo seed | Shipped | `demo_seed.py` on startup (`SEED_DEMO=true`) |
 
 ---
 
@@ -73,11 +86,18 @@ flowchart TB
   subgraph users [Human Users]
     JS[Job Seeker]
     ER[Employer / Recruiter]
-    EV[Evaluator / Researcher]
+    AD[Admin / Evaluator]
   end
 
-  subgraph ui [UI / Application Layer]
-    WEB[Web Dashboard]
+  subgraph ui [React Portals]
+    CP[Candidate Portal]
+    EP[Employer Portal]
+    AP[Admin Console]
+  end
+
+  subgraph gateway [API Gateway]
+    AUTH[Auth + Session]
+    REST[FastAPI Routes]
   end
 
   subgraph mas [Multi-Agent System]
@@ -90,29 +110,33 @@ flowchart TB
   subgraph storage [Persistence]
     CVS[(Candidate Vector Store)]
     JVS[(Job Vector Store)]
-    META[(Agent State / Metadata)]
+    SQL[(SQLite: users, ownership, feedback, activity)]
   end
 
-  JS --> WEB
-  ER --> WEB
-  EV --> WEB
-  WEB --> CA
-  WEB --> EA
-  WEB --> MA
+  JS --> CP
+  ER --> EP
+  AD --> AP
+  CP --> AUTH
+  EP --> AUTH
+  AP --> REST
+  AUTH --> REST
+  REST --> CA
+  REST --> EA
+  REST --> MA
   CA --> BUS
   EA --> BUS
   MA --> BUS
   CA --> CVS
-  CA --> META
   EA --> JVS
-  EA --> META
   MA --> CVS
   MA --> JVS
+  AUTH --> SQL
+  REST --> SQL
 ```
 
-**External actors:** job seeker, employer/recruiter, evaluator (benchmark runner).  
-**System boundary:** UI + three agents + vector stores + event bus.  
-**Outside v1:** LLM provider, external job boards, email notifications.
+**External actors:** job seeker, employer/recruiter, admin/evaluator.  
+**System boundary:** role portals + gateway + three agents + vector stores + SQLite.  
+**Outside scope:** external job boards, email notifications, production SSO.
 
 ---
 
@@ -124,9 +148,9 @@ flowchart TB
 
 | Aspect | Detail |
 |--------|--------|
-| **Inputs** | Structured CV JSON, future: raw PDF/text |
+| **Inputs** | Structured CV JSON, resume upload (PDF/DOCX/TXT via LLM parser) |
 | **Outputs** | `CandidateProfile` state, embedding in candidate vector store |
-| **Owns** | Resume parsing pipeline (v1: schema validation), candidate embeddings collection, candidate profile registry |
+| **Owns** | Resume parsing (JsonParser at bootstrap; LlmParser on HTTP upload), candidate embeddings collection, candidate profile registry |
 | **Does not own** | Job data, matching scores, employer state |
 
 **Core responsibilities:**
@@ -146,7 +170,7 @@ CandidateAgentState {
 }
 ```
 
-**Future LLM hook:** unstructured CV → structured `CandidateProfile` (parsing agent tool).
+**LLM hook (shipped):** unstructured CV → structured `CandidateProfile` via `LlmParser` (Ollama/OpenAI); manual form fallback when LLM unavailable.
 
 ---
 
@@ -156,9 +180,9 @@ CandidateAgentState {
 
 | Aspect | Detail |
 |--------|--------|
-| **Inputs** | Structured job JSON, future: raw JD text, external API feed |
+| **Inputs** | Structured job JSON, JD paste/upload (LLM parser) |
 | **Outputs** | `JobProfile` state, embedding in job vector store |
-| **Owns** | JD parsing pipeline (v1: schema validation), job embeddings collection, job registry |
+| **Owns** | JD parsing (JsonParser at bootstrap; LlmParser on HTTP upload), job embeddings collection, job registry |
 | **Does not own** | Candidate data, final match rankings |
 
 **Core responsibilities:**
@@ -178,7 +202,7 @@ EmployerAgentState {
 }
 ```
 
-**Future LLM hook:** unstructured JD → structured `JobProfile`; job requirement extraction.
+**LLM hook (shipped):** unstructured JD → structured `JobProfile` via `LlmParser`; job lifecycle fields (`status`, `apply_url`) on owned postings.
 
 ---
 
@@ -189,17 +213,17 @@ EmployerAgentState {
 | Aspect | Detail |
 |--------|--------|
 | **Inputs** | Match requests (candidate→jobs or job→candidates), strategy config |
-| **Outputs** | Ranked match lists, scores, explanations (rule-based v1) |
-| **Owns** | Matching strategies, ranking logic, match session history |
+| **Outputs** | Ranked match lists, composite/semantic scores, rule-based explanations (optional LLM) |
+| **Owns** | Matching strategies, ranking logic, optional cross-encoder rerank, match session history |
 | **Does not own** | Raw CVs, raw JDs, vector store writes |
 
 **Core responsibilities:**
 1. Subscribe to `CandidateProfileUpdated` and `JobProfileUpdated` (invalidate caches)  
 2. Query candidate and employer agents for current snapshots / ANN search  
-3. Run semantic and multimodal scoring  
-4. Apply ranking (top-K, optional RRF ensemble)  
+3. Run semantic, multimodal, or **composite** scoring (product default)  
+4. Apply ranking (top-K, optional RRF ensemble, optional cross-encoder rerank)  
 5. Publish `MatchCompleted` event  
-6. Expose match API to UI  
+6. Expose match API to UI; employer direction may include candidate contact fields
 
 **State maintained:**
 ```text
@@ -210,7 +234,7 @@ MatchmakerAgentState {
 }
 ```
 
-**Future LLM hook:** natural-language match explanations; query refinement.
+**LLM hook (shipped):** optional `GroundedLlmExplainer` when `explain_mode=llm`; rule fallback always available.
 
 ---
 
@@ -336,10 +360,11 @@ INPUT:  candidate_profile C, job corpus J, strategy S, metric M, top_k K
    - exhaustive: all jobs in J
    - ANN: TopPool(J, e_C, pool_size)
 
-4. SCORE (matchmaker)
-   - semantic: sim(e_C, e_J, M)
-   - multimodal: w * semantic + (1-w) * skills_overlap(C, J)
-   - skills_overlap: Jaccard (v1 default) or soft embed (benchmark mode)
+4. SCORE (matchmaker · `score_pair_advanced`)
+   - strategies: semantic | multimodal | **composite** (product default)
+   - composite: semantic 40%, skills 30%, experience 15%, compensation 10%, location 5%
+   - optional: learned fusion, constraints, feedback boost, Platt calibration
+   - optional: cross-encoder rerank (top pool)
 
 5. RANK
    - sort descending by final score
@@ -361,19 +386,44 @@ OUTPUT: MatchResult[]
 
 ## 9. UI / application layer
 
-The UI is **not an agent**. It is the **demonstration surface** where humans trigger agent workflows.
+The UI is **not an agent**. It is the **demonstration surface** where humans trigger agent workflows through **role-scoped portals**.
+
+### 9.1 Portal routes (React + Vite)
+
+| Portal | Routes | Primary flows |
+|--------|--------|---------------|
+| **Auth** | `/login`, `/register` | Session login; demo accounts; role picker on register |
+| **Candidate** | `/candidate/onboarding`, `/profile`, `/matches`, `/saved` | Resume upload → review → PUT upsert → job search; profile edit; saved/applied |
+| **Employer** | `/employer/jobs`, `/matches`, `/applications` | JD paste/upload → post role → candidate match → applications feed |
+| **Admin** | `/admin/console` | Agent status, ad-hoc match, ensemble, daily batch, fairness, vector store switch |
+| **Errors** | `/error/{401,402,403,501,502}` | Branded error pages via `ApiErrorBridge` |
+
+**Layout:** `PortalShell` (top nav, theme toggle, mobile tabs) wraps candidate/employer/admin layouts. Theme via `tokens.css` + `dark-mode.css`; portal accent via `data-portal` on `<html>`.
+
+### 9.2 UI → backend routing
 
 | UI capability | Routed to |
 |---------------|-----------|
-| Select candidate / job | read-only queries to respective agents |
-| Run match | Matchmaker |
-| Toggle strategy / metric | Matchmaker config |
-| Ensemble match | Matchmaker (multi-strategy + RRF) |
-| View agent status | all agents (health + corpus counts + store versions) |
-| Run daily batch | Matchmaker orchestration |
-| Switch vector backend | shared infra config (both stores) |
+| Onboarding / profile save | `PUT /candidates/me` → Candidate Agent + ownership link |
+| Resume upload | `POST /candidates/upload-resume` → LLM parser + form prefill |
+| Find jobs (candidate) | `POST /match/candidate-to-jobs` → Matchmaking Agent (`strategy: composite` default) |
+| Post / edit job | `POST /jobs`, `PUT /jobs/mine/{id}` → Employer Agent + ownership |
+| JD import | `POST /jobs/parse-description`, `POST /jobs/upload-description` |
+| Find candidates | `POST /match/job-to-candidates` |
+| Save / apply / feedback | `POST /feedback/actions` → FeedbackStore + activity sync |
+| Agent observability | `GET /agents/status`, `GET /agents/events/recent` |
+| Fairness / system | `GET /system/fairness`, `GET /system/config`, `POST /system/vector-store` |
 
-**New UI element (v1):** Agent status panel showing each agent's state version and last event · makes agentic framing visible to demo audience.
+### 9.3 Profile gating (candidate portal)
+
+| State | Detection | UI behavior |
+|-------|-----------|-------------|
+| No profile | `GET /candidates/me` → 404 `NOT_FOUND` | `ProfileNeededEmpty` → onboarding |
+| Stale profile | 404 `PROFILE_NOT_FOUND` (link kept, in-memory profile gone) | `ProfileStaleEmpty` → re-save form |
+| Incomplete | Profile exists but missing `id` + `name` | `ProfileIncompleteEmpty` → finish profile |
+| Ready | `isCandidateProfileReady` | Jobs search enabled; auto-search after onboarding save |
+
+**New UI elements (shipped):** Agent status panel, match details drawer with score breakdown, resume coach, similar jobs/candidates, empty-state variants per backend state, loading states on refresh actions.
 
 ---
 
@@ -381,41 +431,47 @@ The UI is **not an agent**. It is the **demonstration surface** where humans tri
 
 | Layer | Choice | Rationale |
 |-------|--------|-----------|
-| Language | Python 3.11+ | Existing benchmarks, ML ecosystem |
-| Agent runtime | Single process, asyncio-compatible sync v1 | Simplicity, demo reliability |
-| Event bus | In-process pub-sub (`AgentEventBus` class) | No Redis ops; upgrade path to Redis later |
-| API gateway | FastAPI (thin) | Routes to agents; no business logic |
-| Embeddings | sentence-transformers / MiniLM | Proven in current eval |
-| Vector store | Chroma default, Qdrant optional | Preserved benchmark parity |
-| Frontend | React + Vite | Existing stack familiarity |
+| Language | Python 3.11+ | Benchmarks, ML ecosystem |
+| Agent runtime | Single process, sync handlers | Demo reliability; upgrade path to Redis |
+| Event bus | In-process pub-sub (`AgentEventBus`) | No external broker ops |
+| API gateway | FastAPI on port **8001** | Thin routes; session middleware |
+| Auth | Starlette sessions + SQLite `UserStore` | Role portals; ownership links |
+| Embeddings | sentence-transformers / MiniLM | Proven in eval |
+| Vector store | Chroma default, Qdrant optional | Hot-switch via `bootstrap_reindex.py` |
+| Frontend | React 19 + Vite on port **5173** | Role portals, theme tokens |
 | Schemas | Pydantic v2 | Agent message validation |
-| Tests | pytest | 63-test parity target on eval + agent contracts |
+| Tests | pytest + node unit tests | 200+ integration/unit; 38 benchmark tests |
 
 ---
 
 ## 11. Logical deployment view
 
 ```text
-┌─────────────────────────────────────────────────────────────┐
-│                     Python Process (v1)                      │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐  │
-│  │  Candidate  │  │  Employer   │  │    Matchmaking      │  │
-│  │    Agent    │  │    Agent    │  │       Agent         │  │
-│  └──────┬──────┘  └──────┬──────┘  └──────────┬──────────┘  │
-│         │                │                     │             │
-│         └────────────────┼─────────────────────┘             │
-│                          ▼                                   │
-│                   Agent Event Bus                            │
-│                          │                                   │
-│         ┌────────────────┴────────────────┐                │
-│         ▼                                 ▼                │
-│  Candidate Vector Store            Job Vector Store          │
-│  (Chroma/Qdrant collection)        (Chroma/Qdrant collection)│
-└─────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────┐
+│                     Python Process                               │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐      │
+│  │  Candidate  │  │  Employer   │  │    Matchmaking      │      │
+│  │    Agent    │  │    Agent    │  │       Agent         │      │
+│  └──────┬──────┘  └──────┬──────┘  └──────────┬──────────┘      │
+│         └────────────────┼─────────────────────┘                │
+│                          ▼                                      │
+│                   Agent Event Bus                               │
+│         ┌────────────────┴────────────────┐                   │
+│         ▼                                 ▼                   │
+│  candidates_collection            jobs_collection              │
+│  (Chroma / Qdrant)                (Chroma / Qdrant)            │
+│                                                                 │
+│  ┌──────────────────────────────────────────────────────────┐  │
+│  │ SQLite (app.db): users, candidate_ownership, job_ownership│  │
+│  │                  user_feedback, match_feedback, activity  │  │
+│  └──────────────────────────────────────────────────────────┘  │
+│                          ▲                                      │
+│                   FastAPI Gateway + Auth                        │
+└─────────────────────────────────────────────────────────────────┘
                           ▲
-                          │ HTTP
+                          │ HTTP :8001 (cookie session)
                    ┌──────┴──────┐
-                   │  React UI   │
+                   │ React UI    │  :5173 · candidate / employer / admin
                    └─────────────┘
 ```
 
@@ -439,17 +495,20 @@ The UI is **not an agent**. It is the **demonstration surface** where humans tri
 
 ---
 
-## 13. LLM extension points (hybrid · v2)
+## 13. LLM and ML extensions (shipped)
 
-| Hook | Agent | v1 behavior | v2 LLM behavior |
-|------|-------|-------------|-----------------|
-| `parse_cv` | Candidate | Pydantic JSON validate | Extract fields from PDF/text |
-| `parse_jd` | Employer | Pydantic JSON validate | Extract requirements from prose |
-| `explain_match` | Matchmaker | Rule-based bullets | NL explanation |
-| `refine_query` | Matchmaker | N/A | Interpret user intent |
-| `strategy_select` | Matchmaker | UI dropdown | Agent picks strategy |
+| Hook | Agent / layer | Behavior |
+|------|---------------|----------|
+| `parse_cv` | Gateway + `LlmParser` | Resume PDF/DOCX/TXT → structured fields; CID cleanup; contact regex fallback |
+| `parse_jd` | Gateway + `LlmParser` | JD file or pasted text → job form fields |
+| `explain_match` | Matchmaker | Rule-based bullets default; optional `GroundedLlmExplainer` |
+| `resume_suggestions` | Gateway | ATS gap analysis for candidate vs job |
+| `strategy_select` | Matchmaker | `strategy_router.py` auto-picks strategy from profile shape |
+| `composite` scoring | Matchmaker | Five-signal blend (semantic, skills, experience, compensation, location) |
+| `cross_encoder_rerank` | Matchmaker | Optional second stage (off by default; eval shows nDCG cost) |
+| `learned_fusion` / `calibration` | Matchmaker | Optional models from `data/models/` |
 
-Each hook is an **interface** (`Parser`, `Explainer`) with a **NoOp / rules implementation** in v1.
+Bootstrap corpus parsing uses `JsonParser`; HTTP upload paths use `LlmParser` with unavailable fallback to manual form entry.
 
 ---
 
@@ -485,23 +544,53 @@ Each hook is an **interface** (`Parser`, `Explainer`) with a **NoOp / rules impl
 
 ---
 
-## 16. Implementation phases
+## 16. Implementation phases (completed)
 
-| Phase | Deliverable | Depends on |
-|-------|-------------|------------|
-| **Phase 0** | HLD approval (this doc) | · |
-| **Phase 1** | SDD · classes, interfaces, event schemas, API spec, file layout | HLD approved |
-| **Phase 2** | Core agents + event bus + bootstrap | SDD approved |
-| **Phase 3** | Matchmaker + scoring lib + eval harness wired | Phase 2 |
-| **Phase 4** | API gateway + UI agent panel | Phase 3 |
-| **Phase 5** | Benchmark parity verification | Phase 3 |
-| **Phase 6** | Paper §3 diagram + algorithm pseudocode | Phase 4 |
+| Phase | Deliverable | Status |
+|-------|-------------|--------|
+| **Phase 0** | HLD approval | Done |
+| **Phase 1** | SDD | Done |
+| **Phase 2** | Core agents + event bus + bootstrap | Done |
+| **Phase 3** | Matchmaker + scoring + eval harness | Done |
+| **Phase 4** | API gateway + role portals + auth | Done |
+| **Phase 5** | Benchmark + research pipeline parity | Done |
+| **Phase 6** | Paper artifacts + demo polish | In progress |
 
-**No code until SDD is approved** (per team decision).
+**Next:** scale research eval (100×50 corpus), supervisor diagram approval, optional microservice extraction.
 
 ---
 
-## 17. Open decisions (for SDD)
+## 19. Authentication and ownership (product layer)
+
+Not part of the three-agent core, but required for role portals:
+
+| Concept | Implementation |
+|---------|----------------|
+| Sessions | Cookie `jm_session` via Starlette middleware |
+| Roles | `candidate`, `employer`, `admin` |
+| Candidate link | 1:1 `candidate_ownership(user_id → candidate_id)` |
+| Job link | 1:1 `job_ownership(job_id → user_id)`; `link_job_if_unowned` on POST |
+| Access control | `require_role()` on mutating routes; employer checks `list_job_ids` |
+| Stale recovery | Ownership link retained when in-memory profile missing; PUT recreates profile |
+| Cross-tenant guard | POST `/jobs` with another user's `job_id` → 403 `JOB_NOT_OWNED` |
+| Demo seed | `demo_seed.py` links demo accounts to corpus IDs on startup |
+
+---
+
+## 20. Extended services (beyond three agents)
+
+| Service | Purpose |
+|---------|---------|
+| **FeedbackStore** | UI feedback (save, apply, reject, contact); legacy pair feedback for research |
+| **CandidateActivityStore** | Saved jobs and application records |
+| **Similar entities** | `/similar/jobs`, `/similar/candidates` via embedding + skills |
+| **ReadOnlyMiddleware** | Demo mode blocks mutations except auth |
+| **Research pipeline** | Offline 9-stage eval → `backend/reports/research_run_*/` |
+| **Fairness audit** | `GET /system/fairness` exposes eval report |
+
+---
+
+## 21. Open decisions (remaining)
 
 1. Single shared Chroma client vs two logical collections · **recommend:** two collections, one factory  
 2. Matchmaker exhaustive vs ANN default for UI · **recommend:** exhaustive v1 (15 jobs), ANN for batch  
@@ -510,7 +599,7 @@ Each hook is an **interface** (`Parser`, `Explainer`) with a **NoOp / rules impl
 
 ---
 
-## 18. Approval
+## 22. Approval
 
 | Reviewer | Role | Approved | Date |
 |----------|------|----------|------|
@@ -518,7 +607,7 @@ Each hook is an **interface** (`Parser`, `Explainer`) with a **NoOp / rules impl
 | Taranumpreet Kaur Wasu | Author | ☐ | |
 | Dr Parteek Bhatia | Supervisor | ☐ | |
 
-**Next step after approval:** produce `SDD-multi-agent-system.md` with class diagrams, interface definitions, event schemas, API endpoints, directory layout, and test plan.
+**Next step:** align paper §3 diagram with implemented portals and composite scoring; run 100×50 research pipeline eval.
 
 ---
 
