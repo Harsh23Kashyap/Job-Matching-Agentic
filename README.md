@@ -67,6 +67,13 @@ Optional: set `OPENAI_API_KEY` in `backend/.env` (see `backend/.env.example`) to
 
 Register at `/register` and pick a role. Sign in at `/login`.
 
+## Quick demo (15 min)
+
+Follow the scripted walkthrough for supervisors and stakeholders:
+
+- **[Demo script](docs/demo/DEMO-SCRIPT.md)** — candidate → employer → admin narrative
+- **[Pre-flight checklist](docs/demo/DEMO-CHECKLIST.md)** — servers, corpus smoke, demo accounts
+
 ## API overview
 
 | Route | Description |
@@ -99,4 +106,4 @@ cd backend && source .venv/bin/activate
 pytest ../tests -v
 ```
 
-Expected: **59 tests** pass, including Rahul Sharma → Machine Learning Engineer rank 1 smoke test.
+Expected: **69 tests** pass, including Rahul Sharma → Machine Learning Engineer rank 1 smoke test.

@@ -50,3 +50,14 @@
 
 **Outcome:** Implemented — auth, 3 portals, LLM resume upload, 59 tests.
 **Files affected:** `backend/auth/`, `backend/hooks/llm_parser.py`, `backend/core/resume_text.py`, `frontend/src/pages/`, `frontend/src/layouts/`, `frontend/src/context/`.
+
+## Demo-ready sprint — 2026-05-27
+
+**Decisions:**
+- Next sprint optimizes for supervisor demo, not v2 benchmarks or new product features yet.
+- Scripted 15-min path (not Playwright E2E): DEMO-SCRIPT + DEMO-CHECKLIST + demo accounts.
+- Admin console remains research baseline; candidate/employer portals are the product story.
+
+**Approach chosen:** Scripted demo path with manual smoke verification.
+**Outcome:** Demo docs written; smoke passed (69 tests, Rahul→ML rank 1, demo accounts work).
+**Files affected:** `docs/demo/DEMO-SCRIPT.md`, `docs/demo/DEMO-CHECKLIST.md`, `HANDOFF.md`, `README.md`.
