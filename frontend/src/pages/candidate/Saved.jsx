@@ -2,13 +2,22 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import PageHeader from "../../components/PageHeader.jsx";
 import Button from "../../components/Button.jsx";
-import { fetchMyApplications, fetchSavedJobs, updateSavedJob } from "../../api/client.js";
+import { useToast } from "../../components/Toast.jsx";
+import {
+  apiErrorMessage,
+  fetchMyApplications,
+  fetchSavedJobs,
+  recordFeedbackAction,
+} from "../../api/client.js";
+import { PROFILE_UPDATED_EVENT } from "../../utils/profileEvents.js";
 
 export default function CandidateSaved() {
+  const { showToast } = useToast();
   const [saved, setSaved] = useState([]);
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [unsavingId, setUnsavingId] = useState("");
   const [error, setError] = useState(null);
 
   const load = async ({ refresh = false } = {}) => {
@@ -20,7 +29,7 @@ export default function CandidateSaved() {
       setSaved(savedRows);
       setApplications(appRows);
     } catch (err) {
-      setError(err.response?.data?.detail?.error || err.message);
+      setError(apiErrorMessage(err, "Could not load saved jobs and applications."));
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -31,9 +40,30 @@ export default function CandidateSaved() {
     load();
   }, []);
 
+  useEffect(() => {
+    const onProfileUpdated = () => load({ refresh: true });
+    window.addEventListener(PROFILE_UPDATED_EVENT, onProfileUpdated);
+    return () => window.removeEventListener(PROFILE_UPDATED_EVENT, onProfileUpdated);
+  }, []);
+
   const handleUnsave = async (row) => {
-    await updateSavedJob(row.job_id, row.job_title, false);
+    if (unsavingId) return;
+    setUnsavingId(row.job_id);
+    const previous = saved;
     setSaved((prev) => prev.filter((s) => s.job_id !== row.job_id));
+    try {
+      await recordFeedbackAction({
+        targetId: row.job_id,
+        action: "unsave",
+        targetLabel: row.job_title,
+      });
+      showToast(`Removed ${row.job_title} from saved.`);
+    } catch (err) {
+      setSaved(previous);
+      showToast(apiErrorMessage(err, "Could not remove saved job. Try again."), "error");
+    } finally {
+      setUnsavingId("");
+    }
   };
 
   return (
@@ -63,8 +93,13 @@ export default function CandidateSaved() {
                   {saved.map((row) => (
                     <li key={row.id} className="activity-row">
                       <span>{row.job_title}</span>
-                      <button type="button" className="row-action-btn" onClick={() => handleUnsave(row)}>
-                        Remove
+                      <button
+                        type="button"
+                        className="row-action-btn"
+                        disabled={unsavingId === row.job_id}
+                        onClick={() => handleUnsave(row)}
+                      >
+                        {unsavingId === row.job_id ? "Removing…" : "Remove"}
                       </button>
                     </li>
                   ))}

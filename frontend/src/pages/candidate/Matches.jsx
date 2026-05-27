@@ -8,7 +8,7 @@ import Button from "../../components/Button.jsx";
 import { useToast } from "../../components/Toast.jsx";
 import { apiErrorMessage, fetchMyProfileOrNull, runMatch, DEFAULT_CANDIDATE_MATCH } from "../../api/client.js";
 import { matchPercent } from "../../utils/format.js";
-import { hasCandidateProfile, isCandidateProfileReady } from "../../utils/profileFields.js";
+import { hasCandidateProfile, isCandidateProfileReady, isProfileStale } from "../../utils/profileFields.js";
 import { PROFILE_UPDATED_EVENT } from "../../utils/profileEvents.js";
 
 export default function CandidateMatches() {
@@ -22,58 +22,76 @@ export default function CandidateMatches() {
   const [loading, setLoading] = useState(false);
   const [lastUpdated, setLastUpdated] = useState(null);
   const autoSearchDone = useRef(false);
+  const profileRef = useRef(null);
 
   const profileReady = isCandidateProfileReady(profile);
 
-  const loadProfile = useCallback(() => {
-    setProfileLoading(true);
-    fetchMyProfileOrNull()
-      .then((data) => setProfile(data))
-      .catch(() => setProfile(null))
-      .finally(() => setProfileLoading(false));
+  const invalidateMatches = useCallback(() => {
+    setResponse(null);
+    setLastUpdated(null);
+    setError(null);
   }, []);
 
-  const handleFindJobs = useCallback(async () => {
-    if (!profileReady || !profile?.name) return;
-    setLoading(true);
-    setError(null);
+  const loadProfile = useCallback(async ({ silent = false } = {}) => {
+    if (!silent) setProfileLoading(true);
     try {
-      const data = await runMatch({
-        ...DEFAULT_CANDIDATE_MATCH,
-        queryKey: profile.name,
-      });
-      setResponse(data);
-      setLastUpdated(new Date().toISOString());
-      const count = data.results?.length ?? 0;
-      showToast(
-        count === 0
-          ? "Search finished. No roles matched your profile yet."
-          : `Found ${count} role${count === 1 ? "" : "s"} matched to your profile.`,
-      );
-    } catch (err) {
-      setError(apiErrorMessage(err, "Could not load job matches. Try again."));
+      const data = await fetchMyProfileOrNull();
+      const previousName = profileRef.current?.name;
+      profileRef.current = data;
+      setProfile(data);
+      if (previousName && data?.name && previousName !== data.name) {
+        invalidateMatches();
+      }
+    } catch {
+      profileRef.current = null;
+      setProfile(null);
+      invalidateMatches();
     } finally {
-      setLoading(false);
+      if (!silent) setProfileLoading(false);
     }
-  }, [profile, profileReady, showToast]);
+  }, [invalidateMatches]);
+
+  const handleFindJobs = useCallback(
+    async ({ silent = false } = {}) => {
+      if (!profileReady || !profile?.name) return;
+      setLoading(true);
+      if (!silent) setError(null);
+      try {
+        const data = await runMatch({
+          ...DEFAULT_CANDIDATE_MATCH,
+          queryKey: profile.name,
+        });
+        setResponse(data);
+        setLastUpdated(new Date().toISOString());
+        if (!silent) {
+          const count = data.results?.length ?? 0;
+          showToast(
+            count === 0
+              ? "Search finished. No roles matched your profile yet."
+              : `Found ${count} role${count === 1 ? "" : "s"} matched to your profile.`,
+          );
+        }
+      } catch (err) {
+        setError(apiErrorMessage(err, "Could not load job matches. Try again."));
+      } finally {
+        setLoading(false);
+      }
+    },
+    [profile, profileReady, showToast],
+  );
 
   useEffect(() => {
     loadProfile();
   }, [loadProfile, location.pathname]);
 
   useEffect(() => {
-    const onProfileUpdated = () => loadProfile();
+    const onProfileUpdated = () => {
+      loadProfile({ silent: true });
+      invalidateMatches();
+    };
     window.addEventListener(PROFILE_UPDATED_EVENT, onProfileUpdated);
     return () => window.removeEventListener(PROFILE_UPDATED_EVENT, onProfileUpdated);
-  }, [loadProfile]);
-
-  useEffect(() => {
-    const onVisible = () => {
-      if (document.visibilityState === "visible") loadProfile();
-    };
-    document.addEventListener("visibilitychange", onVisible);
-    return () => document.removeEventListener("visibilitychange", onVisible);
-  }, [loadProfile]);
+  }, [loadProfile, invalidateMatches]);
 
   useEffect(() => {
     if (!location.state?.searchAfterSave) {
@@ -195,6 +213,8 @@ export default function CandidateMatches() {
     ? `${matchCount} role${matchCount === 1 ? "" : "s"} matched for ${profile.name}.`
     : `Matching roles for ${profile.name} based on your profile.`;
 
+  const handleRefresh = () => handleFindJobs({ silent: false });
+
   return (
     <>
       <PageHeader
@@ -204,7 +224,7 @@ export default function CandidateMatches() {
         stats={heroStats}
         inlineAction={
           response || error ? (
-            <Button loading={loading} loadingLabel="Searching…" onClick={handleFindJobs}>
+            <Button loading={loading} loadingLabel="Searching…" onClick={handleRefresh}>
               Refresh matches
             </Button>
           ) : null
@@ -214,7 +234,7 @@ export default function CandidateMatches() {
         <EmptyStatePanel>
           <JobsReadyEmpty
             action={
-              <Button loading={loading} loadingLabel="Searching…" onClick={handleFindJobs}>
+              <Button loading={loading} loadingLabel="Searching…" onClick={handleRefresh}>
                 Find jobs
               </Button>
             }
@@ -226,7 +246,7 @@ export default function CandidateMatches() {
             <span>{error}</span>
           </div>
           <div className="empty-state-action" style={{ marginTop: 16 }}>
-            <Button loading={loading} loadingLabel="Searching…" onClick={handleFindJobs}>
+            <Button loading={loading} loadingLabel="Searching…" onClick={handleRefresh}>
               Try again
             </Button>
           </div>
@@ -235,7 +255,7 @@ export default function CandidateMatches() {
         <CandidateJobResults
           response={response}
           error={error}
-          onRefresh={handleFindJobs}
+          onRefresh={handleRefresh}
           loading={loading}
           updatedAt={lastUpdated}
           onClearError={() => setError(null)}

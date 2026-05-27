@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import PageHeader from "../../components/PageHeader.jsx";
 import EmployerCandidateResults, { EmployerNoJobsEmpty } from "../../components/EmployerCandidateResults.jsx";
@@ -8,25 +8,49 @@ import Button from "../../components/Button.jsx";
 import { useToast } from "../../components/Toast.jsx";
 import { apiErrorMessage, fetchMyJobs, runMatch, DEFAULT_EMPLOYER_MATCH } from "../../api/client.js";
 import { matchPercent, countStrongMatches } from "../../utils/format.js";
+import { JOBS_UPDATED_EVENT } from "../../utils/profileEvents.js";
+
+function resolveJobSelection(openJobs, queryValue) {
+  if (!queryValue || !openJobs.length) return null;
+  const byId = openJobs.find((job) => job.id === queryValue);
+  if (byId) return byId.id;
+  const byTitle = openJobs.find((job) => job.title === queryValue);
+  return byTitle?.id ?? null;
+}
 
 export default function EmployerMatches() {
   const { showToast } = useToast();
   const [searchParams] = useSearchParams();
   const [jobs, setJobs] = useState([]);
   const [jobsLoading, setJobsLoading] = useState(true);
-  const [selected, setSelected] = useState("");
+  const [selectedJobId, setSelectedJobId] = useState("");
   const [response, setResponse] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [refreshedAt, setRefreshedAt] = useState(null);
+  const autoMatchDone = useRef(false);
+
+  const loadJobs = useCallback(async ({ silent = false } = {}) => {
+    if (!silent) setJobsLoading(true);
+    try {
+      const rows = await fetchMyJobs();
+      setJobs(rows);
+    } catch {
+      setJobs([]);
+    } finally {
+      if (!silent) setJobsLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    setJobsLoading(true);
-    fetchMyJobs()
-      .then(setJobs)
-      .catch(() => setJobs([]))
-      .finally(() => setJobsLoading(false));
-  }, []);
+    loadJobs();
+  }, [loadJobs]);
+
+  useEffect(() => {
+    const onJobsUpdated = () => loadJobs({ silent: true });
+    window.addEventListener(JOBS_UPDATED_EVENT, onJobsUpdated);
+    return () => window.removeEventListener(JOBS_UPDATED_EVENT, onJobsUpdated);
+  }, [loadJobs]);
 
   const openJobs = useMemo(
     () => jobs.filter((job) => (job.status || "open") === "open"),
@@ -34,48 +58,74 @@ export default function EmployerMatches() {
   );
 
   const selectedJob = useMemo(
-    () => openJobs.find((job) => job.title === selected) || null,
-    [openJobs, selected],
+    () => openJobs.find((job) => job.id === selectedJobId) || null,
+    [openJobs, selectedJobId],
   );
 
   useEffect(() => {
-    if (!openJobs.length) return;
-    const fromQuery = searchParams.get("job");
-    if (fromQuery && openJobs.some((job) => job.title === fromQuery)) {
-      setSelected(fromQuery);
+    if (!openJobs.length) {
+      setSelectedJobId("");
       return;
     }
-    if (!selected || !openJobs.some((job) => job.title === selected)) {
-      setSelected(openJobs[0].title);
+    const fromQuery = resolveJobSelection(openJobs, searchParams.get("job"));
+    if (fromQuery) {
+      setSelectedJobId(fromQuery);
+      return;
     }
-  }, [openJobs, searchParams, selected]);
+    if (!selectedJobId || !openJobs.some((job) => job.id === selectedJobId)) {
+      setSelectedJobId(openJobs[0].id);
+    }
+  }, [openJobs, searchParams, selectedJobId]);
 
-  const handleRefresh = async () => {
-    if (!selected) return;
+  const handleRefresh = useCallback(async ({ silent = false } = {}) => {
+    if (!selectedJob?.title) return;
     setLoading(true);
-    setError(null);
+    if (!silent) setError(null);
     try {
       const data = await runMatch({
         ...DEFAULT_EMPLOYER_MATCH,
-        queryKey: selected,
+        queryKey: selectedJob.title,
       });
       setResponse(data);
       setRefreshedAt(new Date().toISOString());
-      const count = data.results?.length ?? 0;
-      showToast(
-        count === 0
-          ? "Refresh finished. No candidates matched this role yet."
-          : `Found ${count} candidate${count === 1 ? "" : "s"} ranked for ${selected}.`,
-      );
+      if (!silent) {
+        const count = data.results?.length ?? 0;
+        showToast(
+          count === 0
+            ? "Refresh finished. No candidates matched this role yet."
+            : `Found ${count} candidate${count === 1 ? "" : "s"} ranked for ${selectedJob.title}.`,
+        );
+      }
     } catch (err) {
       setError(apiErrorMessage(err, "Could not load candidate matches. Try again."));
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedJob, showToast]);
 
-  const handleRoleChange = (title) => {
-    setSelected(title);
+  useEffect(() => {
+    const jobParam = searchParams.get("job");
+    if (!jobParam) {
+      autoMatchDone.current = false;
+      return;
+    }
+    if (jobsLoading || !openJobs.length || !selectedJobId) return;
+    const resolvedId = resolveJobSelection(openJobs, jobParam);
+    if (!resolvedId || resolvedId !== selectedJobId || loading || response || autoMatchDone.current) return;
+    autoMatchDone.current = true;
+    handleRefresh({ silent: true });
+  }, [
+    searchParams,
+    jobsLoading,
+    openJobs,
+    selectedJobId,
+    loading,
+    response,
+    handleRefresh,
+  ]);
+
+  const handleRoleChange = (jobId) => {
+    setSelectedJobId(jobId);
     setResponse(null);
     setRefreshedAt(null);
     setError(null);
@@ -152,7 +202,7 @@ export default function EmployerMatches() {
 
   const matchCount = response?.results?.length || 0;
   const subtitle = response
-    ? `${matchCount} candidate${matchCount === 1 ? "" : "s"} ranked for ${selectedJob?.title || selected}.`
+    ? `${matchCount} candidate${matchCount === 1 ? "" : "s"} ranked for ${selectedJob?.title || "this role"}.`
     : selectedJob?.title
       ? `Ranked candidates for ${selectedJob.title}.`
       : "Candidates ranked by fit for your open roles.";
@@ -168,15 +218,19 @@ export default function EmployerMatches() {
           <div className="hero-toolbar employer-matches-toolbar">
             <label className="hero-toolbar-field">
               <span className="field-label">Select role</span>
-              <select className="portal-select" value={selected} onChange={(e) => handleRoleChange(e.target.value)}>
+              <select
+                className="portal-select"
+                value={selectedJobId}
+                onChange={(e) => handleRoleChange(e.target.value)}
+              >
                 {openJobs.map((job) => (
-                  <option key={job.id} value={job.title}>
+                  <option key={job.id} value={job.id}>
                     {job.title}
                   </option>
                 ))}
               </select>
             </label>
-            <Button loading={loading} loadingLabel="Refreshing…" onClick={handleRefresh} disabled={!selected}>
+            <Button loading={loading} loadingLabel="Refreshing…" onClick={handleRefresh} disabled={!selectedJobId}>
               {response ? "Refresh matches" : "Find candidates"}
             </Button>
           </div>

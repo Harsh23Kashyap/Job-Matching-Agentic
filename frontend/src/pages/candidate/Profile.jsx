@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import PageHeader from "../../components/PageHeader.jsx";
 import ProfileForm from "../../components/ProfileForm.jsx";
 import FormSection from "../../components/FormSection.jsx";
@@ -45,6 +45,7 @@ function scrollToFirstFieldError() {
 }
 
 export default function Profile() {
+  const navigate = useNavigate();
   const { showToast } = useToast();
   const [fields, setFields] = useState({ ...EMPTY_PROFILE_FIELDS, id: "" });
   const [fieldErrors, setFieldErrors] = useState({});
@@ -65,35 +66,41 @@ export default function Profile() {
 
   const strength = useMemo(() => profileStrength(fields), [fields]);
 
+  const profileReady = Boolean(profileRecord && isCandidateProfileReady(profileRecord));
   const hasQualityInput = Boolean(fields.name?.trim() || fields.skills?.trim() || fields.summary?.trim());
+  const showQualityPanel = (editing || profileReady) && hasQualityInput;
 
   useEffect(() => {
-    if (!editing || !hasQualityInput) {
-      if (!editing) {
+    if (!showQualityPanel) {
+      if (!editing && !profileReady) {
         setQuality(null);
         setQualityLoading(false);
       }
       return undefined;
     }
     let cancelled = false;
+    const delay = editing ? 450 : 0;
     const timer = window.setTimeout(async () => {
       setQualityLoading(true);
       try {
-        const report = await checkProfileQuality(profileToPayload(fields), { llmStatus: parseStatus });
+        const report = await checkProfileQuality(profileToPayload(fields), {
+          llmStatus: editing ? parseStatus : null,
+        });
         if (!cancelled) setQuality(report);
       } catch {
         if (!cancelled) setQuality(null);
       } finally {
         if (!cancelled) setQualityLoading(false);
       }
-    }, 450);
+    }, delay);
     return () => {
       cancelled = true;
       window.clearTimeout(timer);
     };
-  }, [fields, editing, hasQualityInput, parseStatus]);
+  }, [fields, editing, profileReady, showQualityPanel, parseStatus]);
 
   const handleAddSuggestedSkill = (skill) => {
+    if (!editing) setEditing(true);
     setAddingSkill(skill);
     setFields((prev) => ({
       ...prev,
@@ -142,6 +149,17 @@ export default function Profile() {
     }
   };
 
+  const handleCancelEdit = () => {
+    if (profileRecord) {
+      setFields(profileFromApi(profileRecord));
+    }
+    setFieldErrors({});
+    setResumePreview("");
+    setExtractedSections(null);
+    setParseStatus(null);
+    setEditing(false);
+  };
+
   const handleSave = async () => {
     const errors = validateProfileFields(fields);
     if (Object.keys(errors).length) {
@@ -152,14 +170,19 @@ export default function Profile() {
     setSaving(true);
     setError("");
     setFieldErrors({});
+    const wasFirstSave = !profileRecord;
     try {
       const saved = await upsertCandidateProfile(profileToPayload(fields));
       setFields(profileFromApi(saved));
       setProfileRecord(saved);
       setEditing(false);
       notifyProfileUpdated();
+      if (wasFirstSave) {
+        navigate("/candidate/matches", { state: { searchAfterSave: true } });
+        return;
+      }
       showToast(
-        profileRecord ? "Profile updated." : "Profile saved.",
+        "Profile updated.",
         <Link to="/candidate/matches" className="btn-secondary btn-sm">
           Find jobs
         </Link>,
@@ -261,7 +284,7 @@ export default function Profile() {
           }
           inlineAction={
             isCandidateProfileReady(profileRecord) ? (
-              <button type="button" className="btn-ghost btn-ghost--sm" onClick={() => setEditing(false)}>
+              <button type="button" className="btn-ghost btn-ghost--sm" onClick={handleCancelEdit}>
                 Cancel
               </button>
             ) : (
@@ -302,7 +325,7 @@ export default function Profile() {
           </FormSection>
           {resumePreview && <ResumePreview text={resumePreview} defaultCollapsed />}
           <ExtractedSectionsPanel extracted={extractedSections || {}} />
-          {(hasQualityInput || qualityLoading) && (
+          {(showQualityPanel || qualityLoading) && (
             <ProfileQualityPanel
               quality={quality}
               loading={qualityLoading}
@@ -317,7 +340,7 @@ export default function Profile() {
             footer={
               <div className="form-actions form-actions--sticky portal-form-footer">
                 {isCandidateProfileReady(profileRecord) && (
-                  <button type="button" className="btn-secondary" onClick={() => setEditing(false)}>
+                  <button type="button" className="btn-secondary" onClick={handleCancelEdit}>
                     Cancel
                   </button>
                 )}
@@ -349,6 +372,14 @@ export default function Profile() {
           </Link>
         }
       />
+      {(showQualityPanel || qualityLoading) && (
+        <ProfileQualityPanel
+          quality={quality}
+          loading={qualityLoading}
+          onAddSkill={handleAddSuggestedSkill}
+          addingSkill={addingSkill}
+        />
+      )}
       <section className="portal-panel portal-panel--elevated candidate-profile-panel">
         <CandidateProfileSummary
           fields={fields}

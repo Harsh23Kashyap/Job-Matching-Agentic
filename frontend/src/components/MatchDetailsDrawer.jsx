@@ -1,64 +1,17 @@
 import { useEffect, useMemo, useState } from "react";
 import {
-  deriveEmployerWhyMatch,
   formatCandidateExperience,
   formatExpectedCompensation,
   formatRemotePreference,
   humanizeStrategy,
   matchPercent,
   matchScoreValue,
-  matchSkills,
   matchTier,
 } from "../utils/format.js";
-import {
-  describeMatchDrivers,
-  formatContributionPts,
-  formatWeightPct,
-  resolveScoreComponents,
-} from "../utils/matchScoring.js";
-import SkillChip, { SkillChipList } from "./SkillChip.jsx";
+import { describeMatchDrivers } from "../utils/matchScoring.js";
+import MatchExplainability from "./MatchExplainability.jsx";
 import ResumeImprovementPanel from "./ResumeImprovementPanel.jsx";
 import SimilarRecommendations from "./SimilarRecommendations.jsx";
-
-const SCORING_NOTE =
-  "Overall score is a weighted blend: semantic fit (28%), skills (27%), role title (10%), experience (15%), compensation (10%), and remote preference (10%).";
-
-function ScoreBar({ label, weight, value, contribution }) {
-  const numeric = value != null && !Number.isNaN(Number(value)) ? Number(value) : null;
-  const pct = numeric != null ? Math.round(numeric * 100) : null;
-  const weightLabel = formatWeightPct(weight);
-  const contributionLabel = contribution != null ? formatContributionPts(contribution) : null;
-
-  return (
-    <div className="match-drawer-score-row">
-      <div className="match-drawer-score-row__head">
-        <span className="match-drawer-score-row__label">{label}</span>
-        <span className="match-drawer-score-row__meta">
-          <span className="match-drawer-score-row__weight">{weightLabel} weight</span>
-          <span className="match-drawer-score-row__value">{pct != null ? `${pct}%` : "—"}</span>
-        </span>
-      </div>
-      <div
-        className="match-drawer-score-bar"
-        role="progressbar"
-        aria-valuenow={pct ?? 0}
-        aria-valuemin={0}
-        aria-valuemax={100}
-        aria-label={`${label} score`}
-      >
-        <div
-          className="match-drawer-score-bar__fill"
-          style={{ width: pct != null ? `${Math.max(pct, 2)}%` : "0%" }}
-        />
-      </div>
-      {contributionLabel && (
-        <p className="match-drawer-score-row__contrib">
-          Contributes {contributionLabel} to overall match
-        </p>
-      )}
-    </div>
-  );
-}
 
 function MatchDrawerCard({ title, children, className = "" }) {
   return (
@@ -99,7 +52,6 @@ function buildMetaRows(row, matchContext, variant) {
 
 export default function MatchDetailsDrawer({
   row,
-  whyLine,
   onClose,
   subtitle = "Role details",
   variant = "candidate",
@@ -123,17 +75,11 @@ export default function MatchDetailsDrawer({
     };
   }, [onClose]);
 
-  const scoreComponents = useMemo(() => resolveScoreComponents(row), [row]);
+  const driverLine = useMemo(() => (row ? describeMatchDrivers(row) : null), [row]);
 
   if (!row) return null;
 
   const tier = matchTier(matchScoreValue(row));
-  const { matched, missing } = matchSkills(row);
-  const driverLine = describeMatchDrivers(row);
-  const explanation =
-    whyLine ||
-    driverLine ||
-    (variant === "employer" ? deriveEmployerWhyMatch(row) : null);
   const metaRows = buildMetaRows(row, matchContext, variant);
   const hasContact =
     row.contact_email || row.contact_phone || row.contact_linkedin || row.contact_portfolio;
@@ -161,43 +107,11 @@ export default function MatchDetailsDrawer({
             <p className="match-drawer-score-label">Overall match</p>
             <p className="match-drawer-score-display">{matchPercent(matchScoreValue(row))}</p>
             <span className={`match-tier-pill match-tier-pill--lg ${tier.className}`}>{tier.label}</span>
-            {explanation && <p className="match-drawer-explanation">{explanation}</p>}
+            {driverLine && <p className="match-drawer-explanation">{driverLine}</p>}
           </MatchDrawerCard>
 
-          {scoreComponents.length > 0 && (
-            <MatchDrawerCard title="Score breakdown">
-              <div className="match-drawer-score-list">
-                {scoreComponents.map((component) => (
-                  <ScoreBar
-                    key={component.key}
-                    label={component.label}
-                    weight={component.weight}
-                    value={component.score}
-                    contribution={component.contribution}
-                  />
-                ))}
-              </div>
-              <p className="match-drawer-scoring-note">{SCORING_NOTE}</p>
-            </MatchDrawerCard>
-          )}
-
-          <MatchDrawerCard title="Skills">
-            <div className="match-drawer-skills-block">
-              <p className="match-drawer-skills-label">Matched</p>
-              {matched.length > 0 ? (
-                <SkillChipList skills={matched} variant="match" />
-              ) : (
-                <SkillChip variant="empty">No direct overlap</SkillChip>
-              )}
-            </div>
-            <div className="match-drawer-skills-block">
-              <p className="match-drawer-skills-label">Missing</p>
-              {missing.length > 0 ? (
-                <SkillChipList skills={missing} variant="missing" />
-              ) : (
-                <SkillChip variant="empty">No major gaps flagged</SkillChip>
-              )}
-            </div>
+          <MatchDrawerCard title="Why this match">
+            <MatchExplainability row={row} variant="full" />
           </MatchDrawerCard>
 
           {variant === "candidate" && row.target_id && (

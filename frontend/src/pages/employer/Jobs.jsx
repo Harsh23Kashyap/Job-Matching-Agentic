@@ -26,6 +26,7 @@ import {
   validateJobFields,
 } from "../../utils/jobFields.js";
 import { mergeSkills } from "../../utils/skills.js";
+import { notifyJobsUpdated } from "../../utils/profileEvents.js";
 
 const JD_PASTE_MIN = 40;
 
@@ -91,17 +92,21 @@ export default function EmployerJobs() {
   const formPanelRef = useRef(null);
   const formFeedbackRef = useRef(null);
 
-  const load = () => {
-    setLoading(true);
+  const load = ({ silent = false } = {}) => {
+    if (!silent) setLoading(true);
     return fetchMyJobs()
       .then(setJobs)
       .catch((err) => {
         showToast(apiErrorMessage(err, "Could not load your roles. Try again."), "error");
       })
-      .finally(() => setLoading(false));
+      .finally(() => {
+        if (!silent) setLoading(false);
+      });
   };
 
-  useEffect(load, []);
+  useEffect(() => {
+    load();
+  }, []);
 
   const openRoles = jobs.filter((job) => (job.status || "open") === "open");
   const editingJob = editingJobId ? jobs.find((j) => j.id === editingJobId) : null;
@@ -210,8 +215,11 @@ export default function EmployerJobs() {
     setFormError("");
     try {
       await updateEmployerJobStatus(job.id, "closed");
+      setJobs((prev) =>
+        prev.map((entry) => (entry.id === job.id ? { ...entry, status: "closed" } : entry)),
+      );
+      notifyJobsUpdated();
       showToast("Role closed.");
-      load();
     } catch (err) {
       showToast(apiErrorMessage(err, "Could not close role."), "error");
     } finally {
@@ -251,7 +259,7 @@ export default function EmployerJobs() {
         showToast("Role posted. Find candidates from your active postings.");
       }
       resetForm();
-      load();
+      notifyJobsUpdated();
     } catch (err) {
       const message = apiErrorMessage(
         err,

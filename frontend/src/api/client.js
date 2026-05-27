@@ -53,6 +53,11 @@ export async function setVectorStore(vectorStore) {
   return data;
 }
 
+export async function resetDemoData() {
+  const { data } = await api.post("/system/demo/reset");
+  return data;
+}
+
 export async function fetchAgentStatus() {
   const { data } = await api.get("/agents/status");
   return data;

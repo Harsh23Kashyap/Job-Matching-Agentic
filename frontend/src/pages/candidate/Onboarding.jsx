@@ -16,7 +16,6 @@ import {
   upsertCandidateProfile,
   uploadResume,
 } from "../../api/client.js";
-import { notifyProfileUpdated } from "../../utils/profileEvents.js";
 import { resumePreviewFromUpload } from "../../utils/resumeClean.js";
 import {
   EMPTY_PROFILE_FIELDS,
@@ -51,7 +50,8 @@ export default function Onboarding() {
   const [fieldErrors, setFieldErrors] = useState({});
   const [error, setError] = useState("");
   const [showFallbackNotice, setShowFallbackNotice] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [hasExistingProfile, setHasExistingProfile] = useState(false);
   const [profileReady, setProfileReady] = useState(false);
   const [profileLoaded, setProfileLoaded] = useState(false);
@@ -128,7 +128,7 @@ export default function Onboarding() {
 
   const handleUpload = async () => {
     if (!file) return;
-    setLoading(true);
+    setUploading(true);
     setError("");
     setShowFallbackNotice(false);
     try {
@@ -139,7 +139,7 @@ export default function Onboarding() {
       setError(apiErrorMessage(err, "Upload failed. Try a PDF, DOCX, or TXT under 5MB."));
       errorRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
     } finally {
-      setLoading(false);
+      setUploading(false);
     }
   };
 
@@ -150,7 +150,8 @@ export default function Onboarding() {
       scrollToFirstFieldError();
       return;
     }
-    setLoading(true);
+    const wasUpdate = hasExistingProfile;
+    setSaving(true);
     setError("");
     setFieldErrors({});
     try {
@@ -158,19 +159,14 @@ export default function Onboarding() {
       setFields(profileFromApi(saved));
       setHasExistingProfile(true);
       setProfileReady(isCandidateProfileReady(saved));
-      notifyProfileUpdated();
-      showToast(
-        hasExistingProfile
-          ? "Profile updated."
-          : "Profile saved.",
-      );
+      showToast(wasUpdate ? "Profile updated." : "Profile saved.");
       navigate("/candidate/matches", { state: { searchAfterSave: true } });
     } catch (err) {
       const message = apiErrorMessage(err, "Save failed. Check your details and try again.");
       setError(message);
       errorRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
   };
 
@@ -213,7 +209,7 @@ export default function Onboarding() {
               {file ? file.name : "Choose a file or drag it here"}
             </label>
             <div className="onboarding-upload__actions">
-              <Button loading={loading} loadingLabel="Parsing resume…" onClick={handleUpload} disabled={!file}>
+              <Button loading={uploading} loadingLabel="Parsing resume…" onClick={handleUpload} disabled={!file || saving}>
                 Upload and parse
               </Button>
               <button
@@ -232,7 +228,7 @@ export default function Onboarding() {
                 <button
                   type="button"
                   className="btn-primary"
-                  onClick={() => navigate("/candidate/matches")}
+                  onClick={() => navigate("/candidate/matches", { state: { searchAfterSave: true } })}
                 >
                   Continue to jobs
                 </button>
@@ -275,7 +271,7 @@ export default function Onboarding() {
                   <button type="button" className="btn-secondary" onClick={() => setStep(1)}>
                     Back
                   </button>
-                  <Button loading={loading} loadingLabel={hasExistingProfile ? "Updating…" : "Saving…"} onClick={handleSave}>
+                  <Button loading={saving} loadingLabel={hasExistingProfile ? "Updating…" : "Saving…"} onClick={handleSave} disabled={uploading}>
                     {hasExistingProfile ? "Update profile" : "Save profile"}
                   </Button>
                 </div>
