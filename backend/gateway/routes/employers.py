@@ -1,13 +1,22 @@
-from fastapi import APIRouter, Depends, File, HTTPException, Request, UploadFile
+from fastapi import APIRouter, Depends, File, Request, UploadFile
 
 from pydantic import BaseModel
 
 from auth.deps import get_optional_user, require_role
 from auth.store import User
 from contracts.profiles import JobProfile
+from core.document_parse import parse_job_document
+from core.job_quality import analyze_job_quality
 from core.resume_text import extract_text_from_upload
-from hooks.llm_parser import LlmParseError, LlmParser, LlmUnavailableError
-from hooks.parser_factory import create_llm_parser, make_candidate_id, make_entity_id
+from gateway.errors import (
+    api_error,
+    job_not_found,
+    job_not_owned,
+    missing_field,
+    validation_error,
+)
+from hooks.llm_parser import LlmParser
+from hooks.parser_factory import create_llm_parser, make_entity_id
 
 router = APIRouter(prefix="/jobs", tags=["jobs"])
 
@@ -60,48 +69,27 @@ def list_applications_for_my_jobs(
     return {"applications": [row.__dict__ for row in rows]}
 
 
-def _empty_job_extracted_fields() -> dict:
-    return {
-        "title": "",
-        "required_skills": [],
-        "required_experience": 0,
-        "description": "",
-        "company": "",
-        "location": "",
-        "remote_policy": False,
-        "job_type": "",
-        "link": "",
-        "budget_currency": "INR",
-        "budget_min": None,
-        "budget_max": None,
-        "budget": None,
-    }
-
-
 def _parse_job_description_text(llm: LlmParser, text: str) -> dict:
-    cleaned = text.strip()
-    preview = cleaned[:500] + ("…" if len(cleaned) > 500 else "")
-    empty_fields = _empty_job_extracted_fields()
-    try:
-        extracted = llm.parse_job_from_text(cleaned)
-    except LlmUnavailableError:
-        return {
-            "extracted_fields": empty_fields,
-            "raw_text_preview": preview,
-            "llm_status": "unavailable",
-            "message": "Automatic extraction unavailable. Review the text and fill in job details manually.",
-        }
-    except LlmParseError as exc:
-        return {
-            "extracted_fields": empty_fields,
-            "raw_text_preview": preview,
-            "llm_status": "parse_failed",
-            "message": f"Could not parse job description automatically ({exc}). Fill in details manually.",
-        }
+    result = parse_job_document(text, llm)
+    extracted = result.get("extracted_fields") or {}
+    result["quality"] = analyze_job_quality(_quality_payload_from_extracted(extracted))
+    return result
+
+
+def _quality_payload_from_extracted(extracted: dict) -> dict:
     return {
-        "extracted_fields": extracted,
-        "raw_text_preview": preview,
-        "llm_status": "ok",
+        "title": extracted.get("title") or "",
+        "company": extracted.get("company") or "",
+        "location": extracted.get("location") or "",
+        "job_type": extracted.get("job_type") or "",
+        "required_skills": extracted.get("required_skills") or [],
+        "required_experience": extracted.get("required_experience") or 0,
+        "budget_currency": extracted.get("budget_currency") or "INR",
+        "budget_min": extracted.get("budget_min"),
+        "budget_max": extracted.get("budget_max"),
+        "budget": extracted.get("budget"),
+        "remote_policy": bool(extracted.get("remote_policy")),
+        "description": extracted.get("description") or "",
     }
 
 
@@ -112,6 +100,10 @@ async def upload_job_description(
     llm: LlmParser = Depends(_get_llm_parser),
 ):
     text = extract_text_from_upload(file)
+    if len(text.strip()) < 40:
+        raise validation_error("Job description text is too short to extract from.")
+    if len(text.strip()) > 50000:
+        raise api_error(400, "TEXT_TOO_LONG", "Job description text exceeds the 50,000 character limit.")
     return _parse_job_description_text(llm, text)
 
 
@@ -127,40 +119,51 @@ async def parse_job_description(
 ):
     cleaned = body.text.strip()
     if len(cleaned) < 40:
-        raise HTTPException(
-            status_code=400,
-            detail={
-                "error": "Job description text is too short to extract from.",
-                "code": "TEXT_TOO_SHORT",
-            },
+        raise api_error(
+            400,
+            "TEXT_TOO_SHORT",
+            "Job description text is too short to extract from.",
         )
     if len(cleaned) > 50000:
-        raise HTTPException(
-            status_code=400,
-            detail={
-                "error": "Job description text exceeds the 50,000 character limit.",
-                "code": "TEXT_TOO_LONG",
-            },
+        raise api_error(
+            400,
+            "TEXT_TOO_LONG",
+            "Job description text exceeds the 50,000 character limit.",
         )
     return _parse_job_description_text(llm, cleaned)
+
+
+@router.post("/quality-check")
+def check_job_quality(
+    raw: dict,
+    user: User = Depends(require_role("employer")),
+):
+    return analyze_job_quality(dict(raw))
 
 
 @router.get("/{title}")
 def get_job(title: str, request: Request):
     profile = request.app.state.container.employer.get_by_title(title)
     if profile is None:
-        raise HTTPException(status_code=404, detail={"error": "Job not found", "code": "NOT_FOUND"})
+        raise job_not_found()
     return _public_profile(profile)
 
 
 def _employer_owns_job(request: Request, user: User, job_id: str) -> None:
     job_ids = request.app.state.auth_store.list_job_ids(user.id)
     if job_id not in job_ids:
-        raise HTTPException(status_code=404, detail={"error": "Job not found", "code": "NOT_FOUND"})
+        raise job_not_found()
 
 
 class JobStatusBody(BaseModel):
     status: str
+
+
+def _validate_job_payload(raw: dict) -> dict:
+    payload = dict(raw)
+    if not str(payload.get("title") or "").strip():
+        raise missing_field("title")
+    return payload
 
 
 @router.put("/mine/{job_id}")
@@ -171,7 +174,7 @@ def update_my_job(
     user: User = Depends(require_role("employer")),
 ):
     _employer_owns_job(request, user, job_id)
-    payload = {**raw, "id": job_id}
+    payload = {**_validate_job_payload(raw), "id": job_id}
     profile = request.app.state.container.employer.register(payload)
     return _public_profile(profile)
 
@@ -186,11 +189,11 @@ def update_my_job_status(
     _employer_owns_job(request, user, job_id)
     status = body.status.lower()
     if status not in {"open", "closed", "draft"}:
-        raise HTTPException(status_code=400, detail={"error": "Invalid status", "code": "INVALID_STATUS"})
+        raise api_error(400, "INVALID_STATUS", "Invalid status. Use open, closed, or draft.")
     employer = request.app.state.container.employer
     existing = employer.get_by_id(job_id)
     if existing is None:
-        raise HTTPException(status_code=404, detail={"error": "Job not found", "code": "NOT_FOUND"})
+        raise job_not_found()
     payload = existing.model_dump()
     payload["status"] = status
     if status == "closed":
@@ -207,6 +210,9 @@ def register_job(
     request: Request,
     user: User | None = Depends(get_optional_user),
 ):
+    raw = _validate_job_payload(raw)
+    auth_store = request.app.state.auth_store
+
     if user is not None and user.role == "employer":
         if "id" not in raw:
             title = raw.get("title", "Untitled Job")
@@ -214,16 +220,15 @@ def register_job(
         if "status" not in raw:
             raw = {**raw, "status": "open"}
         job_id = str(raw["id"])
-        owner = request.app.state.auth_store.get_job_owner(job_id)
+        owner = auth_store.get_job_owner(job_id)
         if owner is not None and owner != user.id:
-            raise HTTPException(
-                status_code=403,
-                detail={
-                    "error": "This role id belongs to another account.",
-                    "code": "JOB_NOT_OWNED",
-                },
-            )
+            raise job_not_owned()
+        profile = request.app.state.container.employer.register(raw)
+        if not auth_store.link_job_if_unowned(user.id, profile.id):
+            raise job_not_owned()
+        return _public_profile(profile)
+
+    if "id" not in raw:
+        raw = {**raw, "id": _slug_job_id(raw["title"])}
     profile = request.app.state.container.employer.register(raw)
-    if user is not None and user.role == "employer":
-        request.app.state.auth_store.link_job_if_unowned(user.id, profile.id)
     return _public_profile(profile)

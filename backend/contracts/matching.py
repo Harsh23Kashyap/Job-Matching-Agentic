@@ -55,12 +55,22 @@ class EnsembleRequest(BaseModel):
     candidate_pool: int = 120
 
 
+class ScoreComponentDetail(BaseModel):
+    key: str
+    label: str
+    weight: float
+    score: float
+    contribution: float
+
+
 class ScoreBreakdown(BaseModel):
     semantic_score: float
     skills_score: float | None = None
+    title_score: float | None = None
     experience_score: float | None = None
     compensation_score: float | None = None
     location_score: float | None = None
+    remote_score: float | None = None
     final_score: float
     strategy_used: str
     metric_used: str
@@ -70,6 +80,7 @@ class ScoreBreakdown(BaseModel):
     fusion_mode_used: str | None = None
     feedback_delta: float | None = None
     routing_reason: str | None = None
+    score_components: list[ScoreComponentDetail] | None = None
 
 
 class EnsembleSource(BaseModel):
@@ -107,13 +118,16 @@ class MatchResult(BaseModel):
     similarity: float
     semantic_score: float
     skills_score: float | None = None
+    title_score: float | None = None
     experience_score: float | None = None
     compensation_score: float | None = None
     location_score: float | None = None
+    remote_score: float | None = None
     final_score: float | None = None
     matched_skills: list[str] = Field(default_factory=list)
     missing_skills: list[str] = Field(default_factory=list)
     why_ranked: list[str] = Field(default_factory=list)
+    score_components: list[ScoreComponentDetail] | None = None
     sources: list[EnsembleSource] | None = None
     contact_email: str | None = None
     contact_phone: str | None = None

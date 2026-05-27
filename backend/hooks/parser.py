@@ -1,5 +1,6 @@
 from contracts.profiles import CandidateProfile, JobProfile
 from core.compensation import normalize_preferred_currency, normalize_preferred_salary
+from core.skill_catalog import normalize_skill_list
 
 
 class JsonParser:
@@ -7,7 +8,7 @@ class JsonParser:
         return CandidateProfile(
             id=raw["id"],
             name=raw["name"],
-            skills=list(raw.get("skills", [])),
+            skills=normalize_skill_list(list(raw.get("skills", []))),
             experience_years=float(raw.get("experience_years", 0)),
             preferred_salary=normalize_preferred_salary(raw.get("preferred_salary")),
             preferred_currency=normalize_preferred_currency(raw.get("preferred_currency")),
@@ -32,8 +33,8 @@ class JsonParser:
         return JobProfile(
             id=raw["id"],
             title=raw["title"],
-            required_skills=list(raw.get("required_skills", [])),
-            preferred_skills=list(raw.get("preferred_skills", [])),
+            required_skills=normalize_skill_list(list(raw.get("required_skills", []))),
+            preferred_skills=normalize_skill_list(list(raw.get("preferred_skills", []))),
             required_experience=float(raw.get("required_experience", 0)),
             budget=budget,
             budget_currency=normalize_preferred_currency(raw.get("budget_currency")),

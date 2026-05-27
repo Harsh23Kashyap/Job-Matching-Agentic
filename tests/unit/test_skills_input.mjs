@@ -10,16 +10,16 @@ import {
 } from "../../frontend/src/utils/skills.js";
 
 test("parseSkillsInput trims and splits comma-separated values", () => {
-  assert.deepEqual(parseSkillsInput(" Python, FastAPI ,  "), ["Python", "FastAPI"]);
+  assert.deepEqual(parseSkillsInput(" Python, FastAPI ,  "), ["FastAPI", "Python"]);
 });
 
 test("dedupeSkills is case-insensitive", () => {
-  assert.deepEqual(dedupeSkills(["Python", "python", "PYTHON", "Java"]), ["Python", "Java"]);
+  assert.deepEqual(dedupeSkills(["Python", "python", "PYTHON", "Java"]), ["Java", "Python"]);
 });
 
 test("preserves complex skill names", () => {
   const raw = "C/C++, REST APIs, CI/CD, TensorFlow/Keras";
-  assert.deepEqual(parseSkillsInput(raw), ["C/C++", "REST APIs", "CI/CD", "TensorFlow/Keras"]);
+  assert.deepEqual(parseSkillsInput(raw), ["C/C++", "CI/CD", "REST API", "TensorFlow/Keras"]);
 });
 
 test("splitSkillTokens handles paste separators", () => {
@@ -28,9 +28,13 @@ test("splitSkillTokens handles paste separators", () => {
 
 test("commitSkillDraft merges without duplicates", () => {
   const next = commitSkillDraft(["Python"], "java, Python, C/C++");
-  assert.deepEqual(next, ["Python", "java", "C/C++"]);
+  assert.deepEqual(next, ["C/C++", "Java", "Python"]);
 });
 
-test("skillsToPayload returns clean array", () => {
-  assert.deepEqual(skillsToPayload(" Python, python, Go "), ["Python", "Go"]);
+test("dedupeSkills merges synonym variants", () => {
+  assert.deepEqual(dedupeSkills(["React.js", "React", "reactjs", "Python"]), ["Python", "React"]);
+});
+
+test("skillsToPayload canonicalizes variants", () => {
+  assert.deepEqual(skillsToPayload(" React.js, ML, AWS EC2, Python "), ["AWS", "Machine Learning", "Python", "React"]);
 });

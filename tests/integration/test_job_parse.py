@@ -70,7 +70,10 @@ def test_parse_job_description_llm_unavailable(mock_factory, client):
     assert resp.status_code == 200
     data = resp.json()
     assert data["llm_status"] == "unavailable"
-    assert data["extracted_fields"]["title"] == ""
+    fields = data["extracted_fields"]
+    assert fields["title"] == "Senior Backend Engineer"
+    assert fields["required_experience"] == 5
+    assert "python" in [skill.lower() for skill in fields["required_skills"]]
     assert "message" in data
 
 

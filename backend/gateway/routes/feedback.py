@@ -1,8 +1,15 @@
-from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from fastapi import APIRouter, Depends, Query, Request
 from pydantic import BaseModel, Field
 
 from auth.deps import get_current_user, get_optional_user
 from auth.store import User
+from gateway.errors import (
+    forbidden,
+    job_not_found,
+    no_profile_linked,
+    profile_stale,
+    validation_error,
+)
 
 router = APIRouter(prefix="/feedback", tags=["feedback"])
 
@@ -43,6 +50,12 @@ def _record_match_pair(feedback_store, *, candidate_id: str, job_id: str, action
         )
 
 
+def _require_employer_job(request: Request, user: User, job_id: str) -> None:
+    owned = request.app.state.auth_store.list_job_ids(user.id)
+    if job_id not in owned:
+        raise job_not_found()
+
+
 @router.get("/me")
 def my_feedback(
     request: Request,
@@ -64,35 +77,22 @@ def record_feedback_action(body: FeedbackActionRequest, request: Request, user: 
     elif user.role == "employer":
         allowed = EMPLOYER_ACTIONS
     else:
-        raise HTTPException(status_code=403, detail={"error": "Role cannot record feedback", "code": "FORBIDDEN"})
+        raise forbidden("Role cannot record feedback.")
 
     if body.action not in allowed:
-        raise HTTPException(
-            status_code=422,
-            detail={"error": f"Invalid action '{body.action}' for role '{user.role}'", "code": "VALIDATION"},
-        )
+        raise validation_error(f"Invalid action '{body.action}' for role '{user.role}'.")
 
-    if user.role == "employer" and not body.context_id:
-        raise HTTPException(
-            status_code=422,
-            detail={"error": "context_id (job_id) is required for employer feedback", "code": "VALIDATION"},
-        )
+    if user.role == "employer":
+        if not body.context_id:
+            raise validation_error("context_id (job_id) is required for employer feedback.")
+        _require_employer_job(request, user, body.context_id)
 
     if body.action == "unsave":
         if user.role == "candidate":
             candidate_id = auth_store.get_candidate_id(user.id)
             if candidate_id is None:
-                raise HTTPException(status_code=404, detail={"error": "No profile linked", "code": "NOT_FOUND"})
+                raise no_profile_linked()
             activity_store.unsave_job(candidate_id, body.target_id)
-            row = feedback_store.record_user_action(
-                user_id=user.id,
-                target_id=body.target_id,
-                action="unsave",
-                role=user.role,
-                context_id=body.context_id,
-            )
-            return {"ok": True, "feedback": row.__dict__}
-
         row = feedback_store.record_user_action(
             user_id=user.id,
             target_id=body.target_id,
@@ -101,6 +101,25 @@ def record_feedback_action(body: FeedbackActionRequest, request: Request, user: 
             context_id=body.context_id,
         )
         return {"ok": True, "feedback": row.__dict__}
+
+    if user.role == "candidate":
+        candidate_id = auth_store.get_candidate_id(user.id)
+        if candidate_id is None:
+            raise no_profile_linked()
+        profile = request.app.state.container.candidate.get_by_id(candidate_id)
+        if profile is None:
+            raise profile_stale()
+        job_id = body.target_id
+        if request.app.state.container.employer.get_by_id(job_id) is None:
+            raise job_not_found()
+        if body.action == "apply":
+            activity_store.apply(
+                candidate_id=candidate_id,
+                candidate_name=profile.name,
+                job_id=job_id,
+                job_title=body.target_label or job_id,
+                match_score=body.match_score,
+            )
 
     row = feedback_store.record_user_action(
         user_id=user.id,
@@ -112,8 +131,6 @@ def record_feedback_action(body: FeedbackActionRequest, request: Request, user: 
 
     if user.role == "candidate":
         candidate_id = auth_store.get_candidate_id(user.id)
-        if candidate_id is None:
-            raise HTTPException(status_code=404, detail={"error": "No profile linked", "code": "NOT_FOUND"})
         job_id = body.target_id
         _record_match_pair(
             feedback_store,
@@ -124,17 +141,6 @@ def record_feedback_action(body: FeedbackActionRequest, request: Request, user: 
         )
         if body.action == "save":
             activity_store.save_job(candidate_id, job_id, body.target_label or job_id)
-        elif body.action == "apply":
-            profile = request.app.state.container.candidate.get_by_id(candidate_id)
-            if profile is None:
-                raise HTTPException(status_code=404, detail={"error": "Profile not found", "code": "NOT_FOUND"})
-            activity_store.apply(
-                candidate_id=candidate_id,
-                candidate_name=profile.name,
-                job_id=job_id,
-                job_title=body.target_label or job_id,
-                match_score=body.match_score,
-            )
     else:
         candidate_id = body.target_id
         job_id = body.context_id or ""
@@ -161,7 +167,7 @@ def record_feedback(body: FeedbackRequest, request: Request, user=Depends(get_op
             user_id=user_id,
         )
     except ValueError as exc:
-        raise HTTPException(status_code=422, detail={"error": str(exc), "code": "VALIDATION"}) from exc
+        raise validation_error(str(exc)) from exc
     return {"ok": True}
 
 

@@ -2,6 +2,41 @@
 from __future__ import annotations
 
 from contracts.snapshots import CandidateSnapshot, JobSnapshot
+from core.text_tokenizer import tokenize
+
+_TITLE_STOPWORDS = frozenset(
+    {
+        "a",
+        "an",
+        "the",
+        "and",
+        "or",
+        "of",
+        "for",
+        "to",
+        "in",
+        "at",
+        "with",
+        "senior",
+        "junior",
+        "lead",
+        "staff",
+        "principal",
+        "associate",
+        "level",
+        "i",
+        "ii",
+        "iii",
+        "iv",
+        "v",
+        "sr",
+        "jr",
+    }
+)
+
+
+def _meaningful_tokens(text: str) -> set[str]:
+    return {token for token in tokenize(text) if token not in _TITLE_STOPWORDS and len(token) > 1}
 
 
 def experience_score(candidate: CandidateSnapshot, job: JobSnapshot) -> float:
@@ -59,9 +94,36 @@ def compensation_score(candidate: CandidateSnapshot, job: JobSnapshot) -> float:
     return 0.4
 
 
-def location_score(candidate: CandidateSnapshot, job: JobSnapshot) -> float:
+def remote_preference_score(candidate: CandidateSnapshot, job: JobSnapshot) -> float:
     if not candidate.remote_preference:
         return 1.0
     if job.remote_policy:
         return 1.0
     return 0.4
+
+
+def location_score(candidate: CandidateSnapshot, job: JobSnapshot) -> float:
+    """Backward-compatible alias for remote/work-setup alignment."""
+    return remote_preference_score(candidate, job)
+
+
+def title_similarity_score(candidate: CandidateSnapshot, job: JobSnapshot) -> float:
+    """Overlap between job title tokens and candidate summary + skills."""
+    title_tokens = _meaningful_tokens(job.title)
+    if not title_tokens:
+        return 1.0
+
+    candidate_text = candidate.summary or ""
+    if candidate.skills:
+        candidate_text = f"{candidate_text} {' '.join(candidate.skills)}"
+    candidate_tokens = _meaningful_tokens(candidate_text)
+    if not candidate_tokens:
+        return 0.35
+
+    overlap = title_tokens & candidate_tokens
+    if not overlap:
+        return 0.15
+
+    coverage = len(overlap) / len(title_tokens)
+    jaccard = len(overlap) / len(title_tokens | candidate_tokens)
+    return max(0.0, min(1.0, 0.6 * coverage + 0.4 * jaccard))

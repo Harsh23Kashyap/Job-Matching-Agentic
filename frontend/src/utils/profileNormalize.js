@@ -1,4 +1,5 @@
 import { cleanFieldText } from "./resumeClean.js";
+import { enrichSummaryFromExtracted } from "./extractedSections.js";
 import { mergeSkills, parseSkillsInput, skillsToFieldValue } from "./skills.js";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -122,6 +123,8 @@ export function mergeExtractedIntoFields(existing, extractedRaw) {
       return true;
     });
   }
+
+  merged.summary = enrichSummaryFromExtracted(merged.summary, extractedRaw);
 
   return normalizeProfileFields(merged);
 }

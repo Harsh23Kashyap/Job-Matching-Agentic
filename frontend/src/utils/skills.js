@@ -1,10 +1,12 @@
 /** Parse skills from comma-separated form value or API array. */
+import { normalizeSkillList } from "./skillCatalog.js";
+
 export function parseSkillsInput(value) {
   if (Array.isArray(value)) {
-    return dedupeSkills(value.map((skill) => String(skill).trim()).filter(Boolean));
+    return normalizeSkillList(value.map((skill) => String(skill).trim()).filter(Boolean));
   }
   if (value == null || !String(value).trim()) return [];
-  return dedupeSkills(
+  return normalizeSkillList(
     String(value)
       .split(",")
       .map((skill) => skill.trim())
@@ -14,17 +16,7 @@ export function parseSkillsInput(value) {
 
 /** Remove duplicates case-insensitively while preserving first-seen casing. */
 export function dedupeSkills(skills) {
-  const seen = new Set();
-  const out = [];
-  for (const skill of skills) {
-    const trimmed = String(skill).trim();
-    if (!trimmed) continue;
-    const key = trimmed.toLowerCase();
-    if (seen.has(key)) continue;
-    seen.add(key);
-    out.push(trimmed);
-  }
-  return out;
+  return normalizeSkillList(skills);
 }
 
 export function mergeSkills(existing, incoming) {

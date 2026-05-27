@@ -137,9 +137,11 @@ def test_composite_perfect_alignment():
         experience_years=5,
         preferred_salary=100000,
         remote_preference=True,
+        summary="Machine Learning Engineer building Python and ML systems",
         embedding=[1.0, 0.0],
     )
     job = _job(
+        title="Machine Learning Engineer",
         required_skills=["Python", "Machine Learning"],
         required_experience=3,
         remote_policy=True,
@@ -150,11 +152,16 @@ def test_composite_perfect_alignment():
     result = compute_composite(cand, job, metric="cosine", skills_mode="jaccard")
     assert result.semantic_score == pytest.approx(1.0, abs=1e-5)
     assert result.skills_score == pytest.approx(1.0, abs=1e-5)
+    assert result.title_score is not None and result.title_score >= 0.6
     assert result.experience_score == pytest.approx(1.0)
     assert result.compensation_score == pytest.approx(1.0)
+    assert result.remote_score == pytest.approx(1.0)
     assert result.location_score == pytest.approx(1.0)
-    assert result.final_score == pytest.approx(1.0, abs=1e-5)
+    assert result.final_score == pytest.approx(1.0, abs=0.03)
     assert result.strategy_used == "composite"
+    assert result.score_components is not None
+    assert len(result.score_components) == 6
+    assert sum(item.contribution for item in result.score_components) == pytest.approx(result.final_score, abs=1e-5)
 
 
 def test_composite_semantic_only_strategy_unchanged():

@@ -138,6 +138,19 @@ export async function parseJobDescriptionText(text) {
   return data;
 }
 
+export async function checkJobQuality(job) {
+  const { data } = await api.post("/jobs/quality-check", job);
+  return data;
+}
+
+export async function checkProfileQuality(profile, { llmStatus } = {}) {
+  const { data } = await api.post("/candidates/quality-check", {
+    ...profile,
+    ...(llmStatus ? { llm_status: llmStatus } : {}),
+  });
+  return data;
+}
+
 export async function saveJobPosting(job) {
   const { data } = await api.post("/jobs", job);
   return data;

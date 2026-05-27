@@ -26,6 +26,15 @@ export const EMPTY_JOB_FIELDS = {
 };
 
 export function jobFieldsFromExtracted(ext = {}) {
+  let description = ext.description || "";
+  const responsibilities = (ext.responsibilities || []).filter(Boolean);
+  if (responsibilities.length && !description.includes(responsibilities[0])) {
+    description = [description, responsibilities.join(" ")].filter(Boolean).join("\n\n").trim();
+  }
+  const education = (ext.education_requirements || []).filter(Boolean);
+  if (education.length && !description.toLowerCase().includes("education")) {
+    description = `${description}\n\nEducation: ${education.join("; ")}`.trim();
+  }
   return {
     title: ext.title || "",
     company: ext.company || "",
@@ -37,7 +46,7 @@ export function jobFieldsFromExtracted(ext = {}) {
     budget_min: ext.budget_min ?? ext.budget ?? null,
     budget_max: ext.budget_max ?? ext.budget ?? null,
     remote_policy: Boolean(ext.remote_policy),
-    description: ext.description || "",
+    description: description.slice(0, JOB_DESCRIPTION_MAX),
   };
 }
 

@@ -4,11 +4,14 @@ import PageHeader from "../../components/PageHeader.jsx";
 import Stepper from "../../components/Stepper.jsx";
 import ProfileForm from "../../components/ProfileForm.jsx";
 import ResumePreview from "../../components/ResumePreview.jsx";
+import ExtractedSectionsPanel from "../../components/ExtractedSectionsPanel.jsx";
+import ProfileQualityPanel from "../../components/ProfileQualityPanel.jsx";
 import Button from "../../components/Button.jsx";
 import { useToast } from "../../components/Toast.jsx";
 import { IconAlert } from "../../components/icons.jsx";
 import {
   apiErrorMessage,
+  checkProfileQuality,
   fetchMyProfileOrNull,
   upsertCandidateProfile,
   uploadResume,
@@ -23,6 +26,7 @@ import {
   profileToPayload,
 } from "../../utils/profileFields.js";
 import { mergeExtractedIntoFields } from "../../utils/profileNormalize.js";
+import { mergeSkills } from "../../utils/skills.js";
 import { validateProfileFields } from "../../utils/validation.js";
 
 function scrollToFirstFieldError() {
@@ -51,6 +55,11 @@ export default function Onboarding() {
   const [hasExistingProfile, setHasExistingProfile] = useState(false);
   const [profileReady, setProfileReady] = useState(false);
   const [profileLoaded, setProfileLoaded] = useState(false);
+  const [extractedSections, setExtractedSections] = useState(null);
+  const [parseStatus, setParseStatus] = useState(null);
+  const [quality, setQuality] = useState(null);
+  const [qualityLoading, setQualityLoading] = useState(false);
+  const [addingSkill, setAddingSkill] = useState("");
 
   useEffect(() => {
     fetchMyProfileOrNull()
@@ -68,12 +77,53 @@ export default function Onboarding() {
   }, []);
 
   const goToReview = (data) => {
+    setExtractedSections(data.extracted_fields || null);
     setFields((prev) => mergeExtractedIntoFields(prev, data.extracted_fields || {}));
     setPreview(resumePreviewFromUpload(data));
+    setParseStatus(data.llm_status || null);
+    setQuality(data.quality || null);
     setShowFallbackNotice(Boolean(data.llm_status && data.llm_status !== "ok"));
     setError("");
     setFieldErrors({});
     setStep(2);
+  };
+
+  const hasQualityInput = Boolean(fields.name?.trim() || fields.skills?.trim() || fields.summary?.trim());
+
+  useEffect(() => {
+    if (step !== 2 || !hasQualityInput) {
+      if (step !== 2) {
+        setQuality(null);
+        setQualityLoading(false);
+      }
+      return undefined;
+    }
+    let cancelled = false;
+    const timer = window.setTimeout(async () => {
+      setQualityLoading(true);
+      try {
+        const report = await checkProfileQuality(profileToPayload(fields), { llmStatus: parseStatus });
+        if (!cancelled) setQuality(report);
+      } catch {
+        if (!cancelled) setQuality(null);
+      } finally {
+        if (!cancelled) setQualityLoading(false);
+      }
+    }, 450);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+  }, [fields, step, hasQualityInput, parseStatus]);
+
+  const handleAddSuggestedSkill = (skill) => {
+    setAddingSkill(skill);
+    setFields((prev) => ({
+      ...prev,
+      skills: mergeSkills(prev.skills, [skill]).join(", "),
+    }));
+    setAddingSkill("");
+    showToast(`Added ${skill} to your skills.`);
   };
 
   const handleUpload = async () => {
@@ -144,7 +194,7 @@ export default function Onboarding() {
           <div className="onboarding-upload">
             <h2>Upload resume</h2>
             <p className="form-helper onboarding-upload__intro">
-              PDF, DOCX, or TXT, max 5 MB. We pull name, contact, skills, and experience. Nothing saves until you confirm.
+              PDF, DOCX, or TXT, max 5 MB. We extract contact details, skills, experience, education, projects, and summary. Nothing saves until you confirm.
             </p>
             {!profileLoaded && (
               <p className="form-helper onboarding-upload__status">Checking for an existing profile…</p>
@@ -206,6 +256,15 @@ export default function Onboarding() {
               </div>
             )}
             {preview && <ResumePreview text={preview} defaultCollapsed={fieldsFilled} />}
+            <ExtractedSectionsPanel extracted={extractedSections || {}} />
+            {(hasQualityInput || qualityLoading) && (
+              <ProfileQualityPanel
+                quality={quality}
+                loading={qualityLoading}
+                onAddSkill={handleAddSuggestedSkill}
+                addingSkill={addingSkill}
+              />
+            )}
             <ProfileForm
               fields={fields}
               errors={fieldErrors}

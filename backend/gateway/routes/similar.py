@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from fastapi import APIRouter, Depends, Query, Request
 
 from auth.deps import require_role
 from auth.store import User
 from core.similar_entities import find_similar_candidates, find_similar_jobs
+from gateway.errors import not_found
 
 router = APIRouter(prefix="/similar", tags=["similar"])
 
@@ -17,7 +18,7 @@ def similar_jobs(
     employer = request.app.state.container.employer
     job = employer.get_by_id(job_id)
     if job is None:
-        raise HTTPException(status_code=404, detail={"error": "Job not found", "code": "NOT_FOUND"})
+        raise not_found("Job not found.")
 
     items = find_similar_jobs(employer, job_id, limit=limit)
     return {
@@ -37,7 +38,7 @@ def similar_candidates(
     candidate_agent = request.app.state.container.candidate
     profile = candidate_agent.get_by_id(candidate_id)
     if profile is None:
-        raise HTTPException(status_code=404, detail={"error": "Candidate not found", "code": "NOT_FOUND"})
+        raise not_found("Candidate not found.")
 
     items = find_similar_candidates(candidate_agent, candidate_id, limit=limit)
     return {

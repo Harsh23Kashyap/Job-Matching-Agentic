@@ -1,18 +1,52 @@
 import numpy as np
 
-from contracts.matching import ScoreBreakdown
+from contracts.matching import ScoreBreakdown, ScoreComponentDetail
 from contracts.snapshots import CandidateSnapshot, JobSnapshot
-from core.component_scores import compensation_score, experience_score, location_score
+from core.component_scores import (
+    compensation_score,
+    experience_score,
+    remote_preference_score,
+    title_similarity_score,
+)
 from core.similarity import compute_similarity
 from core.skills import skills_score
 
 COMPOSITE_WEIGHTS = {
-    "semantic": 0.40,
-    "skills": 0.30,
+    "semantic": 0.28,
+    "skills": 0.27,
+    "title": 0.10,
     "experience": 0.15,
     "compensation": 0.10,
-    "location": 0.05,
+    "remote": 0.10,
 }
+
+COMPOSITE_COMPONENT_SPECS: tuple[tuple[str, str, str], ...] = (
+    ("semantic", "semantic_score", "Semantic fit"),
+    ("skills", "skills_score", "Skills overlap"),
+    ("title", "title_score", "Role title fit"),
+    ("experience", "experience_score", "Experience"),
+    ("compensation", "compensation_score", "Compensation"),
+    ("remote", "remote_score", "Remote preference"),
+)
+
+
+def build_composite_components(breakdown: ScoreBreakdown) -> list[ScoreComponentDetail]:
+    components: list[ScoreComponentDetail] = []
+    for weight_key, score_attr, label in COMPOSITE_COMPONENT_SPECS:
+        score = getattr(breakdown, score_attr, None)
+        if score is None:
+            continue
+        weight = COMPOSITE_WEIGHTS[weight_key]
+        components.append(
+            ScoreComponentDetail(
+                key=weight_key,
+                label=label,
+                weight=weight,
+                score=float(score),
+                contribution=weight * float(score),
+            )
+        )
+    return components
 
 
 def compute_semantic(
@@ -76,28 +110,33 @@ def compute_composite(
         skills_mode=skills_mode,
         model_name=model_name,
     )
+    title = title_similarity_score(candidate, job)
     exp = experience_score(candidate, job)
     comp = compensation_score(candidate, job)
-    loc = location_score(candidate, job)
+    remote = remote_preference_score(candidate, job)
 
     final = (
         COMPOSITE_WEIGHTS["semantic"] * semantic
         + COMPOSITE_WEIGHTS["skills"] * skills
+        + COMPOSITE_WEIGHTS["title"] * title
         + COMPOSITE_WEIGHTS["experience"] * exp
         + COMPOSITE_WEIGHTS["compensation"] * comp
-        + COMPOSITE_WEIGHTS["location"] * loc
+        + COMPOSITE_WEIGHTS["remote"] * remote
     )
     final = max(0.0, min(1.0, final))
 
-    return ScoreBreakdown(
+    breakdown = ScoreBreakdown(
         semantic_score=semantic,
         skills_score=skills,
+        title_score=title,
         experience_score=exp,
         compensation_score=comp,
-        location_score=loc,
+        location_score=remote,
+        remote_score=remote,
         final_score=final,
         strategy_used="composite",
         metric_used=metric,
         skills_mode_used=skills_mode,
         fusion_mode_used="fixed",
     )
+    return breakdown.model_copy(update={"score_components": build_composite_components(breakdown)})

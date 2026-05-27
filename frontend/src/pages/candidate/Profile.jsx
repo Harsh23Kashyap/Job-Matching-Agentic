@@ -5,6 +5,8 @@ import ProfileForm from "../../components/ProfileForm.jsx";
 import FormSection from "../../components/FormSection.jsx";
 import ProfileStrength from "../../components/ProfileStrength.jsx";
 import CandidateProfileSummary from "../../components/CandidateProfileSummary.jsx";
+import ExtractedSectionsPanel from "../../components/ExtractedSectionsPanel.jsx";
+import ProfileQualityPanel from "../../components/ProfileQualityPanel.jsx";
 import ResumePreview from "../../components/ResumePreview.jsx";
 import Button from "../../components/Button.jsx";
 import EmptyStatePanel from "../../components/EmptyStatePanel.jsx";
@@ -12,6 +14,7 @@ import { ProfileNeededEmpty, ProfileIncompleteEmpty, ProfileStaleEmpty } from ".
 import { useToast } from "../../components/Toast.jsx";
 import {
   apiErrorMessage,
+  checkProfileQuality,
   fetchMyProfileOrNull,
   uploadResume,
   upsertCandidateProfile,
@@ -27,6 +30,7 @@ import {
   profileToPayload,
 } from "../../utils/profileFields.js";
 import { mergeExtractedIntoFields } from "../../utils/profileNormalize.js";
+import { mergeSkills } from "../../utils/skills.js";
 import { profileStrength, validateProfileFields } from "../../utils/validation.js";
 
 function scrollToFirstFieldError() {
@@ -51,10 +55,53 @@ export default function Profile() {
   const [editing, setEditing] = useState(false);
   const [reuploading, setReuploading] = useState(false);
   const [resumePreview, setResumePreview] = useState("");
+  const [extractedSections, setExtractedSections] = useState(null);
+  const [parseStatus, setParseStatus] = useState(null);
+  const [quality, setQuality] = useState(null);
+  const [qualityLoading, setQualityLoading] = useState(false);
+  const [addingSkill, setAddingSkill] = useState("");
   const fileRef = useRef(null);
   const errorRef = useRef(null);
 
   const strength = useMemo(() => profileStrength(fields), [fields]);
+
+  const hasQualityInput = Boolean(fields.name?.trim() || fields.skills?.trim() || fields.summary?.trim());
+
+  useEffect(() => {
+    if (!editing || !hasQualityInput) {
+      if (!editing) {
+        setQuality(null);
+        setQualityLoading(false);
+      }
+      return undefined;
+    }
+    let cancelled = false;
+    const timer = window.setTimeout(async () => {
+      setQualityLoading(true);
+      try {
+        const report = await checkProfileQuality(profileToPayload(fields), { llmStatus: parseStatus });
+        if (!cancelled) setQuality(report);
+      } catch {
+        if (!cancelled) setQuality(null);
+      } finally {
+        if (!cancelled) setQualityLoading(false);
+      }
+    }, 450);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+  }, [fields, editing, hasQualityInput, parseStatus]);
+
+  const handleAddSuggestedSkill = (skill) => {
+    setAddingSkill(skill);
+    setFields((prev) => ({
+      ...prev,
+      skills: mergeSkills(prev.skills, [skill]).join(", "),
+    }));
+    setAddingSkill("");
+    showToast(`Added ${skill} to your skills.`);
+  };
 
   useEffect(() => {
     fetchMyProfileOrNull()
@@ -80,9 +127,12 @@ export default function Profile() {
     setError("");
     try {
       const data = await uploadResume(file);
+      setExtractedSections(data.extracted_fields || null);
+      setParseStatus(data.llm_status || null);
+      setQuality(data.quality || null);
       setFields((prev) => mergeExtractedIntoFields(prev, data.extracted_fields || {}));
       setResumePreview(resumePreviewFromUpload(data));
-      showToast("Resume parsed. Review the updates, then save.");
+      showToast("Resume parsed. Review quality tips and updates, then save.");
     } catch (err) {
       setError(apiErrorMessage(err, "Upload failed. Try a PDF, DOCX, or TXT under 5MB."));
       errorRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
@@ -251,7 +301,15 @@ export default function Profile() {
             </Button>
           </FormSection>
           {resumePreview && <ResumePreview text={resumePreview} defaultCollapsed />}
-          <ProfileStrength percent={strength.percent} hint={strength.hint} />
+          <ExtractedSectionsPanel extracted={extractedSections || {}} />
+          {(hasQualityInput || qualityLoading) && (
+            <ProfileQualityPanel
+              quality={quality}
+              loading={qualityLoading}
+              onAddSkill={handleAddSuggestedSkill}
+              addingSkill={addingSkill}
+            />
+          )}
           <ProfileForm
             fields={fields}
             errors={fieldErrors}

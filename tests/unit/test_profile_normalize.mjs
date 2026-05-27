@@ -25,7 +25,7 @@ test("normalizeProfileFields cleans contact fields", () => {
   assert.equal(normalized.name, "Jane Doe");
   assert.equal(normalized.email, "jane@example.com");
   assert.equal(normalized.linkedin, "https://linkedin.com/in/jane-doe");
-  assert.deepEqual(normalized.skills.split(", "), ["Python", "Go"]);
+  assert.deepEqual(normalized.skills.split(", "), ["Go", "Python"]);
 });
 
 test("normalizeUrl adds https scheme", () => {
@@ -50,7 +50,7 @@ test("mergeExtractedIntoFields preserves existing id and merges skills", () => {
   assert.equal(merged.name, "Parsed Name");
   assert.equal(merged.email, "keep@example.com");
   assert.equal(merged.phone, "+91 99999 88888");
-  assert.deepEqual(merged.skills.split(", "), ["Python", "Go"]);
+  assert.deepEqual(merged.skills.split(", "), ["Go", "Python"]);
 });
 
 test("mergeExtractedIntoFields does not wipe salary when extraction empty", () => {

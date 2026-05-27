@@ -68,12 +68,24 @@ def test_candidate_feedback_actions(client):
 
 def test_employer_feedback_actions(client):
     _register_employer(client)
+    created = client.post(
+        "/jobs",
+        json={
+            "title": "Feedback Test Role",
+            "required_skills": ["Python"],
+            "required_experience": 2,
+            "description": "Role for feedback tests",
+        },
+    )
+    assert created.status_code == 201
+    job_id = created.json()["id"]
+
     save = client.post(
         "/feedback/actions",
         json={
             "target_id": "cv_01",
             "action": "save",
-            "context_id": "job_01",
+            "context_id": job_id,
             "target_label": "Rahul Sharma",
         },
     )
@@ -84,7 +96,7 @@ def test_employer_feedback_actions(client):
         json={
             "target_id": "cv_02",
             "action": "reject",
-            "context_id": "job_01",
+            "context_id": job_id,
             "target_label": "Priya Mehta",
         },
     )
@@ -95,13 +107,13 @@ def test_employer_feedback_actions(client):
         json={
             "target_id": "cv_03",
             "action": "contact",
-            "context_id": "job_01",
+            "context_id": job_id,
             "target_label": "Arjun Verma",
         },
     )
     assert contact.status_code == 200
 
-    listed = client.get("/feedback/me", params={"context_id": "job_01"})
+    listed = client.get("/feedback/me", params={"context_id": job_id})
     assert listed.status_code == 200
     by_target = {row["target_id"]: row["action"] for row in listed.json()["feedback"]}
     assert by_target["cv_01"] == "save"

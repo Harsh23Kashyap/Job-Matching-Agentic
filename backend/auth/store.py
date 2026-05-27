@@ -127,11 +127,13 @@ class UserStore:
             if existing is not None:
                 if existing["candidate_id"] == candidate_id:
                     return
-                conn.execute(
-                    "UPDATE candidate_ownership SET candidate_id = ? WHERE user_id = ?",
-                    (candidate_id, user_id),
-                )
-                return
+                raise ProfileAlreadyLinkedError("candidate")
+            other = conn.execute(
+                "SELECT user_id FROM candidate_ownership WHERE candidate_id = ?",
+                (candidate_id,),
+            ).fetchone()
+            if other is not None and other["user_id"] != user_id:
+                raise CandidateIdOwnedError(candidate_id)
             conn.execute(
                 "INSERT INTO candidate_ownership (user_id, candidate_id) VALUES (?, ?)",
                 (user_id, candidate_id),
@@ -145,6 +147,14 @@ class UserStore:
             ).fetchone()
         return row["candidate_id"] if row else None
 
+    def get_candidate_owner(self, candidate_id: str) -> str | None:
+        with self._connect() as conn:
+            row = conn.execute(
+                "SELECT user_id FROM candidate_ownership WHERE candidate_id = ?",
+                (candidate_id,),
+            ).fetchone()
+        return row["user_id"] if row else None
+
     def clear_candidate_link(self, user_id: str) -> None:
         with self._connect() as conn:
             conn.execute(
@@ -154,10 +164,18 @@ class UserStore:
 
     def link_job(self, user_id: str, job_id: str) -> None:
         with self._connect() as conn:
-            conn.execute(
-                "INSERT INTO job_ownership (user_id, job_id) VALUES (?, ?)",
-                (user_id, job_id),
-            )
+            try:
+                conn.execute(
+                    "INSERT INTO job_ownership (user_id, job_id) VALUES (?, ?)",
+                    (user_id, job_id),
+                )
+            except sqlite3.IntegrityError as exc:
+                owner = conn.execute(
+                    "SELECT user_id FROM job_ownership WHERE job_id = ?",
+                    (job_id,),
+                ).fetchone()
+                if owner is None or owner["user_id"] != user_id:
+                    raise JobIdOwnedError(job_id) from exc
 
     def get_job_owner(self, job_id: str) -> str | None:
         with self._connect() as conn:
@@ -198,4 +216,16 @@ class DuplicateEmailError(Exception):
 class ProfileAlreadyLinkedError(Exception):
     def __init__(self, profile_type: str) -> None:
         self.profile_type = profile_type
-        super().__init__(f"{profile_type} profile already linked")
+        super().__init__(f"{profile_type} profile already linked to this account")
+
+
+class CandidateIdOwnedError(Exception):
+    def __init__(self, candidate_id: str) -> None:
+        self.candidate_id = candidate_id
+        super().__init__(f"Candidate id '{candidate_id}' belongs to another account")
+
+
+class JobIdOwnedError(Exception):
+    def __init__(self, job_id: str) -> None:
+        self.job_id = job_id
+        super().__init__(f"Job id '{job_id}' belongs to another account")

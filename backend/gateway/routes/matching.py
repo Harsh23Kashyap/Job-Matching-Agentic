@@ -1,12 +1,9 @@
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, Request
 
 from contracts.matching import DailyBatchRequest, EnsembleRequest, MatchRequest
+from gateway.errors import api_error, lookup_not_found
 
 router = APIRouter(tags=["matching"])
-
-
-def _not_found(exc: LookupError) -> HTTPException:
-    return HTTPException(status_code=404, detail={"error": str(exc), "code": "NOT_FOUND"})
 
 
 @router.post("/match/candidate-to-jobs")
@@ -14,7 +11,7 @@ def match_candidate_to_jobs(body: MatchRequest, request: Request):
     try:
         return request.app.state.container.matchmaker.match_candidate_to_jobs(body)
     except LookupError as exc:
-        raise _not_found(exc) from exc
+        raise lookup_not_found(exc) from exc
 
 
 @router.post("/match/job-to-candidates")
@@ -22,25 +19,27 @@ def match_job_to_candidates(body: MatchRequest, request: Request):
     try:
         return request.app.state.container.matchmaker.match_job_to_candidates(body)
     except LookupError as exc:
-        raise _not_found(exc) from exc
+        raise lookup_not_found(exc) from exc
 
 
 @router.post("/match/ensemble")
 def match_ensemble(body: EnsembleRequest, request: Request):
     if not body.searches:
-        raise HTTPException(
-            status_code=400,
-            detail={"error": "At least one search config required", "code": "VALIDATION"},
-        )
+        raise api_error(400, "VALIDATION", "At least one search config required.")
     try:
         return request.app.state.container.matchmaker.match_ensemble(body)
     except LookupError as exc:
-        raise _not_found(exc) from exc
+        raise lookup_not_found(exc) from exc
 
 
 @router.post("/match/daily-batch")
 def run_daily_batch(body: DailyBatchRequest, request: Request):
-    return request.app.state.container.matchmaker.run_daily_batch(body)
+    try:
+        return request.app.state.container.matchmaker.run_daily_batch(body)
+    except LookupError as exc:
+        raise lookup_not_found(exc) from exc
+    except OSError as exc:
+        raise api_error(500, "BATCH_WRITE_FAILED", f"Could not write batch output: {exc}") from exc
 
 
 # Legacy aliases

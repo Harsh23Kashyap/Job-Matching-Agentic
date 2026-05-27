@@ -24,3 +24,4 @@ frontend/dist/
 .pytest_cache/
 .coverage
 htmlcov/
+backend/qdrant_db/

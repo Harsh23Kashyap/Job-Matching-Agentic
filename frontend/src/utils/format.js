@@ -1,3 +1,5 @@
+import { describeMatchDrivers } from "./matchScoring.js";
+
 export const CURRENCIES = ["INR", "USD", "EUR", "GBP", "SGD"];
 
 const CURRENCY_META = {
@@ -177,6 +179,9 @@ export function parseWhySignals(lines = []) {
 }
 
 export function deriveWhyMatch(row) {
+  const driverLine = describeMatchDrivers(row);
+  if (driverLine) return driverLine;
+
   const { matched } = matchSkills(row);
   const sim = Number(row.similarity) || 0;
 
@@ -274,6 +279,9 @@ export function matchSkills(row) {
 
 export function explainMatchScore(row) {
   const overall = matchPercent(row.similarity);
+  const driverLine = describeMatchDrivers(row);
+  if (driverLine) return `Overall ${overall}. ${driverLine}`;
+
   const skills = row.skills_score != null ? matchPercent(row.skills_score) : null;
   const semantic = matchPercent(row.semantic_score);
 

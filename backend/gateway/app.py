@@ -5,6 +5,7 @@ from auth.routes import router as auth_router
 from auth.store import UserStore
 from bootstrap import SystemContainer
 from demo_seed import seed_demo_accounts
+from gateway.handlers import register_exception_handlers
 from gateway.middleware import ReadOnlyMiddleware
 from gateway.routes import agents, candidates, employers, feedback, matching, similar, system
 
@@ -30,6 +31,8 @@ def build_gateway(container: SystemContainer) -> FastAPI:
         same_site="lax",
         https_only=False,
     )
+
+    register_exception_handlers(app)
 
     app.include_router(auth_router)
     app.include_router(agents.router)

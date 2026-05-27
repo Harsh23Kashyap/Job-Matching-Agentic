@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, File, HTTPException, Request, UploadFile
+from fastapi import APIRouter, Depends, File, Request, UploadFile
 
 import re
 
@@ -7,11 +7,18 @@ from pydantic import BaseModel
 from auth.deps import get_optional_user, require_role
 from auth.store import User
 from contracts.profiles import CandidateProfile
-from core.contact_extract import extract_contact_from_text, merge_contact_fields
-from core.resume_clean import CID_RE, clean_resume_text, resume_preview_excerpt
+from core.document_parse import parse_resume_document
+from core.profile_quality import analyze_profile_quality
+from core.resume_clean import CID_RE, clean_resume_text
 from core.resume_suggestions import build_resume_suggestions
 from core.resume_text import extract_text_from_upload
-from hooks.llm_parser import LlmParseError, LlmParser, LlmUnavailableError
+from gateway.errors import (
+    job_not_found,
+    missing_field,
+    no_profile_linked,
+    profile_stale,
+)
+from hooks.llm_parser import LlmParser
 from hooks.parser_factory import create_llm_parser, make_candidate_id
 
 router = APIRouter(prefix="/candidates", tags=["candidates"])
@@ -25,6 +32,27 @@ def _public_profile(profile: CandidateProfile) -> dict:
 
 def _get_llm_parser(request: Request) -> LlmParser:
     return create_llm_parser(request.app.state.container.settings)
+
+
+def _linked_candidate_id(request: Request, user: User) -> str:
+    candidate_id = request.app.state.auth_store.get_candidate_id(user.id)
+    if candidate_id is None:
+        raise no_profile_linked()
+    return candidate_id
+
+
+def _require_profile(request: Request, candidate_id: str) -> CandidateProfile:
+    profile = request.app.state.container.candidate.get_by_id(candidate_id)
+    if profile is None:
+        raise profile_stale()
+    return profile
+
+
+def _require_job(request: Request, job_id: str):
+    job = request.app.state.container.employer.get_by_id(job_id.strip())
+    if job is None:
+        raise job_not_found()
+    return job
 
 
 @router.get("")
@@ -42,20 +70,8 @@ def get_my_candidate(
     request: Request,
     user: User = Depends(require_role("candidate")),
 ):
-    auth_store = request.app.state.auth_store
-    candidate_id = auth_store.get_candidate_id(user.id)
-    if candidate_id is None:
-        raise HTTPException(status_code=404, detail={"error": "No profile linked", "code": "NOT_FOUND"})
-    candidate_agent = request.app.state.container.candidate
-    profile = candidate_agent.get_by_id(candidate_id)
-    if profile is None:
-        raise HTTPException(
-            status_code=404,
-            detail={
-                "error": "Profile not found. Save your profile again from the Profile page.",
-                "code": "PROFILE_NOT_FOUND",
-            },
-        )
+    candidate_id = _linked_candidate_id(request, user)
+    profile = _require_profile(request, candidate_id)
     return _public_profile(profile)
 
 
@@ -82,25 +98,10 @@ def resume_suggestions_for_job(
     user: User = Depends(require_role("candidate")),
     llm: LlmParser = Depends(_get_llm_parser),
 ):
-    candidate_id = request.app.state.auth_store.get_candidate_id(user.id)
-    if candidate_id is None:
-        raise HTTPException(status_code=404, detail={"error": "No profile linked", "code": "NOT_FOUND"})
-    profile = request.app.state.container.candidate.get_by_id(candidate_id)
-    if profile is None:
-        raise HTTPException(
-            status_code=404,
-            detail={
-                "error": "Profile not found. Save your profile again from the Profile page.",
-                "code": "PROFILE_NOT_FOUND",
-            },
-        )
-
-    job = request.app.state.container.employer.get_by_id(body.job_id.strip())
-    if job is None:
-        raise HTTPException(status_code=404, detail={"error": "Job not found", "code": "NOT_FOUND"})
-
-    suggestions = build_resume_suggestions(profile, job, llm)
-    return suggestions
+    candidate_id = _linked_candidate_id(request, user)
+    profile = _require_profile(request, candidate_id)
+    job = _require_job(request, body.job_id)
+    return build_resume_suggestions(profile, job, llm)
 
 
 @router.get("/me/saved-jobs")
@@ -108,9 +109,7 @@ def list_my_saved_jobs(
     request: Request,
     user: User = Depends(require_role("candidate")),
 ):
-    candidate_id = request.app.state.auth_store.get_candidate_id(user.id)
-    if candidate_id is None:
-        raise HTTPException(status_code=404, detail={"error": "No profile linked", "code": "NOT_FOUND"})
+    candidate_id = _linked_candidate_id(request, user)
     rows = request.app.state.activity_store.list_saved_jobs(candidate_id)
     return {"saved_jobs": [row.__dict__ for row in rows]}
 
@@ -121,9 +120,9 @@ def update_saved_job(
     request: Request,
     user: User = Depends(require_role("candidate")),
 ):
-    candidate_id = request.app.state.auth_store.get_candidate_id(user.id)
-    if candidate_id is None:
-        raise HTTPException(status_code=404, detail={"error": "No profile linked", "code": "NOT_FOUND"})
+    candidate_id = _linked_candidate_id(request, user)
+    _require_profile(request, candidate_id)
+    _require_job(request, body.job_id)
     store = request.app.state.activity_store
     feedback = request.app.state.feedback_store
     if body.saved:
@@ -141,9 +140,7 @@ def list_my_applications(
     request: Request,
     user: User = Depends(require_role("candidate")),
 ):
-    candidate_id = request.app.state.auth_store.get_candidate_id(user.id)
-    if candidate_id is None:
-        raise HTTPException(status_code=404, detail={"error": "No profile linked", "code": "NOT_FOUND"})
+    candidate_id = _linked_candidate_id(request, user)
     rows = request.app.state.activity_store.list_applications_for_candidate(candidate_id)
     return {"applications": [row.__dict__ for row in rows]}
 
@@ -154,12 +151,9 @@ def create_application(
     request: Request,
     user: User = Depends(require_role("candidate")),
 ):
-    candidate_id = request.app.state.auth_store.get_candidate_id(user.id)
-    if candidate_id is None:
-        raise HTTPException(status_code=404, detail={"error": "No profile linked", "code": "NOT_FOUND"})
-    profile = request.app.state.container.candidate.get_by_id(candidate_id)
-    if profile is None:
-        raise HTTPException(status_code=404, detail={"error": "Profile not found", "code": "NOT_FOUND"})
+    candidate_id = _linked_candidate_id(request, user)
+    profile = _require_profile(request, candidate_id)
+    _require_job(request, body.job_id)
     app_row = request.app.state.activity_store.apply(
         candidate_id=candidate_id,
         candidate_name=profile.name,
@@ -184,54 +178,31 @@ async def upload_resume(
     llm: LlmParser = Depends(_get_llm_parser),
 ):
     raw_text = extract_text_from_upload(file)
-    text = clean_resume_text(raw_text)
-    regex_contact = extract_contact_from_text(text)
-    preview = resume_preview_excerpt(text)
-    empty_fields = {
-        "name": regex_contact.get("name") or "",
-        "skills": [],
-        "experience_years": 0,
-        "preferred_salary": None,
-        "remote_preference": False,
-        "summary": "",
-        "email": regex_contact.get("email") or "",
-        "phone": regex_contact.get("phone") or "",
-        "linkedin": regex_contact.get("linkedin") or "",
-        "portfolio": regex_contact.get("portfolio") or "",
-        "other_links": regex_contact.get("other_links") or [],
-    }
-    try:
-        extracted = llm.parse_candidate_from_text(text)
-        extracted = merge_contact_fields(extracted, regex_contact)
-    except LlmUnavailableError:
-        return {
-            "extracted_fields": merge_contact_fields(empty_fields, regex_contact),
-            "raw_text_preview": preview,
-            "cleaned_text": text,
-            "llm_status": "unavailable",
-            "message": "Automatic extraction unavailable. Review the text preview and fill in details manually.",
-        }
-    except LlmParseError as exc:
-        return {
-            "extracted_fields": merge_contact_fields(empty_fields, regex_contact),
-            "raw_text_preview": preview,
-            "cleaned_text": text,
-            "llm_status": "parse_failed",
-            "message": f"Could not parse resume automatically ({exc}). Fill in details manually.",
-        }
-    return {
-        "extracted_fields": extracted,
-        "raw_text_preview": preview,
-        "cleaned_text": text,
-        "llm_status": "ok",
-    }
+    if len(raw_text.strip()) < 20:
+        from gateway.errors import validation_error
+
+        raise validation_error("Resume text is too short to extract from.")
+    return parse_resume_document(raw_text, llm)
+
+
+@router.post("/quality-check")
+def check_profile_quality(
+    raw: dict,
+    user: User = Depends(require_role("candidate")),
+):
+    payload = dict(raw)
+    llm_status = payload.pop("llm_status", None)
+    payload.pop("extracted_fields", None)
+    return analyze_profile_quality(payload, llm_status=llm_status)
 
 
 @router.get("/{name}")
 def get_candidate(name: str, request: Request):
     profile = request.app.state.container.candidate.get_by_name(name)
     if profile is None:
-        raise HTTPException(status_code=404, detail={"error": "Candidate not found", "code": "NOT_FOUND"})
+        from gateway.errors import not_found
+
+        raise not_found("Candidate not found.")
     return _public_profile(profile)
 
 
@@ -251,15 +222,30 @@ def _sanitize_profile_payload(raw: dict) -> dict:
     return payload
 
 
+def _validate_profile_payload(raw: dict) -> dict:
+    payload = _sanitize_profile_payload(raw)
+    if not str(payload.get("name") or "").strip():
+        raise missing_field("name")
+    return payload
+
+
 def _upsert_my_candidate(raw: dict, request: Request, user: User) -> dict:
     """Create or update the logged-in candidate profile and ensure ownership link."""
-    raw = _sanitize_profile_payload(raw)
+    raw = _validate_profile_payload(raw)
     auth_store = request.app.state.auth_store
     candidate_agent = request.app.state.container.candidate
     candidate_id = auth_store.get_candidate_id(user.id)
     if candidate_id is None:
         payload = dict(raw)
-        if "id" not in payload:
+        requested_id = str(payload.get("id") or "").strip()
+        if requested_id:
+            owner = auth_store.get_candidate_owner(requested_id)
+            if owner is not None and owner != user.id:
+                from gateway.errors import candidate_not_owned
+
+                raise candidate_not_owned()
+            payload = {**payload, "id": requested_id}
+        else:
             name = payload.get("name", "Unknown Candidate")
             payload = {**payload, "id": make_candidate_id(name)}
         profile = candidate_agent.register(payload)
@@ -289,6 +275,8 @@ def register_candidate(
     if user is not None and user.role == "candidate":
         return _upsert_my_candidate(raw, request, user)
 
-    payload = _sanitize_profile_payload(raw)
+    payload = _validate_profile_payload(raw)
+    if "id" not in payload:
+        payload = {**payload, "id": make_candidate_id(payload["name"])}
     profile = request.app.state.container.candidate.register(payload)
     return _public_profile(profile)

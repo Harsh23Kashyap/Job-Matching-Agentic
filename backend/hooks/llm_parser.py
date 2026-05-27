@@ -19,6 +19,7 @@ JOB_SYSTEM_PROMPT = """You extract structured job posting data from job descript
 Return ONLY valid JSON with these keys:
 - title (string)
 - required_skills (array of strings)
+- preferred_skills (array of strings, optional nice-to-haves)
 - required_experience (integer years, minimum 0)
 - budget_min (integer annual total compensation minimum, or null)
 - budget_max (integer annual total compensation maximum, or null)
@@ -28,6 +29,8 @@ Return ONLY valid JSON with these keys:
 - remote_policy (boolean: true if remote or hybrid-friendly)
 - job_type (string e.g. Full-time, Part-time, Contract, Internship)
 - description (string, 1-4 sentences summarizing the role)
+- responsibilities (array of strings, key duties)
+- education_requirements (array of strings, degree or certification requirements)
 - link (string URL for application, or empty string)
 
 Use empty string, empty array, or null when unknown. Do not include markdown."""
@@ -55,6 +58,7 @@ Return ONLY valid JSON with these keys:
 - skills (array of strings)
 - experience_years (number, can be 0.5 increments)
 - preferred_salary (integer or null)
+- preferred_currency (string: INR, USD, EUR, GBP, or SGD when inferable)
 - remote_preference (boolean)
 - summary (string, 1-3 sentences)
 - email (string)
@@ -62,6 +66,8 @@ Return ONLY valid JSON with these keys:
 - linkedin (string URL)
 - portfolio (string URL: personal site, GitHub profile, or portfolio)
 - other_links (array of string URLs: e.g. GitLab, Medium, project links)
+- education (array of objects with keys: text, degree, institution, year — use empty strings when unknown)
+- projects (array of objects with keys: name, description, technologies (array of strings))
 
 Use empty string or empty array when unknown. Do not include markdown."""
 
@@ -202,6 +208,58 @@ class LlmParser:
             "ats_checklist": checklist,
         }
 
+    def _normalize_education(self, raw: list) -> list[dict[str, str]]:
+        results: list[dict[str, str]] = []
+        for row in raw or []:
+            if isinstance(row, str):
+                text = row.strip()
+                if text:
+                    results.append({"text": text, "degree": "", "institution": "", "year": ""})
+                continue
+            if not isinstance(row, dict):
+                continue
+            text = str(row.get("text") or row.get("description") or "").strip()
+            if not text:
+                parts = [str(row.get("degree") or "").strip(), str(row.get("institution") or "").strip()]
+                text = ", ".join(part for part in parts if part)
+            if not text:
+                continue
+            results.append(
+                {
+                    "text": text,
+                    "degree": str(row.get("degree") or "").strip(),
+                    "institution": str(row.get("institution") or "").strip(),
+                    "year": str(row.get("year") or "").strip(),
+                }
+            )
+        return results[:8]
+
+    def _normalize_projects(self, raw: list) -> list[dict[str, str | list[str]]]:
+        results: list[dict[str, str | list[str]]] = []
+        for row in raw or []:
+            if isinstance(row, str):
+                text = row.strip()
+                if text:
+                    results.append({"name": text[:96], "description": text, "technologies": []})
+                continue
+            if not isinstance(row, dict):
+                continue
+            name = str(row.get("name") or row.get("title") or "").strip()
+            description = str(row.get("description") or name).strip()
+            if not name and not description:
+                continue
+            tech = row.get("technologies") or row.get("skills") or []
+            if isinstance(tech, str):
+                tech = [part.strip() for part in tech.split(",") if part.strip()]
+            results.append(
+                {
+                    "name": (name or description)[:96],
+                    "description": description[:500],
+                    "technologies": [str(item).strip() for item in tech if str(item).strip()][:8],
+                }
+            )
+        return results[:8]
+
     def _normalize(self, raw: dict) -> dict:
         skills = raw.get("skills") or []
         if isinstance(skills, str):
@@ -226,6 +284,7 @@ class LlmParser:
             "skills": [str(s) for s in skills],
             "experience_years": exp,
             "preferred_salary": salary,
+            "preferred_currency": normalize_preferred_currency(raw.get("preferred_currency")),
             "remote_preference": bool(raw.get("remote_preference", False)),
             "summary": str(raw.get("summary") or "").strip(),
             "email": str(raw.get("email") or "").strip(),
@@ -233,6 +292,8 @@ class LlmParser:
             "linkedin": str(raw.get("linkedin") or "").strip(),
             "portfolio": str(raw.get("portfolio") or "").strip(),
             "other_links": [str(link).strip() for link in other_links if str(link).strip()],
+            "education": self._normalize_education(raw.get("education") or []),
+            "projects": self._normalize_projects(raw.get("projects") or []),
         }
 
     def _normalize_job(self, raw: dict) -> dict:
@@ -259,9 +320,19 @@ class LlmParser:
             budget_min = budget_max
         elif budget_max is None:
             budget_max = budget_min
+        preferred = raw.get("preferred_skills") or []
+        if isinstance(preferred, str):
+            preferred = [s.strip() for s in preferred.split(",") if s.strip()]
+        responsibilities = raw.get("responsibilities") or []
+        if isinstance(responsibilities, str):
+            responsibilities = [responsibilities]
+        education_requirements = raw.get("education_requirements") or []
+        if isinstance(education_requirements, str):
+            education_requirements = [education_requirements]
         return {
             "title": str(raw.get("title") or "Untitled Job").strip(),
             "required_skills": [str(s) for s in skills],
+            "preferred_skills": [str(s) for s in preferred],
             "required_experience": exp,
             "description": str(raw.get("description") or "").strip(),
             "company": company,
@@ -273,4 +344,6 @@ class LlmParser:
             "budget_min": budget_min,
             "budget_max": budget_max,
             "budget": budget_max or budget_min,
+            "responsibilities": [str(item).strip() for item in responsibilities if str(item).strip()],
+            "education_requirements": [str(item).strip() for item in education_requirements if str(item).strip()],
         }

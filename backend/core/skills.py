@@ -1,6 +1,6 @@
 from core.embedding import embed_skill
 from core.similarity import cosine_similarity
-from core.skill_catalog import canonicalize_skills, normalize
+from core.skill_catalog import canonicalize_skills, normalize_skills
 
 
 def jaccard_skills(resume_skills: list[str], job_skills: list[str]) -> float:
@@ -60,15 +60,18 @@ def skills_score(
 
 
 def raw_skill_overlap(resume_skills: list[str], job_skills: list[str]) -> list[str]:
-    r = {normalize(s) for s in resume_skills}
-    j = {normalize(s) for s in job_skills}
+    r = set(canonicalize_skills(resume_skills))
+    j = set(canonicalize_skills(job_skills))
     return sorted(r & j)
 
 
 def skill_overlap_details(resume_skills: list[str], job_skills: list[str]) -> tuple[list[str], list[str]]:
-    resume_norm = {normalize(s): s for s in resume_skills}
-    job_norm = {normalize(s): s for s in job_skills}
-    overlap_keys = set(resume_norm) & set(job_norm)
-    matched = sorted({job_norm[key] for key in overlap_keys}, key=str.lower)
-    missing = [job_norm[key] for key in job_norm if key not in overlap_keys]
+    resume_entries = {entry.canonical: entry for entry in normalize_skills(resume_skills)}
+    job_entries = {entry.canonical: entry for entry in normalize_skills(job_skills)}
+    overlap = set(resume_entries) & set(job_entries)
+    matched = sorted({job_entries[key].display for key in overlap}, key=str.lower)
+    missing = sorted(
+        {job_entries[key].display for key in job_entries if key not in overlap},
+        key=str.lower,
+    )
     return matched, missing

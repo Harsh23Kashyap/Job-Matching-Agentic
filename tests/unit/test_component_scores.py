@@ -1,7 +1,7 @@
 import pytest
 
 from contracts.snapshots import CandidateSnapshot, JobSnapshot
-from core.component_scores import compensation_score, experience_score, location_score
+from core.component_scores import compensation_score, experience_score, location_score, title_similarity_score
 
 
 def _candidate(**kwargs) -> CandidateSnapshot:
@@ -62,3 +62,15 @@ def test_location_score_remote_mismatch():
 
 def test_location_score_remote_match():
     assert location_score(_candidate(remote_preference=True), _job(remote_policy=True)) == 1.0
+
+
+def test_title_similarity_strong_overlap():
+    cand = _candidate(summary="Senior machine learning engineer building Python models")
+    job = _job(title="Machine Learning Engineer")
+    assert title_similarity_score(cand, job) >= 0.6
+
+
+def test_title_similarity_no_overlap():
+    cand = _candidate(summary="Frontend developer specializing in React")
+    job = _job(title="Machine Learning Engineer")
+    assert title_similarity_score(cand, job) <= 0.2

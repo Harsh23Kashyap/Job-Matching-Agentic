@@ -1,6 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
-  deriveWhyMatch,
   deriveEmployerWhyMatch,
   formatCandidateExperience,
   formatExpectedCompensation,
@@ -11,31 +10,31 @@ import {
   matchSkills,
   matchTier,
 } from "../utils/format.js";
+import {
+  describeMatchDrivers,
+  formatContributionPts,
+  formatWeightPct,
+  resolveScoreComponents,
+} from "../utils/matchScoring.js";
 import SkillChip, { SkillChipList } from "./SkillChip.jsx";
 import ResumeImprovementPanel from "./ResumeImprovementPanel.jsx";
 import SimilarRecommendations from "./SimilarRecommendations.jsx";
 
-const SCORE_COMPONENTS = [
-  { key: "semantic_score", label: "Semantic", weight: "40%" },
-  { key: "skills_score", label: "Skills", weight: "30%" },
-  { key: "experience_score", label: "Experience", weight: "15%" },
-  { key: "compensation_score", label: "Compensation", weight: "10%" },
-  { key: "location_score", label: "Location / remote", weight: "5%" },
-];
-
 const SCORING_NOTE =
-  "Overall score blends semantic fit (40%), skills (30%), experience (15%), compensation (10%), and location/remote (5%).";
+  "Overall score is a weighted blend: semantic fit (28%), skills (27%), role title (10%), experience (15%), compensation (10%), and remote preference (10%).";
 
-function ScoreBar({ label, weight, value }) {
+function ScoreBar({ label, weight, value, contribution }) {
   const numeric = value != null && !Number.isNaN(Number(value)) ? Number(value) : null;
   const pct = numeric != null ? Math.round(numeric * 100) : null;
+  const weightLabel = formatWeightPct(weight);
+  const contributionLabel = contribution != null ? formatContributionPts(contribution) : null;
 
   return (
     <div className="match-drawer-score-row">
       <div className="match-drawer-score-row__head">
         <span className="match-drawer-score-row__label">{label}</span>
         <span className="match-drawer-score-row__meta">
-          <span className="match-drawer-score-row__weight">{weight}</span>
+          <span className="match-drawer-score-row__weight">{weightLabel} weight</span>
           <span className="match-drawer-score-row__value">{pct != null ? `${pct}%` : "—"}</span>
         </span>
       </div>
@@ -52,6 +51,11 @@ function ScoreBar({ label, weight, value }) {
           style={{ width: pct != null ? `${Math.max(pct, 2)}%` : "0%" }}
         />
       </div>
+      {contributionLabel && (
+        <p className="match-drawer-score-row__contrib">
+          Contributes {contributionLabel} to overall match
+        </p>
+      )}
     </div>
   );
 }
@@ -119,12 +123,17 @@ export default function MatchDetailsDrawer({
     };
   }, [onClose]);
 
+  const scoreComponents = useMemo(() => resolveScoreComponents(row), [row]);
+
   if (!row) return null;
 
   const tier = matchTier(matchScoreValue(row));
   const { matched, missing } = matchSkills(row);
+  const driverLine = describeMatchDrivers(row);
   const explanation =
-    whyLine || (variant === "employer" ? deriveEmployerWhyMatch(row) : deriveWhyMatch(row));
+    whyLine ||
+    driverLine ||
+    (variant === "employer" ? deriveEmployerWhyMatch(row) : null);
   const metaRows = buildMetaRows(row, matchContext, variant);
   const hasContact =
     row.contact_email || row.contact_phone || row.contact_linkedin || row.contact_portfolio;
@@ -152,17 +161,25 @@ export default function MatchDetailsDrawer({
             <p className="match-drawer-score-label">Overall match</p>
             <p className="match-drawer-score-display">{matchPercent(matchScoreValue(row))}</p>
             <span className={`match-tier-pill match-tier-pill--lg ${tier.className}`}>{tier.label}</span>
-            <p className="match-drawer-explanation">{explanation}</p>
+            {explanation && <p className="match-drawer-explanation">{explanation}</p>}
           </MatchDrawerCard>
 
-          <MatchDrawerCard title="Score breakdown">
-            <div className="match-drawer-score-list">
-              {SCORE_COMPONENTS.map(({ key, label, weight }) => (
-                <ScoreBar key={key} label={label} weight={weight} value={row[key]} />
-              ))}
-            </div>
-            <p className="match-drawer-scoring-note">{SCORING_NOTE}</p>
-          </MatchDrawerCard>
+          {scoreComponents.length > 0 && (
+            <MatchDrawerCard title="Score breakdown">
+              <div className="match-drawer-score-list">
+                {scoreComponents.map((component) => (
+                  <ScoreBar
+                    key={component.key}
+                    label={component.label}
+                    weight={component.weight}
+                    value={component.score}
+                    contribution={component.contribution}
+                  />
+                ))}
+              </div>
+              <p className="match-drawer-scoring-note">{SCORING_NOTE}</p>
+            </MatchDrawerCard>
+          )}
 
           <MatchDrawerCard title="Skills">
             <div className="match-drawer-skills-block">

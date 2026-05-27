@@ -6,8 +6,8 @@ Business logic: scoring, embeddings, skills, resume/JD text processing, and v2 M
 
 | File | Purpose |
 |------|---------|
-| `scoring.py` | `compute_semantic`, `compute_multimodal_weighted`, **`compute_composite`** (40/30/15/10/5%) |
-| `component_scores.py` | Experience, compensation, location sub-scores |
+| `scoring.py` | `compute_semantic`, `compute_multimodal_weighted`, **`compute_composite`** (28/27/10/15/10/10%) |
+| `component_scores.py` | Experience, compensation, **title similarity**, remote preference sub-scores |
 | `matchmaking_scoring.py` | `score_pair_advanced` · strategy routing, constraints, fusion |
 | `skills.py` | Jaccard and soft-embed skill overlap |
 | `similarity.py` | Cosine / Euclidean on embedding vectors |

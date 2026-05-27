@@ -81,3 +81,23 @@ def test_resume_preview_excerpt_truncates():
 def test_empty_input():
     assert clean_resume_text("") == ""
     assert resume_preview_excerpt("") == ""
+
+
+def test_fixes_hyphenated_line_breaks():
+    raw = "Python develop-\ner with FastAPI"
+    cleaned = clean_resume_text(raw)
+    assert "develop-\ner" not in cleaned
+    assert "developer" in cleaned.lower()
+
+
+def test_removes_duplicate_lines():
+    raw = "Harsh Kashyap\nHarsh Kashyap\nPython developer"
+    cleaned = clean_resume_text(raw)
+    assert cleaned.count("Harsh Kashyap") == 1
+
+
+def test_joins_wrapped_lines():
+    raw = "Built scalable backend services for\nmatching and ranking workflows."
+    cleaned = clean_resume_text(raw)
+    assert "workflows." in cleaned
+    assert "\nmatching" not in cleaned

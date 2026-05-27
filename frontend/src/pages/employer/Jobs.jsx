@@ -4,11 +4,13 @@ import PortalSection from "../../components/PortalSection.jsx";
 import JobPostingForm from "../../components/JobPostingForm.jsx";
 import EmployerJobList from "../../components/EmployerJobList.jsx";
 import JdImportPanel from "../../components/JdImportPanel.jsx";
+import JobQualityPanel from "../../components/JobQualityPanel.jsx";
 import FormFeedback from "../../components/FormFeedback.jsx";
 import Button from "../../components/Button.jsx";
 import { useToast } from "../../components/Toast.jsx";
 import {
   apiErrorMessage,
+  checkJobQuality,
   fetchMyJobs,
   parseJobDescriptionText,
   saveJobPosting,
@@ -23,6 +25,7 @@ import {
   jobToPayload,
   validateJobFields,
 } from "../../utils/jobFields.js";
+import { mergeSkills } from "../../utils/skills.js";
 
 const JD_PASTE_MIN = 40;
 
@@ -37,13 +40,29 @@ function scrollToFirstFieldError() {
   });
 }
 
-function applyExtractionResponse(data, { setFields, setJdError, showToast, scrollToForm }) {
-  if (data.llm_status === "ok") {
-    setFields((prev) => ({ ...prev, ...jobFieldsFromExtracted(data.extracted_fields || {}) }));
+function applyExtractionResponse(data, { setFields, setJdError, setQuality, showToast, scrollToForm }) {
+  const extracted = data.extracted_fields || {};
+  const hasExtracted = Boolean(
+    extracted.title
+      || (extracted.required_skills || []).length
+      || extracted.description,
+  );
+
+  if (data.llm_status === "ok" || hasExtracted) {
+    setFields((prev) => ({ ...prev, ...jobFieldsFromExtracted(extracted) }));
+    setQuality(data.quality || null);
     setJdError("");
-    showToast("Details extracted. Review the form below.");
+    if (data.llm_status === "ok") {
+      showToast("Details extracted. Review the form and job quality tips below.");
+    } else {
+      showToast("Partial extraction applied. Review fields and quality tips below.");
+    }
     scrollToForm?.();
     return;
+  }
+
+  if (data.quality) {
+    setQuality(data.quality);
   }
   const message =
     data.message || "Extraction didn't work. Fill in the form yourself.";
@@ -65,6 +84,9 @@ export default function EmployerJobs() {
   const [editingJobId, setEditingJobId] = useState(null);
   const [jdError, setJdError] = useState("");
   const [formError, setFormError] = useState("");
+  const [quality, setQuality] = useState(null);
+  const [qualityLoading, setQualityLoading] = useState(false);
+  const [addingSkill, setAddingSkill] = useState("");
   const fileRef = useRef(null);
   const formPanelRef = useRef(null);
   const formFeedbackRef = useRef(null);
@@ -95,10 +117,49 @@ export default function EmployerJobs() {
     setFormError("");
     setJdError("");
     setJdPaste("");
+    setQuality(null);
+  };
+
+  const hasQualityInput = Boolean(
+    fields.title?.trim() || fields.required_skills?.trim() || fields.description?.trim(),
+  );
+
+  useEffect(() => {
+    if (!hasQualityInput) {
+      setQuality(null);
+      setQualityLoading(false);
+      return undefined;
+    }
+    let cancelled = false;
+    const timer = window.setTimeout(async () => {
+      setQualityLoading(true);
+      try {
+        const report = await checkJobQuality(jobToPayload(fields));
+        if (!cancelled) setQuality(report);
+      } catch {
+        if (!cancelled) setQuality(null);
+      } finally {
+        if (!cancelled) setQualityLoading(false);
+      }
+    }, 450);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+  }, [fields, hasQualityInput]);
+
+  const handleAddSuggestedSkill = async (skill) => {
+    setAddingSkill(skill);
+    setFields((prev) => ({
+      ...prev,
+      required_skills: mergeSkills(prev.required_skills, [skill]).join(", "),
+    }));
+    setAddingSkill("");
+    showToast(`Added ${skill} to required skills.`);
   };
 
   const handleExtraction = (data) => {
-    applyExtractionResponse(data, { setFields, setJdError, showToast, scrollToForm });
+    applyExtractionResponse(data, { setFields, setJdError, setQuality, showToast, scrollToForm });
   };
 
   const handleUpload = async (file) => {
@@ -276,6 +337,15 @@ export default function EmployerJobs() {
           <div className="employer-form-divider">
             <span>Role details</span>
           </div>
+
+          {(hasQualityInput || qualityLoading) && (
+            <JobQualityPanel
+              quality={quality}
+              loading={qualityLoading}
+              onAddSkill={handleAddSuggestedSkill}
+              addingSkill={addingSkill}
+            />
+          )}
 
           <form className="employer-job-form" onSubmit={handleSubmit} noValidate>
             <div ref={formFeedbackRef}>
