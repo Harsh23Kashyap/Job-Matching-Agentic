@@ -1,4 +1,4 @@
-"""LLM explainer grounded in structured match features — no hallucinated fields."""
+"""LLM explainer grounded in structured match features; no hallucinated fields."""
 from __future__ import annotations
 
 import json

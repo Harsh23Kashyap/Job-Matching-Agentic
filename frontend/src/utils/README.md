@@ -1,6 +1,6 @@
 # Utils
 
-Pure helpers — no React, easy to unit test with Node `node --test`.
+Pure helpers · no React, easy to unit test with Node `node --test`.
 
 ## Files
 

@@ -35,7 +35,7 @@ def build_lexical_baselines(
     model_name: str,
 ) -> list[BenchmarkStrategy]:
     """
-    BM25, TF-IDF cosine, and exact skill overlap — no embedding model calls.
+    BM25, TF-IDF cosine, and exact skill overlap · no embedding model calls.
     Uses the same document templates as dense retrieval (via LexicalRanker).
     """
     del model_name  # lexical paths do not embed; kept for a uniform builder signature

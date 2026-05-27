@@ -4,9 +4,9 @@ Offline research tooling for detecting **ranking instability** when only irrelev
 
 ## Principles
 
-1. **Never infer protected attributes from real users** — production CVs are not analyzed for demographics.
-2. **Synthetic controlled profiles only** — fabricated pairs in `data/fairness_audit_profiles.json`.
-3. **Counterfactual design** — match-relevant fields (skills, experience, salary, remote preference, professional summary) are identical; only demographic-like metadata differs between variants A and B.
+1. **Never infer protected attributes from real users** · production CVs are not analyzed for demographics.
+2. **Synthetic controlled profiles only** · fabricated pairs in `data/fairness_audit_profiles.json`.
+3. **Counterfactual design** · match-relevant fields (skills, experience, salary, remote preference, professional summary) are identical; only demographic-like metadata differs between variants A and B.
 
 ## Match-relevant vs demographic-like fields
 
@@ -60,6 +60,6 @@ bash scripts/run_fairness_audit.sh
 
 ## Interpretation
 
-- Embedding-based semantic scores **may** shift when names appear in document text — this is a known audit signal, not proof of discriminatory intent.
+- Embedding-based semantic scores **may** shift when names appear in document text · this is a known audit signal, not proof of discriminatory intent.
 - Flagged cases require **manual review**; the audit does not auto-label bias.
 - This complements (does not replace) the legacy experience/remote disparate-impact baseline in `core/fairness.py`.

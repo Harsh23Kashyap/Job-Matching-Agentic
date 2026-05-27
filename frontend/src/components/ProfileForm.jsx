@@ -19,7 +19,7 @@ export default function ProfileForm({
       <div className="portal-form-fields">
         <FormField
           label="Name"
-          helper="Use your full name as shown on your resume."
+          helper="As it appears on your resume."
           error={errors.name}
           htmlFor="pf-name"
         >
@@ -33,11 +33,11 @@ export default function ProfileForm({
 
         <FormSection
           title="Contact & links"
-          helper="How employers can reach you. These fields are filled from your resume when possible — edit anything that looks off."
+          helper="Filled from your resume when we can parse them. Edit anything that's wrong."
         >
           <FormField
             label="Email"
-            helper="Work or personal email. We'll never share it without your consent."
+            helper="Work or personal. Not shared without your action."
             error={errors.email}
             htmlFor="pf-email"
           >
@@ -53,7 +53,7 @@ export default function ProfileForm({
 
           <FormField
             label="Phone"
-            helper="Include country code for numbers outside your home region (e.g. +91 98765 43210)."
+            helper="Include country code when needed (e.g. +91 98765 43210)."
             error={errors.phone}
             htmlFor="pf-phone"
           >
@@ -69,7 +69,7 @@ export default function ProfileForm({
 
           <FormField
             label="LinkedIn"
-            helper="Full profile URL — we'll add https:// if you paste linkedin.com/in/…"
+            helper="Full URL. We add https:// if you paste linkedin.com/in/…"
             error={errors.linkedin}
             htmlFor="pf-linkedin"
           >
@@ -84,7 +84,7 @@ export default function ProfileForm({
 
           <FormField
             label="Portfolio or website"
-            helper="GitHub, personal site, or portfolio — shown to employers reviewing your profile."
+            helper="GitHub, personal site, or portfolio."
             error={errors.portfolio}
             htmlFor="pf-portfolio"
           >
@@ -99,7 +99,7 @@ export default function ProfileForm({
 
           <FormField
             label="Other links"
-            helper="GitLab, Medium, project demos, or anything else worth sharing."
+            helper="GitLab, Medium, demos, or other links."
             error={errors.other_links}
             htmlFor="pf-other-links"
           >
@@ -114,7 +114,7 @@ export default function ProfileForm({
 
         <FormField
           label="Skills"
-          helper="Type a skill and press Enter, or paste a comma-separated list. Remove chips you don't want."
+          helper="Press Enter after each skill, or paste a comma-separated list."
           error={errors.skills}
           htmlFor="pf-skills"
         >
@@ -129,7 +129,7 @@ export default function ProfileForm({
 
         <FormField
           label="Years of experience"
-          helper="Use your total professional experience. Internships are optional."
+          helper="Total years in relevant roles. Internships optional."
           error={errors.experience_years}
           htmlFor="pf-exp"
         >
@@ -143,7 +143,7 @@ export default function ProfileForm({
 
         <FormField
           label="Expected annual total compensation"
-          helper="Optional. Total package per year — base, bonus, equity, and recurring pay. Pick a currency, then enter a whole number."
+          helper="Optional. Annual total comp (base, bonus, equity). Pick currency, then a whole number."
           error={errors.preferred_salary}
           htmlFor="pf-salary"
           optional
@@ -163,12 +163,12 @@ export default function ProfileForm({
           checked={fields.remote_preference}
           onChange={(v) => onChange({ ...fields, remote_preference: v })}
           label="Open to remote work"
-          helper="We'll include remote-friendly roles in your matches."
+          helper="Includes remote-friendly roles in search results."
         />
 
         <FormField
           label="Summary"
-          helper="Two or three sentences on your focus areas — this appears on match cards for employers."
+          helper="Two or three sentences. Shown to employers on match cards."
           error={errors.summary}
           htmlFor="pf-summary"
         >

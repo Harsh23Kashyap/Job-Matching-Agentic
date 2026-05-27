@@ -1,4 +1,4 @@
-"""Explainability evaluation runner — offline research only."""
+"""Explainability evaluation runner (offline research only)."""
 from __future__ import annotations
 
 import csv
@@ -364,7 +364,7 @@ def write_explainability_report(
 def render_explainability_markdown(report: ExplainabilityReport) -> str:
     meta = report.meta
     lines = [
-        "# Explainability Evaluation — Match Explanations",
+        "# Explainability Evaluation: Match Explanations",
         "",
         f"Generated: {meta['generated_at']}",
         "",
@@ -421,7 +421,7 @@ def render_explainability_markdown(report: ExplainabilityReport) -> str:
 
 
 def print_explainability_summary(report: ExplainabilityReport) -> None:
-    print(f"\nExplainability eval — {report.meta['instances_evaluated']} instances\n")
+    print(f"\nExplainability eval: {report.meta['instances_evaluated']} instances\n")
     for mode, stats in report.meta.get("by_mode", {}).items():
         print(
             f"  [{mode}] flagged={stats['flagged']}/{stats['count']} "

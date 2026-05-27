@@ -184,7 +184,7 @@ def test_resume_upload_cid_cleanup_and_contact(mock_factory, client):
     assert any("github.com" in link for link in [fields.get("portfolio", ""), *fields.get("other_links", [])])
 
 
-# 11. Profile upsert unlocks GET /candidates/me and match refresh
+# 11. Profile upsert: GET /candidates/me and match refresh
 def test_profile_upsert_then_search_jobs(client):
     _register_candidate(client, "reverify-flow@test.com")
     assert client.get("/candidates/me").status_code == 404

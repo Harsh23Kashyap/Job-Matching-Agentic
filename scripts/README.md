@@ -1,6 +1,6 @@
 # Scripts
 
-Standalone utilities — run from repo root unless noted.
+Standalone utilities · run from repo root unless noted.
 
 ## Files
 
@@ -19,4 +19,4 @@ bash scripts/run_benchmark.sh --top-k 10 --prefix exp1
 bash scripts/run_benchmark_eval.sh
 ```
 
-Add new scripts here for one-off smoke, seed, or ops tasks — keep them out of `backend/` package imports when possible.
+Add new scripts here for one-off smoke, seed, or ops tasks · keep them out of `backend/` package imports when possible.

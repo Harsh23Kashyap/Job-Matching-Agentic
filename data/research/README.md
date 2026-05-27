@@ -1,7 +1,7 @@
 # Synthetic Research Corpus
 
 Large-scale **synthetic** evaluation dataset for offline benchmark research.  
-Not used by production bootstrap — the demo corpus remains `data/cvs.json` + `data/jobs.json`.
+Not used by production bootstrap · the demo corpus remains `data/cvs.json` + `data/jobs.json`.
 
 ## Contents
 
@@ -22,10 +22,10 @@ Each candidate and job carries a `role` field. Skills are sampled from role-spec
 
 | Grade | Meaning |
 |-------|---------|
-| **3** | Strong match — same role, ≥75% required skill overlap, experience met |
-| **2** | Good match — same role with moderate overlap, or adjacent role with overlap |
-| **1** | Partial — minimal overlap or adjacent role |
-| **0** | Not relevant — different role, negligible overlap |
+| **3** | Strong match · same role, ≥75% required skill overlap, experience met |
+| **2** | Good match · same role with moderate overlap, or adjacent role with overlap |
+| **1** | Partial · minimal overlap or adjacent role |
+| **0** | Not relevant · different role, negligible overlap |
 
 Each label includes an auto-generated **rationale** citing role alignment, skill overlap, experience, remote, and salary fit.
 

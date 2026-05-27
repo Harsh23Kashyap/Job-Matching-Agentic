@@ -24,7 +24,7 @@ const SCORE_COMPONENTS = [
 ];
 
 const SCORING_NOTE =
-  "Weighted blend: semantic 40%, skills 30%, experience 15%, compensation 10%, location/remote 5%.";
+  "Overall score blends semantic fit (40%), skills (30%), experience (15%), compensation (10%), and location/remote (5%).";
 
 function ScoreBar({ label, weight, value }) {
   const numeric = value != null && !Number.isNaN(Number(value)) ? Number(value) : null;

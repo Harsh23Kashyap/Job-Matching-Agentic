@@ -1,6 +1,6 @@
 # Unit tests
 
-Fast, isolated tests — no live server required (except where noted).
+Fast, isolated tests · no live server required (except where noted).
 
 ## Python (`test_*.py`)
 
@@ -17,7 +17,7 @@ Run: `pytest tests/unit -q`
 
 ## Node (`test_*.mjs`)
 
-Frontend utility tests — run from repo root:
+Frontend utility tests · run from repo root:
 
 ```bash
 node --test tests/unit/test_profile_fields.mjs

@@ -28,7 +28,7 @@ Built as a thesis research demo: three collaborating agents, a bootstrapped eval
 18. [Design documentation](#design-documentation)
 19. [Troubleshooting](#troubleshooting)
 
-**Folder READMEs:** Every major module has a local guide — see [Folder guides](#folder-guides) under Project layout.
+**Folder READMEs:** Every major module has a local guide · see [Folder guides](#folder-guides) under Project layout.
 
 ---
 
@@ -36,9 +36,9 @@ Built as a thesis research demo: three collaborating agents, a bootstrapped eval
 
 Traditional job boards treat matching as a single search box: keywords in, listings out. This system models hiring as **collaboration between two sides**:
 
-- A **Candidate Agent** represents job seekers — it owns resumes, skills, embeddings, and profile state.
-- An **Employer Agent** represents hiring teams — it owns job descriptions, requirements, and job embeddings.
-- A **Matchmaking Agent** sits in the middle — it **reads** from both sides (never writes to their stores) and produces ranked, explainable matches.
+- A **Candidate Agent** represents job seekers · it owns resumes, skills, embeddings, and profile state.
+- An **Employer Agent** represents hiring teams · it owns job descriptions, requirements, and job embeddings.
+- A **Matchmaking Agent** sits in the middle · it **reads** from both sides (never writes to their stores) and produces ranked, explainable matches.
 
 The web app exposes three **role portals** (Candidate, Employer, Admin) plus session auth. Product users see match percentages, skill gaps, and plain-language explanations. Researchers and evaluators use the admin console for raw strategies, ensemble runs, and benchmark parity.
 
@@ -48,7 +48,7 @@ The web app exposes three **role portals** (Candidate, Employer, Admin) plus ses
 
 | Audience | What you get |
 |----------|--------------|
-| **Supervisors / stakeholders** | A 15-minute demo showing real portals, not just API calls — see [docs/demo/DEMO-SCRIPT.md](docs/demo/DEMO-SCRIPT.md) |
+| **Supervisors / stakeholders** | A 15-minute demo with real portals (see [docs/demo/DEMO-SCRIPT.md](docs/demo/DEMO-SCRIPT.md)) |
 | **Developers onboarding** | This README + [HLD](docs/design/HLD-multi-agent-system.md) + [SDD](docs/design/SDD-multi-agent-system.md) |
 | **Researchers** | Fixed 30/15 corpus, graded pairs, benchmark scripts under `backend/benchmarks/` |
 | **Thesis authors** | Architecture that maps to a three-agent paper diagram; v1/v2 scope in [V1-V2-SCOPE.md](docs/design/V1-V2-SCOPE.md) |
@@ -155,13 +155,13 @@ Register at `/register` and choose a role. Each role sees only its portal routes
 |------|-------|--------------|
 | 1. Onboarding | `/candidate/onboarding` | Upload PDF/DOCX/TXT resume → AI extracts fields; CID artifacts stripped; contacts parsed (email, phone, GitHub, LinkedIn, etc.) |
 | 2. Review profile | Same page, step 2 | Edit skills, experience, compensation expectations, links |
-| 3. Save | `PUT /candidates/me` | Profile upserted (create or update — no duplicate error) |
+| 3. Save | `PUT /candidates/me` | Profile upserted (create or update · no duplicate error) |
 | 4. Find jobs | `/candidate/matches` | Composite match ranks all jobs; filter by remote, experience, score band |
 | 5. Details | Match drawer | Score breakdown, skill gaps, resume coach, similar jobs |
 | 6. Actions | Save job, apply, not interested | Persisted in SQLite for UI state (ranking unchanged) |
 | 7. Profile edits | `/candidate/profile` | Re-upload resume or edit fields; refresh matches without re-upload |
 
-**Demo shortcut:** Sign in as `demo.candidate@test.com` — profile is pre-linked to **Rahul Sharma** in the corpus. Go straight to **Jobs → Find matches**.
+**Demo shortcut:** Sign in as `demo.candidate@test.com` · profile is pre-linked to **Rahul Sharma** in the corpus. Go straight to **Jobs → Find matches**.
 
 ### Employer journey
 
@@ -184,7 +184,7 @@ Register at `/register` and choose a role. Each role sees only its portal routes
 | 3. System config | API / console | Switch Chroma ↔ Qdrant, view supported strategies |
 | 4. Events | Agent event strip | Last 50 bus events for debugging |
 
-Admin is the **research console** — raw decimals, ensemble controls, and fairness baseline. Product users never need it.
+Admin is the **research console** · raw decimals, ensemble controls, and fairness baseline. Product users never need it.
 
 ---
 
@@ -231,7 +231,7 @@ List cards show **final % + band**. The **match drawer** shows all five componen
 
 - **Rule-based bullets** (`why_ranked`) on admin results.
 - **Plain-language summary** in the product drawer.
-- **Resume coach** (`POST /candidates/me/resume-suggestions`): read-only, role-targeted tips — does not modify the profile.
+- **Resume coach** (`POST /candidates/me/resume-suggestions`): read-only, role-targeted tips · does not modify the profile.
 
 ---
 
@@ -245,7 +245,7 @@ List cards show **final % + band**. The **match drawer** shows all five componen
 | **Profile upsert** | `PUT /candidates/me` creates or updates in one call |
 | **Matching** | Candidate→jobs and job→candidates; composite default; filters on results |
 | **Match drawer** | Score breakdown, skill gaps, resume coach, 3 similar entities |
-| **Feedback** | Save / apply / not interested (candidate); save / reject / contact (employer) — SQLite, UI-only |
+| **Feedback** | Save / apply / not interested (candidate); save / reject / contact (employer) · SQLite, UI-only |
 | **Saved jobs & applications** | Candidate bookmarks; employer applicant feed |
 | **Admin ML** | Vector store switch (Chroma/Qdrant), ensemble weights, fairness baseline |
 | **UX** | Warm neutral design system; shared form/results/empty-state components; subtle animated SVG backgrounds on all portals |
@@ -258,7 +258,7 @@ List cards show **final % + band**. The **match drawer** shows all five componen
 |-------|------------|
 | **Frontend** | React 19, Vite 6, React Router 7, axios |
 | **Backend** | Python 3.11+, FastAPI, Uvicorn, Pydantic v2 |
-| **Embeddings** | `sentence-transformers` — `all-MiniLM-L6-v2` (384-d) |
+| **Embeddings** | `sentence-transformers` · `all-MiniLM-L6-v2` (384-d) |
 | **Vector store** | Chroma (default, persistent under `backend/chroma_db/`) or Qdrant |
 | **Auth & activity** | SQLite (users, sessions, feedback, saved jobs, applications) |
 | **LLM parsing** | Ollama (`llama3.2`) by default; OpenAI (`gpt-4o-mini`) when `OPENAI_API_KEY` is set |
@@ -310,7 +310,7 @@ On first startup the backend:
 - Builds Chroma embeddings (may take 1–2 minutes)
 - Seeds demo accounts if `SEED_DEMO=true`
 
-**Verify:** Open http://localhost:8001/docs — you should see the Swagger UI.  
+**Verify:** Open http://localhost:8001/docs · you should see the Swagger UI.  
 **Verify agents:** `curl -s http://localhost:8001/agents/status | python3 -m json.tool`
 
 ### 3. Frontend (separate terminal)
@@ -321,9 +321,9 @@ npm install
 npm run dev
 ```
 
-**Verify:** Open http://localhost:5173 — landing page with Login / Register.
+**Verify:** Open http://localhost:5173 (landing page with Login / Register).
 
-### 4. Optional — Ollama for AI extraction
+### 4. Optional: Ollama for resume/JD parsing
 
 Without OpenAI or Ollama, resume/JD upload still works: you get cleaned text + regex-extracted contacts, then fill fields manually.
 
@@ -344,7 +344,7 @@ Copy `backend/.env.example` to `backend/.env` (gitignored). Never commit real ke
 | `OPENAI_BASE_URL` | `https://api.openai.com/v1` | OpenAI-compatible endpoint (Azure, LiteLLM, etc.) |
 | `OLLAMA_BASE_URL` | `http://localhost:11434` | Local Ollama server |
 | `OLLAMA_MODEL` | `llama3.2` | Model for local parsing |
-| `SESSION_SECRET` | `dev-change-me` | Signs auth cookies — **change in production** |
+| `SESSION_SECRET` | `dev-change-me` | Signs auth cookies · **change in production** |
 | `HOST` | `0.0.0.0` | Bind address |
 | `PORT` | `8001` | API port |
 | `SEED_DEMO` | `true` | Auto-create demo accounts on startup |
@@ -361,7 +361,7 @@ Demo accounts are created automatically when `SEED_DEMO=true` (default).
 
 | Role | Email | Password | Pre-loaded state |
 |------|-------|----------|------------------|
-| **Candidate** | `demo.candidate@test.com` | `demo1234` | Profile linked to Rahul Sharma — instant job matches |
+| **Candidate** | `demo.candidate@test.com` | `demo1234` | Profile linked to Rahul Sharma · instant job matches |
 | **Employer** | `demo.employer@test.com` | `demo1234` | 5 sample job postings |
 | **Admin** | `demo.admin@test.com` | `demo1234` | Full research console access |
 
@@ -374,9 +374,9 @@ Pre-flight checks: **[docs/demo/DEMO-CHECKLIST.md](docs/demo/DEMO-CHECKLIST.md)*
 
 **Quick path:**
 
-1. **Candidate** — Login → Jobs → **Find matches** → open drawer (breakdown, gaps, coach, similar jobs)
-2. **Employer** — Login → My jobs → paste a JD → **Extract details** → post → Candidates → match drawer
-3. **Admin** — Login → Match console → run composite match for **Rahul Sharma** → ML Engineer at rank 1
+1. **Candidate** · Login → Jobs → **Find matches** → open drawer (breakdown, gaps, coach, similar jobs)
+2. **Employer** · Login → My jobs → paste a JD → **Extract details** → post → Candidates → match drawer
+3. **Admin** · Login → Match console → run composite match for **Rahul Sharma** → ML Engineer at rank 1
 
 Expected top match: **Rahul Sharma ↔ Machine Learning Engineer** with strong semantic and skills overlap.
 
@@ -392,7 +392,7 @@ All portal routes require a session cookie. Register or login first; the fronten
 
 | Method | Route | Description |
 |--------|-------|-------------|
-| `POST` | `/auth/register` | Create account `{ email, password, role }` — role: `candidate`, `employer`, or `admin` |
+| `POST` | `/auth/register` | Create account `{ email, password, role }` · role: `candidate`, `employer`, or `admin` |
 | `POST` | `/auth/login` | Sign in → sets HTTP-only session cookie |
 | `POST` | `/auth/logout` | Clear session |
 | `GET` | `/auth/me` | Current user `{ id, email, role }` |
@@ -412,7 +412,7 @@ Registration emails must use a valid domain (e.g. `@example.com`, `@test.com`).
 
 | Method | Route | Auth | Description |
 |--------|-------|------|-------------|
-| `GET` | `/candidates` | — | List candidate names |
+| `GET` | `/candidates` | · | List candidate names |
 | `GET` | `/candidates/me` | Candidate | Get owned profile (404 if none yet) |
 | `PUT` | `/candidates/me` | Candidate | Upsert owned profile (create or update) |
 | `POST` | `/candidates/upload-resume` | Candidate | PDF/DOCX/TXT → extracted fields + cleaned text |
@@ -425,7 +425,7 @@ Registration emails must use a valid domain (e.g. `@example.com`, `@test.com`).
 
 | Method | Route | Auth | Description |
 |--------|-------|------|-------------|
-| `GET` | `/jobs` | — | List job titles |
+| `GET` | `/jobs` | · | List job titles |
 | `GET` | `/jobs/mine` | Employer | List owned jobs |
 | `PUT` | `/jobs/mine/{job_id}` | Employer | Update owned job |
 | `POST` | `/jobs/upload-description` | Employer | PDF/DOCX/TXT → extracted JD fields |
@@ -441,7 +441,7 @@ Registration emails must use a valid domain (e.g. `@example.com`, `@test.com`).
 | `POST` | `/match/ensemble` | RRF over multiple strategy×metric combos |
 | `POST` | `/match/daily-batch` | ANN daily recommendations → JSON artifact |
 
-**Example — composite match:**
+**Example · composite match:**
 
 ```bash
 curl -s -X POST http://localhost:8001/match/candidate-to-jobs \
@@ -460,9 +460,9 @@ Legacy aliases still work: `/match-resume`, `/match-job`, `/match-resume-ensembl
 | `GET` | `/similar/candidates/{candidate_id}` | Employer | Up to 3 similar candidates |
 | `POST` | `/feedback/actions` | Portal | `{ action, entity_type, entity_id, context_id? }` |
 | `GET` | `/feedback/me` | Portal | Latest feedback for UI state |
-| `POST` | `/feedback` | — | Legacy pair feedback for research/boost |
+| `POST` | `/feedback` | · | Legacy pair feedback for research/boost |
 
-Feedback actions do **not** change match rankings — they only drive UI state (saved, rejected, etc.).
+Feedback actions do **not** change match rankings · they only drive UI state (saved, rejected, etc.).
 
 ---
 
@@ -491,7 +491,7 @@ pytest ../tests -q
 # Frontend unit tests (match format, skills, feedback, profile, backgrounds)
 node --test tests/unit/test_*.mjs
 
-# Feature checklist — composite, JD parse, feedback, CID cleanup, profile upsert
+# Feature checklist · composite, JD parse, feedback, CID cleanup, profile upsert
 pytest tests/integration/test_feature_reverification.py -q
 
 # Employer jobs API smoke (backend must be running on :8001)
@@ -537,7 +537,7 @@ Each major folder has its own **README** with module details, key files, and lin
 
 | Path | Description |
 |------|-------------|
-| [backend/](backend/README.md) | Python API — agents, scoring, gateway |
+| [backend/](backend/README.md) | Python API · agents, scoring, gateway |
 | [backend/agents/](backend/agents/README.md) | Three domain agents |
 | [backend/auth/](backend/auth/README.md) | Session auth and ownership |
 | [backend/benchmarks/](backend/benchmarks/README.md) | Evaluation drivers |
@@ -596,8 +596,8 @@ Job-Matching-Agentic/
 
 | Document | Description |
 |----------|-------------|
-| [HLD — multi-agent system](docs/design/HLD-multi-agent-system.md) | Architecture, agent boundaries, event bus, diagrams |
-| [SDD — multi-agent system](docs/design/SDD-multi-agent-system.md) | Detailed software design, module specs, API contracts |
+| [HLD · multi-agent system](docs/design/HLD-multi-agent-system.md) | Architecture, agent boundaries, event bus, diagrams |
+| [SDD · multi-agent system](docs/design/SDD-multi-agent-system.md) | Detailed software design, module specs, API contracts |
 | [V1 vs V2 scope](docs/design/V1-V2-SCOPE.md) | What shipped in v1/v1.1 vs planned v2 ML |
 | [V1.1 role portals + auth](docs/design/v1.1-role-portals-auth.md) | Auth model, portal routes, ownership |
 | [Session summary 2026-05-27](docs/session/SESSION-2026-05-27.md) | Recent feature work and decisions |
@@ -611,7 +611,7 @@ Job-Matching-Agentic/
 | Backend slow on first start | Embedding model download + corpus index | Wait 1–2 min; check terminal for bootstrap logs |
 | Resume upload returns empty fields | Ollama not running and no OpenAI key | Start Ollama or set `OPENAI_API_KEY`; manual entry still works |
 | Jobs page says "Complete your profile" | No profile saved yet | Upload resume → save profile via onboarding or `/candidate/profile` |
-| "Profile already exists" on save | Old bug — should not happen | Use latest code; save uses `PUT /candidates/me` upsert only |
+| "Profile already exists" on save | Old bug · should not happen | Use latest code; save uses `PUT /candidates/me` upsert only |
 | Match returns no results | Corpus not bootstrapped | Restart backend; check `/agents/status` for candidate/job counts |
 | Frontend can't reach API | Wrong port or CORS | Backend on `:8001`, frontend on `:5173`; check `frontend/vite.config` proxy |
 | Demo admin login fails in scripts | Session timing / stale cookie | Use fresh register or retry login; candidate/employer demos are more reliable |

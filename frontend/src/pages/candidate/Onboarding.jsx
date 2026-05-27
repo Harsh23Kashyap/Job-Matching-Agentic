@@ -17,6 +17,8 @@ import { notifyProfileUpdated } from "../../utils/profileEvents.js";
 import { resumePreviewFromUpload } from "../../utils/resumeClean.js";
 import {
   EMPTY_PROFILE_FIELDS,
+  isCandidateProfileReady,
+  isProfileStale,
   profileFromApi,
   profileToPayload,
 } from "../../utils/profileFields.js";
@@ -47,12 +49,17 @@ export default function Onboarding() {
   const [showFallbackNotice, setShowFallbackNotice] = useState(false);
   const [loading, setLoading] = useState(false);
   const [hasExistingProfile, setHasExistingProfile] = useState(false);
+  const [profileReady, setProfileReady] = useState(false);
   const [profileLoaded, setProfileLoaded] = useState(false);
 
   useEffect(() => {
     fetchMyProfileOrNull()
       .then((profile) => {
-        if (profile) {
+        if (profile && !isProfileStale(profile)) {
+          setHasExistingProfile(true);
+          setFields(profileFromApi(profile));
+          setProfileReady(isCandidateProfileReady(profile));
+        } else if (isProfileStale(profile)) {
           setHasExistingProfile(true);
           setFields(profileFromApi(profile));
         }
@@ -77,7 +84,7 @@ export default function Onboarding() {
     try {
       const data = await uploadResume(file);
       goToReview(data);
-      showToast("Resume parsed — review your details before saving.");
+      showToast("Resume parsed. Review your details, then save.");
     } catch (err) {
       setError(apiErrorMessage(err, "Upload failed. Try a PDF, DOCX, or TXT under 5MB."));
       errorRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
@@ -100,13 +107,14 @@ export default function Onboarding() {
       const saved = await upsertCandidateProfile(profileToPayload(fields));
       setFields(profileFromApi(saved));
       setHasExistingProfile(true);
+      setProfileReady(isCandidateProfileReady(saved));
       notifyProfileUpdated();
       showToast(
         hasExistingProfile
-          ? "Profile updated. You're ready to browse matches."
-          : "Profile saved. You're ready to browse matches.",
+          ? "Profile updated."
+          : "Profile saved.",
       );
-      navigate("/candidate/matches");
+      navigate("/candidate/matches", { state: { searchAfterSave: true } });
     } catch (err) {
       const message = apiErrorMessage(err, "Save failed. Check your details and try again.");
       setError(message);
@@ -125,8 +133,8 @@ export default function Onboarding() {
         title="Build your profile"
         subtitle={
           hasExistingProfile
-            ? "Update your details or upload a fresh resume — we'll keep your existing profile."
-            : "Upload your resume or enter details manually. We'll use this to rank job matches."
+            ? "Update your details or upload a new resume."
+            : "Upload a resume or enter details manually. Used to rank job matches."
         }
       />
       <section className="portal-panel portal-panel--form onboarding-panel">
@@ -136,14 +144,14 @@ export default function Onboarding() {
           <div className="onboarding-upload">
             <h2>Upload resume</h2>
             <p className="form-helper onboarding-upload__intro">
-              PDF, DOCX, or TXT up to 5MB. We extract your name, contact details, skills, and experience — you review everything before it's saved.
+              PDF, DOCX, or TXT, max 5 MB. We pull name, contact, skills, and experience. Nothing saves until you confirm.
             </p>
             {!profileLoaded && (
               <p className="form-helper onboarding-upload__status">Checking for an existing profile…</p>
             )}
             {hasExistingProfile && profileLoaded && (
               <p className="form-helper onboarding-upload__status">
-                You already have a profile on file. Uploading again will merge new details into the form — nothing is saved until you click Save.
+                You already have a profile. A new upload merges into the form. Save when you're done.
               </p>
             )}
             <label className="dropzone">
@@ -168,8 +176,17 @@ export default function Onboarding() {
                   setStep(2);
                 }}
               >
-                Skip — enter manually
+                Enter details manually
               </button>
+              {profileReady && (
+                <button
+                  type="button"
+                  className="btn-primary"
+                  onClick={() => navigate("/candidate/matches")}
+                >
+                  Continue to jobs
+                </button>
+              )}
             </div>
           </div>
         )}
@@ -178,13 +195,13 @@ export default function Onboarding() {
           <>
             <h2>Review profile</h2>
             <p className="form-helper onboarding-review__intro">
-              Confirm your details below. Skills appear as editable chips — add, remove, or paste a comma-separated list.
+              Check everything below. Edit skills as chips or paste a comma-separated list.
             </p>
             {showFallbackNotice && (
               <div className="notice-warning">
                 <IconAlert />
                 <span>
-                  We couldn't auto-fill every field from your resume. The cleaned text is below — complete anything that's missing.
+                  Some fields didn't parse from your resume. Use the text below and fill in what's missing.
                 </span>
               </div>
             )}

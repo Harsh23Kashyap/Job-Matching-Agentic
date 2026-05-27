@@ -93,7 +93,7 @@ export default function EmployerJobList({
         </EmptyStatePanel>
         <div className="employer-role-list__closed-section">
           <p className="form-helper employer-role-list__closed-hint">
-            {jobs.length} closed {jobs.length === 1 ? "role" : "roles"} — switch to Closed to review or edit.
+            {jobs.length} closed {jobs.length === 1 ? "role" : "roles"}. Open Closed to review or edit.
           </p>
           <RoleListControls
             search={search}

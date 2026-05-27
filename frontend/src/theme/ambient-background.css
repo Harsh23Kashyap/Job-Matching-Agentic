@@ -1,0 +1,131 @@
+/*
+ * Ambient background layers — warm blobs + motion (paired with BackgroundOrnaments SVG).
+ * Low opacity; respects prefers-reduced-motion via .bg-pattern--static.
+ */
+
+.bg-pattern__blobs {
+  position: absolute;
+  inset: -12% -8%;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.bg-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(48px);
+  opacity: 0.55;
+  will-change: transform;
+}
+
+.bg-blob--1 {
+  width: min(420px, 55vw);
+  height: min(420px, 55vw);
+  top: -8%;
+  left: -6%;
+  background: radial-gradient(
+    circle at 40% 40%,
+    color-mix(in srgb, var(--bg-ornament-sand) 22%, transparent) 0%,
+    transparent 68%
+  );
+  animation: bg-blob-drift-a 48s ease-in-out infinite;
+}
+
+.bg-blob--2 {
+  width: min(360px, 48vw);
+  height: min(360px, 48vw);
+  bottom: -10%;
+  right: -4%;
+  background: radial-gradient(
+    circle at 55% 55%,
+    color-mix(in srgb, var(--bg-ornament-olive) 18%, transparent) 0%,
+    transparent 70%
+  );
+  animation: bg-blob-drift-b 52s ease-in-out infinite reverse;
+}
+
+.bg-blob--3 {
+  width: min(280px, 38vw);
+  height: min(280px, 38vw);
+  top: 38%;
+  right: 18%;
+  background: radial-gradient(
+    circle at 50% 50%,
+    color-mix(in srgb, var(--bg-ornament-sage) 16%, transparent) 0%,
+    transparent 72%
+  );
+  animation: bg-blob-drift-c 44s ease-in-out infinite;
+}
+
+@keyframes bg-blob-drift-a {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(12px, 8px) scale(1.04); }
+}
+
+@keyframes bg-blob-drift-b {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-10px, -14px) scale(1.03); }
+}
+
+@keyframes bg-blob-drift-c {
+  0%, 100% { transform: translate(0, 0); opacity: 0.5; }
+  50% { transform: translate(-6px, 10px); opacity: 0.62; }
+}
+
+.bg-pattern--static .bg-blob {
+  animation: none;
+  will-change: auto;
+}
+
+/* Auth full-page ambient */
+.auth-page {
+  position: relative;
+  min-height: 100vh;
+  background: var(--background);
+  overflow-x: clip;
+}
+
+.auth-page .bg-pattern--auth {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  opacity: 0.055;
+  pointer-events: none;
+}
+
+.auth-page .auth-split {
+  position: relative;
+  z-index: 1;
+}
+
+.auth-page .bg-ornaments {
+  --bg-ornament-sage: var(--auth-illustration-stroke);
+  --bg-ornament-sand: var(--auth-blob-fill-1);
+  --bg-ornament-olive: var(--auth-illustration-accent);
+}
+
+:root[data-theme="dark"] .auth-page .bg-ornaments {
+  --bg-ornament-sage: var(--auth-illustration-stroke);
+  --bg-ornament-sand: var(--auth-blob-fill-1);
+  --bg-ornament-olive: var(--auth-illustration-accent);
+}
+
+/* Readability: content always above ambient layers */
+.page-shell > .page-container,
+.page-shell > .bg-pattern {
+  position: relative;
+}
+
+.page-shell > .bg-pattern {
+  z-index: 0;
+}
+
+.page-shell > .page-container {
+  z-index: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bg-blob {
+    animation: none !important;
+  }
+}

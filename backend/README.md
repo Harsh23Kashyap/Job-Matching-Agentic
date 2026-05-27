@@ -16,7 +16,7 @@ API docs: http://localhost:8001/docs
 
 | File | Role |
 |------|------|
-| `main.py` | Uvicorn factory — `create_app()` |
+| `main.py` | Uvicorn factory · `create_app()` |
 | `bootstrap.py` | Wires agents, stores, event bus; loads corpus |
 | `config.py` | Settings from env (`.env.example`) |
 | `demo_seed.py` | Demo accounts on startup when `SEED_DEMO=true` |

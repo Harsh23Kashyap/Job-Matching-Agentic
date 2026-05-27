@@ -40,7 +40,7 @@ Per query, before bootstrap:
 
 ## Interpretation caveats
 
-- **n = 30 queries** — wide confidence intervals; non-significant ≠ no effect
+- **n = 30 queries** · wide confidence intervals; non-significant ≠ no effect
 - Bootstrap assumes queries are exchangeable; no multiple-comparison correction across methods
 - One-sided p-values test improvement only; degradations require inspecting sign of Δ and CI
 - Results are **corpus-specific**; do not extrapolate to production traffic

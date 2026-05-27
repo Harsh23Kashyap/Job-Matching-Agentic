@@ -35,9 +35,9 @@ export default function EmptyState({
 }
 
 const PROFILE_CHECKLIST = [
-  "Upload or enter resume details",
+  "Upload or paste resume details",
   "Add skills",
-  "Set compensation and preferences",
+  "Set pay and work preferences",
 ];
 
 export function ProfileNeededEmpty({ action }) {
@@ -46,8 +46,8 @@ export function ProfileNeededEmpty({ action }) {
       variant="profile"
       illustrationVariant="profile-needed"
       patternVariant="profile"
-      title="Profile needed"
-      description="Upload your resume or enter your skills so we can find roles that fit."
+      title="Set up your profile"
+      description="Add your resume or skills so we can rank roles for you."
       checklist={PROFILE_CHECKLIST}
       checklistStyle="todo"
       action={action}
@@ -60,20 +60,63 @@ export function JobsReadyEmpty({ action }) {
     <EmptyState
       variant="jobs"
       illustrationVariant="ready"
-      title="Ready to find matches"
-      description="Your profile is ready. Search roles matched to your skills and preferences."
+      title="Search matched roles"
+      description="Your profile is saved. Run a search to see openings ranked for you."
       action={action}
     />
   );
 }
 
-export function NoMatchingRolesEmpty({ action }) {
+export function NoMatchingRolesEmpty({ action, filteredOut = false }) {
   return (
     <EmptyState
       variant="no-results"
       illustrationVariant="no-results"
-      title="No matching roles found"
-      description="Try lowering the minimum match or updating your skills."
+      title={filteredOut ? "No roles pass your filters" : "No roles matched"}
+      description={
+        filteredOut
+          ? "Your search returned matches, but filters hide them. Lower the minimum match or clear Remote only."
+          : "No roles in the corpus matched your profile yet. Update your skills or try again later."
+      }
+      compact
+      action={action}
+    />
+  );
+}
+
+export function ProfileIncompleteEmpty({ action }) {
+  return (
+    <EmptyState
+      variant="profile"
+      illustrationVariant="profile-needed"
+      patternVariant="profile"
+      title="Finish your profile"
+      description="We found a profile on your account, but it still needs a name before you can search for roles."
+      action={action}
+    />
+  );
+}
+
+export function ProfileStaleEmpty({ action }) {
+  return (
+    <EmptyState
+      variant="profile"
+      illustrationVariant="profile-needed"
+      patternVariant="profile"
+      title="Restore your profile"
+      description="Your account is linked to a profile that is no longer loaded. Re-save your details on the Profile page to search for roles again."
+      action={action}
+    />
+  );
+}
+
+export function EmployerAllClosedEmpty({ action }) {
+  return (
+    <EmptyState
+      variant="jobs"
+      illustrationVariant="employer-jobs"
+      title="No open roles"
+      description="You have closed roles on file. Post a new open role or reopen one from My jobs."
       compact
       action={action}
     />
@@ -85,14 +128,14 @@ export function EmployerCandidatesReadyEmpty({ action, jobTitle }) {
     <EmptyState
       variant="jobs"
       illustrationVariant="ready"
-      title="Ready to review candidates"
+      title="Review candidates"
       description={
         jobTitle
-          ? `Refresh matches to see candidates ranked for ${jobTitle}.`
-          : "Select a role and refresh matches to see ranked profiles for that posting."
+          ? `Refresh matches to load candidates ranked for ${jobTitle}.`
+          : "Choose a role and refresh matches to load ranked candidates."
       }
       action={action}
-      helperText="Matches rank candidates by skills overlap, experience, and profile fit."
+      helperText="Ranking uses skills, experience, and profile fit."
     />
   );
 }
@@ -102,8 +145,8 @@ export function EmployerNoCandidatesEmpty({ action }) {
     <EmptyState
       variant="no-results"
       illustrationVariant="no-results"
-      title="No candidates matched yet"
-      description="Try broadening skills, lowering experience, or refreshing matches."
+      title="No candidates matched"
+      description="Widen required skills, lower experience, or refresh matches."
       compact
       action={action}
     />
@@ -116,16 +159,16 @@ export function EmployerRolesEmpty({ action }) {
       variant="empty"
       illustrationVariant="employer-jobs"
       patternVariant="employer-jobs"
-      title="No roles posted yet"
-      description="Post your first role to start matching candidates to your requirements."
+      title="No roles posted"
+      description="Post a role to start matching candidates."
       checklist={[
-        "Import a JD or fill in role details",
-        "Set skills, experience, and compensation",
-        "Publish and review ranked candidates",
+        "Import a JD or enter role details",
+        "Add skills, experience, and pay range",
+        "Publish and review matches",
       ]}
       checklistStyle="todo"
       action={action}
-      helperText="Use the form on the right to post a role, or paste a job description to pre-fill fields."
+      helperText="Use the form on the right, or paste a job description to fill it in."
     />
   );
 }
@@ -135,11 +178,11 @@ export function ActivePostingsEmpty({ action }) {
     <EmptyState
       variant="jobs"
       illustrationVariant="employer-jobs"
-      title="No active postings"
-      description="All roles are closed. Post a new role to start matching candidates again."
+      title="No open roles"
+      description="Every role is closed. Post a new one to match candidates again."
       compact
       action={action}
-      helperText="You can still view and edit closed roles below."
+      helperText="Closed roles stay in the list below for review and edits."
     />
   );
 }

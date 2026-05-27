@@ -34,7 +34,7 @@ export default function ResumeImprovementPanel({ jobId, jobTitle, onClose }) {
   if (loading) {
     return (
       <section className="match-drawer-card resume-coach-panel">
-        <p className="resume-coach-loading">Analyzing your profile for {jobTitle}…</p>
+        <p className="resume-coach-loading">Checking your profile against {jobTitle}…</p>
       </section>
     );
   }

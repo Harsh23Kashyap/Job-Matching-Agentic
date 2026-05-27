@@ -1,0 +1,404 @@
+/*
+ * Dark mode component polish — designed surfaces, not inverted light theme.
+ * Relies on semantic tokens from tokens.css; overrides legacy rgba/light-only rules.
+ */
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+/* Navigation & chrome */
+:root[data-theme="dark"] .top-nav {
+  background: var(--nav-backdrop);
+  border-bottom-color: var(--border);
+}
+
+:root[data-theme="dark"] .app-header {
+  background: var(--nav-backdrop);
+}
+
+:root[data-theme="dark"] .auth-brand {
+  box-shadow: inset -1px 0 0 var(--border-subtle);
+}
+
+:root[data-theme="dark"] .auth-mini-cards span {
+  background: color-mix(in srgb, var(--card) 75%, var(--auth-panel));
+  border-color: var(--border);
+  color: var(--muted-foreground);
+}
+
+:root[data-theme="dark"] .auth-brand-logo .logo-mark {
+  filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.25));
+}
+
+/* Panels & cards */
+:root[data-theme="dark"] .portal-panel {
+  background: var(--card);
+  color: var(--card-foreground);
+  border-color: var(--border);
+}
+
+:root[data-theme="dark"] .portal-panel--empty {
+  background: color-mix(in srgb, var(--muted) 40%, var(--card));
+}
+
+:root[data-theme="dark"] .portal-card,
+:root[data-theme="dark"] .employer-role-card:not(.portal-card) {
+  background: var(--card);
+  border-color: var(--border);
+}
+
+:root[data-theme="dark"] .page-hero-stat {
+  background: color-mix(in srgb, var(--muted) 45%, var(--card));
+  border-color: var(--border);
+}
+
+/* Stat & summary cards */
+:root[data-theme="dark"] .summary-card {
+  background: color-mix(in srgb, var(--muted) 50%, var(--card));
+  border-color: var(--border);
+}
+
+:root[data-theme="dark"] .summary-card--accent {
+  background: color-mix(in srgb, var(--portal-accent-soft) 80%, var(--card));
+  border-color: color-mix(in srgb, var(--portal-accent) 28%, var(--border));
+}
+
+:root[data-theme="dark"] .summary-card--accent .summary-value {
+  color: var(--summary-accent-value);
+}
+
+:root[data-theme="dark"] .summary-label {
+  color: var(--muted-foreground);
+}
+
+/* Inputs & filters */
+:root[data-theme="dark"] .form-field input,
+:root[data-theme="dark"] .form-field select,
+:root[data-theme="dark"] .form-field textarea,
+:root[data-theme="dark"] .profile-form-fields input,
+:root[data-theme="dark"] .profile-form-fields select,
+:root[data-theme="dark"] .profile-form-fields textarea,
+:root[data-theme="dark"] .filter-search,
+:root[data-theme="dark"] .filter-select,
+:root[data-theme="dark"] .hero-toolbar-field select {
+  background: var(--input);
+  color: var(--foreground);
+  border-color: var(--border-input);
+}
+
+:root[data-theme="dark"] .skills-chips-scroll {
+  background: var(--input);
+  border-color: var(--border-input);
+}
+
+:root[data-theme="dark"] .compensation-input {
+  background: color-mix(in srgb, var(--muted) 55%, var(--card));
+  border-color: var(--border);
+}
+
+:root[data-theme="dark"] .compensation-amount,
+:root[data-theme="dark"] .compensation-input-row {
+  background: var(--input);
+  border-color: var(--border-input);
+  color: var(--foreground);
+}
+
+/* Upload & JD import */
+:root[data-theme="dark"] .dropzone {
+  background: var(--upload-bg);
+  border-color: var(--upload-border);
+  color: var(--muted-foreground);
+}
+
+:root[data-theme="dark"] .dropzone:hover {
+  background: var(--upload-hover-bg);
+  border-color: var(--upload-border-hover);
+  color: var(--accent-foreground);
+}
+
+:root[data-theme="dark"] .jd-import-panel,
+:root[data-theme="dark"] .jd-upload-bar {
+  background: color-mix(in srgb, var(--muted) 42%, var(--card));
+  border-color: var(--upload-border);
+  color: var(--card-foreground);
+}
+
+:root[data-theme="dark"] .jd-import-dropzone {
+  background: var(--card);
+  border-color: var(--upload-border);
+}
+
+:root[data-theme="dark"] .jd-import-dropzone:hover:not(:disabled) {
+  background: var(--upload-hover-bg);
+  border-color: var(--upload-border-hover);
+}
+
+:root[data-theme="dark"] .jd-paste-field__textarea {
+  background: var(--input);
+  color: var(--foreground);
+  border-color: var(--border-input);
+}
+
+:root[data-theme="dark"] .text-preview {
+  background: var(--bg-elevated);
+  color: var(--muted-foreground);
+  border: 1px solid var(--border-subtle);
+}
+
+/* Chips & badges */
+:root[data-theme="dark"] .skill-chip {
+  background: color-mix(in srgb, var(--portal-accent-soft) 85%, var(--card));
+  color: var(--portal-accent-hover);
+  border-color: var(--chip-border);
+}
+
+:root[data-theme="dark"] .skill-chip--add {
+  background: var(--muted);
+  color: var(--muted-foreground);
+  border-color: var(--border);
+}
+
+:root[data-theme="dark"] .signal-chip {
+  background: color-mix(in srgb, var(--muted) 65%, var(--card));
+  color: var(--secondary-foreground);
+  border-color: var(--border);
+}
+
+:root[data-theme="dark"] .signal-chip--match {
+  background: color-mix(in srgb, var(--portal-accent-soft) 90%, var(--card));
+  color: var(--portal-accent-hover);
+  border-color: var(--chip-border);
+}
+
+:root[data-theme="dark"] .match-badge--pill {
+  border: 1px solid transparent;
+}
+
+/* Empty states */
+:root[data-theme="dark"] .empty-state-card h3 {
+  color: var(--foreground);
+}
+
+:root[data-theme="dark"] .empty-checklist li {
+  color: var(--muted-foreground);
+}
+
+:root[data-theme="dark"] .inline-empty-hint,
+:root[data-theme="dark"] .employer-role-list__empty-filter {
+  color: var(--inline-hint);
+}
+
+/* Notices & errors */
+:root[data-theme="dark"] .notice-warning,
+:root[data-theme="dark"] .auth-notice {
+  background: var(--notice-bg);
+  border-color: var(--notice-border);
+  color: var(--notice-fg);
+}
+
+:root[data-theme="dark"] .auth-error {
+  color: var(--destructive);
+}
+
+:root[data-theme="dark"] .field-error {
+  color: var(--destructive);
+}
+
+/* Toasts: card surface, not inverted light bar */
+:root[data-theme="dark"] .toast {
+  background: var(--toast-bg);
+  color: var(--toast-fg);
+  border-color: var(--toast-border);
+  box-shadow: var(--shadow-lg);
+}
+
+:root[data-theme="dark"] .toast--success {
+  border-color: color-mix(in srgb, var(--primary) 45%, var(--border));
+}
+
+:root[data-theme="dark"] .toast--error {
+  background: color-mix(in srgb, var(--destructive) 18%, var(--card));
+  color: var(--card-foreground);
+  border-color: color-mix(in srgb, var(--destructive) 40%, var(--border));
+}
+
+:root[data-theme="dark"] .toast--info {
+  background: color-mix(in srgb, var(--muted) 70%, var(--card));
+  color: var(--card-foreground);
+  border-color: var(--border);
+}
+
+:root[data-theme="dark"] .toast .btn-secondary {
+  background: color-mix(in srgb, var(--primary) 18%, transparent);
+  color: var(--primary);
+  border-color: color-mix(in srgb, var(--primary) 30%, var(--border));
+}
+
+/* API status pills */
+:root[data-theme="dark"] .api-pill.online {
+  background: var(--status-pass-bg);
+  border-color: color-mix(in srgb, var(--status-pass-fg) 35%, transparent);
+  color: var(--status-pass-fg);
+}
+
+:root[data-theme="dark"] .api-pill.offline {
+  background: var(--status-fail-bg);
+  border-color: color-mix(in srgb, var(--status-fail-fg) 35%, transparent);
+  color: var(--status-fail-fg);
+}
+
+/* Profile strength */
+:root[data-theme="dark"] .profile-strength {
+  background: color-mix(in srgb, var(--muted) 55%, var(--card));
+  border-color: var(--border);
+}
+
+:root[data-theme="dark"] .profile-strength-bar {
+  background: var(--border);
+}
+
+:root[data-theme="dark"] .candidate-profile-summary .profile-strength {
+  background: color-mix(in srgb, var(--muted) 50%, var(--card));
+}
+
+/* Remote policy & form feedback */
+:root[data-theme="dark"] .remote-policy-option {
+  background: var(--card);
+  border-color: var(--border);
+}
+
+:root[data-theme="dark"] .remote-policy-option--active {
+  background: color-mix(in srgb, var(--portal-accent-soft) 75%, var(--card));
+  border-color: color-mix(in srgb, var(--portal-accent) 40%, var(--border));
+}
+
+:root[data-theme="dark"] .form-feedback--info {
+  background: color-mix(in srgb, var(--portal-accent-soft) 65%, var(--card));
+  border-color: color-mix(in srgb, var(--portal-accent) 25%, var(--border));
+}
+
+:root[data-theme="dark"] .form-feedback--error {
+  background: color-mix(in srgb, var(--destructive) 12%, var(--card));
+}
+
+/* Sticky footers */
+:root[data-theme="dark"] .form-actions--sticky.portal-form-footer,
+:root[data-theme="dark"] .portal-form-footer {
+  background: var(--sticky-footer-bg);
+  border-top-color: var(--sticky-footer-border);
+  box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.28);
+}
+
+/* Skeleton */
+:root[data-theme="dark"] .skeleton-block {
+  background: linear-gradient(
+    90deg,
+    var(--skeleton-base) 0%,
+    var(--skeleton-shine) 50%,
+    var(--skeleton-base) 100%
+  );
+}
+
+/* Drawer & overlays */
+:root[data-theme="dark"] .drawer-backdrop,
+:root[data-theme="dark"] .match-drawer-backdrop {
+  background: var(--drawer-scrim);
+}
+
+:root[data-theme="dark"] .match-drawer {
+  background: var(--card);
+  color: var(--card-foreground);
+  border-left-color: var(--border);
+}
+
+:root[data-theme="dark"] .match-drawer-card {
+  background: color-mix(in srgb, var(--muted) 50%, var(--card));
+  border-color: var(--border);
+}
+
+:root[data-theme="dark"] .match-drawer-score-display {
+  color: var(--foreground);
+}
+
+/* Role status */
+:root[data-theme="dark"] .role-status--closed {
+  background: var(--muted);
+  color: var(--muted-foreground);
+}
+
+/* Job match rows */
+:root[data-theme="dark"] .job-match-row,
+:root[data-theme="dark"] .job-list li {
+  background: var(--card);
+  border-color: var(--border-subtle);
+}
+
+:root[data-theme="dark"] .job-match-row:hover {
+  background: var(--table-row-hover);
+}
+
+/* Step badge */
+:root[data-theme="dark"] .portal-panel .step-badge {
+  background: color-mix(in srgb, var(--portal-accent-soft) 90%, var(--card));
+  color: var(--portal-accent-hover);
+}
+
+/* Char count warn */
+:root[data-theme="dark"] .char-count {
+  color: var(--muted-foreground);
+}
+
+:root[data-theme="dark"] .char-count--warn {
+  color: var(--status-warn-fg);
+}
+
+/* Custom checkbox */
+:root[data-theme="dark"] .custom-checkbox-box {
+  background: var(--input);
+  border-color: var(--border-input);
+}
+
+:root[data-theme="dark"] .custom-checkbox--checked .custom-checkbox-box {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--primary-foreground);
+}
+
+/* Filter pills */
+:root[data-theme="dark"] .filter-pill {
+  background: var(--card);
+  border-color: var(--border);
+  color: var(--muted-foreground);
+}
+
+:root[data-theme="dark"] .filter-pill--active,
+:root[data-theme="dark"] .filter-pill--btn.filter-pill--active {
+  background: color-mix(in srgb, var(--portal-accent-soft) 85%, var(--card));
+  border-color: color-mix(in srgb, var(--portal-accent) 35%, var(--border));
+  color: var(--portal-accent-hover);
+}
+
+:root[data-theme="dark"] .filter-pill--btn {
+  background: var(--card);
+  color: var(--muted-foreground);
+}
+
+/* Mobile tab bar */
+:root[data-theme="dark"] .mobile-tab-bar {
+  background: color-mix(in srgb, var(--card) 94%, transparent);
+  border-top-color: var(--border);
+}
+
+/* Ambient backgrounds: stronger dots on dark, still low */
+:root[data-theme="dark"] .bg-pattern--page {
+  opacity: 0.048;
+}
+
+:root[data-theme="dark"] .bg-pattern--auth {
+  opacity: 0.058;
+}
+
+:root[data-theme="dark"] .bg-blob {
+  opacity: 0.48;
+}

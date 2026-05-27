@@ -1,4 +1,4 @@
-/** Decorative SVGs for auth — token-driven strokes, low density. */
+/** Auth page decorative SVGs. */
 
 export function AuthBlobs() {
   return (

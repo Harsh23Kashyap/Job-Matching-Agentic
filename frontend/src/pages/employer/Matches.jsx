@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import PageHeader from "../../components/PageHeader.jsx";
 import EmployerCandidateResults, { EmployerNoJobsEmpty } from "../../components/EmployerCandidateResults.jsx";
+import { EmployerAllClosedEmpty } from "../../components/EmptyState.jsx";
+import EmptyStatePanel from "../../components/EmptyStatePanel.jsx";
 import Button from "../../components/Button.jsx";
 import { useToast } from "../../components/Toast.jsx";
 import { apiErrorMessage, fetchMyJobs, runMatch, DEFAULT_EMPLOYER_MATCH } from "../../api/client.js";
@@ -11,6 +13,7 @@ export default function EmployerMatches() {
   const { showToast } = useToast();
   const [searchParams] = useSearchParams();
   const [jobs, setJobs] = useState([]);
+  const [jobsLoading, setJobsLoading] = useState(true);
   const [selected, setSelected] = useState("");
   const [response, setResponse] = useState(null);
   const [error, setError] = useState(null);
@@ -18,7 +21,11 @@ export default function EmployerMatches() {
   const [refreshedAt, setRefreshedAt] = useState(null);
 
   useEffect(() => {
-    fetchMyJobs().then(setJobs).catch(() => setJobs([]));
+    setJobsLoading(true);
+    fetchMyJobs()
+      .then(setJobs)
+      .catch(() => setJobs([]))
+      .finally(() => setJobsLoading(false));
   }, []);
 
   const openJobs = useMemo(
@@ -57,7 +64,7 @@ export default function EmployerMatches() {
       const count = data.results?.length ?? 0;
       showToast(
         count === 0
-          ? "Refresh complete — no candidates matched this role yet."
+          ? "Refresh finished. No candidates matched this role yet."
           : `Found ${count} candidate${count === 1 ? "" : "s"} ranked for ${selected}.`,
       );
     } catch (err) {
@@ -85,13 +92,27 @@ export default function EmployerMatches() {
     ];
   }, [response]);
 
-  if (openJobs.length === 0) {
+  if (jobsLoading) {
+    return (
+      <>
+        <PageHeader eyebrow="Employer" title="Candidate matches" />
+        <section className="portal-panel portal-panel--form">
+          <div className="loading-shimmer" aria-hidden="true">
+            <span className="skeleton-block skeleton-block--lg" />
+            <span className="skeleton-block skeleton-block--md" />
+          </div>
+        </section>
+      </>
+    );
+  }
+
+  if (jobs.length === 0) {
     return (
       <>
         <PageHeader
           eyebrow="Employer"
           title="Candidate matches"
-          subtitle="Review candidates ranked by fit for your open roles."
+          subtitle="Candidates ranked by fit for your open roles."
           inlineAction={
             <Link to="/employer/jobs" className="btn-primary">
               Post a role
@@ -103,12 +124,38 @@ export default function EmployerMatches() {
     );
   }
 
+  if (openJobs.length === 0) {
+    return (
+      <>
+        <PageHeader
+          eyebrow="Employer"
+          title="Candidate matches"
+          subtitle="Reopen a role or post a new one to search for candidates."
+          inlineAction={
+            <Link to="/employer/jobs" className="btn-primary">
+              Manage roles
+            </Link>
+          }
+        />
+        <EmptyStatePanel>
+          <EmployerAllClosedEmpty
+            action={
+              <Link to="/employer/jobs" className="btn-primary">
+                Manage roles
+              </Link>
+            }
+          />
+        </EmptyStatePanel>
+      </>
+    );
+  }
+
   const matchCount = response?.results?.length || 0;
   const subtitle = response
     ? `${matchCount} candidate${matchCount === 1 ? "" : "s"} ranked for ${selectedJob?.title || selected}.`
     : selectedJob?.title
-      ? `Matching candidates for ${selectedJob.title} based on skills and experience.`
-      : "Review candidates ranked by fit for your open roles.";
+      ? `Ranked candidates for ${selectedJob.title}.`
+      : "Candidates ranked by fit for your open roles.";
 
   return (
     <>

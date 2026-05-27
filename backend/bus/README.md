@@ -1,12 +1,12 @@
 # Event bus
 
-In-process pub-sub for agent communication (event-driven monolith — no Redis or external broker in v1).
+In-process pub-sub for agent communication (event-driven monolith · no Redis or external broker in v1).
 
 ## Files
 
 | File | Purpose |
 |------|---------|
-| `event_bus.py` | `AgentEventBus` — subscribe, publish, recent events ring buffer |
+| `event_bus.py` | `AgentEventBus` · subscribe, publish, recent events ring buffer |
 | `events.py` | `EventType` enum and `AgentEvent` dataclass |
 
 ## Event types

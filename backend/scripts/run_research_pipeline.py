@@ -19,7 +19,7 @@ from benchmarks.significance import DEFAULT_N_RESAMPLES, DEFAULT_SEED  # noqa: E
 def main() -> None:
     settings = Settings()
     parser = argparse.ArgumentParser(
-        description="Full offline research pipeline — all studies into one timestamped run folder."
+        description="Full offline research pipeline; all studies into one timestamped run folder."
     )
     parser.add_argument("--top-k", type=int, default=5)
     parser.add_argument("--data-dir", default=str(settings.data_dir))
@@ -78,7 +78,7 @@ def main() -> None:
 
     for step in result.steps:
         mark = {"ok": "OK", "skipped": "SKIP", "failed": "FAIL"}.get(step.status, step.status.upper())
-        err = f" — {step.error}" if step.error else ""
+        err = f": {step.error}" if step.error else ""
         print(f"  [{mark}] {step.name} ({step.duration_sec:.1f}s){err}")
 
     if not result.valid:

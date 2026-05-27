@@ -11,7 +11,7 @@ FastAPI routers mounted by `gateway/app.py`.
 | `matching.py` | `/match` | varies | candidate-to-jobs, job-to-candidates, ensemble, daily-batch + legacy aliases |
 | `feedback.py` | `/feedback` | portal | actions (save/apply/reject/…), `/me`, legacy pair feedback |
 | `similar.py` | `/similar` | role-guarded | similar jobs, similar candidates |
-| `agents.py` | `/agents` | — | status, events/recent |
+| `agents.py` | `/agents` | · | status, events/recent |
 | `system.py` | `/system` | admin-ish | config, vector-store switch, fairness |
 
 Auth routes: `auth/routes.py` at `/auth/*`.

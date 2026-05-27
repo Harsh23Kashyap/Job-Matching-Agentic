@@ -178,7 +178,7 @@ def write_report(report: BenchmarkReport, out_dir: Path, *, prefix: str = "bench
 
 def print_summary_table(report: BenchmarkReport) -> None:
     print(
-        f"\nJobMatch benchmark — {report.meta['corpus']['candidates']} CVs, "
+        f"\nJobMatch benchmark · {report.meta['corpus']['candidates']} CVs, "
         f"{report.meta['corpus']['jobs']} jobs, "
         f"{report.meta['corpus']['labeled_queries']} queries, K={report.meta['top_k']}\n"
     )

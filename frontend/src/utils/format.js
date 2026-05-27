@@ -186,7 +186,7 @@ export function deriveWhyMatch(row) {
   if (sim >= 0.45) {
     return "Limited direct skill overlap, but role context is close.";
   }
-  return "Limited direct skill overlap — review details before applying.";
+  return "Light skill overlap. Read the full posting before you apply.";
 }
 
 export function pluralGoodMatches(count) {
@@ -248,7 +248,7 @@ export function deriveEmployerWhyMatch(row) {
   if (sim >= 0.45) {
     return "Profile context aligns with the role beyond listed skills.";
   }
-  return "Limited direct skill overlap — review the full profile.";
+  return "Light skill overlap. Review the full profile.";
 }
 
 export function countStrongMatches(results, threshold = 0.8) {

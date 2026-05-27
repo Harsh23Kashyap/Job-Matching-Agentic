@@ -22,11 +22,11 @@ export function validateProfileFields(fields, { requireSkills = false } = {}) {
   if (!fields.name?.trim()) {
     errors.name = "Add your full name as it appears on your resume.";
   } else if (/\(cid:/i.test(fields.name)) {
-    errors.name = "Name still contains PDF artifacts — edit and remove any (cid:…) text.";
+    errors.name = "Remove PDF artifacts from your name (any text like (cid:…)).";
   }
 
   if (requireSkills && !fields.skills?.trim()) {
-    errors.skills = "Add at least one skill so we can match you to roles.";
+    errors.skills = "Add at least one skill.";
   }
 
   const exp = fields.experience_years;
@@ -72,7 +72,7 @@ export function validateProfileFields(fields, { requireSkills = false } = {}) {
 
   const badLink = (fields.other_links || []).find((link) => link?.trim() && !isValidUrl(link));
   if (badLink) {
-    errors.other_links = "One or more additional links look invalid — check the URL format.";
+    errors.other_links = "Fix the invalid link URL(s).";
   }
 
   return errors;
@@ -113,7 +113,7 @@ export function profileStrength(fields) {
 
   return {
     percent: Math.min(score, 100),
-    hint: hints.length ? `${hints[0]} to improve matches.` : "Your profile is in great shape.",
+    hint: hints.length ? `${hints[0]} to strengthen your profile.` : "Profile looks complete.",
   };
 }
 

@@ -30,7 +30,7 @@ All reported scores are **macro-averaged** over the 30 labeled queries unless no
 
 ## Latency
 
-Comparison and ablation studies record **mean milliseconds per query** for exhaustive ranking on a single machine. Latency is for relative comparison only — not SLA benchmarks.
+Comparison and ablation studies record **mean milliseconds per query** for exhaustive ranking on a single machine. Latency is for relative comparison only · not SLA benchmarks.
 
 Cross-encoder study splits **bi-encoder ms**, **cross-encoder ms**, and **total ms**.
 

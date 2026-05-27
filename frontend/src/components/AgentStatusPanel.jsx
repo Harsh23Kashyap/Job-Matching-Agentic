@@ -38,7 +38,7 @@ export default function AgentStatusPanel({ onConnectionChange }) {
         if (active) {
           const code = err.response?.status;
           if (code === 404) {
-            setError("Start the API on port 8001 — see README.");
+            setError("Start the API on port 8001 (see README).");
           } else {
             setError(err.message || "Connection failed");
           }

@@ -17,6 +17,7 @@ import ResultsPanel from "./ResultsPanel.jsx";
 import SkillChip, { SkillChipList } from "./SkillChip.jsx";
 import { NoMatchingRolesEmpty } from "./EmptyState.jsx";
 import MatchDetailsDrawer from "./MatchDetailsDrawer.jsx";
+import Button from "./Button.jsx";
 import { useToast } from "./Toast.jsx";
 
 function MatchSummaryCards({ response, updatedAt }) {
@@ -293,9 +294,14 @@ export default function CandidateJobResults({ response, error, onRefresh, loadin
             <option value="title">Role title</option>
             <option value="recent">Recently added</option>
           </select>
-          <button type="button" className="btn-secondary filter-refresh" onClick={onRefresh} disabled={loading}>
-            {loading ? "Refreshing…" : "Refresh"}
-          </button>
+          <Button
+            className="btn-secondary filter-refresh"
+            loading={loading}
+            loadingLabel="Refreshing…"
+            onClick={onRefresh}
+          >
+            Refresh
+          </Button>
         </div>
         <div className="job-match-list">
           <div className="job-match-list-head" aria-hidden="true">
@@ -309,6 +315,7 @@ export default function CandidateJobResults({ response, error, onRefresh, loadin
             <MatchSkeletonRows />
           ) : filtered.length === 0 ? (
             <NoMatchingRolesEmpty
+              filteredOut={(response.results?.length ?? 0) > 0}
               action={
                 <button type="button" className="btn-secondary" onClick={handleAdjustFilters}>
                   Adjust filters

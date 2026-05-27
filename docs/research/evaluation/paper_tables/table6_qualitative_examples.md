@@ -1,4 +1,4 @@
-**Table 6 — Qualitative explanation and fairness examples**
+**Table 6 · Qualitative explanation and fairness examples**
 
 *Label: `tab:qualitative`*
 

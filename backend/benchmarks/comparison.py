@@ -137,7 +137,7 @@ class ComparisonBenchmark:
             "include_lexical_baselines": self.include_lexical_baselines,
             "strategies": [s.key for s in strategies],
             "table_columns": TABLE_CSV_FIELDS,
-            "note": "Offline research only — production APIs unchanged unless BENCHMARK_LEXICAL_API is enabled.",
+            "note": "Offline research only; production APIs unchanged unless BENCHMARK_LEXICAL_API is enabled.",
         }
         return ComparisonTableReport(meta=meta, rows=table_rows, summary=summary_rows, per_query=per_query_rows)
 
@@ -171,7 +171,7 @@ def write_comparison_report(
 
 def print_comparison_table(report: ComparisonTableReport) -> None:
     print(
-        f"\nLexical vs embedding comparison — "
+        f"\nLexical vs embedding comparison: "
         f"{report.meta['corpus']['labeled_queries']} queries, K={report.meta['top_k']}\n"
     )
     header = f"{'Method':<32} {'Metric':<14} {'top_k':>5} {'Score':>10} {'latency_ms':>12}"

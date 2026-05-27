@@ -1,4 +1,4 @@
-# Study 3 — Composite Matching Ablation
+# Study 3 · Composite Matching Ablation
 
 ## Production composite weights
 

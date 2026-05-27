@@ -23,7 +23,7 @@ export default function JdImportPanel({
         <div className="jd-import-panel__intro">
           <h3 className="jd-import-panel__title">Import job description</h3>
           <p className="form-helper">
-            Paste a full JD or upload a file — we&apos;ll pre-fill title, skills, compensation, and work setup when extraction succeeds.
+            Paste a job description or upload a file. On success, we fill title, skills, pay, and work setup.
           </p>
         </div>
       </div>
@@ -83,7 +83,7 @@ export default function JdImportPanel({
           Extract details
         </Button>
         <p className="jd-import-panel__actions-hint form-helper">
-          Review extracted fields below before posting. You can edit anything that looks off.
+          Review the form below before you post. Edit anything that's wrong.
         </p>
       </div>
 

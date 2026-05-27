@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Quick smoke benchmark — 5 labeled queries, semantic vs soft embed."""
+"""Quick smoke benchmark: 5 labeled queries, semantic vs soft embed."""
 from __future__ import annotations
 
 import json

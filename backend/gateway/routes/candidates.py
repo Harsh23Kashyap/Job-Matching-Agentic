@@ -46,9 +46,16 @@ def get_my_candidate(
     candidate_id = auth_store.get_candidate_id(user.id)
     if candidate_id is None:
         raise HTTPException(status_code=404, detail={"error": "No profile linked", "code": "NOT_FOUND"})
-    profile = request.app.state.container.candidate.get_by_id(candidate_id)
+    candidate_agent = request.app.state.container.candidate
+    profile = candidate_agent.get_by_id(candidate_id)
     if profile is None:
-        raise HTTPException(status_code=404, detail={"error": "Profile not found", "code": "NOT_FOUND"})
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "error": "Profile not found. Save your profile again from the Profile page.",
+                "code": "PROFILE_NOT_FOUND",
+            },
+        )
     return _public_profile(profile)
 
 
@@ -80,7 +87,13 @@ def resume_suggestions_for_job(
         raise HTTPException(status_code=404, detail={"error": "No profile linked", "code": "NOT_FOUND"})
     profile = request.app.state.container.candidate.get_by_id(candidate_id)
     if profile is None:
-        raise HTTPException(status_code=404, detail={"error": "Profile not found", "code": "NOT_FOUND"})
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "error": "Profile not found. Save your profile again from the Profile page.",
+                "code": "PROFILE_NOT_FOUND",
+            },
+        )
 
     job = request.app.state.container.employer.get_by_id(body.job_id.strip())
     if job is None:
@@ -196,7 +209,7 @@ async def upload_resume(
             "raw_text_preview": preview,
             "cleaned_text": text,
             "llm_status": "unavailable",
-            "message": "AI extraction unavailable. Review the text preview and fill in your details manually.",
+            "message": "Automatic extraction unavailable. Review the text preview and fill in details manually.",
         }
     except LlmParseError as exc:
         return {

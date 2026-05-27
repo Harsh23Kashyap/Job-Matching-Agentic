@@ -40,6 +40,6 @@ The demo candidate account maps to **Rahul Sharma** (`cv_01`) in the corpus. See
 
 ## Limitations
 
-- Fixed small corpus — results do not generalize to open-domain job boards
+- Fixed small corpus · results do not generalize to open-domain job boards
 - Labels are manually curated for thesis demo, not crowdsourced
 - No temporal split or held-out employer/candidate groups in v1

@@ -236,7 +236,7 @@ def write_validation_report(report: ValidationReport, out_dir: Path) -> dict[str
     if report.issues:
         lines.extend(["## Issues", ""])
         for issue in report.issues:
-            lines.append(f"- [{issue.level.upper()}] `{issue.code}` — {issue.message}")
+            lines.append(f"- [{issue.level.upper()}] `{issue.code}`: {issue.message}")
         lines.append("")
 
     paths["markdown"].write_text("\n".join(lines), encoding="utf-8")

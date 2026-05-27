@@ -1,4 +1,4 @@
-"""Synthetic controlled profiles for offline fairness audit — no real-user inference."""
+"""Synthetic controlled profiles for offline fairness audit; no real-user inference."""
 from __future__ import annotations
 
 import hashlib

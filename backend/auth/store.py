@@ -159,6 +159,14 @@ class UserStore:
                 (user_id, job_id),
             )
 
+    def get_job_owner(self, job_id: str) -> str | None:
+        with self._connect() as conn:
+            row = conn.execute(
+                "SELECT user_id FROM job_ownership WHERE job_id = ?",
+                (job_id,),
+            ).fetchone()
+        return row["user_id"] if row else None
+
     def link_job_if_unowned(self, user_id: str, job_id: str) -> bool:
         """Link job to user when no owner exists. Returns True if linked."""
         with self._connect() as conn:

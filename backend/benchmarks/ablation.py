@@ -1,4 +1,4 @@
-"""Ablation study runner — component-wise matching quality on eval_pairs.json."""
+"""Ablation study runner; component-wise matching quality on eval_pairs.json."""
 from __future__ import annotations
 
 import csv
@@ -348,7 +348,7 @@ def render_ablation_markdown(report: AblationReport) -> str:
     meta = report.meta
     k = meta["top_k"]
     lines = [
-        "# Ablation Study — Composite Matching Components",
+        "# Ablation Study: Composite Matching Components",
         "",
         f"Generated: {meta['generated_at']}",
         "",
@@ -415,7 +415,7 @@ def render_ablation_markdown(report: AblationReport) -> str:
 
 def print_ablation_summary(report: AblationReport) -> None:
     k = report.meta["top_k"]
-    print(f"\nAblation study — {report.meta['corpus']['labeled_queries']} queries, K={k}\n")
+    print(f"\nAblation study: {report.meta['corpus']['labeled_queries']} queries, K={k}\n")
     header = f"{'Variant':<32} {'P@K':>6} {'R@K':>6} {'MRR':>6} {'nDCG':>6} {'MAP':>6} {'ms':>8}"
     print(header)
     print("-" * len(header))

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Table 11 — fusion & constraint ablation (paper § advanced ML)."""
+"""Table 11: fusion and constraint ablation (paper advanced ML section)."""
 from __future__ import annotations
 
 import argparse

@@ -40,7 +40,7 @@ def main() -> None:
 
     manifest = dataset["manifest"]
     print(
-        f"\nSynthetic research dataset — {manifest['candidates']} candidates, "
+        f"\nSynthetic research dataset: {manifest['candidates']} candidates, "
         f"{manifest['jobs']} jobs, {manifest['labeled_pairs']} labeled pairs (seed={manifest['seed']})\n"
     )
     print("Relevance distribution:", manifest["relevance_distribution"])

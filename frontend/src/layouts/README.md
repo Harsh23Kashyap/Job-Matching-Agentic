@@ -1,6 +1,6 @@
 # Layouts
 
-Portal shells — sidebar/nav, background, user menu.
+Portal shells · sidebar/nav, background, user menu.
 
 ## Files
 

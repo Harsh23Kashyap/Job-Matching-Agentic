@@ -18,6 +18,9 @@ export const EMPTY_PROFILE_FIELDS = {
 };
 
 export function profileFromApi(profile) {
+  if (isProfileStale(profile)) {
+    return { ...EMPTY_PROFILE_FIELDS, id: "" };
+  }
   return normalizeProfileFields({
     id: profile.id,
     name: profile.name || "",
@@ -73,7 +76,18 @@ export function profileToPayload(fields) {
   return payload;
 }
 
-/** True when GET /candidates/me returned a usable profile for job search. */
+export function isProfileStale(profile) {
+  return Boolean(profile?.__profileStale);
+}
+
+/** Profile record exists (GET /candidates/me returned 200, or stale link needs re-save). */
+export function hasCandidateProfile(profile) {
+  if (!profile) return false;
+  if (isProfileStale(profile)) return true;
+  return Boolean(profile.id?.trim() || profile.name?.trim());
+}
+
+/** True when profile has enough data to run job search (name must match corpus index). */
 export function isCandidateProfileReady(profile) {
   return Boolean(profile?.id?.trim() && profile?.name?.trim());
 }

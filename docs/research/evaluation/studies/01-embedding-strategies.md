@@ -1,4 +1,4 @@
-# Study 1 — Embedding Retrieval Strategies
+# Study 1 · Embedding Retrieval Strategies
 
 Generated from: `artifacts/.../embedding/benchmark_report.json`
 
@@ -36,4 +36,4 @@ Generated from: `artifacts/.../embedding/benchmark_report.json`
 
 ## Best method
 
-**Multimodal weighted blend** — nDCG@5 = 0.924, MRR = 0.961
+**Multimodal weighted blend** · nDCG@5 = 0.924, MRR = 0.961

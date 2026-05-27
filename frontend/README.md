@@ -1,6 +1,6 @@
 # Frontend
 
-React 19 + Vite 6 web app — role portals for candidate, employer, and admin.
+React 19 + Vite 6 web app · role portals for candidate, employer, and admin.
 
 ## Run
 
@@ -35,4 +35,4 @@ All application code is under [src/](src/README.md).
 
 ## Environment
 
-Optional: `VITE_API_BASE_URL` — leave empty to use Vite proxy (default local setup).
+Optional: `VITE_API_BASE_URL` · leave empty to use Vite proxy (default local setup).

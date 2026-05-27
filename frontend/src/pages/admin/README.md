@@ -1,6 +1,6 @@
 # Admin portal
 
-Research and benchmarking console — not shown to product users.
+Research and benchmarking console · not shown to product users.
 
 ## Pages
 
@@ -12,7 +12,7 @@ Research and benchmarking console — not shown to product users.
 
 - Three agent health cards (`AgentStatusPanel`)
 - Manual match: pick entity, strategy, metric, skills mode, top-K (`MatchControls` + `ResultsPanel`)
-- Agent event strip (`AgentEventStrip`) — last 50 bus events
+- Agent event strip (`AgentEventStrip`) · last 50 bus events
 - Vector store switch, ML toggles (`SystemConfigPanel`)
 
 Demo: `demo.admin@test.com` / `demo1234`

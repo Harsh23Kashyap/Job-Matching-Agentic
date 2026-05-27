@@ -21,7 +21,7 @@ node --test tests/unit/test_*.mjs
 
 ## Shared fixtures
 
-`conftest.py` — test client, in-memory or temp DB, bootstrapped system container.
+`conftest.py` · test client, in-memory or temp DB, bootstrapped system container.
 
 ## Feature checklist
 

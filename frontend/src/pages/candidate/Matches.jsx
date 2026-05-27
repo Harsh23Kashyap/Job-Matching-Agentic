@@ -1,18 +1,19 @@
-import { useEffect, useMemo, useState, useCallback } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { useEffect, useMemo, useState, useCallback, useRef } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import PageHeader from "../../components/PageHeader.jsx";
 import CandidateJobResults from "../../components/CandidateJobResults.jsx";
-import { ProfileNeededEmpty, JobsReadyEmpty } from "../../components/EmptyState.jsx";
+import { ProfileNeededEmpty, ProfileIncompleteEmpty, ProfileStaleEmpty, JobsReadyEmpty } from "../../components/EmptyState.jsx";
 import EmptyStatePanel from "../../components/EmptyStatePanel.jsx";
 import Button from "../../components/Button.jsx";
 import { useToast } from "../../components/Toast.jsx";
 import { apiErrorMessage, fetchMyProfileOrNull, runMatch, DEFAULT_CANDIDATE_MATCH } from "../../api/client.js";
 import { matchPercent } from "../../utils/format.js";
-import { isCandidateProfileReady } from "../../utils/profileFields.js";
+import { hasCandidateProfile, isCandidateProfileReady } from "../../utils/profileFields.js";
 import { PROFILE_UPDATED_EVENT } from "../../utils/profileEvents.js";
 
 export default function CandidateMatches() {
   const location = useLocation();
+  const navigate = useNavigate();
   const { showToast } = useToast();
   const [profile, setProfile] = useState(null);
   const [profileLoading, setProfileLoading] = useState(true);
@@ -20,14 +21,41 @@ export default function CandidateMatches() {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [lastUpdated, setLastUpdated] = useState(null);
+  const autoSearchDone = useRef(false);
+
+  const profileReady = isCandidateProfileReady(profile);
 
   const loadProfile = useCallback(() => {
     setProfileLoading(true);
     fetchMyProfileOrNull()
-      .then((data) => setProfile(isCandidateProfileReady(data) ? data : null))
+      .then((data) => setProfile(data))
       .catch(() => setProfile(null))
       .finally(() => setProfileLoading(false));
   }, []);
+
+  const handleFindJobs = useCallback(async () => {
+    if (!profileReady || !profile?.name) return;
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await runMatch({
+        ...DEFAULT_CANDIDATE_MATCH,
+        queryKey: profile.name,
+      });
+      setResponse(data);
+      setLastUpdated(new Date().toISOString());
+      const count = data.results?.length ?? 0;
+      showToast(
+        count === 0
+          ? "Search finished. No roles matched your profile yet."
+          : `Found ${count} role${count === 1 ? "" : "s"} matched to your profile.`,
+      );
+    } catch (err) {
+      setError(apiErrorMessage(err, "Could not load job matches. Try again."));
+    } finally {
+      setLoading(false);
+    }
+  }, [profile, profileReady, showToast]);
 
   useEffect(() => {
     loadProfile();
@@ -47,29 +75,23 @@ export default function CandidateMatches() {
     return () => document.removeEventListener("visibilitychange", onVisible);
   }, [loadProfile]);
 
-  const handleFindJobs = async () => {
-    if (!profile) return;
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await runMatch({
-        ...DEFAULT_CANDIDATE_MATCH,
-        queryKey: profile.name,
-      });
-      setResponse(data);
-      setLastUpdated(new Date().toISOString());
-      const count = data.results?.length ?? 0;
-      showToast(
-        count === 0
-          ? "Search complete — no roles matched your profile yet."
-          : `Found ${count} role${count === 1 ? "" : "s"} matched to your profile.`,
-      );
-    } catch (err) {
-      setError(apiErrorMessage(err, "Could not load job matches. Try again."));
-    } finally {
-      setLoading(false);
+  useEffect(() => {
+    if (!location.state?.searchAfterSave) {
+      autoSearchDone.current = false;
+      return;
     }
-  };
+    if (profileLoading || !profileReady || autoSearchDone.current) return;
+    autoSearchDone.current = true;
+    navigate(location.pathname, { replace: true, state: {} });
+    handleFindJobs();
+  }, [
+    location.pathname,
+    location.state?.searchAfterSave,
+    profileLoading,
+    profileReady,
+    navigate,
+    handleFindJobs,
+  ]);
 
   const heroStats = useMemo(() => {
     if (!response?.results?.length) return [];
@@ -96,13 +118,39 @@ export default function CandidateMatches() {
     );
   }
 
-  if (!profile) {
+  if (isProfileStale(profile)) {
     return (
       <>
         <PageHeader
           eyebrow="Candidate"
           title="Jobs for you"
-          subtitle="Complete your profile to unlock personalized matches."
+          subtitle="Restore your profile to search for roles again."
+          inlineAction={
+            <Link to="/candidate/profile" className="btn-primary">
+              Restore profile
+            </Link>
+          }
+        />
+        <EmptyStatePanel>
+          <ProfileStaleEmpty
+            action={
+              <Link to="/candidate/profile" className="btn-primary">
+                Restore profile
+              </Link>
+            }
+          />
+        </EmptyStatePanel>
+      </>
+    );
+  }
+
+  if (!hasCandidateProfile(profile)) {
+    return (
+      <>
+        <PageHeader
+          eyebrow="Candidate"
+          title="Jobs for you"
+          subtitle="Set up your profile before searching for roles."
           inlineAction={
             <Link to="/candidate/onboarding" className="btn-primary">
               Set up profile
@@ -111,6 +159,32 @@ export default function CandidateMatches() {
         />
         <EmptyStatePanel>
           <ProfileNeededEmpty action={<Link to="/candidate/onboarding" className="btn-primary">Set up profile</Link>} />
+        </EmptyStatePanel>
+      </>
+    );
+  }
+
+  if (!profileReady) {
+    return (
+      <>
+        <PageHeader
+          eyebrow="Candidate"
+          title="Jobs for you"
+          subtitle="Add your name on your profile to search for roles."
+          inlineAction={
+            <Link to="/candidate/profile" className="btn-primary">
+              Finish profile
+            </Link>
+          }
+        />
+        <EmptyStatePanel>
+          <ProfileIncompleteEmpty
+            action={
+              <Link to="/candidate/profile" className="btn-primary">
+                Finish profile
+              </Link>
+            }
+          />
         </EmptyStatePanel>
       </>
     );
@@ -129,9 +203,11 @@ export default function CandidateMatches() {
         subtitle={subtitle}
         stats={heroStats}
         inlineAction={
-          <Button loading={loading} loadingLabel="Searching…" onClick={handleFindJobs}>
-            {response ? "Refresh matches" : "Find jobs"}
-          </Button>
+          response || error ? (
+            <Button loading={loading} loadingLabel="Searching…" onClick={handleFindJobs}>
+              Refresh matches
+            </Button>
+          ) : null
         }
       />
       {!response && !error ? (

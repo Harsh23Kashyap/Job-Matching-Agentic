@@ -17,7 +17,7 @@ DEMO_CANDIDATE_EMAIL = "demo.candidate@test.com"
 DEMO_EMPLOYER_EMAIL = "demo.employer@test.com"
 DEMO_ADMIN_EMAIL = "demo.admin@test.com"
 
-# Rahul Sharma — strong ML Engineer match in bootstrapped corpus
+# Rahul Sharma · strong ML Engineer match in bootstrapped corpus
 DEMO_CANDIDATE_ID = "cv_01"
 
 # Sample employer-owned roles from data/jobs.json

@@ -7,7 +7,7 @@ import RemotePolicyField from "./RemotePolicyField.jsx";
 import { JOB_DESCRIPTION_MAX, JOB_TYPE_OPTIONS } from "../utils/jobFields.js";
 
 const DESCRIPTION_PLACEHOLDER =
-  "Outline the role, team, and impact. Include day-to-day responsibilities, must-have qualifications, and what success looks like in the first 90 days.";
+  "Role overview, day-to-day work, must-haves, and what good looks like in the first 90 days.";
 
 export default function JobPostingForm({ fields, errors = {}, onChange, footer }) {
   const descLen = fields.description?.length ?? 0;
@@ -18,11 +18,11 @@ export default function JobPostingForm({ fields, errors = {}, onChange, footer }
       <div className="portal-form-fields employer-job-form-fields">
         <FormSection
           title="Role basics"
-          helper="How this posting appears to candidates in search and match results."
+          helper="Shown to candidates in search and match results."
         >
           <FormField
             label="Job title"
-            helper="Use a clear, searchable title — e.g. Senior Backend Engineer."
+            helper="Clear, searchable title (e.g. Senior Backend Engineer)."
             error={errors.title}
             htmlFor="ej-title"
           >
@@ -37,7 +37,7 @@ export default function JobPostingForm({ fields, errors = {}, onChange, footer }
 
           <FormField
             label="Company"
-            helper="Legal name or team label shown on the posting."
+            helper="Company or team name on the posting."
             error={errors.company}
             htmlFor="ej-company"
           >
@@ -90,11 +90,11 @@ export default function JobPostingForm({ fields, errors = {}, onChange, footer }
 
         <FormSection
           title="Requirements"
-          helper="Skills and experience used to rank candidate matches."
+          helper="Used to rank candidate matches."
         >
           <FormField
             label="Required skills"
-            helper="Press Enter after each skill, or paste a comma-separated list."
+            helper="Enter after each skill, or paste comma-separated values."
             error={errors.required_skills}
             htmlFor="ej-skills"
           >
@@ -108,7 +108,7 @@ export default function JobPostingForm({ fields, errors = {}, onChange, footer }
 
           <FormField
             label="Minimum experience"
-            helper="Years of relevant experience required for this role."
+            helper="Minimum years of relevant experience."
             error={errors.required_experience}
             htmlFor="ej-exp"
           >
@@ -123,11 +123,11 @@ export default function JobPostingForm({ fields, errors = {}, onChange, footer }
 
         <FormSection
           title="Total compensation"
-          helper="Annual total compensation range (base + variable, as offered to candidates)."
+          helper="Annual total comp range offered for this role."
         >
           <FormField
             label="Budget range"
-            helper="Select currency, then enter min and max total compensation per year."
+            helper="Currency, then min and max per year."
             error={errors.budget_min || errors.budget_max}
             htmlFor="job-budget-min"
           >
@@ -148,7 +148,7 @@ export default function JobPostingForm({ fields, errors = {}, onChange, footer }
 
         <FormSection
           title="Role description"
-          helper="Full posting copy — responsibilities, team context, and benefits if applicable."
+          helper="Full posting: responsibilities, team, benefits if you list them."
         >
           <FormField label="Description" error={errors.description} htmlFor="ej-desc">
             <textarea

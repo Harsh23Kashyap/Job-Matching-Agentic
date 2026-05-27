@@ -1,4 +1,4 @@
-# Paper Tables — Copy-Paste Artifacts
+# Paper Tables · Copy-Paste Artifacts
 
 Generated from `backend/reports/` benchmark outputs.
 

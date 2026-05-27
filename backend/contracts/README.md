@@ -6,10 +6,10 @@ Shared Pydantic models and DTOs used across agents, gateway routes, and tests.
 
 | File | Models |
 |------|--------|
-| `profiles.py` | `CandidateProfile`, `JobProfile` — entity schemas |
-| `snapshots.py` | `CandidateSnapshot`, `JobSnapshot` — match-time read models with embeddings |
+| `profiles.py` | `CandidateProfile`, `JobProfile` · entity schemas |
+| `snapshots.py` | `CandidateSnapshot`, `JobSnapshot` · match-time read models with embeddings |
 | `matching.py` | `MatchRequest`, `MatchResponse`, `MatchResult`, `ScoreBreakdown`, ensemble/batch DTOs |
-| `agent_status.py` | `AgentStatus` — health payload for `/agents/status` |
+| `agent_status.py` | `AgentStatus` · health payload for `/agents/status` |
 | `interfaces.py` | Protocol/type hints for stores and parsers |
 
 ## Design rule

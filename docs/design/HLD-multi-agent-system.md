@@ -3,7 +3,7 @@
 
 **Version:** 1.0  
 **Date:** 2026-05-27  
-**Status:** Approved for SDD — see [SDD-multi-agent-system.md](./SDD-multi-agent-system.md)  
+**Status:** Approved for SDD · see [SDD-multi-agent-system.md](./SDD-multi-agent-system.md)  
 **Authors:** Harsh Kashyap, Taranumpreet Kaur Wasu  
 
 ---
@@ -12,9 +12,9 @@
 
 This document defines the high-level architecture for a **greenfield rewrite** of the Agentic Job Matching system. The current implementation is a **monolithic FastAPI service** with 14 REST endpoints and shared global state. The target is a **multi-agent recruitment system** with three collaborating agents:
 
-1. **Candidate Agent** — owns resume/CV lifecycle and candidate representations  
-2. **Employer Agent** — owns job description lifecycle and job representations  
-3. **Matchmaking Agent** — reads from both sides, performs semantic matching, produces ranked recommendations  
+1. **Candidate Agent** · owns resume/CV lifecycle and candidate representations  
+2. **Employer Agent** · owns job description lifecycle and job representations  
+3. **Matchmaking Agent** · reads from both sides, performs semantic matching, produces ranked recommendations  
 
 Agents communicate through an **in-process event bus** (event-driven monolith). Each agent maintains **explicit state** and **data ownership**. An **LLM layer** is reserved for future parsing and explanation but is **not required for v1**.
 
@@ -32,7 +32,7 @@ The **evaluation corpus** (`cvs.json`, `jobs.json`, `eval_pairs.json`) and **ben
 
 ### 2.2 Vision (Sal Khan framing)
 
-Two autonomous representatives — one advocating for the candidate, one for the employer — should **collaborate through a shared matchmaking layer** rather than forcing humans through manual keyword search.
+Two autonomous representatives · one advocating for the candidate, one for the employer · should **collaborate through a shared matchmaking layer** rather than forcing humans through manual keyword search.
 
 ### 2.3 Why move from API monolith to agents
 
@@ -220,8 +220,8 @@ MatchmakerAgentState {
 
 All agents run in **one Python process**. Communication uses:
 
-1. **Commands** — UI or orchestrator asks an agent to do work (synchronous request/response)  
-2. **Events** — agent publishes facts; other agents subscribe (async, in-process)
+1. **Commands** · UI or orchestrator asks an agent to do work (synchronous request/response)  
+2. **Events** · agent publishes facts; other agents subscribe (async, in-process)
 
 This gives a credible **multi-agent story** without operational overhead of microservices.
 
@@ -373,7 +373,7 @@ The UI is **not an agent**. It is the **demonstration surface** where humans tri
 | Run daily batch | Matchmaker orchestration |
 | Switch vector backend | shared infra config (both stores) |
 
-**New UI element (v1):** Agent status panel showing each agent's state version and last event — makes agentic framing visible to demo audience.
+**New UI element (v1):** Agent status panel showing each agent's state version and last event · makes agentic framing visible to demo audience.
 
 ---
 
@@ -439,7 +439,7 @@ The UI is **not an agent**. It is the **demonstration surface** where humans tri
 
 ---
 
-## 13. LLM extension points (hybrid — v2)
+## 13. LLM extension points (hybrid · v2)
 
 | Hook | Agent | v1 behavior | v2 LLM behavior |
 |------|-------|-------------|-----------------|
@@ -489,8 +489,8 @@ Each hook is an **interface** (`Parser`, `Explainer`) with a **NoOp / rules impl
 
 | Phase | Deliverable | Depends on |
 |-------|-------------|------------|
-| **Phase 0** | HLD approval (this doc) | — |
-| **Phase 1** | SDD — classes, interfaces, event schemas, API spec, file layout | HLD approved |
+| **Phase 0** | HLD approval (this doc) | · |
+| **Phase 1** | SDD · classes, interfaces, event schemas, API spec, file layout | HLD approved |
 | **Phase 2** | Core agents + event bus + bootstrap | SDD approved |
 | **Phase 3** | Matchmaker + scoring lib + eval harness wired | Phase 2 |
 | **Phase 4** | API gateway + UI agent panel | Phase 3 |
@@ -503,10 +503,10 @@ Each hook is an **interface** (`Parser`, `Explainer`) with a **NoOp / rules impl
 
 ## 17. Open decisions (for SDD)
 
-1. Single shared Chroma client vs two logical collections — **recommend:** two collections, one factory  
-2. Matchmaker exhaustive vs ANN default for UI — **recommend:** exhaustive v1 (15 jobs), ANN for batch  
-3. Whether Candidate and Employer agents expose ANN search or only Matchmaker queries stores — **recommend:** agents expose `search_jobs` / `search_candidates` as their API  
-4. Agent ID naming in paper: "Candidate/Client" vs "Employee" — **recommend:** Candidate Agent (paper) / Client Agent (UI label alias)  
+1. Single shared Chroma client vs two logical collections · **recommend:** two collections, one factory  
+2. Matchmaker exhaustive vs ANN default for UI · **recommend:** exhaustive v1 (15 jobs), ANN for batch  
+3. Whether Candidate and Employer agents expose ANN search or only Matchmaker queries stores · **recommend:** agents expose `search_jobs` / `search_candidates` as their API  
+4. Agent ID naming in paper: "Candidate/Client" vs "Employee" · **recommend:** Candidate Agent (paper) / Client Agent (UI label alias)  
 
 ---
 
@@ -522,7 +522,7 @@ Each hook is an **interface** (`Parser`, `Explainer`) with a **NoOp / rules impl
 
 ---
 
-## Appendix B — Narrative source: *Brave New Words* Part VIII
+## Appendix B · Narrative source: *Brave New Words* Part VIII
 
 See **Paper rewrite roadmap §2b** for full mapping. Part VIII covers:
 - **K‑12 assessments:** continuous mastery-based assessment vs one-shot exams; AI tutors enabling ongoing measurement
@@ -533,7 +533,7 @@ Our system translates the **admissions** half into **job matching**: candidate a
 
 ---
 
-## Appendix A — Professor three-agent checklist
+## Appendix A · Professor three-agent checklist
 
 - [x] Candidate/client-side agent with CV input, parsing, embedding, vector store, profile state  
 - [x] Employer-side agent with JD input, parsing, embedding, vector store, job state  

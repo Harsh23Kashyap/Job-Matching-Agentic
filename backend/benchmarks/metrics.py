@@ -20,7 +20,7 @@ def recall_at_k(pred_ids, relevant_ids, k):
 
 
 def reciprocal_rank(pred_ids, relevant_ids):
-    """MRR component for one query — 0 when no relevant doc appears."""
+    """MRR component for one query · 0 when no relevant doc appears."""
     for rank, doc_id in enumerate(pred_ids, start=1):
         if doc_id in relevant_ids:
             return 1.0 / rank
@@ -28,7 +28,7 @@ def reciprocal_rank(pred_ids, relevant_ids):
 
 
 def average_precision(pred_ids, relevant_ids):
-    """Binary AP — relevant set is docs with graded relevance > 0."""
+    """Binary AP · relevant set is docs with graded relevance > 0."""
     if not relevant_ids:
         return 0.0
     hits = 0

@@ -3,7 +3,7 @@ export default function RemotePolicyField({ id, checked, onChange }) {
     <fieldset className="remote-policy-field">
       <legend className="remote-policy-field__legend">Remote work</legend>
       <p className="form-helper remote-policy-field__helper">
-        Controls whether candidates who prefer remote work can match to this role.
+        Whether remote-preference candidates can match this role.
       </p>
       <div className="remote-policy-field__options">
         <button
@@ -14,7 +14,7 @@ export default function RemotePolicyField({ id, checked, onChange }) {
           onClick={() => onChange(false)}
         >
           <span className="remote-policy-option__title">On-site / hybrid</span>
-          <span className="remote-policy-option__desc">Role is primarily in-office or hybrid.</span>
+          <span className="remote-policy-option__desc">In-office or hybrid.</span>
         </button>
         <button
           type="button"
@@ -24,7 +24,7 @@ export default function RemotePolicyField({ id, checked, onChange }) {
           onClick={() => onChange(true)}
         >
           <span className="remote-policy-option__title">Remote allowed</span>
-          <span className="remote-policy-option__desc">Fully remote or remote-friendly candidates can match.</span>
+          <span className="remote-policy-option__desc">Remote and remote-friendly candidates can match.</span>
         </button>
       </div>
     </fieldset>

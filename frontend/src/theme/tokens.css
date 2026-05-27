@@ -105,6 +105,32 @@
   --shadow-md: 0 12px 30px rgba(31, 41, 51, 0.06);
   --shadow-lg: 0 16px 40px rgba(31, 41, 51, 0.08);
   --focus-ring: 0 0 0 3px color-mix(in srgb, var(--primary) 18%, transparent);
+  --focus-ring-error: 0 0 0 3px color-mix(in srgb, var(--destructive) 22%, transparent);
+
+  --bg-muted: var(--muted);
+  --bg-elevated: color-mix(in srgb, var(--muted) 35%, var(--card));
+  --nav-backdrop: color-mix(in srgb, var(--card) 88%, transparent);
+  --chip-border: color-mix(in srgb, var(--primary) 14%, var(--border));
+  --upload-bg: var(--input);
+  --upload-border: color-mix(in srgb, var(--primary) 38%, var(--border));
+  --upload-border-hover: var(--primary);
+  --upload-hover-bg: var(--accent);
+  --skeleton-base: color-mix(in srgb, var(--muted) 70%, var(--card));
+  --skeleton-shine: color-mix(in srgb, var(--border) 55%, var(--card));
+  --notice-bg: var(--warning-bg);
+  --notice-border: var(--warning-border);
+  --notice-fg: var(--foreground);
+  --illustration-stroke: var(--primary);
+  --illustration-accent: var(--chart-1);
+  --illustration-sand: var(--chart-3);
+  --summary-accent-value: var(--portal-accent-hover);
+  --inline-hint: var(--muted-foreground);
+  --drawer-scrim: color-mix(in srgb, var(--foreground) 28%, transparent);
+  --sticky-footer-bg: color-mix(in srgb, var(--card) 94%, transparent);
+  --sticky-footer-border: var(--border-subtle);
+  --toast-bg: var(--foreground);
+  --toast-fg: var(--background);
+  --toast-border: color-mix(in srgb, var(--primary) 28%, transparent);
 }
 
 :root[data-theme="dark"] {
@@ -151,7 +177,6 @@
   --auth-panel: #252b32;
   --border-subtle: #2f363e;
   --border-input: #3a424c;
-  --text-tertiary: #949ca4;
   --accent-hover: var(--primary-hover);
   --accent-light: var(--accent);
   --info: #9aa3b0;
@@ -161,6 +186,36 @@
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
   --shadow-md: 0 12px 30px rgba(0, 0, 0, 0.25);
   --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.35);
+  --focus-ring: 0 0 0 3px color-mix(in srgb, var(--primary) 28%, transparent);
+  --focus-ring-error: 0 0 0 3px color-mix(in srgb, var(--destructive) 30%, transparent);
+
+  --warning-bg: var(--status-moderate-bg);
+  --warning-border: var(--status-moderate-border);
+  --bg-elevated: #2e363f;
+  --text-tertiary: #a8b0b8;
+  --bg-muted: var(--muted);
+  --nav-backdrop: color-mix(in srgb, var(--card) 90%, transparent);
+  --chip-border: color-mix(in srgb, var(--primary) 22%, var(--border));
+  --upload-bg: color-mix(in srgb, var(--muted) 55%, var(--card));
+  --upload-border: color-mix(in srgb, var(--portal-accent) 42%, var(--border));
+  --upload-border-hover: var(--portal-accent);
+  --upload-hover-bg: color-mix(in srgb, var(--portal-accent-soft) 75%, var(--card));
+  --skeleton-base: #2a3139;
+  --skeleton-shine: #3a424c;
+  --notice-bg: var(--status-moderate-bg);
+  --notice-border: var(--status-moderate-border);
+  --notice-fg: var(--status-moderate-fg);
+  --illustration-stroke: var(--portal-accent);
+  --illustration-accent: var(--chart-1);
+  --illustration-sand: var(--chart-3);
+  --summary-accent-value: var(--portal-accent);
+  --inline-hint: var(--muted-foreground);
+  --drawer-scrim: rgba(0, 0, 0, 0.55);
+  --sticky-footer-bg: color-mix(in srgb, var(--card) 96%, var(--background));
+  --sticky-footer-border: var(--border);
+  --toast-bg: var(--card);
+  --toast-fg: var(--card-foreground);
+  --toast-border: color-mix(in srgb, var(--primary) 35%, var(--border));
 
   --role-icon-bg: color-mix(in srgb, var(--accent) 88%, var(--card));
   --role-icon-fg: var(--accent-foreground);

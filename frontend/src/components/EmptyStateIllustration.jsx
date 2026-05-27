@@ -1,9 +1,9 @@
 import { useId } from "react";
 import { useReducedMotion } from "../hooks/useReducedMotion.js";
 
-const STROKE = "#52635A";
-const OLIVE = "#6E8B74";
-const SAND = "#7A6348";
+const STROKE = "var(--illustration-stroke)";
+const OLIVE = "var(--illustration-accent)";
+const SAND = "var(--illustration-sand)";
 
 function ProfileNeededArt({ reducedMotion }) {
   return (

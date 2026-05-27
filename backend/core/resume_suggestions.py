@@ -193,7 +193,7 @@ def _suggest_bullets(
             suggested = f"{original.rstrip('.')}, using {term} where accurate."
             reason = f"Mention {term} so ATS and recruiters see alignment with the {job.title} posting."
         else:
-            suggested = f"{original.rstrip('.')} — quantify impact (metrics, scale, or outcomes)."
+            suggested = f"{original.rstrip('.')} · quantify impact (metrics, scale, or outcomes)."
             reason = "Add measurable outcomes recruiters can scan quickly."
         improvements.append({"original": original, "suggested": suggested, "reason": reason})
         if len(improvements) >= 4:
@@ -240,7 +240,7 @@ def _ats_checklist(candidate: CandidateProfile, job: JobProfile) -> list[dict[st
         "Required skill coverage",
         coverage >= 0.6,
         f"Covers {len(matched_required)}/{len(required)} required skills from the posting.",
-        f"Only {len(matched_required)}/{len(required)} required skills appear — add missing skills you truly have.",
+        f"Only {len(matched_required)}/{len(required)} required skills appear · add missing skills you truly have.",
     )
     add(
         "Quantified achievements",
@@ -334,7 +334,7 @@ def build_resume_suggestions(
     base = build_rule_based_suggestions(candidate, job)
     base["llm_status"] = "rule_based"
     base["disclaimer"] = (
-        "Suggestions only — your saved profile is not changed. Copy ideas into your profile or resume editor manually."
+        "Suggestions only · your saved profile is not changed. Copy ideas into your profile or resume editor manually."
     )
 
     if llm is None:
@@ -372,8 +372,8 @@ def build_resume_suggestions(
         merged["disclaimer"] = base["disclaimer"]
         return merged
     except LlmUnavailableError:
-        base["message"] = "AI coach unavailable — showing rule-based suggestions."
+        base["message"] = "AI coach unavailable · showing rule-based suggestions."
         return base
     except LlmParseError:
-        base["message"] = "Could not generate AI suggestions — showing rule-based suggestions."
+        base["message"] = "Could not generate AI suggestions · showing rule-based suggestions."
         return base

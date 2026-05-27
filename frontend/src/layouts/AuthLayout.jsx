@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import BackgroundOrnaments from "../components/BackgroundOrnaments.jsx";
 import {
   AuthBlobs,
   AuthDividerShadow,
@@ -14,7 +15,9 @@ export default function AuthLayout({ children, title, subtitle, variant = "login
   const isRegister = variant === "register";
 
   return (
-    <div className="auth-split">
+    <div className="auth-page">
+      <BackgroundOrnaments variant="auth" scope="auth" />
+      <div className="auth-split">
       <aside className="auth-brand">
         <AuthBlobs />
         <div className="auth-brand-inner">
@@ -24,12 +27,12 @@ export default function AuthLayout({ children, title, subtitle, variant = "login
           </Link>
           <h1>Match people to roles that fit</h1>
           <p className="auth-tagline">
-            A hiring workspace for candidates and employers — ranked matches, clear profiles, no spam inbox.
+            Ranked matches for candidates and hiring teams. Clear profiles, no inbox clutter.
           </p>
           <AuthMiniCards />
           <ul className="auth-features">
-            <li>See why a role or candidate scored the way it did</li>
-            <li>Separate workspaces for job seekers and hiring teams</li>
+            <li>Match scores with a short explanation</li>
+            <li>Separate portals for job seekers and employers</li>
           </ul>
         </div>
         <AuthMatchingScene />
@@ -54,6 +57,7 @@ export default function AuthLayout({ children, title, subtitle, variant = "login
           </div>
         </div>
       </main>
+      </div>
     </div>
   );
 }

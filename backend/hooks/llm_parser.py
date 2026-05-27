@@ -22,10 +22,10 @@ Return ONLY valid JSON with these keys:
 - required_experience (integer years, minimum 0)
 - budget_min (integer annual total compensation minimum, or null)
 - budget_max (integer annual total compensation maximum, or null)
-- budget_currency (string: INR, USD, EUR, GBP, or SGD — infer from the JD)
+- budget_currency (string: INR, USD, EUR, GBP, or SGD: infer from the JD)
 - company (string)
 - location (string)
-- remote_policy (boolean — true if remote or hybrid-friendly)
+- remote_policy (boolean: true if remote or hybrid-friendly)
 - job_type (string e.g. Full-time, Part-time, Contract, Internship)
 - description (string, 1-4 sentences summarizing the role)
 - link (string URL for application, or empty string)
@@ -35,12 +35,12 @@ Use empty string, empty array, or null when unknown. Do not include markdown."""
 
 RESUME_COACH_PROMPT = """You suggest resume improvements for a specific job application.
 Return ONLY valid JSON with these keys:
-- missing_keywords (array of strings — ATS keywords from the job missing or weak in the resume)
-- weak_skills (array of strings — skills the candidate lists but does not demonstrate in text)
-- missing_skills (array of strings — required job skills not evidenced in the profile)
-- suggested_summary (string — rewritten 2-3 sentence professional summary for this role)
+- missing_keywords (array of strings: ATS keywords from the job missing or weak in the resume)
+- weak_skills (array of strings: skills the candidate lists but does not demonstrate in text)
+- missing_skills (array of strings: required job skills not evidenced in the profile)
+- suggested_summary (string: rewritten 2-3 sentence professional summary for this role)
 - bullet_improvements (array of objects with keys: original, suggested, reason)
-- ats_checklist (array of objects with keys: item, status, tip — status must be pass, warn, or fail)
+- ats_checklist (array of objects with keys: item, status, tip: status must be pass, warn, or fail)
 
 Rules:
 - Base suggestions ONLY on the candidate profile and job posting provided.
@@ -60,8 +60,8 @@ Return ONLY valid JSON with these keys:
 - email (string)
 - phone (string)
 - linkedin (string URL)
-- portfolio (string URL — personal site, GitHub profile, or portfolio)
-- other_links (array of string URLs — e.g. GitLab, Medium, project links)
+- portfolio (string URL: personal site, GitHub profile, or portfolio)
+- other_links (array of string URLs: e.g. GitLab, Medium, project links)
 
 Use empty string or empty array when unknown. Do not include markdown."""
 
@@ -155,7 +155,7 @@ class LlmParser:
             detail = "LLM service unavailable"
             if isinstance(exc, httpx.HTTPStatusError) and exc.response is not None:
                 if exc.response.status_code in (401, 403):
-                    detail = "OpenAI API key rejected — check OPENAI_API_KEY in backend/.env"
+                    detail = "OpenAI API key rejected: check OPENAI_API_KEY in backend/.env"
             raise LlmUnavailableError(detail) from exc
         return self._parse_json_content(content)
 

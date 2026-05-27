@@ -1,4 +1,4 @@
-# Ablation Study — Composite Matching Components
+# Ablation Study · Composite Matching Components
 
 Generated: 2026-05-27T14:56:36.574536+00:00
 

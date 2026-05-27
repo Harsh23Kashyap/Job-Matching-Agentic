@@ -15,6 +15,121 @@ function DotGrid({ patternId }) {
   );
 }
 
+function AmbientBlobs() {
+  return (
+    <div className="bg-pattern__blobs" aria-hidden="true">
+      <span className="bg-blob bg-blob--1" />
+      <span className="bg-blob bg-blob--2" />
+      <span className="bg-blob bg-blob--3" />
+    </div>
+  );
+}
+
+/** Hiring-network scene for list/match routes. */
+function BaseNetworkArt({ reducedMotion, pathAId, pathBId, pathCId }) {
+  return (
+    <>
+      <svg className="bg-pattern__layer bg-pattern__network-scene" viewBox="0 0 900 520" fill="none" aria-hidden="true">
+        <circle cx="450" cy="248" r="5" fill="var(--bg-ornament-sage)" opacity="0.42" />
+        <circle cx="320" cy="200" r="3.5" fill="var(--bg-ornament-olive)" opacity="0.38" />
+        <circle cx="580" cy="210" r="3.5" fill="var(--bg-ornament-sand)" opacity="0.36" />
+        <circle cx="360" cy="310" r="3" fill="var(--bg-ornament-sage)" opacity="0.32" />
+        <circle cx="540" cy="300" r="3" fill="var(--bg-ornament-olive)" opacity="0.32" />
+        <line x1="450" y1="248" x2="320" y2="200" stroke="var(--bg-ornament-sage)" strokeWidth="1" opacity="0.22" />
+        <line x1="450" y1="248" x2="580" y2="210" stroke="var(--bg-ornament-sage)" strokeWidth="1" opacity="0.22" />
+        <line x1="450" y1="248" x2="360" y2="310" stroke="var(--bg-ornament-sage)" strokeWidth="1" opacity="0.18" />
+        <line x1="450" y1="248" x2="540" y2="300" stroke="var(--bg-ornament-sage)" strokeWidth="1" opacity="0.18" />
+        <line x1="320" y1="200" x2="200" y2="160" stroke="var(--bg-ornament-olive)" strokeWidth="1" opacity="0.16" />
+        <line x1="580" y1="210" x2="700" y2="170" stroke="var(--bg-ornament-sand)" strokeWidth="1" opacity="0.16" />
+
+        <path id={pathAId} d="M200 160 Q310 200 320 200" stroke="var(--bg-ornament-sage)" strokeWidth="1" fill="none" opacity="0.38" />
+        <path
+          id={pathBId}
+          className={reducedMotion ? undefined : "bg-pattern__dash"}
+          d="M700 170 Q590 210 580 210"
+          stroke="var(--bg-ornament-sand)"
+          strokeWidth="1"
+          fill="none"
+          opacity="0.34"
+        />
+        <path
+          id={pathCId}
+          className={reducedMotion ? undefined : "bg-pattern__dash"}
+          d="M360 310 Q400 280 450 248"
+          stroke="var(--bg-ornament-olive)"
+          strokeWidth="1"
+          fill="none"
+          opacity="0.32"
+        />
+
+        {!reducedMotion && (
+          <>
+            <circle r="2" fill="var(--bg-ornament-olive)" opacity="0.45">
+              <animateMotion dur="32s" repeatCount="indefinite">
+                <mpath href={`#${pathAId}`} />
+              </animateMotion>
+            </circle>
+            <circle r="2" fill="var(--bg-ornament-sand)" opacity="0.4">
+              <animateMotion dur="36s" repeatCount="indefinite">
+                <mpath href={`#${pathBId}`} />
+              </animateMotion>
+            </circle>
+          </>
+        )}
+      </svg>
+      <svg className="bg-pattern__layer bg-pattern__network-card bg-pattern__network-card--a bg-pattern__float-a" viewBox="0 0 100 72" fill="none" aria-hidden="true">
+        <rect x="4" y="4" width="92" height="64" rx="8" stroke="var(--bg-ornament-sage)" strokeWidth="1" opacity="0.42" />
+        <circle cx="26" cy="30" r="9" stroke="var(--bg-ornament-olive)" strokeWidth="1" opacity="0.32" />
+        <line x1="42" y1="26" x2="76" y2="26" stroke="var(--bg-ornament-sage)" strokeWidth="1" opacity="0.26" />
+      </svg>
+      <svg className="bg-pattern__layer bg-pattern__network-card bg-pattern__network-card--b bg-pattern__float-b" viewBox="0 0 100 72" fill="none" aria-hidden="true">
+        <rect x="4" y="4" width="92" height="64" rx="8" stroke="var(--bg-ornament-sage)" strokeWidth="1" opacity="0.38" />
+        <line x1="18" y1="22" x2="72" y2="22" stroke="var(--bg-ornament-sage)" strokeWidth="1" opacity="0.28" />
+        <line x1="18" y1="36" x2="54" y2="36" stroke="var(--bg-ornament-sand)" strokeWidth="1" opacity="0.22" />
+      </svg>
+    </>
+  );
+}
+
+/** Login/register ambient layer (dot grid + network arcs). */
+function AuthAmbientArt({ reducedMotion, pathId }) {
+  return (
+    <svg className="bg-pattern__layer bg-pattern__auth-scene" viewBox="0 0 1200 800" fill="none" aria-hidden="true">
+      <path
+        d="M80 520 Q280 380 420 440 T720 360 T1080 280"
+        stroke="var(--bg-ornament-sage)"
+        strokeWidth="1"
+        opacity="0.2"
+      />
+      <path
+        id={pathId}
+        className={reducedMotion ? undefined : "bg-pattern__dash"}
+        d="M120 640 Q360 520 520 560 T880 480"
+        stroke="var(--bg-ornament-olive)"
+        strokeWidth="1"
+        opacity="0.16"
+      />
+      <path
+        d="M200 180 Q480 120 640 200 T1000 160"
+        stroke="var(--bg-ornament-sand)"
+        strokeWidth="1"
+        opacity="0.14"
+      />
+      <circle cx="420" cy="440" r="4" fill="var(--bg-ornament-sage)" opacity="0.28" />
+      <circle cx="720" cy="360" r="3.5" fill="var(--bg-ornament-olive)" opacity="0.26" />
+      <circle cx="520" cy="560" r="3" fill="var(--bg-ornament-sand)" opacity="0.24" />
+      <circle cx="880" cy="480" r="3" fill="var(--bg-ornament-sage)" opacity="0.22" />
+      {!reducedMotion && (
+        <circle r="2" fill="var(--bg-ornament-olive)" opacity="0.38">
+          <animateMotion dur="40s" repeatCount="indefinite">
+            <mpath href={`#${pathId}`} />
+          </animateMotion>
+        </circle>
+      )}
+    </svg>
+  );
+}
+
 function OnboardingArt({ reducedMotion }) {
   return (
     <>
@@ -90,15 +205,15 @@ function JobsArt({ reducedMotion, pathAId, pathBId }) {
         <circle cx="120" cy="350" r="3.5" fill="var(--bg-ornament-sage)" opacity="0.5" />
         <circle cx="450" cy="300" r="3" fill="var(--bg-ornament-sage)" opacity="0.45" />
         <circle cx="780" cy="280" r="3.5" fill="var(--bg-ornament-sage)" opacity="0.5" />
-        <circle cx="500" cy="140" r="2.5" fill="#6E8B74" opacity="0.45" />
+        <circle cx="500" cy="140" r="2.5" fill="var(--bg-ornament-olive)" opacity="0.45" />
         {!reducedMotion && (
           <>
-            <circle r="2.5" fill="#6E8B74" opacity="0.55">
+            <circle r="2.5" fill="var(--bg-ornament-olive)" opacity="0.55">
               <animateMotion dur="22s" repeatCount="indefinite">
                 <mpath href={`#${pathAId}`} />
               </animateMotion>
             </circle>
-            <circle r="2" fill="#7A6348" opacity="0.5">
+            <circle r="2" fill="var(--bg-ornament-sand)" opacity="0.5">
               <animateMotion dur="28s" repeatCount="indefinite">
                 <mpath href={`#${pathBId}`} />
               </animateMotion>
@@ -468,17 +583,29 @@ function VariantArt({
   pathAId,
   pathBId,
   emptyPathId,
+  authPathId,
   employerPathAId,
   employerPathBId,
   employerPathCId,
 }) {
   switch (variant) {
+    case "auth":
+      return <AuthAmbientArt reducedMotion={reducedMotion} pathId={authPathId} />;
     case "onboarding":
       return <OnboardingArt reducedMotion={reducedMotion} />;
     case "profile":
       return <ProfileArt />;
     case "jobs":
       return <JobsArt reducedMotion={reducedMotion} pathAId={pathAId} pathBId={pathBId} />;
+    case "base":
+      return (
+        <BaseNetworkArt
+          reducedMotion={reducedMotion}
+          pathAId={pathAId}
+          pathBId={pathBId}
+          pathCId={employerPathCId}
+        />
+      );
     case "empty":
       return <EmptyArt reducedMotion={reducedMotion} pathId={emptyPathId} />;
     case "employer-jobs":
@@ -518,38 +645,46 @@ function VariantArt({
         />
       );
     default:
-      return null;
+      return (
+        <BaseNetworkArt
+          reducedMotion={reducedMotion}
+          pathAId={pathAId}
+          pathBId={pathBId}
+          pathCId={employerPathCId}
+        />
+      );
   }
 }
 
-/**
- * Subtle animated SVG backgrounds for portal pages.
- * @param {"onboarding"|"profile"|"jobs"|"empty"|"employer-jobs"|"employer-candidates"|"employer-empty"|"base"} variant
- * @param {"page"|"panel"|"inline"} scope
- */
+/** @param {import("../utils/portalBackground.js").BACKGROUND_VARIANTS[number]} variant @param {"page"|"panel"|"inline"|"auth"} scope */
 export default function BackgroundPattern({ variant = "base", scope = "page" }) {
   const rawId = useId().replace(/:/g, "");
   const patternId = `bg-dots-${rawId}`;
   const pathAId = `bg-path-a-${rawId}`;
   const pathBId = `bg-path-b-${rawId}`;
   const emptyPathId = `bg-empty-path-${rawId}`;
+  const authPathId = `bg-auth-path-${rawId}`;
   const employerPathAId = `bg-employer-path-a-${rawId}`;
   const employerPathBId = `bg-employer-path-b-${rawId}`;
   const employerPathCId = `bg-employer-path-c-${rawId}`;
   const reducedMotion = useReducedMotion();
+  const showBlobs = scope === "page" || scope === "auth";
+  const resolvedVariant = variant || "base";
 
   return (
     <div
-      className={`bg-ornaments bg-pattern bg-pattern--${scope}${variant !== "base" ? ` bg-pattern--${variant}` : ""}${reducedMotion ? " bg-pattern--static" : ""}`}
+      className={`bg-ornaments bg-pattern bg-pattern--${scope} bg-pattern--${resolvedVariant}${reducedMotion ? " bg-pattern--static" : ""}`}
       aria-hidden="true"
     >
       <DotGrid patternId={patternId} />
+      {showBlobs && <AmbientBlobs />}
       <VariantArt
         variant={variant}
         reducedMotion={reducedMotion}
         pathAId={pathAId}
         pathBId={pathBId}
         emptyPathId={emptyPathId}
+        authPathId={authPathId}
         employerPathAId={employerPathAId}
         employerPathBId={employerPathBId}
         employerPathCId={employerPathCId}

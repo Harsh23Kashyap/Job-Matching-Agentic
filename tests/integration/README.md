@@ -1,6 +1,6 @@
 # Integration tests
 
-HTTP-level tests using FastAPI `TestClient` — full request/response cycles.
+HTTP-level tests using FastAPI `TestClient` · full request/response cycles.
 
 ## Key suites
 

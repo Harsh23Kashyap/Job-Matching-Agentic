@@ -1,6 +1,6 @@
 # Methodology
 
-Fixed documentation for the evaluation protocol. These files are **not** auto-regenerated — update manually if the protocol changes.
+Fixed documentation for the evaluation protocol. These files are **not** auto-regenerated · update manually if the protocol changes.
 
 | Doc | Contents |
 |-----|----------|

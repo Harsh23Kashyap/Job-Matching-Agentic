@@ -261,3 +261,72 @@ def test_employer_jobs_mine(client):
     assert closed.status_code == 200
     assert closed.json()["status"] == "closed"
     assert closed.json()["accepts_applications"] is False
+
+
+def test_employer_repost_same_job_id_still_lists_mine(client):
+    client.post(
+        "/auth/register",
+        json={"email": "emp-dup@test.com", "password": "secret1", "role": "employer"},
+    )
+    payload = {
+        "id": "platform-engineer-acme",
+        "title": "Platform Engineer",
+        "required_skills": ["Python"],
+        "required_experience": 3,
+        "description": "Build services",
+    }
+    first = client.post("/jobs", json=payload)
+    assert first.status_code == 201
+    assert first.json()["id"] == "platform-engineer-acme"
+
+    second = client.post("/jobs", json={**payload, "description": "Build and operate services"})
+    assert second.status_code == 201
+    assert second.json()["id"] == "platform-engineer-acme"
+
+    mine = client.get("/jobs/mine")
+    assert mine.status_code == 200
+    ids = [row["id"] for row in mine.json()]
+    assert ids.count("platform-engineer-acme") == 1
+    assert mine.json()[0]["description"] == "Build and operate services"
+
+
+def test_employer_cannot_post_job_id_owned_by_another(client):
+    client.post(
+        "/auth/register",
+        json={"email": "emp-owner@test.com", "password": "secret1", "role": "employer"},
+    )
+    created = client.post(
+        "/jobs",
+        json={
+            "id": "shared-role-id",
+            "title": "Shared Role",
+            "required_skills": ["Python"],
+            "required_experience": 2,
+            "description": "Owned by first employer",
+        },
+    )
+    assert created.status_code == 201
+
+    client.post(
+        "/auth/register",
+        json={"email": "emp-intruder@test.com", "password": "secret1", "role": "employer"},
+    )
+    hijack = client.post(
+        "/jobs",
+        json={
+            "id": "shared-role-id",
+            "title": "Hijacked Role",
+            "required_skills": ["Rust"],
+            "required_experience": 1,
+            "description": "Should be rejected",
+        },
+    )
+    assert hijack.status_code == 403
+    assert hijack.json()["detail"]["code"] == "JOB_NOT_OWNED"
+
+    client.post(
+        "/auth/login",
+        json={"email": "emp-owner@test.com", "password": "secret1"},
+    )
+    job = client.get("/jobs/mine")
+    assert job.json()[0]["title"] == "Shared Role"

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Phase 1.1 ANN benchmark — pool=10 shortlist, rerank, latency table (Table 10)."""
+"""Phase 1.1 ANN benchmark: pool=10 shortlist, rerank, latency table (Table 10)."""
 from __future__ import annotations
 
 import argparse
@@ -225,7 +225,7 @@ def main():
                                 f"lat={summary['avg_latency_ms']:.2f}ms"
                             )
                         except Exception as exc:
-                            print(f"[SKIP] {store} {strategy}/{metric} — {exc}")
+                            print(f"[SKIP] {store} {strategy}/{metric}: {exc}")
 
     out_dir = Path(args.out_dir)
     write_csv(out_dir / "phase11_summary.csv", summary_rows)

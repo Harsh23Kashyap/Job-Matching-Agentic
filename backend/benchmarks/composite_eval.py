@@ -166,7 +166,7 @@ def write_composite_report(report: CompositeEvalReport, out_dir: Path, *, prefix
 def print_composite_summary(report: CompositeEvalReport) -> None:
     s = report.summary
     print(
-        f"\nProduction composite — {report.meta['corpus']['labeled_queries']} queries, K={report.meta['top_k']}\n"
+        f"\nProduction composite: {report.meta['corpus']['labeled_queries']} queries, K={report.meta['top_k']}\n"
         f"  nDCG@K={s['ndcg_at_k']:.3f}  MRR={s['mrr']:.3f}  "
         f"P@K={s['precision_at_k']:.3f}  R@K={s['recall_at_k']:.3f}  "
         f"latency={s['latency_ms']:.2f} ms/query"

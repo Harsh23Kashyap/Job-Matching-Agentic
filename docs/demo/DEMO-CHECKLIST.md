@@ -11,7 +11,7 @@ Run this **30 minutes before** a supervisor or stakeholder demo.
 - [ ] Node tests green: `node --test tests/unit/test_skills_input.mjs tests/unit/test_match_format.mjs` (expect **12 passed**)
 - [ ] Frontend build: `cd frontend && npm run build`
 
-## Secrets (local only — never commit)
+## Secrets (local only: never commit)
 
 - [ ] `backend/.env` exists (copy from `backend/.env.example`)
 - [ ] `OPENAI_API_KEY` set **or** Ollama running (`ollama serve`, model `llama3.2`) for resume upload demo
@@ -23,7 +23,7 @@ Run this **30 minutes before** a supervisor or stakeholder demo.
 - [ ] Quick API smoke: Rahul Sharma → Machine Learning Engineer **rank 1** (composite default)
 
 ```bash
-# Composite match (portal default) — expect rank 1 + score fields
+# Composite match (portal default): expect rank 1 + score fields
 curl -s -X POST http://localhost:8001/match/candidate-to-jobs \
   -H 'Content-Type: application/json' \
   -d '{"query_key":"Rahul Sharma","top_k":1,"strategy":"composite","metric":"cosine"}' \
@@ -51,7 +51,7 @@ curl -s -X POST http://localhost:8001/jobs/parse-description -b /tmp/jm.txt \
 # Expected: ok + title (Ollama/OpenAI) or unavailable + partial fields (graceful fallback)
 ```
 
-## Demo accounts (optional — create fresh or reuse)
+## Demo accounts (optional: create fresh or reuse)
 
 Seeded automatically when the backend starts (`SEED_DEMO=true`, default). One-click login on http://localhost:5173/login.
 
@@ -61,12 +61,12 @@ Seeded automatically when the backend starts (`SEED_DEMO=true`, default). One-cl
 | Employer (5 sample jobs) | `demo.employer@test.com` | `demo1234` |
 | Admin | `demo.admin@test.com` | `demo1234` |
 
-Candidate demo is linked to **Rahul Sharma** — Jobs → **Find matches** returns ranked roles immediately.
+Candidate demo is linked to **Rahul Sharma**: Jobs → **Find matches** returns ranked roles immediately.
 
 ## Browser
 
 - [ ] Use a clean browser profile or incognito (avoids stale session cookies)
-- [ ] Zoom / display at 100% — jobs table needs horizontal space on laptop screens
+- [ ] Zoom / display at 100%: jobs table needs horizontal space on laptop screens
 
 ## Fallbacks if something breaks
 

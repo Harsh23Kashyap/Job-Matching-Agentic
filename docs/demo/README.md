@@ -1,6 +1,6 @@
 # Demo materials
 
-Thesis and stakeholder demo — ~15 minutes, three portals.
+Thesis and stakeholder demo (~15 minutes, three portals).
 
 ## Files
 

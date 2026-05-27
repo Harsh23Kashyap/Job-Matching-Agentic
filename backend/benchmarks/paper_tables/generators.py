@@ -397,7 +397,7 @@ def generate_qualitative_examples(
     ]
 
     md_lines = [
-        "**Table 6 — Qualitative explanation and fairness examples**",
+        "**Table 6 · Qualitative explanation and fairness examples**",
         "",
         "*Label: `tab:qualitative`*",
         "",
@@ -482,7 +482,7 @@ def generate_all_paper_tables(
 
     results: dict[str, Any] = {}
     index_lines = [
-        "# Paper Tables — Copy-Paste Artifacts",
+        "# Paper Tables · Copy-Paste Artifacts",
         "",
         f"Generated from `backend/reports/` benchmark outputs.",
         "",
@@ -494,7 +494,7 @@ def generate_all_paper_tables(
         result = fn()
         results[key] = result
         if "error" in result:
-            index_lines.append(f"| {i} | {key} | — | *missing data* | | |")
+            index_lines.append(f"| {i} | {key} | · | *missing data* | | |")
             continue
         p = result["paths"]
         index_lines.append(

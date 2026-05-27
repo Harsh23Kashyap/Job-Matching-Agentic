@@ -1,8 +1,8 @@
-# Implementation Features Inventory — Research Paper Context
+# Implementation Features Inventory · Research Paper Context
 
 **Project:** Job-Matching-Agentic  
 **Last updated:** 2026-05-27  
-**Purpose:** Single reference for manuscript writing — what is built, how it works, what is deferred, and what to claim vs. not claim.
+**Purpose:** Single reference for manuscript writing · what is built, how it works, what is deferred, and what to claim vs. not claim.
 
 **Related docs:** [HLD](../design/HLD-multi-agent-system.md) · [SDD](../design/SDD-multi-agent-system.md) · [V1-V2 scope](../design/V1-V2-SCOPE.md) · [V1.1 portals spec](../design/v1.1-role-portals-auth.md)
 
@@ -12,9 +12,9 @@
 
 We implemented a **three-agent job matching system** with:
 
-- **Candidate Agent** — resume/CV ingest, validation, embedding, vector storage, profile state
-- **Employer Agent** — job description ingest, validation, embedding, vector storage, job state
-- **Matchmaking Agent** — read-only scoring, ranking, explanation; never writes to vector stores
+- **Candidate Agent** · resume/CV ingest, validation, embedding, vector storage, profile state
+- **Employer Agent** · job description ingest, validation, embedding, vector storage, job state
+- **Matchmaking Agent** · read-only scoring, ranking, explanation; never writes to vector stores
 
 Communication uses an **in-process event-driven bus** (event-driven monolith, not microservices). Matching combines **semantic bi-encoder similarity** (MiniLM-L6-v2, 384-d) with **skill overlap** (Jaccard or soft embedding), optional **RRF ensemble** over multiple strategy×metric lists, and **rule-based transparency** (`why_ranked` bullets).
 
@@ -34,7 +34,7 @@ Communication uses an **in-process event-driven bus** (event-driven monolith, no
 |--------|----------------|
 | Architecture style | Event-driven monolith |
 | Agents | 3 Python classes with explicit state ownership |
-| Communication | `AgentEventBus` — synchronous pub-sub, in-process |
+| Communication | `AgentEventBus` · synchronous pub-sub, in-process |
 | API layer | Thin FastAPI gateway; agents accessed via `app.state.container` |
 | Persistence | Chroma (vectors) + SQLite (users/ownership, v1.1) |
 | Frontend | React 19 + Vite + React Router (v1.1 portals) |
@@ -62,7 +62,7 @@ Communication uses an **in-process event-driven bus** (event-driven monolith, no
 - **Human-in-the-loop:** UI presents ranks; no automated hiring decision
 - **Transparency:** Per-result `why_ranked`, agent status panel, OpenAPI docs
 - **Bias monitoring:** Acknowledged in design docs; no automated fairness metrics in v1/v1.1
-- **Naming:** **Candidate Agent** (not Client/Employee split) — consistent code, UI, paper
+- **Naming:** **Candidate Agent** (not Client/Employee split) · consistent code, UI, paper
 
 ---
 
@@ -70,19 +70,19 @@ Communication uses an **in-process event-driven bus** (event-driven monolith, no
 
 | Workflow | Direction | Retrieval mode | Status |
 |----------|-----------|----------------|--------|
-| Single-strategy match | Candidate → jobs | Exhaustive over full corpus | ✅ |
-| Single-strategy match | Job → candidates | Exhaustive over full corpus | ✅ |
-| RRF ensemble | Either | Multiple ranked lists fused (k=60) | ✅ |
-| Daily batch recommendations | All candidates → top jobs | ANN shortlist per candidate | ✅ |
-| Corpus bootstrap | JSON files → agents + Chroma | On startup | ✅ |
-| Register new CV | POST `/candidates` | Immediate embed + upsert | ✅ |
-| Register new JD | POST `/jobs` | Immediate embed + upsert | ✅ |
-| Resume upload + LLM extract | Candidate portal | PDF/DOCX/TXT → structured fields | ✅ v1.1 |
-| Saved jobs + applications | Candidate portal | SQLite-backed shortlist + apply entity | ✅ v2.1 |
-| Employer applicant feed | Employer portal | Applications for owned jobs | ✅ v2.1 |
-| Fairness baseline | Admin / API | Experience + remote proxy DI ratios | ✅ v2.1 |
-| Real external job API sync | — | — | ❌ deferred |
-| Agent event log API | Admin strip | `GET /agents/events/recent` | ✅ v2 |
+| Single-strategy match | Candidate → jobs | Exhaustive over full corpus | yes |
+| Single-strategy match | Job → candidates | Exhaustive over full corpus | yes |
+| RRF ensemble | Either | Multiple ranked lists fused (k=60) | yes |
+| Daily batch recommendations | All candidates → top jobs | ANN shortlist per candidate | yes |
+| Corpus bootstrap | JSON files → agents + Chroma | On startup | yes |
+| Register new CV | POST `/candidates` | Immediate embed + upsert | yes |
+| Register new JD | POST `/jobs` | Immediate embed + upsert | yes |
+| Resume upload + LLM extract | Candidate portal | PDF/DOCX/TXT → structured fields | yes v1.1 |
+| Saved jobs + applications | Candidate portal | SQLite-backed shortlist + apply entity | yes v2.1 |
+| Employer applicant feed | Employer portal | Applications for owned jobs | yes v2.1 |
+| Fairness baseline | Admin / API | Experience + remote proxy DI ratios | yes v2.1 |
+| Real external job API sync | · | · | no deferred |
+| Agent event log API | Admin strip | `GET /agents/events/recent` | yes v2 |
 
 ---
 
@@ -103,15 +103,15 @@ Communication uses an **in-process event-driven bus** (event-driven monolith, no
 |----------|-------------------|--------------|
 | **Semantic** | Cosine or Euclidean-derived similarity on document embeddings | `metric`: cosine, euclidean |
 | **Multimodal** | `α × semantic + (1−α) × skills` with default α=0.7 | `semantic_weight`, `skills_mode` |
-| **Skills — Jaccard** | Set overlap on normalized skill strings | `skills_mode=jaccard` |
-| **Skills — soft embed** | Embedding similarity on skill sets | `skills_mode=soft_embed` |
+| **Skills · Jaccard** | Set overlap on normalized skill strings | `skills_mode=jaccard` |
+| **Skills · soft embed** | Embedding similarity on skill sets | `skills_mode=soft_embed` |
 
 ### 4.3 Fusion & retrieval
 
 | Feature | Detail |
 |---------|--------|
 | **RRF ensemble** | Reciprocal Rank Fusion, k=60; combines multiple strategy×metric ranked lists |
-| **UI match retrieval** | Exhaustive — scores all jobs (≤15) or all candidates (≤30) |
+| **UI match retrieval** | Exhaustive · scores all jobs (≤15) or all candidates (≤30) |
 | **Daily batch retrieval** | ANN via Chroma `search_jobs` with candidate pool limit |
 | **Default strategy** | Semantic cosine (user can toggle multimodal, metric, skills mode) |
 
@@ -119,7 +119,7 @@ Communication uses an **in-process event-driven bus** (event-driven monolith, no
 
 | Feature | Detail |
 |---------|--------|
-| Explainer | `RuleExplainer` — deterministic, no LLM |
+| Explainer | `RuleExplainer` · deterministic, no LLM |
 | `why_ranked` bullets | Skill overlap, title/summary token overlap, semantic tier, multimodal breakdown |
 | Max reasons | 4 per ranked result |
 
@@ -127,12 +127,12 @@ Communication uses an **in-process event-driven bus** (event-driven monolith, no
 
 | Parser | Input | Output | Status |
 |--------|-------|--------|--------|
-| `JsonParser` | Structured JSON dict | `CandidateProfile` / `JobProfile` | ✅ v1 |
-| `LlmParser` | Unstructured resume text | Structured candidate fields (JSON) | ✅ v1.1 |
-| LLM JD parser | Unstructured JD prose | `JobProfile` | ✅ v2 |
-| LLM match explainer | Scores + profiles | Grounded LLM + template fallback | ✅ v2.1 |
-| Learned fusion + constraints | Eval pairs | LR fusion, Platt calibration, feedback boost | ✅ v2 |
-| Lexical + cross-encoder | Benchmarks / API flags | BM25, TF-IDF, ms-marco CE rerank | ✅ v2 |
+| `JsonParser` | Structured JSON dict | `CandidateProfile` / `JobProfile` | yes v1 |
+| `LlmParser` | Unstructured resume text | Structured candidate fields (JSON) | yes v1.1 |
+| LLM JD parser | Unstructured JD prose | `JobProfile` | yes v2 |
+| LLM match explainer | Scores + profiles | Grounded LLM + template fallback | yes v2.1 |
+| Learned fusion + constraints | Eval pairs | LR fusion, Platt calibration, feedback boost | yes v2 |
+| Lexical + cross-encoder | Benchmarks / API flags | BM25, TF-IDF, ms-marco CE rerank | yes v2 |
 
 ### 4.6 Deferred ML (do NOT claim as implemented)
 
@@ -177,8 +177,8 @@ Communication uses an **in-process event-driven bus** (event-driven monolith, no
 | Item | v1 / v1.1 | v2 |
 |------|-----------|-----|
 | Vector DB | Chroma persistent (`backend/chroma_db/`) | Qdrant switch planned |
-| Collections | `candidates_collection`, `jobs_collection` | — |
-| User DB | SQLite (`backend/app.db`) — users, ownership | Postgres for production |
+| Collections | `candidates_collection`, `jobs_collection` | · |
+| User DB | SQLite (`backend/app.db`) · users, ownership | Postgres for production |
 | Event bus | In-process | Redis/NATS for microservices |
 | Auth | HTTP-only session cookie, bcrypt | OAuth, email verify |
 
@@ -270,12 +270,12 @@ React 19, Vite 6/7, axios, react-router-dom v7, light/dark theme (localStorage)
 
 ### 8.5 Client persistence
 
-- `jm_recent_runs` — last 10 match results (admin console)
-- `jm_theme` — light/dark preference
+- `jm_recent_runs` · last 10 match results (admin console)
+- `jm_theme` · light/dark preference
 
 ---
 
-## 9. LLM resume pipeline (v1.1 — hybrid agentic)
+## 9. LLM resume pipeline (v1.1 · hybrid agentic)
 
 ```
 Upload (PDF/DOCX/TXT, max 5MB)
@@ -361,14 +361,14 @@ Upload (PDF/DOCX/TXT, max 5MB)
 
 ---
 
-## 13. Contribution bullets (draft — edit for venue)
+## 13. Contribution bullets (draft · edit for venue)
 
 1. **Three-agent architecture** for job matching with explicit state ownership and event-driven coordination in a deployable monolith.
-2. **Configurable multi-signal matching** — semantic bi-encoder, Jaccard/soft skill overlap, multimodal blend, and RRF ensemble — exposed via API and admin UI.
-3. **Transparent ranking** — rule-based `why_ranked` explanations alongside numeric score breakdowns.
-4. **Hybrid structured + LLM parsing** — deterministic JSON pipeline for eval corpus; LLM-assisted resume onboarding with mandatory human review (v1.1).
-5. **Role-based demonstration platform** — separate candidate, employer, and admin experiences with session auth, preserving research eval console.
-6. **Reproducible evaluation harness** — 30 CV / 15 job corpus with 47 labeled pairs and automated smoke + 59-test suite.
+2. **Configurable multi-signal matching** · semantic bi-encoder, Jaccard/soft skill overlap, multimodal blend, and RRF ensemble · exposed via API and admin UI.
+3. **Transparent ranking** · rule-based `why_ranked` explanations alongside numeric score breakdowns.
+4. **Hybrid structured + LLM parsing** · deterministic JSON pipeline for eval corpus; LLM-assisted resume onboarding with mandatory human review (v1.1).
+5. **Role-based demonstration platform** · separate candidate, employer, and admin experiences with session auth, preserving research eval console.
+6. **Reproducible evaluation harness** · 30 CV / 15 job corpus with 47 labeled pairs and automated smoke + 59-test suite.
 
 ---
 

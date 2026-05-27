@@ -9,7 +9,7 @@ Design docs, demo scripts, session notes, and research inventory.
 | [design/](design/README.md) | Architecture | HLD, SDD, V1/V2 scope, v1.1 auth spec |
 | [demo/](demo/README.md) | Demo | 15-min script, pre-flight checklist |
 | [session/](session/README.md) | Dev notes | Session summaries |
-| [research/](research/) | — | `PAPER-FEATURES-INVENTORY.md` |
+| [research/](research/) | · | `PAPER-FEATURES-INVENTORY.md` |
 
 ## Start here
 
@@ -21,4 +21,4 @@ Design docs, demo scripts, session notes, and research inventory.
 
 ## Folder READMEs elsewhere
 
-Backend and frontend modules also have local README files — see [../README.md#folder-guides](../README.md).
+Backend and frontend modules also have local README files · see [../README.md#folder-guides](../README.md).

@@ -4,7 +4,7 @@ Axios wrapper for backend communication. All requests use `withCredentials: true
 
 ## Main file
 
-`client.js` — exports used by pages and components.
+`client.js` · exports used by pages and components.
 
 ## Key exports
 
@@ -27,6 +27,6 @@ DEFAULT_CANDIDATE_MATCH = { strategy: "composite", top_k: 15, ... }
 
 ## Errors
 
-`apiErrorMessage(err, fallback)` — parses FastAPI `detail` for form toasts.
+`apiErrorMessage(err, fallback)` · parses FastAPI `detail` for form toasts.
 
 Base URL: `import.meta.env.VITE_API_BASE_URL` or Vite dev proxy.

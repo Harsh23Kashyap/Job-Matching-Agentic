@@ -1,4 +1,4 @@
-"""Benchmark-only retrieval strategies — isolated from production match routing."""
+"""Benchmark-only retrieval strategies; isolated from production match routing."""
 from __future__ import annotations
 
 from dataclasses import dataclass

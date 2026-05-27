@@ -39,7 +39,7 @@ export default function CandidateProfileSummary({
             <p className="candidate-profile-summary__summary">{fields.summary}</p>
           ) : (
             <p className="candidate-profile-summary__summary candidate-profile-summary__summary--empty">
-              No summary yet — add a short intro when you edit your profile.
+              No summary yet. Add a short intro when you edit your profile.
             </p>
           )}
         </div>

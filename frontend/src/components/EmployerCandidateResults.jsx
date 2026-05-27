@@ -246,7 +246,7 @@ export default function EmployerCandidateResults({
       setDrawer({ row, whyLine: deriveEmployerWhyMatch(row) });
       return;
     }
-    showToast("No contact details on file — open the profile for more context.", "info");
+    showToast("No contact details on file. Open the profile for more context.", "info");
     setDrawer({ row, whyLine: deriveEmployerWhyMatch(row) });
   };
 
@@ -425,13 +425,13 @@ export function EmployerNoJobsEmpty() {
   return (
     <EmptyStatePanel>
       <EmptyState
-        title="No roles posted yet"
-        description="Create a role first, then we'll rank matching candidates against it."
+        title="No roles posted"
+        description="Post a role first, then refresh matches to see ranked candidates."
         illustrationVariant="employer-jobs"
         checklist={["Post a role with required skills", "Set compensation and location", "Refresh matches for that role"]}
         checklistStyle="todo"
         action={<Link to="/employer/jobs" className="btn-primary">Post a role</Link>}
-        helperText="Add required skills and experience to improve match quality."
+        helperText="Skills and experience on the posting drive match quality."
       />
     </EmptyStatePanel>
   );

@@ -27,7 +27,7 @@ def _profile_body(name="Flow User", skills=None):
     }
 
 
-def test_put_me_upserts_empty_id_and_get_me_unlocks_jobs(client):
+def test_put_me_upserts_empty_id_and_get_me_returns_profile(client):
     _register(client, "empty-id@test.com")
     assert client.get("/candidates/me").status_code == 404
 
@@ -91,7 +91,7 @@ def test_stale_in_memory_profile_is_recreated_on_put(client):
 
     missing = client.get("/candidates/me")
     assert missing.status_code == 404
-    assert missing.json()["detail"]["code"] == "NOT_FOUND"
+    assert missing.json()["detail"]["code"] == "PROFILE_NOT_FOUND"
 
     recreated = client.put(
         "/candidates/me",

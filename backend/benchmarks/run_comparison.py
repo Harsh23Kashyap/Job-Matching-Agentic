@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Compare lexical baselines vs embedding strategies — table-ready CSV output."""
+"""Compare lexical baselines vs embedding strategies; table-ready CSV output."""
 from __future__ import annotations
 
 import argparse
@@ -15,7 +15,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         description=(
             "Offline lexical vs embedding benchmark. "
-            "Outputs method, metric, top_k, score, latency_ms — does not affect production APIs."
+            "Outputs method, metric, top_k, score, latency_ms; does not affect production APIs."
         )
     )
     parser.add_argument("--eval-path", default=str(settings.data_dir / "eval_pairs.json"))

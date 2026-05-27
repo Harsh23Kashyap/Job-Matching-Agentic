@@ -78,7 +78,7 @@ def _step(name: str, fn: Callable[[], dict[str, str]]) -> StepResult:
     try:
         outputs = fn()
         return StepResult(name=name, status="ok", duration_sec=round(time.perf_counter() - t0, 3), outputs=outputs)
-    except Exception as exc:  # noqa: BLE001 — pipeline must capture and continue reporting
+    except Exception as exc:  # noqa: BLE001 - pipeline must capture failures for the report
         return StepResult(
             name=name,
             status="failed",
@@ -129,7 +129,7 @@ def run_research_pipeline(config: PipelineConfig) -> PipelineResult:
             status="ok" if validation.valid else "failed",
             duration_sec=0.0,
             outputs={k: str(v) for k, v in val_paths.items()},
-            error=None if validation.valid else "Corpus validation failed — see dataset_validation.json",
+            error=None if validation.valid else "Corpus validation failed; see dataset_validation.json",
         )
     )
     if not validation.valid:

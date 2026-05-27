@@ -1,4 +1,4 @@
-# Study 4b — Bootstrap Significance (Ablation Variants)
+# Study 4b · Bootstrap Significance (Ablation Variants)
 
 ## Setup
 

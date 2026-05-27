@@ -6,20 +6,20 @@ export const DEMO_ACCOUNTS = [
     label: "Candidate",
     email: "demo.candidate@test.com",
     password: DEMO_PASSWORD,
-    hint: "Profile ready (Rahul Sharma) — open Jobs and click Find matches",
+    hint: "Profile loaded. Open Jobs, then Find jobs.",
   },
   {
     id: "employer",
     label: "Employer",
     email: "demo.employer@test.com",
     password: DEMO_PASSWORD,
-    hint: "5 sample jobs loaded — review candidates for any role",
+    hint: "Sample jobs loaded. Review candidates under Candidates.",
   },
   {
     id: "admin",
     label: "Admin",
     email: "demo.admin@test.com",
     password: DEMO_PASSWORD,
-    hint: "Admin console with 30 candidates and 15 jobs in corpus",
+    hint: "Admin console with seeded candidate and job data",
   },
 ];

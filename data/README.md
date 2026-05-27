@@ -13,7 +13,7 @@ Evaluation corpus and benchmark artifacts. Loaded on backend startup by `bootstr
 
 ## Research corpus (`research/`)
 
-Large synthetic eval set for offline benchmarks — see [research/README.md](research/README.md).
+Large synthetic eval set for offline benchmarks · see [research/README.md](research/README.md).
 
 | File | Count |
 |------|-------|
@@ -31,10 +31,10 @@ Generate: `bash scripts/generate_research_dataset.sh`
 
 ## Expected regression floats
 
-`data/expected/` — golden metrics for `tests/benchmarks/test_eval_regression.py` (if present).
+`data/expected/` · golden metrics for `tests/benchmarks/test_eval_regression.py` (if present).
 
 ## Demo linkage
 
 Demo candidate account links to **Rahul Sharma** (`cv_01` in corpus). See [../backend/demo_seed.py](../backend/demo_seed.py).
 
-Do not commit large generated benchmark dumps — see root `.gitignore`.
+Do not commit large generated benchmark dumps · see root `.gitignore`.

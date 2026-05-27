@@ -3,7 +3,7 @@
 
 **Version:** 1.0  
 **Date:** 2026-05-27  
-**Status:** Draft — awaiting approval before implementation  
+**Status:** Draft · awaiting approval before implementation  
 **Parent:** [HLD-multi-agent-system.md](./HLD-multi-agent-system.md) v1.0  
 **Authors:** Harsh Kashyap, Taranumpreet Kaur Wasu  
 
@@ -23,7 +23,7 @@ This SDD specifies **implementable** design for the greenfield multi-agent syste
 |---|---------------|--------------|
 | 1 | Vector store layout | One `VectorStoreFactory`; two collections: `candidates_collection`, `jobs_collection` |
 | 2 | UI match retrieval | **Exhaustive** over all jobs/resumes (corpus ≤15 jobs); **ANN** for daily batch (`candidate_pool=120`) |
-| 3 | Who exposes ANN search | **Employer Agent** exposes `search_jobs`; **Candidate Agent** exposes `search_candidates`; Matchmaker calls these — never writes to stores |
+| 3 | Who exposes ANN search | **Employer Agent** exposes `search_jobs`; **Candidate Agent** exposes `search_candidates`; Matchmaker calls these · never writes to stores |
 | 4 | Naming | Code: `CandidateAgent`, `EmployerAgent`, `MatchmakingAgent`; UI label alias "Client" optional |
 
 ---
@@ -340,7 +340,7 @@ File: `backend/contracts/snapshots.py`
 
 ```python
 class CandidateSnapshot(BaseModel):
-    """Immutable view for matchmaker — no private agent internals."""
+    """Immutable view for matchmaker · no private agent internals."""
     id: str
     name: str
     skills: list[str]
@@ -746,18 +746,18 @@ All JSON request/response bodies. FastAPI auto-generates OpenAPI at `/docs`.
 
 | Method | Path | Body | Response |
 |--------|------|------|----------|
-| GET | `/candidates` | — | `{ names: string[] }` |
-| GET | `/candidates/full` | — | `CandidateProfile[]` (embeddings omitted) |
-| GET | `/candidates/{name}` | — | `CandidateProfile` or 404 |
+| GET | `/candidates` | · | `{ names: string[] }` |
+| GET | `/candidates/full` | · | `CandidateProfile[]` (embeddings omitted) |
+| GET | `/candidates/{name}` | · | `CandidateProfile` or 404 |
 | POST | `/candidates` | raw CV JSON | `CandidateProfile` 201 |
 
 ### 11.3 Employer agent routes
 
 | Method | Path | Body | Response |
 |--------|------|------|----------|
-| GET | `/jobs` | — | `{ titles: string[] }` |
-| GET | `/jobs/full` | — | `JobProfile[]` |
-| GET | `/jobs/{title}` | — | `JobProfile` or 404 |
+| GET | `/jobs` | · | `{ titles: string[] }` |
+| GET | `/jobs/full` | · | `JobProfile[]` |
+| GET | `/jobs/{title}` | · | `JobProfile` or 404 |
 | POST | `/jobs` | raw job JSON | `JobProfile` 201 |
 
 ### 11.4 Matchmaking routes
@@ -782,7 +782,7 @@ All JSON request/response bodies. FastAPI auto-generates OpenAPI at `/docs`.
 
 | Method | Path | Body | Response |
 |--------|------|------|----------|
-| GET | `/system/config` | — | `{ vector_store, strategies, metrics, skills_modes }` |
+| GET | `/system/config` | · | `{ vector_store, strategies, metrics, skills_modes }` |
 | POST | `/system/vector-store` | `{ vector_store: "chroma"\|"qdrant" }` | triggers re-bootstrap reindex |
 
 ### 11.6 Error responses
@@ -865,7 +865,7 @@ class JsonParser:
     def parse_job(self, raw: dict) -> JobProfile: ...
 
 
-class LlmParser(Parser):  # v2 stub — raises NotImplementedError until configured
+class LlmParser(Parser):  # v2 stub · raises NotImplementedError until configured
     ...
 ```
 
@@ -897,7 +897,7 @@ File: `frontend/src/api/client.js`
 | Daily batch | POST `/match/daily-batch` |
 | Switch store | POST `/system/vector-store` |
 
-**New component:** `AgentStatusPanel.jsx` — three cards showing `entity_count`, `store_version`, `last_event`, `healthy`.
+**New component:** `AgentStatusPanel.jsx` · three cards showing `entity_count`, `store_version`, `last_event`, `healthy`.
 
 **Env:** `VITE_API_BASE_URL=http://localhost:8000`
 
@@ -1048,11 +1048,11 @@ def sample_job() -> JobProfile: ...                # ML Engineer
 | Taranumpreet Kaur Wasu | Author | ☐ | |
 | Dr Parteek Bhatia | Supervisor | ☐ | |
 
-**Next step after approval:** Phase 2 implementation — begin with `contracts/` + `bus/` + `core/document_text.py`.
+**Next step after approval:** Phase 2 implementation · begin with `contracts/` + `bus/` + `core/document_text.py`.
 
 ---
 
-## Appendix A — Document text templates (normative)
+## Appendix A · Document text templates (normative)
 
 Resume (field order fixed for benchmark reproducibility):
 
@@ -1080,7 +1080,7 @@ description: {text}
 apply_link: {url}
 ```
 
-## Appendix B — Mapping to paper sections
+## Appendix B · Mapping to paper sections
 
 | Paper § | SDD section |
 |---------|-------------|

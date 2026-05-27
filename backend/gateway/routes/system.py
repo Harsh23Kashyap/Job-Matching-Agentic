@@ -51,7 +51,7 @@ def set_vector_store(body: VectorStoreRequest, request: Request):
     if request.app.state.container.settings.read_only:
         raise HTTPException(
             status_code=403,
-            detail={"error": "Read-only mode — vector store switch disabled", "code": "READ_ONLY"},
+            detail={"error": "Read-only mode · vector store switch disabled", "code": "READ_ONLY"},
         )
     try:
         result = switch_vector_store(request.app.state.container, body.vector_store)

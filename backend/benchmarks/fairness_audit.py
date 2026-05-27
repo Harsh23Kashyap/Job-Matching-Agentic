@@ -395,7 +395,7 @@ def render_fairness_audit_markdown(report: FairnessAuditReport) -> str:
     meta = report.meta
     k = meta["top_k"]
     lines = [
-        "# Fairness & Bias Audit — Synthetic Controlled Profiles",
+        "# Fairness & Bias Audit: Synthetic Controlled Profiles",
         "",
         f"Generated: {meta['generated_at']}",
         "",
@@ -436,7 +436,7 @@ def render_fairness_audit_markdown(report: FairnessAuditReport) -> str:
             reasons = ", ".join(row.get("flag_reasons", []))
             lines.append(
                 f"- **{row['pair_id']}** / `{row['job_id']}`: rank {row['rank_a']}→{row['rank_b']}, "
-                f"Δscore={row['score_delta']:.4f}, expl drift={row['explanation_drift']:.2f} — {reasons}"
+                f"Δscore={row['score_delta']:.4f}, expl drift={row['explanation_drift']:.2f}: {reasons}"
             )
     else:
         lines.append("- No cases flagged under current thresholds.")
@@ -448,7 +448,7 @@ def render_fairness_audit_markdown(report: FairnessAuditReport) -> str:
             "",
             "- Demographic-like fields **should not** change rankings when qualifications are identical.",
             "- Non-zero semantic drift is expected when names appear in document text (embedding path).",
-            "- Flagged cases warrant manual review — not automatic bias findings.",
+            "- Flagged cases warrant manual review, not automatic bias findings.",
             "",
         ]
     )
@@ -457,7 +457,7 @@ def render_fairness_audit_markdown(report: FairnessAuditReport) -> str:
 
 def print_fairness_audit_summary(report: FairnessAuditReport) -> None:
     print(
-        f"\nFairness audit — {report.meta['pairs']} synthetic pairs, "
+        f"\nFairness audit: {report.meta['pairs']} synthetic pairs, "
         f"{report.meta['jobs']} jobs, K={report.meta['top_k']}\n"
     )
     print(f"{'Pair':<22} {'Category':<22} {'Top-1':>6} {'Ovlp':>5} {'MaxRk':>6} {'MaxSc':>7} {'Flag':>5}")

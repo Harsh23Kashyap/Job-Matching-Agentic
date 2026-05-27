@@ -84,7 +84,7 @@ export default function AdminConsole() {
       <PageHeader
         eyebrow="Admin"
         title="Match console"
-        subtitle="Monitor agents, tune strategies, and inspect ranked results."
+        subtitle="Agent status, match settings, and result inspection."
       />
 
       <section className="admin-workspace-block">

@@ -4,24 +4,30 @@ export function resolveBackgroundVariant(pathname) {
   if (pathname.includes("/candidate/onboarding")) return "onboarding";
   if (pathname.includes("/candidate/profile")) return "profile";
   if (pathname.includes("/employer/jobs")) return "employer-jobs";
-  if (pathname.includes("/employer/matches") || pathname.includes("/employer/applications")) {
-    return "base";
+  if (
+    pathname.includes("/employer/matches")
+    || pathname.includes("/employer/applications")
+  ) {
+    return "employer-candidates";
   }
   if (
     pathname.includes("/candidate/matches")
     || pathname.includes("/candidate/saved")
   ) {
-    return "base";
+    return "jobs";
   }
   return "base";
 }
 
 export const BACKGROUND_VARIANTS = [
   "admin",
+  "auth",
   "onboarding",
   "profile",
   "employer-jobs",
   "employer-candidates",
+  "employer-empty",
   "jobs",
   "base",
+  "empty",
 ];

@@ -1,4 +1,4 @@
-"""Ablation scoring variants — offline research only; production uses compute_composite."""
+"""Ablation scoring variants (offline research); production uses compute_composite."""
 from __future__ import annotations
 
 from typing import Callable

@@ -1,6 +1,6 @@
 # Pages
 
-Route-level components — one folder per portal role plus auth and errors.
+Route-level components · one folder per portal role plus auth and errors.
 
 ## Portals
 
@@ -16,6 +16,6 @@ Route-level components — one folder per portal role plus auth and errors.
 |------|-------|
 | `Login.jsx` | `/login` |
 | `Register.jsx` | `/register` |
-| `errors/ErrorPage.jsx` | `/error/:code` — forbidden, not found, etc. |
+| `errors/ErrorPage.jsx` | `/error/:code` · forbidden, not found, etc. |
 
 Route definitions: [../App.jsx](../App.jsx)

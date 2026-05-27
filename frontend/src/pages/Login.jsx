@@ -43,14 +43,14 @@ export default function Login() {
       const me = await login(account.email, account.password);
       navigate(from || ROLE_HOME[me.role] || "/");
     } catch (err) {
-      setError(apiErrorMessage(err, "Demo login failed — restart the backend to seed demo accounts."));
+      setError(apiErrorMessage(err, "Demo login failed. Restart the backend to load demo accounts."));
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <AuthLayout variant="login" title="Sign in" subtitle="Welcome back — sign in to pick up where you left off.">
+    <AuthLayout variant="login" title="Sign in" subtitle="Sign in to your JobMatch account.">
       <form onSubmit={handleSubmit} className="auth-form">
         <label>
           Email
@@ -74,8 +74,8 @@ export default function Login() {
       </form>
 
       <div className="demo-accounts">
-        <p className="demo-accounts-title">Try the product</p>
-        <p className="demo-accounts-sub">One-click demo logins · password <code>demo1234</code> for all</p>
+        <p className="demo-accounts-title">Demo accounts</p>
+        <p className="demo-accounts-sub">Password for all: <code>demo1234</code></p>
         <ul className="demo-accounts-list">
           {DEMO_ACCOUNTS.map((account) => (
             <li key={account.id}>

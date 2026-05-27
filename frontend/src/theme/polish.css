@@ -18,7 +18,7 @@
   --focus-ring: 0 0 0 3px color-mix(in srgb, var(--primary) 18%, transparent);
 }
 
-/* ——— Page rhythm ——— */
+/* Page rhythm */
 
 .page-container {
   gap: var(--page-section-gap);
@@ -67,7 +67,7 @@
   margin-top: var(--space-4);
 }
 
-/* ——— Sections & panels ——— */
+/* Sections & panels */
 
 .portal-panel {
   padding: var(--space-6);
@@ -185,7 +185,7 @@
   color: var(--portal-accent-hover);
 }
 
-/* ——— Buttons ——— */
+/* Buttons */
 
 .btn-primary,
 .btn-secondary {
@@ -226,7 +226,7 @@
   padding-inline: 22px;
 }
 
-/* ——— Forms & labels ——— */
+/* Forms & labels */
 
 .form-field {
   margin-bottom: var(--space-5);
@@ -301,7 +301,7 @@
   line-height: 1.5;
 }
 
-/* ——— Filters toolbar ——— */
+/* Filters toolbar */
 
 .results-filters {
   padding: var(--space-3);
@@ -345,7 +345,7 @@
   border-radius: var(--radius);
 }
 
-/* ——— Cards & lists ——— */
+/* Cards & lists */
 
 .portal-card {
   padding: var(--space-5);
@@ -414,9 +414,10 @@
 .jd-import-panel {
   padding: var(--space-5);
   margin-bottom: 0;
-  border: 1px dashed color-mix(in srgb, var(--portal-accent) 32%, var(--border));
+  border: 1px dashed var(--upload-border);
   border-radius: var(--radius-lg);
   background: color-mix(in srgb, var(--muted) 42%, var(--card));
+  color: var(--card-foreground);
 }
 
 .jd-import-panel__title {
@@ -552,8 +553,8 @@
 }
 
 .form-feedback--error {
-  background: color-mix(in srgb, var(--destructive, #dc2626) 8%, var(--card));
-  border-color: color-mix(in srgb, var(--destructive, #dc2626) 28%, var(--border));
+  background: color-mix(in srgb, var(--destructive) 8%, var(--card));
+  border-color: color-mix(in srgb, var(--destructive) 28%, var(--border));
 }
 
 .form-feedback--info {
@@ -568,7 +569,7 @@
 
 .form-feedback__icon {
   flex-shrink: 0;
-  color: var(--destructive, #dc2626);
+  color: var(--destructive);
   margin-top: 2px;
 }
 
@@ -708,7 +709,7 @@
   border-bottom: 1px solid var(--border-subtle);
 }
 
-/* ——— Empty states ——— */
+/* Empty states */
 
 .empty-state-card {
   padding: var(--space-2) var(--space-4) var(--space-4);
@@ -756,7 +757,7 @@
   max-width: 140px;
 }
 
-/* ——— Nav polish ——— */
+/* Nav polish */
 
 .top-nav {
   box-shadow: none;
@@ -776,25 +777,36 @@
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--portal-accent) 12%, transparent);
 }
 
-/* ——— Background depth (subtle only) ——— */
+/* Background depth (subtle only) */
 
 .bg-pattern--page {
-  opacity: 0.028;
+  opacity: 0.04;
 }
 
 .bg-pattern--panel,
 .bg-pattern--inline {
-  opacity: 0.025;
+  opacity: 0.032;
 }
 
-/* Data-heavy routes: dot grid only, no floating art */
-.bg-pattern--employer-jobs .bg-pattern__layer:not(.bg-pattern__grid),
-.bg-pattern--employer-candidates .bg-pattern__layer:not(.bg-pattern__grid),
-.bg-pattern--jobs .bg-pattern__layer:not(.bg-pattern__grid) {
-  display: none;
+.bg-pattern--auth {
+  opacity: 0.05;
 }
 
-/* ——— Responsive ——— */
+/* Data-heavy routes: softer scene layers, keep dot grid + blobs */
+.bg-pattern--jobs.bg-pattern--page,
+.bg-pattern--employer-jobs.bg-pattern--page,
+.bg-pattern--employer-candidates.bg-pattern--page {
+  opacity: 0.035;
+}
+
+.bg-pattern--jobs .bg-pattern__jobs-scene,
+.bg-pattern--employer-jobs .bg-pattern__employer-jobs-scene,
+.bg-pattern--employer-candidates .bg-pattern__employer-candidates-scene,
+.bg-pattern--base .bg-pattern__network-scene {
+  opacity: 0.92;
+}
+
+/* Responsive */
 
 @media (max-width: 768px) {
   .page-hero {
@@ -873,7 +885,7 @@
   }
 }
 
-/* ——— Candidate profile page ——— */
+/* Candidate profile page */
 
 .candidate-profile-panel {
   position: relative;

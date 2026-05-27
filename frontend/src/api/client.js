@@ -19,7 +19,7 @@ export function apiErrorMessage(err, fallback) {
   if (typeof detail === "object" && detail?.error) return detail.error;
   if (typeof detail === "string") return detail;
   if (err.message === "Network Error") {
-    return "Cannot reach the API — is the backend running on port 8001?";
+    return "Can't reach the API. Is the backend running on port 8001?";
   }
   return fallback;
 }
@@ -78,12 +78,19 @@ export async function fetchMyProfile() {
   return data;
 }
 
-/** Returns null when the candidate has no linked profile yet (404). */
+/** Marker returned when auth is linked but in-memory profile was lost (GET 404 PROFILE_NOT_FOUND). */
+export const PROFILE_STALE_MARKER = { __profileStale: true };
+
+/** Returns null when no profile is linked; PROFILE_STALE_MARKER when profile must be re-saved. */
 export async function fetchMyProfileOrNull() {
   try {
     return await fetchMyProfile();
   } catch (err) {
-    if (err.response?.status === 404) return null;
+    if (err.response?.status === 404) {
+      const code = err.response?.data?.detail?.code;
+      if (code === "PROFILE_NOT_FOUND") return PROFILE_STALE_MARKER;
+      return null;
+    }
     throw err;
   }
 }

@@ -89,7 +89,7 @@ def _parse_job_description_text(llm: LlmParser, text: str) -> dict:
             "extracted_fields": empty_fields,
             "raw_text_preview": preview,
             "llm_status": "unavailable",
-            "message": "AI extraction unavailable. Review the text and fill in job details manually.",
+            "message": "Automatic extraction unavailable. Review the text and fill in job details manually.",
         }
     except LlmParseError as exc:
         return {
@@ -213,7 +213,17 @@ def register_job(
             raw = {**raw, "id": _slug_job_id(title)}
         if "status" not in raw:
             raw = {**raw, "status": "open"}
+        job_id = str(raw["id"])
+        owner = request.app.state.auth_store.get_job_owner(job_id)
+        if owner is not None and owner != user.id:
+            raise HTTPException(
+                status_code=403,
+                detail={
+                    "error": "This role id belongs to another account.",
+                    "code": "JOB_NOT_OWNED",
+                },
+            )
     profile = request.app.state.container.employer.register(raw)
     if user is not None and user.role == "employer":
-        request.app.state.auth_store.link_job(user.id, profile.id)
+        request.app.state.auth_store.link_job_if_unowned(user.id, profile.id)
     return _public_profile(profile)

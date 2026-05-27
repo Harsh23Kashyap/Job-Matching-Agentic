@@ -17,7 +17,7 @@ export default function ResumePreview({ text, defaultCollapsed = true }) {
         }}
       >
         <div className="resume-preview-summary-text">
-          <span className="resume-preview-title">Extracted resume text</span>
+          <span className="resume-preview-title">Parsed resume text</span>
           <span className="resume-preview-meta">
             {meta.lines} line{meta.lines === 1 ? "" : "s"} · {meta.chars} chars
           </span>

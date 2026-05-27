@@ -29,7 +29,7 @@
   --auth-scene-card-bg: color-mix(in srgb, var(--card) 94%, var(--muted));
 }
 
-/* ——— Left brand panel ——— */
+/* Left brand panel */
 
 .auth-brand {
   padding: clamp(40px, 6vh, 64px) clamp(32px, 5vw, 56px) clamp(32px, 5vh, 48px);
@@ -179,7 +179,7 @@
   box-shadow: 1px 0 20px color-mix(in srgb, var(--foreground) 3%, transparent);
 }
 
-/* ——— Right form panel ——— */
+/* Right form panel */
 
 .auth-form-panel {
   padding: clamp(48px, 8vh, 72px) clamp(20px, 4vw, 40px) clamp(32px, 6vh, 48px);
@@ -398,7 +398,7 @@
   line-height: 1.45;
 }
 
-/* ——— Responsive ——— */
+/* Responsive */
 
 @media (max-width: 900px) {
   .auth-split {

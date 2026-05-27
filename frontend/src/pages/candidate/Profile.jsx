@@ -8,7 +8,7 @@ import CandidateProfileSummary from "../../components/CandidateProfileSummary.js
 import ResumePreview from "../../components/ResumePreview.jsx";
 import Button from "../../components/Button.jsx";
 import EmptyStatePanel from "../../components/EmptyStatePanel.jsx";
-import { ProfileNeededEmpty } from "../../components/EmptyState.jsx";
+import { ProfileNeededEmpty, ProfileIncompleteEmpty, ProfileStaleEmpty } from "../../components/EmptyState.jsx";
 import { useToast } from "../../components/Toast.jsx";
 import {
   apiErrorMessage,
@@ -20,7 +20,9 @@ import { notifyProfileUpdated } from "../../utils/profileEvents.js";
 import { resumePreviewFromUpload } from "../../utils/resumeClean.js";
 import {
   EMPTY_PROFILE_FIELDS,
+  hasCandidateProfile,
   isCandidateProfileReady,
+  isProfileStale,
   profileFromApi,
   profileToPayload,
 } from "../../utils/profileFields.js";
@@ -45,7 +47,7 @@ export default function Profile() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
-  const [hasProfile, setHasProfile] = useState(false);
+  const [profileRecord, setProfileRecord] = useState(null);
   const [editing, setEditing] = useState(false);
   const [reuploading, setReuploading] = useState(false);
   const [resumePreview, setResumePreview] = useState("");
@@ -57,16 +59,17 @@ export default function Profile() {
   useEffect(() => {
     fetchMyProfileOrNull()
       .then((profile) => {
-        if (isCandidateProfileReady(profile)) {
-          setHasProfile(true);
-          setFields(profileFromApi(profile));
-          setError("");
-        } else {
-          setHasProfile(false);
+        if (!hasCandidateProfile(profile)) {
+          setProfileRecord(null);
+          return;
         }
+        setProfileRecord(profile);
+        setFields(profileFromApi(profile));
+        setError("");
+        setEditing(isProfileStale(profile) || !isCandidateProfileReady(profile));
       })
       .catch(() => {
-        setHasProfile(false);
+        setProfileRecord(null);
       })
       .finally(() => setLoading(false));
   }, []);
@@ -79,7 +82,7 @@ export default function Profile() {
       const data = await uploadResume(file);
       setFields((prev) => mergeExtractedIntoFields(prev, data.extracted_fields || {}));
       setResumePreview(resumePreviewFromUpload(data));
-      showToast("Resume parsed — review updated fields and save.");
+      showToast("Resume parsed. Review the updates, then save.");
     } catch (err) {
       setError(apiErrorMessage(err, "Upload failed. Try a PDF, DOCX, or TXT under 5MB."));
       errorRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
@@ -102,11 +105,11 @@ export default function Profile() {
     try {
       const saved = await upsertCandidateProfile(profileToPayload(fields));
       setFields(profileFromApi(saved));
-      setHasProfile(true);
+      setProfileRecord(saved);
       setEditing(false);
       notifyProfileUpdated();
       showToast(
-        hasProfile ? "Profile updated. You can refresh matches now." : "Profile saved.",
+        profileRecord ? "Profile updated." : "Profile saved.",
         <Link to="/candidate/matches" className="btn-secondary btn-sm">
           Find jobs
         </Link>,
@@ -134,13 +137,48 @@ export default function Profile() {
     );
   }
 
-  if (!hasProfile) {
+  if (isProfileStale(profileRecord)) {
+    return (
+      <>
+        <PageHeader
+          eyebrow="Candidate"
+          title="Restore your profile"
+          subtitle="Re-save your details to reload your profile and run job search again."
+        />
+        <EmptyStatePanel>
+          <ProfileStaleEmpty />
+        </EmptyStatePanel>
+        <section className="portal-panel portal-panel--form candidate-profile-edit-panel">
+          <ProfileStrength percent={strength.percent} hint={strength.hint} />
+          <ProfileForm
+            fields={fields}
+            errors={fieldErrors}
+            onChange={setFields}
+            footer={
+              <div className="form-actions form-actions--sticky portal-form-footer">
+                <Button loading={saving} loadingLabel="Saving…" onClick={handleSave}>
+                  Save profile
+                </Button>
+              </div>
+            }
+          />
+          {error && (
+            <p ref={errorRef} className="auth-error" role="alert">
+              {error}
+            </p>
+          )}
+        </section>
+      </>
+    );
+  }
+
+  if (!profileRecord) {
     return (
       <>
         <PageHeader
           eyebrow="Candidate"
           title="Your profile"
-          subtitle="Upload your resume once — we'll pull skills, experience, and contact details for you."
+          subtitle="Upload a resume to pull in skills, experience, and contact details."
           inlineAction={
             <Link to="/candidate/onboarding" className="btn-primary">
               Set up profile
@@ -160,35 +198,82 @@ export default function Profile() {
     );
   }
 
-  if (!editing) {
+  if (!isCandidateProfileReady(profileRecord) || editing) {
     return (
       <>
         <PageHeader
           eyebrow="Candidate"
-          title="Your profile"
-          subtitle="This is what employers see when reviewing your matches."
+          title={isCandidateProfileReady(profileRecord) ? "Edit profile" : "Finish your profile"}
+          subtitle={
+            isCandidateProfileReady(profileRecord)
+              ? "Update skills and preferences so matches stay accurate."
+              : "Your account already has profile data. Add a name and save to enable job search."
+          }
           inlineAction={
-            <Link to="/candidate/matches" className="btn-secondary">
-              Find jobs
-            </Link>
+            isCandidateProfileReady(profileRecord) ? (
+              <button type="button" className="btn-ghost btn-ghost--sm" onClick={() => setEditing(false)}>
+                Cancel
+              </button>
+            ) : (
+              <Link to="/candidate/matches" className="btn-secondary">
+                Jobs
+              </Link>
+            )
           }
         />
-        <section className="portal-panel portal-panel--elevated candidate-profile-panel">
-          <CandidateProfileSummary
+        {!isCandidateProfileReady(profileRecord) && (
+          <EmptyStatePanel>
+            <ProfileIncompleteEmpty
+              action={
+                <button type="button" className="btn-secondary" onClick={() => document.getElementById("pf-name")?.focus()}>
+                  Add your name
+                </button>
+              }
+            />
+          </EmptyStatePanel>
+        )}
+        <section className="portal-panel portal-panel--form candidate-profile-edit-panel">
+          <FormSection
+            title="Update from resume"
+            helper="Upload a new PDF, DOCX, or TXT to refresh skills and contact fields."
+            className="profile-reupload-bar"
+          >
+            <input
+              ref={fileRef}
+              type="file"
+              accept=".pdf,.docx,.txt"
+              className="visually-hidden"
+              id="profile-reupload"
+              onChange={(e) => handleReupload(e.target.files?.[0])}
+            />
+            <Button loading={reuploading} loadingLabel="Parsing…" onClick={() => fileRef.current?.click()}>
+              Re-upload resume
+            </Button>
+          </FormSection>
+          {resumePreview && <ResumePreview text={resumePreview} defaultCollapsed />}
+          <ProfileStrength percent={strength.percent} hint={strength.hint} />
+          <ProfileForm
             fields={fields}
-            strength={strength}
-            onEdit={() => setEditing(true)}
+            errors={fieldErrors}
+            onChange={setFields}
             footer={
-              <div className="candidate-profile-summary__footer-actions">
-                <Link to="/candidate/matches" className="btn-primary">
-                  Find jobs
-                </Link>
-                <Link to="/candidate/onboarding" className="btn-ghost btn-ghost--sm">
-                  Re-upload resume
-                </Link>
+              <div className="form-actions form-actions--sticky portal-form-footer">
+                {isCandidateProfileReady(profileRecord) && (
+                  <button type="button" className="btn-secondary" onClick={() => setEditing(false)}>
+                    Cancel
+                  </button>
+                )}
+                <Button loading={saving} loadingLabel="Saving…" onClick={handleSave}>
+                  Save profile
+                </Button>
               </div>
             }
           />
+          {error && (
+            <p ref={errorRef} className="auth-error" role="alert">
+              {error}
+            </p>
+          )}
         </section>
       </>
     );
@@ -198,54 +283,30 @@ export default function Profile() {
     <>
       <PageHeader
         eyebrow="Candidate"
-        title="Edit profile"
-        subtitle="Keep your skills and preferences up to date for better matches."
+        title="Your profile"
+        subtitle="What employers see when they review your matches."
         inlineAction={
-          <button type="button" className="btn-ghost btn-ghost--sm" onClick={() => setEditing(false)}>
-            Cancel
-          </button>
+          <Link to="/candidate/matches" className="btn-secondary">
+            Find jobs
+          </Link>
         }
       />
-      <section className="portal-panel portal-panel--form candidate-profile-edit-panel">
-        <FormSection
-          title="Update from resume"
-          helper="Upload a new PDF, DOCX, or TXT to refresh skills and contact fields."
-          className="profile-reupload-bar"
-        >
-          <input
-            ref={fileRef}
-            type="file"
-            accept=".pdf,.docx,.txt"
-            className="visually-hidden"
-            id="profile-reupload"
-            onChange={(e) => handleReupload(e.target.files?.[0])}
-          />
-          <Button loading={reuploading} loadingLabel="Parsing…" onClick={() => fileRef.current?.click()}>
-            Re-upload resume
-          </Button>
-        </FormSection>
-        {resumePreview && <ResumePreview text={resumePreview} defaultCollapsed />}
-        <ProfileStrength percent={strength.percent} hint={strength.hint} />
-        <ProfileForm
+      <section className="portal-panel portal-panel--elevated candidate-profile-panel">
+        <CandidateProfileSummary
           fields={fields}
-          errors={fieldErrors}
-          onChange={setFields}
+          strength={strength}
+          onEdit={() => setEditing(true)}
           footer={
-            <div className="form-actions form-actions--sticky portal-form-footer">
-              <button type="button" className="btn-secondary" onClick={() => setEditing(false)}>
-                Cancel
-              </button>
-              <Button loading={saving} loadingLabel="Updating…" onClick={handleSave}>
-                Update profile
-              </Button>
+            <div className="candidate-profile-summary__footer-actions">
+              <Link to="/candidate/matches" className="btn-primary">
+                Find jobs
+              </Link>
+              <Link to="/candidate/onboarding" className="btn-ghost btn-ghost--sm">
+                Re-upload resume
+              </Link>
             </div>
           }
         />
-        {error && (
-          <p ref={errorRef} className="auth-error" role="alert">
-            {error}
-          </p>
-        )}
       </section>
     </>
   );

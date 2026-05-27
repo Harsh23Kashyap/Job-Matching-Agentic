@@ -1,4 +1,4 @@
-# Bootstrap Significance — Benchmark Results
+# Bootstrap Significance · Benchmark Results
 
 Generated: 2026-05-27T14:59:59.969107+00:00
 

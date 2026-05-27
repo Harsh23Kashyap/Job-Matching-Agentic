@@ -12,7 +12,7 @@ export const ERROR_CONTENT = {
   402: {
     title: "Upgrade to continue",
     description:
-      "This feature is part of JobMatch Premium — advanced matching, priority listings, and team analytics. Upgrade your plan to unlock it.",
+      "This feature needs a JobMatch Premium plan (advanced matching, priority listings, team analytics).",
     primary: { label: "View plans", to: "/register" },
     secondary: { label: "Back to home", to: "/" },
     tone: "premium",
@@ -20,7 +20,7 @@ export const ERROR_CONTENT = {
   403: {
     title: "Access denied",
     description:
-      "Your account doesn't have permission to open this page. You may be signed in with the wrong role — try your own portal instead.",
+      "Your account can't open this page. You may be signed in with the wrong role; use your own portal instead.",
     primary: { label: "Go to my portal", action: "roleHome" },
     secondary: { label: "Sign in as someone else", to: "/login" },
     tone: "forbidden",
@@ -28,7 +28,7 @@ export const ERROR_CONTENT = {
   501: {
     title: "Not implemented yet",
     description:
-      "This capability isn't available in the current release. We're still building it — check back after the next update or use the admin console for eval features.",
+      "Not available in this release yet. Check back after the next update, or use the admin console for eval tools.",
     primary: { label: "Go to home", to: "/" },
     secondary: { label: "Admin console", to: "/admin/console" },
     tone: "wip",

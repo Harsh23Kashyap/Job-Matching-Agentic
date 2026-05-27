@@ -1,16 +1,16 @@
 # Codebase Knowledge Graph
-> Last updated: 2026-05-27 (v7 — research evaluation pipeline) | Entries: 450+ | Modules: 14
+> Last updated: 2026-05-27 (v8 · portal QA, stale profile, job ownership) | Entries: 458+ | Modules: 14
 
 ---
 
-## Team handoff — read this first
+## Team handoff · read this first
 
-**Project:** Job-Matching-Agentic — greenfield **multi-agent rewrite** of the job matching system. Three agents (Candidate, Employer, Matchmaking), role portals, composite explainable matching, thesis-demo ready.
+**Project:** Job-Matching-Agentic · greenfield **multi-agent rewrite** of the job matching system. Three agents (Candidate, Employer, Matchmaking), role portals, composite explainable matching, thesis-demo ready.
 
 **Authors:** Harsh Kashyap, Taranumpreet Kaur Wasu (Thapar Institute). Supervisor: Dr Parteek Bhatia (WSU).
 
 **Repository:** https://github.com/Harsh23Kashyap/Job-Matching-Agentic  
-**Branch:** `main` @ `bfa27e1` (pushed); **uncommitted:** full offline research stack + `docs/research/RESEARCH-PAPER.md`.
+**Branch:** `main` @ `c1a451d` (pushed); **uncommitted:** portal QA fixes, copy humanization, research stack, `HANDOFF.md`, knowledge graph.
 
 **Legacy note:** Entries under [Module: backend (legacy monolith)](#module-backend-legacy-monolith) describe the **pre-rewrite** `app.py` monolith. Current runtime uses `main.py` → `bootstrap.py` → `gateway/app.py`. See [Module: rewrite (current)](#module-rewrite-current) and [Module: research evaluation](#module-research-evaluation).
 
@@ -24,18 +24,20 @@
 
 **Event bus:** in-process pub-sub (`AgentEventBus`). Events: `CandidateProfileUpdated`, `JobProfileUpdated`, `CorpusBootstrapped`, `MatchCompleted`.
 
-**Default product scoring:** `composite` — semantic 40%, skills 30%, experience 15%, compensation 10%, location 5%. UI bands: Strong ≥80, Good ≥65, Moderate ≥50, Low <50.
+**Default product scoring:** `composite` · semantic 40%, skills 30%, experience 15%, compensation 10%, location 5%. UI bands: Strong ≥80, Good ≥65, Moderate ≥50, Low <50.
 
 ### Thesis-demo features (shipped)
 
 - Composite match + `MatchDetailsDrawer` score breakdown (candidate + employer portals)
-- Resume upload with CID cleanup + contact extraction; profile upsert via `PUT /candidates/me`
+- Resume upload with CID cleanup + contact extraction; profile upsert via `PUT /candidates/me`; stale link recovery (`PROFILE_NOT_FOUND` → re-save)
+- Employer `POST /jobs` ownership guard (`get_job_owner` · 403 `JOB_NOT_OWNED` on cross-account id)
+- Candidate profile gates: `hasCandidateProfile` / `isCandidateProfileReady` / `isProfileStale`; empty states for filter vs API zero results
 - Employer JD paste (`POST /jobs/parse-description`) + file upload
 - Resume coach (read-only), similar jobs/candidates, feedback actions in SQLite
 - `BackgroundOrnaments` SVG backgrounds; demo seed (`demo_seed.py`) on startup
 - **208 pytest + 20 node tests** passing (product); **38 benchmark tests** in `tests/benchmarks/`
-- **Offline research pipeline** — 9 stages → `backend/reports/research_run_<timestamp>/`
-- **Manuscript draft** — `docs/research/RESEARCH-PAPER.md` (numbers from reports only)
+- **Offline research pipeline** · 9 stages → `backend/reports/research_run_<timestamp>/`
+- **Manuscript draft** · `docs/research/RESEARCH-PAPER.md` (numbers from reports only)
 
 ### Run locally
 
@@ -84,19 +86,19 @@ bash scripts/run_research_suite.sh   # export → docs/research/evaluation/
 
 ---
 
-## Paper rewrite roadmap — PRIORITY (user directive, 2026-05-27)
+## Paper rewrite roadmap · PRIORITY (user directive, 2026-05-27)
 
-> **Supersedes current manuscript framing.** The existing JAAMAS draft reads like a technical report. Target: **white paper / internet-style** narrative for a general audience. Core reframe: this is **not just semantic search** — it is a **multi-agentic recruitment system** where candidate-side and employer-side agents collaborate via shared representations and a matchmaking agent.
+> **Supersedes current manuscript framing.** The existing JAAMAS draft reads like a technical report. Target: **white paper / internet-style** narrative for a general audience. Core reframe: a **multi-agentic recruitment system** where candidate-side and employer-side agents collaborate via shared representations and a matchmaking agent, not keyword search alone.
 
 ### 1. Reframe completely
 
-- Lead with **why the problem matters**, recruitment pain points, time/cost of filtering, impact — not implementation.
+- Lead with **why the problem matters**, recruitment pain points, time/cost of filtering, impact · not implementation.
 - Defer technical terms (keyword search, embeddings, vector stores) until later sections.
 - Current draft = technical report; target = accessible white paper with results that land for general readers.
 
 ### 2. Introduction (no subsections)
 
-Single flowing narrative — **no 1.1, 1.2, etc.** Story arc:
+Single flowing narrative · **no 1.1, 1.2, etc.** Story arc:
 
 1. Job seeker struggles today
 2. Recruitment system problems
@@ -109,11 +111,11 @@ Single flowing narrative — **no 1.1, 1.2, etc.** Story arc:
 
 Do **not** open with keyword/semantic search, embeddings, or vector stores.
 
-### 2b. Sal Khan — *Brave New Words*, Part VIII (narrative anchor)
+### 2b. Sal Khan · *Brave New Words*, Part VIII (narrative anchor)
 
-**Source:** Sal Khan, *Brave New Words* — Part VIII split into (1) future of K‑12 assessments, (2) AI of college admissions. User provided detailed walkthrough 2026-05-27.
+**Source:** Sal Khan, *Brave New Words* · Part VIII split into (1) future of K‑12 assessments, (2) AI of college admissions. User provided detailed walkthrough 2026-05-27.
 
-**Khan's core thesis (Part VIII):** AI can move hiring/admissions-style gatekeeping from **narrow one-shot snapshots** (exams, test scores, keyword filters) toward **continuous, holistic, mastery-informed evaluation** — if designed with **transparency and equity**.
+**Khan's core thesis (Part VIII):** AI can move hiring/admissions-style gatekeeping from **narrow one-shot snapshots** (exams, test scores, keyword filters) toward **continuous, holistic, mastery-informed evaluation** · if designed with **transparency and equity**.
 
 **Themes to echo in our intro (adapted from admissions → job matching):**
 
@@ -128,30 +130,30 @@ Do **not** open with keyword/semantic search, embeddings, or vector stores.
 | Expanded opportunity for under-resourced candidates | Semantic/soft-skill overlap vs pure keyword gatekeeping |
 
 **Dual-agent vision (maps to our architecture):**
-- **Candidate-side representative** — owns CV/profile, advocates seeker interests (Candidate Agent)
-- **Employer-side representative** — owns JD/requirements (Employer Agent)
-- **Neutral broker** — holistic matching, not either party's keyword box (Matchmaking Agent)
+- **Candidate-side representative** · owns CV/profile, advocates seeker interests (Candidate Agent)
+- **Employer-side representative** · owns JD/requirements (Employer Agent)
+- **Neutral broker** · holistic matching, not either party's keyword box (Matchmaking Agent)
 
-**Guardrails Khan implies — bake into paper §1/§7 and system design:**
-1. **Human-in-the-loop** — AI supports decisions; does not auto-hire/reject
-2. **Transparency & auditability** — explain scores, show agent stages, publish eval protocol
-3. **Bias monitoring** — test rankings across demographic proxies; report limits (small synthetic corpus)
-4. **Clear rules for AI assistance** — disclose LLM use on parsing/explanation when v2 added
+**Guardrails Khan implies · bake into paper §1/§7 and system design:**
+1. **Human-in-the-loop** · AI supports decisions; does not auto-hire/reject
+2. **Transparency & auditability** · explain scores, show agent stages, publish eval protocol
+3. **Bias monitoring** · test rankings across demographic proxies; report limits (small synthetic corpus)
+4. **Clear rules for AI assistance** · disclose LLM use on parsing/explanation when v2 added
 
-**Intro paragraph bridge (draft angle):** Khan argues admissions should see students as **growth curves and context**, not scores alone — the same shift applies when employers reduce millions of applicants to keyword search. A **multi-agent system** gives each side a dedicated representative and a shared matchmaker, moving from one-shot filtering toward **continuous, explainable alignment**.
+**Intro paragraph bridge (draft angle):** Khan argues admissions should see students as **growth curves and context**, not scores alone · the same shift applies when employers reduce millions of applicants to keyword search. A **multi-agent system** gives each side a dedicated representative and a shared matchmaker, moving from one-shot filtering toward **continuous, explainable alignment**.
 
 **Do not overclaim:** We are not implementing Khan's full K‑12 continuous assessment stack; we **instantiate the admissions half of his vision** in the recruitment domain with measurable IR metrics.
 
 ### 3. Contributions (reworked)
 
-1. **Candidate/client-side agent** — processes resumes/CVs
-2. **Employer-side agent** — processes job descriptions
-3. **Matchmaking engine** — semantic matching
-4. **Multi-agent communication flow** — agents share relevant states/data
-5. **UI/application layer** — end-to-end demonstrator
-6. **Evaluation** — quality metrics showing improvement over baselines
+1. **Candidate/client-side agent** · processes resumes/CVs
+2. **Employer-side agent** · processes job descriptions
+3. **Matchmaking engine** · semantic matching
+4. **Multi-agent communication flow** · agents share relevant states/data
+5. **UI/application layer** · end-to-end demonstrator
+6. **Evaluation** · quality metrics showing improvement over baselines
 
-### 4. Section 3 — multi-agent architecture diagram (block diagram first)
+### 4. Section 3 · multi-agent architecture diagram (block diagram first)
 
 Not presentation/application/backend layers. Must show:
 
@@ -177,7 +179,7 @@ Formal algorithm block covering: inputs (resumes, JDs) → preprocessing/parsing
 | § | Title | Content |
 |---|-------|---------|
 | 1 | Introduction | Story intro (above) |
-| 2 | Literature Review | Refine later — recruitment systems, AI agents in hiring, semantic search, gaps |
+| 2 | Literature Review | Refine later · recruitment systems, AI agents in hiring, semantic search, gaps |
 | 3 | Architecture of the Multi-Agent System | 3.1 Candidate Agent, 3.2 Employer Agent, 3.3 Matchmaking Agent, 3.4 Agent Communication & State Sharing, 3.5 Overall Workflow |
 | 4 | Implementation | libraries, APIs, data structures, parameters, backend/UI details |
 | 5 | Quality Metrics | formulas, P/R/nDCG, similarity, ranking criteria |
@@ -188,7 +190,7 @@ Formal algorithm block covering: inputs (resumes, JDs) → preprocessing/parsing
 
 ### 8. Literature review (deferred refinement)
 
-Connect prior work to: recruitment systems; AI agents in hiring; semantic search/embeddings; limitations; gap this work fills. Current §2 flagged as weak — revisit after structure lock.
+Connect prior work to: recruitment systems; AI agents in hiring; semantic search/embeddings; limitations; gap this work fills. Current §2 flagged as weak · revisit after structure lock.
 
 ### 9. Preserved from current system (do not lose in rewrite)
 
@@ -203,9 +205,9 @@ Update: `sections/section-1.tex` … `section-9.tex` (restructure), new Fig1–7
 
 ---
 
-## JAAMAS Manuscript — Complete Architecture Reference
+## JAAMAS Manuscript · Complete Architecture Reference
 
-> **Why this section exists:** The team is migrating the system to a new architecture. This documents how the **current paper** is built, structured, and tied to code — so claims, tables, figures, and evaluation protocols can be preserved or consciously revised during the rewrite.
+> **Why this section exists:** The team is migrating the system to a new architecture. This documents how the **current paper** is built, structured, and tied to code · so claims, tables, figures, and evaluation protocols can be preserved or consciously revised during the rewrite.
 
 ### Paper identity
 
@@ -218,7 +220,7 @@ Update: `sections/section-1.tex` … `section-9.tex` (restructure), new Fig1–7
 | LaTeX entry | `docs/submission/jaamas/manuscript/main.tex` |
 | Build marker | `2026-05-17-page-rhythm-v7` (in main.tex comment) |
 | Engine | **pdfLaTeX** + BibTeX (`sn-mathphys.bst`) |
-| Class | `sn-jnl.cls` — `\documentclass[pdflatex,sn-mathphys,Numbered,oneside]{sn-jnl}` |
+| Class | `sn-jnl.cls` · `\documentclass[pdflatex,sn-mathphys,Numbered,oneside]{sn-jnl}` |
 
 ### Manuscript directory tree
 
@@ -286,10 +288,10 @@ main.tex
 
 | Macro / env | File | Purpose |
 |-------------|------|---------|
-| `JSchemaTable` | jaamas-style.tex | Non-floating schema tables (entity fields, encoding templates) — full `\textwidth` |
+| `JSchemaTable` | jaamas-style.tex | Non-floating schema tables (entity fields, encoding templates) · full `\textwidth` |
 | `JTable` | jaamas-style.tex | Float table `[!t]`, top-aligned, booktabs |
 | `JFigure` | jaamas-style.tex | Float figure `[!t]` with `\JFig{../figures/FigN.pdf}` |
-| `\figcap{n}{text}` | jaamas-macros.tex | Caption text only — class adds “Fig. n” |
+| `\figcap{n}{text}` | jaamas-macros.tex | Caption text only · class adds “Fig. n” |
 | `\figref{fig:N}` | jaamas-macros.tex | “Fig.~\ref{…}” |
 | `\topic{…}` / `\topicblock{…}` | jaamas-macros.tex | Inline topic labels (Methodology §4) |
 | `\modelname` | jaamas-macros.tex | `\texttt{all-MiniLM-L6-v2}` |
@@ -297,7 +299,7 @@ main.tex
 | `\onres{n}` | jaamas-macros.tex | “Online Resource n” |
 | `\JBackmatterRule` | jaamas-style.tex | Thin rule before back matter |
 
-**Page rhythm fixes (v7):** `\raggedbottom`, tighter `\titlespacing`, no `\FloatBarrier` before every section, float pages top-aligned, `\parskip` 0.2em — fixes uneven vertical centering on Overleaf.
+**Page rhythm fixes (v7):** `\raggedbottom`, tighter `\titlespacing`, no `\FloatBarrier` before every section, float pages top-aligned, `\parskip` 0.2em · fixes uneven vertical centering on Overleaf.
 
 ### PDF document map (31 pages)
 
@@ -306,8 +308,8 @@ main.tex
 | 1 | main.tex | Title, abstract, keywords | Headline metrics: soft embed nDCG 0.969, bootstrap CI, ANN 0.913 |
 | 2–3 | section-1.tex | §1 Introduction | Problem, motivation, contributions, **JAAMAS agentic framing** (`sec:agentic`) |
 | 3–6 | section-2.tex | §2 Literature Review | DPR, SBERT, HNSW, RRF, nDCG, cross-encoder, LLM rerank, soft skills gap |
-| 6–12 | section-3.tex | §3 System Architecture | **Figs 1–7** — layered architecture narrative |
-| 12–17 | section-4.tex | §4 Methodology | **Algebra** — entities, templates, formulas, stores (implementation-independent) |
+| 6–12 | section-3.tex | §3 System Architecture | **Figs 1–7** · layered architecture narrative |
+| 12–17 | section-4.tex | §4 Methodology | **Algebra** · entities, templates, formulas, stores (implementation-independent) |
 | 17–20 | section-5.tex | §5 Architectural realization | FastAPI, **Table 6** (14 endpoints), **Table 7**, frontend, sync, daily batch |
 | 20–23 | section-6.tex | §6 Evaluation Framework | Labels, metrics formulas, 40-config sweep, dual drivers |
 | 23–27 | section-7.tex | §7 Results and Discussion | **Tables 8–11**, ablation, tradeoffs, cross-encoder |
@@ -319,31 +321,31 @@ main.tex
 
 ### Section-by-section content (what each file owns)
 
-#### §1 Introduction — `sections/section-1.tex` (`\label{sec:1}`)
+#### §1 Introduction · `sections/section-1.tex` (`\label{sec:1}`)
 
 | Subsection | Label | Content |
 |------------|-------|---------|
-| (opening) | — | Hiring mismatch; lexical vs semantic failure modes |
-| Problem Statement | — | Lexical alignment + structured fit |
-| Motivation | — | Bi-encoder + ANN; Jaccard blend; RRF |
-| Our contributions | — | 6-item bullet list → maps to entire system |
+| (opening) | · | Hiring mismatch; lexical vs semantic failure modes |
+| Problem Statement | · | Lexical alignment + structured fit |
+| Motivation | · | Bi-encoder + ANN; Jaccard blend; RRF |
+| Our contributions | · | 6-item bullet list → maps to entire system |
 | Agentic workflows and JAAMAS relevance | `sec:agentic` | Daily recs, live sync, ensemble as **agent patterns**; modular failure diagnosis |
 
 **Code mapping:** `app.py` batch endpoints, `real_jobs_sync.py`, ensemble routes.  
 **Forward refs:** Table `tab:progression-k5`, `tab:results-k5`; Sections `sec:6`, `sec:7`.
 
-#### §2 Literature Review — `sections/section-2.tex` (`\label{sec:2}`)
+#### §2 Literature Review · `sections/section-2.tex` (`\label{sec:2}`)
 
 | Subsection | Key citations | Ties to implementation |
 |------------|---------------|------------------------|
 | Semantic Search with Dense Embeddings | karpukhin2020dpr, reimers2019sbert | `matching/embedding.py`, all-MiniLM-L6-v2 |
 | ANN Retrieval | malkov2018hnsw | `stores/chroma`, `stores/qdrant` |
 | Hybrid Scoring and Rank Fusion | cormack2009rrf | `similarity_engine.py`, `app.rrf_aggregate` |
-| IR Evaluation | — | `benchmarks/metrics.py` |
+| IR Evaluation | · | `benchmarks/metrics.py` |
 | LLM-based Reranking | nogueira2019bert, sun2023chatgptsearch | `cross_encoder_rerank.py`, Ollama LLM path |
-| Soft Skill Matching | — | `matching/soft_skills.py` — paper’s main novelty argument |
+| Soft Skill Matching | · | `matching/soft_skills.py` · paper’s main novelty argument |
 
-#### §3 System Architecture — `sections/section-3.tex` (`\label{sec:3}`)
+#### §3 System Architecture · `sections/section-3.tex` (`\label{sec:3}`)
 
 **Narrative arc:** presentation → orchestration → scoring → persistence → optional rerank/benchmark.
 
@@ -358,9 +360,9 @@ main.tex
 | Full module diagram | Fig. 7 | `Fig7.pdf` | End-to-end with legend + numbered walkthrough |
 
 **Figure labels:** `fig:1` … `fig:7`.  
-**Supplementary:** Online Resources 1–3 (`supplementary/si-appendix.tex`) — ingestion, query, offline eval **flow diagrams** (not in main PDF body).
+**Supplementary:** Online Resources 1–3 (`supplementary/si-appendix.tex`) · ingestion, query, offline eval **flow diagrams** (not in main PDF body).
 
-#### §4 Methodology — `sections/section-4.tex` (`\label{sec:4}`)
+#### §4 Methodology · `sections/section-4.tex` (`\label{sec:4}`)
 
 **Critical for architecture migration:** This section is written as **re-implementable algebra**, not file paths.
 
@@ -368,42 +370,42 @@ main.tex
 |------------|--------|----------------------|
 | Data Representation | `tab:1` resume fields, `tab:2` job fields, `tab:3` eval pair | Pydantic schemas in `schemas.py` |
 | Embedding Strategy | `tab:resume-template`, `tab:job-template` | **`document_text.py`** line order is normative |
-| Similarity Metrics | — | Cosine, Euclidean-derived |
-| Matching Strategies | — | Semantic; Multimodal \(s = \alpha s_{sem} + (1-\alpha) J\); RRF \(k=60\) |
-| Soft skill + LLM rerank | — | \(s_{soft}\) formula; LLM blend \(\alpha_r=0.4\), score map \((z-1)/4\) |
-| Vector Store Design | — | Chroma vs Qdrant HNSW params |
+| Similarity Metrics | · | Cosine, Euclidean-derived |
+| Matching Strategies | · | Semantic; Multimodal \(s = \alpha s_{sem} + (1-\alpha) J\); RRF \(k=60\) |
+| Soft skill + LLM rerank | · | \(s_{soft}\) formula; LLM blend \(\alpha_r=0.4\), score map \((z-1)/4\) |
+| Vector Store Design | · | Chroma vs Qdrant HNSW params |
 
 **Default hyperparameters cited in paper:** multimodal \(\alpha=0.7\); RRF \(k=60\); four-list ensemble (semantic×cosine, semantic×Euclidean, multimodal×cosine, multimodal×Euclidean).
 
-#### §5 Architectural realization — `sections/section-5.tex` (`\label{sec:5}`)
+#### §5 Architectural realization · `sections/section-5.tex` (`\label{sec:5}`)
 
 | Subsection | Tables | Code anchor |
 |------------|--------|-------------|
-| Backend orchestration | `tab:api-endpoints` (Table 6 in PDF) | `backend/app.py` — all 14 routes |
+| Backend orchestration | `tab:api-endpoints` (Table 6 in PDF) | `backend/app.py` · all 14 routes |
 | | `tab:optional-components` (Table 7) | soft_skills, LLM rerank, Ollama gateway |
-| Frontend | — | `frontend/src/App.jsx` — **see paper vs UI gaps** |
-| Real-time job integration | — | `real_jobs_sync.py`, `data/jobs_live.json` |
-| Daily recommendation batch | — | ANN pool default **120**, dated JSON output |
+| Frontend | · | `frontend/src/App.jsx` · **see paper vs UI gaps** |
+| Real-time job integration | · | `real_jobs_sync.py`, `data/jobs_live.json` |
+| Daily recommendation batch | · | ANN pool default **120**, dated JSON output |
 
 **Startup sequence (paper):** factory → load JSON → optional live snapshot → ingestion/reindex.
 
-#### §6 Evaluation Framework — `sections/section-6.tex` (`\label{sec:6}`)
+#### §6 Evaluation Framework · `sections/section-6.tex` (`\label{sec:6}`)
 
 | Subsection | Content |
 |------------|---------|
 | Ground Truth Labels | 30 resumes, 15 jobs, 47 pairs; rel 0/1/2; `eval_pairs.json` |
 | Metrics | P@K, R@K, nDCG@K formulas; latency = ANN search only |
-| Parameter Sweep Methodology | **40 configurations** — stores × metrics × weights × HNSW |
+| Parameter Sweep Methodology | **40 configurations** · stores × metrics × weights × HNSW |
 | Experimental design notes | Lexical baselines, pool size, paper_progression driver |
 
 **Dual evaluation protocols (central to all claims):**
 
 | Protocol | Driver | Retrieval | Purpose in paper |
 |----------|--------|-----------|------------------|
-| **Exhaustive progression** | `benchmarks.paper_progression` | Score all 15 jobs per query | Table 9 (`tab:progression-k5`) — method ladder, bootstrap |
-| **ANN store sweep** | `benchmarks.phase11` | Pool size **10**, then rerank | Table 10 (`tab:results-k5`) — latency, backend parity |
+| **Exhaustive progression** | `benchmarks.paper_progression` | Score all 15 jobs per query | Table 9 (`tab:progression-k5`) · method ladder, bootstrap |
+| **ANN store sweep** | `benchmarks.phase11` | Pool size **10**, then rerank | Table 10 (`tab:results-k5`) · latency, backend parity |
 
-#### §7 Results and Discussion — `sections/section-7.tex` (`\label{sec:7}`)
+#### §7 Results and Discussion · `sections/section-7.tex` (`\label{sec:7}`)
 
 | PDF Table | LaTeX label | Source file | Content |
 |-----------|-------------|-------------|---------|
@@ -414,29 +416,29 @@ main.tex
 
 | Subsection | Label | Notes |
 |------------|-------|-------|
-| Matching Strategy Comparison | — | Tables 8–10 |
+| Matching Strategy Comparison | · | Tables 8–10 |
 | Ablation reading | `sec:ablation` | How to read Table 10 rows |
-| Vector Store Comparison | — | Table 11 |
-| Tradeoffs | — | Pool size, Jaccard vs soft, RRF vs learned, in-memory limits |
-| Optional stages | — | Cross-encoder 0.939; LLM not tabulated |
+| Vector Store Comparison | · | Table 11 |
+| Tradeoffs | · | Pool size, Jaccard vs soft, RRF vs learned, in-memory limits |
+| Optional stages | · | Cross-encoder 0.939; LLM not tabulated |
 
-#### §8 Conclusion — `sections/section-8.tex` (`\label{sec:8}`)
+#### §8 Conclusion · `sections/section-8.tex` (`\label{sec:8}`)
 
 Restates headline numbers, limits (small n, inflated lexical R@5, no LLM metrics), practitioner decomposition (representation / retrieval / fusion), agents contribution (tool-using workflows).
 
-#### §9 Future Work — `sections/section-9.tex` (`\label{sec:9}`)
+#### §9 Future Work · `sections/section-9.tex` (`\label{sec:9}`)
 
 | Subsection | Migration relevance |
 |------------|---------------------|
-| Agentic Orchestration | LLM picks strategy — **opposite of current explicit controls** |
+| Agentic Orchestration | LLM picks strategy · **opposite of current explicit controls** |
 | Candidate Preference Modeling | Interaction feedback embeddings |
 | Scalability | ANN-first serving, decoupled ingestion, cron agent, GPU LLM |
 | Evaluation Dataset Expansion | Crowd, clickthrough, synthetic labels |
 | Skill Taxonomy Integration | ESCO/O*NET vs current soft embed |
 
-#### Appendix — `sections/appendix-recommendations.tex` (`\label{sec:appendix-recommendations}`)
+#### Appendix · `sections/appendix-recommendations.tex` (`\label{sec:appendix-recommendations}`)
 
-Five operational recommendations — **preserve as checklist** when redesigning architecture.
+Five operational recommendations · **preserve as checklist** when redesigning architecture.
 
 ### Complete label / cross-reference index
 
@@ -448,7 +450,7 @@ Five operational recommendations — **preserve as checklist** when redesigning 
 
 **Typical citation flow:** §1 cites Tables 9–10 by forward ref → §4 defines entities → §5 maps to HTTP → §6 defines protocols → §7 fills tables → §8 summarizes → Appendix operationalizes §7.
 
-### Bibliography (`references.bib` — 7 entries)
+### Bibliography (`references.bib` · 7 entries)
 
 | Key | Topic |
 |-----|-------|
@@ -478,8 +480,8 @@ Main PDF back matter points readers to these files; they ship with submission zi
 
 | File | Pages | Audience |
 |------|-------|----------|
-| `portal/cover-letter.pdf` | 1 | Editor — JAAMAS fit, headline metrics, no prior publication |
-| `portal/information-sheet.pdf` | 3 | Springer mandatory Q&A — claims, evidence tables, related work list |
+| `portal/cover-letter.pdf` | 1 | Editor · JAAMAS fit, headline metrics, no prior publication |
+| `portal/information-sheet.pdf` | 3 | Springer mandatory Q&A · claims, evidence tables, related work list |
 
 Sources: `cover-letter.tex/.md`, `information-sheet.tex/.md`. Keep emails in sync with `author-emails.tex`.
 
@@ -496,7 +498,7 @@ Sources: `cover-letter.tex/.md`, `information-sheet.tex/.md`. Keep emails in syn
 | Encoding templates | Tables resume/job template | `matching/document_text.py` |
 | RRF k=60 | §4 formula | `app.rrf_aggregate`, `research_sweep.rrf_fuse` |
 
-### Architecture migration — what to preserve vs revisit
+### Architecture migration · what to preserve vs revisit
 
 **Preserve (evaluation contract):**
 - Graded labels in `eval_pairs.json` and rel 0/1/2 semantics
@@ -525,7 +527,7 @@ Agentic layer: HTTP/batch workflows (daily recs, sync, ensemble) without per-ste
     ↓
 Evidence: graded n=30 benchmark, two protocols, honest limits (bootstrap n.s., small corpus)
     ↓
-Contribution to JAAMAS: tool-using, traceable stages — not autonomous LLM policy selection (yet)
+Contribution to JAAMAS: tool-using, traceable stages · not autonomous LLM policy selection (yet)
 ```
 
 ---
@@ -537,18 +539,18 @@ Contribution to JAAMAS: tool-using, traceable stages — not autonomous LLM poli
 **Title (short):** Agentic Job Matching  
 **Full title:** Agentic Job Matching: A Semantic Retrieval System for Resume-to-Job Alignment
 
-**Authors:** Harsh Kashyap* (corresponding), Taranumpreet Kaur Wasu — affiliation block from `\AffilInstitution` + bullet email list.
+**Authors:** Harsh Kashyap* (corresponding), Taranumpreet Kaur Wasu · affiliation block from `\AffilInstitution` + bullet email list.
 
 **Abstract (3 paragraphs):**
-1. Problem framing — lexical failure; semantic alone misses structured constraints unless stages measured separately.
-2. System summary — `\modelname`, Chroma/Qdrant, semantic / multimodal Jaccard / RRF, batch + HTTP workflows.
-3. Numbers — 30 queries, 47 pairs, K=5; soft embed nDCG 0.969, R@5 1.000 vs semantic 0.911/0.900; bootstrap CI; ANN sweep 0.913 vs 0.884; Qdrant latency half of Chroma.
+1. Problem framing · lexical failure; semantic alone misses structured constraints unless stages measured separately.
+2. System summary · `\modelname`, Chroma/Qdrant, semantic / multimodal Jaccard / RRF, batch + HTTP workflows.
+3. Numbers · 30 queries, 47 pairs, K=5; soft embed nDCG 0.969, R@5 1.000 vs semantic 0.911/0.900; bootstrap CI; ANN sweep 0.913 vs 0.884; Qdrant latency half of Chroma.
 
 **Keywords:** resume–job matching, semantic retrieval, vector databases, software agents, reciprocal rank fusion, reproducible evaluation
 
 ---
 
-### §1 Introduction — `section-1.tex` (42 lines, PDF pp. 2–3)
+### §1 Introduction · `section-1.tex` (42 lines, PDF pp. 2–3)
 
 | Block | Lines | Content summary |
 |-------|-------|-----------------|
@@ -562,24 +564,24 @@ Contribution to JAAMAS: tool-using, traceable stages — not autonomous LLM poli
 
 ---
 
-### §2 Literature Review — `section-2.tex` (69 lines, PDF pp. 3–6)
+### §2 Literature Review · `section-2.tex` (69 lines, PDF pp. 3–6)
 
 | §2.x | Topic | Citations | Implementation hook |
 |------|-------|-----------|---------------------|
 | 2.1 | Dense embeddings / DPR / SBERT | karpukhin2020dpr, reimers2019sbert, wang2020minilm | `embedding.py`, 384-d MiniLM |
 | 2.2 | ANN / HNSW / Chroma / Qdrant | malkov2018hnsw | `stores/vector_store.py`, `qdrant_vector_store.py` |
 | 2.3 | Hybrid scoring + RRF | cormack2009rrf | `similarity_engine.py`, `app.rrf_aggregate` |
-| 2.4 | P@K, R@K, nDCG@K | — | `benchmarks/metrics.py` |
+| 2.4 | P@K, R@K, nDCG@K | · | `benchmarks/metrics.py` |
 | 2.5 | Cross-encoder + LLM rerank | nogueira2019bert, sun2023chatgptsearch | `cross_encoder_rerank.py`; **LLM path described in paper only** |
-| 2.6 | Soft skill gap in prior work | — | Motivates `soft_skills.py`; diagnosis of expected vs observed rankings |
+| 2.6 | Soft skill gap in prior work | · | Motivates `soft_skills.py`; diagnosis of expected vs observed rankings |
 
 **Literature stack narrative:** embed → ANN retrieve → hybrid score → evaluate → optional rerank.
 
 ---
 
-### §3 System Architecture — `section-3.tex` (120 lines, PDF pp. 6–12)
+### §3 System Architecture · `section-3.tex` (120 lines, PDF pp. 6–12)
 
-**Opening thesis:** Four layers — presentation, orchestration, scoring, persistence — connected by HTTP, vector abstraction, shared encoder.
+**Opening thesis:** Four layers · presentation, orchestration, scoring, persistence · connected by HTTP, vector abstraction, shared encoder.
 
 | §3.x | Layer | Figure | What the figure shows |
 |------|-------|--------|----------------------|
@@ -595,7 +597,7 @@ Contribution to JAAMAS: tool-using, traceable stages — not autonomous LLM poli
 1. User selects direction, strategy, metric, skill mode, rerank flag → client POST.
 2. Handler queries vector store (step 5) for ANN pool or uses in-memory full scan (current `app.py` match endpoints score **all** jobs).
 3. Scoring core (step 3): semantic-only OR multimodal (Jaccard default; soft branch if selected).
-4. Optional LLM rerank (step 4) blends model score — **not wired in current `app.py`**.
+4. Optional LLM rerank (step 4) blends model score · **not wired in current `app.py`**.
 5. Ensemble: multiple full scoring passes → RRF in handler (step 2).
 6. Offline benchmark (step 6): same indexes + labels, no HTTP.
 
@@ -610,7 +612,7 @@ Figure assets: symlinks from `docs/submission/jaamas/figures/FigN.pdf` → `docs
 
 ---
 
-### §4 Methodology — `section-4.tex` (222 lines, PDF pp. 12–17)
+### §4 Methodology · `section-4.tex` (222 lines, PDF pp. 12–17)
 
 #### §4.1 Data representation
 
@@ -618,13 +620,13 @@ Figure assets: symlinks from `docs/submission/jaamas/figures/FigN.pdf` → `docs
 **Job fields (`tab:2`):** id, title, required_skills[], required_experience, budget, remote_policy, description + optional company, location, job_type, link  
 **Eval pair (`tab:3`):** query_id, doc_id, relevance ∈ {0,1,2} (−1 excluded)
 
-**Pydantic models:** `backend/schemas.py` — Resume, Job (note: optional job fields may exist in JSON beyond strict schema).
+**Pydantic models:** `backend/schemas.py` · Resume, Job (note: optional job fields may exist in JSON beyond strict schema).
 
 #### §4.2 Embedding strategy
 
-**Model:** `all-MiniLM-L6-v2` — 384-d, CPU-friendly, sentence-transformers.
+**Model:** `all-MiniLM-L6-v2` · 384-d, CPU-friendly, sentence-transformers.
 
-**Resume encoding template (normative — matches `document_text.py` default):**
+**Resume encoding template (normative · matches `document_text.py` default):**
 ```
 resume profile
 name: {name}
@@ -650,7 +652,7 @@ apply_link: {url}
 
 **Rich template variant** (`BENCHMARK_RICH_TEMPLATES=1`): longer natural-language headers; tested in progression as separate row (nDCG 0.922).
 
-**Skill normalization:** `skill_catalog.py` — 40+ alias entries (react.js→react, k8s→kubernetes, ml→machine learning, etc.) before Jaccard/soft overlap.
+**Skill normalization:** `skill_catalog.py` · 40+ alias entries (react.js→react, k8s→kubernetes, ml→machine learning, etc.) before Jaccard/soft overlap.
 
 #### §4.3 Similarity metrics
 
@@ -672,7 +674,7 @@ apply_link: {url}
 \[
 s_{\text{soft}}(R,J) = \frac{1}{|J|}\sum_{j\in J}\max_{r\in R}\cos(e(r),e(j))
 \]
-Implementation: `soft_skills.py` — per-skill embedding cache, mean of max cosines.
+Implementation: `soft_skills.py` · per-skill embedding cache, mean of max cosines.
 
 **LLM rerank formula (paper):** `s_final = α_r·s_ret + (1−α_r)·s_llm`, α_r=0.4, z∈{1..5} → `(z-1)/4`. **No Ollama/LLM module in current backend tree.**
 
@@ -685,7 +687,7 @@ Implementation: `soft_skills.py` — per-skill embedding cache, mean of max cosi
 
 ---
 
-### §5 Architectural realization — `section-5.tex` (108 lines, PDF pp. 17–20)
+### §5 Architectural realization · `section-5.tex` (108 lines, PDF pp. 17–20)
 
 #### Startup sequence (paper)
 1. `get_vector_store()` → Chroma default  
@@ -693,7 +695,7 @@ Implementation: `soft_skills.py` — per-skill embedding cache, mean of max cosi
 3. Optional `jobs_live.json` snapshot replaces static jobs  
 4. `ingest_data()` embed + upsert all entities  
 
-#### Table 6 — 14 HTTP endpoints (full API spec)
+#### Table 6 · 14 HTTP endpoints (full API spec)
 
 | # | Method | Path | Request body | Response | Scoring behavior |
 |---|--------|------|--------------|----------|------------------|
@@ -703,13 +705,13 @@ Implementation: `soft_skills.py` — per-skill embedding cache, mean of max cosi
 | 4 | POST | `/match-job-ensemble` | `{title, top_k, searches[]}` | RRF fused resumes[] | Same |
 | 5 | POST | `/candidate/daily-recommendations` | `{name, top_k, strategy, metric, candidate_pool=120}` | `{results[], why_ranked[]}` | ANN pool then score |
 | 6 | POST | `/agent/run-daily-recommendations` | `{top_k, strategy, metric, sync_before_run, candidate_pool, max_users}` | `{output_file, users_processed}` | Batch all resumes → JSON file |
-| 7 | GET | `/resumes` | — | name[] | |
-| 8 | GET | `/resumes/full` | — | Resume[] | |
-| 9 | GET | `/jobs` | — | title[] | |
-| 10 | GET | `/jobs/full` | — | Job[] | |
-| 11 | GET | `/real-jobs/status` | — | sync config + state | |
+| 7 | GET | `/resumes` | · | name[] | |
+| 8 | GET | `/resumes/full` | · | Resume[] | |
+| 9 | GET | `/jobs` | · | title[] | |
+| 10 | GET | `/jobs/full` | · | Job[] | |
+| 11 | GET | `/real-jobs/status` | · | sync config + state | |
 | 12 | POST | `/real-jobs/sync` | `{reindex=true}` | sync stats | Fetch external API, optional reindex |
-| 13 | GET | `/system-config` | — | stores, strategies, metrics | |
+| 13 | GET | `/system-config` | · | stores, strategies, metrics | |
 | 14 | POST | `/system-config/vector-store` | `{vector_store}` | switch + reindex | |
 
 **Request model defaults (`app.py`):** strategy=`semantic`, metric=`cosine`, top_k=5, candidate_pool=120, RRF k=60.
@@ -722,13 +724,13 @@ Implementation: `soft_skills.py` — per-skill embedding cache, mean of max cosi
 
 | Paper feature | Frontend (`App.jsx`) | Backend |
 |---------------|---------------------|---------|
-| Dual-mode match | ✅ mode toggle | ✅ |
-| Strategy/metric dropdowns | ✅ from `/system-config` | ✅ |
-| Ensemble (4 configs) | ✅ all strategy×metric combos selected by default; weight=1 | ✅ |
-| Skills mode Jaccard/soft | ❌ not exposed | ✅ via `compute_multimodal(..., skills_mode)` but **API uses default jaccard only** |
-| LLM rerank toggle | ❌ | ❌ not implemented |
-| Live sync + daily agent | ✅ buttons | ✅ |
-| Score normalization UI | ✅ maps scores to [0,1] if clustered low | — |
+| Dual-mode match | yes mode toggle | yes |
+| Strategy/metric dropdowns | yes from `/system-config` | yes |
+| Ensemble (4 configs) | yes all strategy×metric combos selected by default; weight=1 | yes |
+| Skills mode Jaccard/soft | no not exposed | yes via `compute_multimodal(..., skills_mode)` but **API uses default jaccard only** |
+| LLM rerank toggle | no | no not implemented |
+| Live sync + daily agent | yes buttons | yes |
+| Score normalization UI | yes maps scores to [0,1] if clustered low | · |
 
 #### §5.3 Real-time jobs
 - `real_jobs_sync.py`: paginated HTTP, dedupe by id, `data/jobs_live.json`
@@ -740,7 +742,7 @@ Implementation: `soft_skills.py` — per-skill embedding cache, mean of max cosi
 
 ---
 
-### §6 Evaluation — `section-6.tex` (97 lines, PDF pp. 20–23)
+### §6 Evaluation · `section-6.tex` (97 lines, PDF pp. 20–23)
 
 #### Ground truth statistics (measured from `data/eval_pairs.json`)
 
@@ -770,7 +772,7 @@ Implementation: `soft_skills.py` — per-skill embedding cache, mean of max cosi
 | **Progression** | `benchmarks.paper_progression` | All 15 jobs scored | jaccard + embedding explicit | `paper_progression_summary.json`, per-query CSV, bootstrap JSON, failure cases |
 | **Phase11 ANN** | `benchmarks.phase11` | pool=10 ANN then rerank | **Jaccard only** (default `compute_multimodal`) | `phase11_summary.csv`, per-query CSV |
 
-#### Phase11 — exact 40-configuration grid (from shipped `phase11_summary.csv`)
+#### Phase11 · exact 40-configuration grid (from shipped `phase11_summary.csv`)
 
 **Per store (20 configs each):**
 
@@ -790,7 +792,7 @@ Implementation: `soft_skills.py` — per-skill embedding cache, mean of max cosi
 
 **Table 10 excerpt rows** (paper): Chroma semantic cosine; Chroma multimodal w=0.7; Chroma multimodal w=0.5; Qdrant semantic ef=64; Qdrant multimodal w=0.7 ef=64.
 
-#### Paper progression — method ladder (exact driver order)
+#### Paper progression · method ladder (exact driver order)
 
 | Order | Method name in JSON | Scoring function |
 |-------|---------------------|------------------|
@@ -808,11 +810,11 @@ Implementation: `soft_skills.py` — per-skill embedding cache, mean of max cosi
 
 ---
 
-### §7 Results — `section-7.tex` (119 lines, PDF pp. 23–27)
+### §7 Results · `section-7.tex` (119 lines, PDF pp. 23–27)
 
-#### Table 8 (`tab:strategy-qual`) — qualitative only
+#### Table 8 (`tab:strategy-qual`) · qualitative only
 
-#### Table 9 (`tab:progression-k5`) — headline numbers
+#### Table 9 (`tab:progression-k5`) · headline numbers
 
 | Method | P@5 | R@5 | nDCG@5 |
 |--------|-----|-----|--------|
@@ -824,7 +826,7 @@ Implementation: `soft_skills.py` — per-skill embedding cache, mean of max cosi
 | RRF ensemble (four lists) | 0.293 | 0.950 | 0.935 |
 | Soft embed + cross-encoder | 0.307 | 0.983 | 0.939 |
 
-#### Table 10 (`tab:results-k5`) — ANN excerpt + latency
+#### Table 10 (`tab:results-k5`) · ANN excerpt + latency
 
 | Configuration | P@5 | R@5 | nDCG@5 | Latency ms |
 |---------------|-----|-----|--------|------------|
@@ -834,23 +836,23 @@ Implementation: `soft_skills.py` — per-skill embedding cache, mean of max cosi
 | Qdrant, semantic, ef=64 | 0.267 | 0.867 | 0.884 | 0.38 |
 | Qdrant, multimodal, w=0.7 | 0.280 | 0.917 | 0.913 | 0.43 |
 
-#### Table 11 (`tab:vector-stores`) — Chroma vs Qdrant prose comparison
+#### Table 11 (`tab:vector-stores`) · Chroma vs Qdrant prose comparison
 
-#### §7.2 Ablation (`sec:ablation`) — how to read Table 10 rows
+#### §7.2 Ablation (`sec:ablation`) · how to read Table 10 rows
 
-#### §7.4 Tradeoffs — pool size, Jaccard vs soft, RRF vs learned, in-memory limits
+#### §7.4 Tradeoffs · pool size, Jaccard vs soft, RRF vs learned, in-memory limits
 
-#### §7.5 Cross-encoder — nDCG 0.939; LLM not tabulated
+#### §7.5 Cross-encoder · nDCG 0.939; LLM not tabulated
 
 ---
 
-### §8 Conclusion — `section-8.tex` (11 lines, PDF p. 27–28)
+### §8 Conclusion · `section-8.tex` (11 lines, PDF p. 27–28)
 
 Restates numbers + limits + practitioner decomposition + agents contribution + ethics deferral.
 
 ---
 
-### §9 Future Work — `section-9.tex` (37 lines, PDF pp. 28–29)
+### §9 Future Work · `section-9.tex` (37 lines, PDF pp. 28–29)
 
 | §9.x | Direction | Migration signal |
 |------|-----------|------------------|
@@ -862,7 +864,7 @@ Restates numbers + limits + practitioner decomposition + agents contribution + e
 
 ---
 
-### Appendix A — `appendix-recommendations.tex` (PDF p. 29)
+### Appendix A · `appendix-recommendations.tex` (PDF p. 29)
 
 Five bullets: lexical baselines; soft embed @0.7; cautious ANN on tiny corpus; backend parity; batch endpoints as first-class.
 
@@ -882,9 +884,9 @@ Five bullets: lexical baselines; soft embed @0.7; cautious ANN on tiny corpus; b
 | Topic | Paper says | Code actually does | Action on rewrite |
 |-------|------------|-------------------|-------------------|
 | RRF four lists | §4: semantic cos, semantic euc, multimodal cos, multimodal euc (all Jaccard) | `paper_progression`: semantic cos, multimodal Jaccard cos, **soft embed cos**, multimodal Jaccard **euc** | Align paper text OR change driver |
-| Frontend ensemble | §5.2: four strategy×metric combos | UI selects all 4 (semantic/multimodal × cosine/euclidean) — **matches paper ensemble description** | OK |
+| Frontend ensemble | §5.2: four strategy×metric combos | UI selects all 4 (semantic/multimodal × cosine/euclidean) · **matches paper ensemble description** | OK |
 | Skills mode API | §5: Jaccard vs embedding selectable | `ResumeRequest` has no `skills_mode`; `compute_multimodal` defaults jaccard | Add API field or fix paper |
-| LLM rerank | §4, §5, Fig 6 — Ollama Mistral, parallel 5 calls | **No LLM/Ollama code in backend** | Implement or remove from paper |
+| LLM rerank | §4, §5, Fig 6 · Ollama Mistral, parallel 5 calls | **No LLM/Ollama code in backend** | Implement or remove from paper |
 | Match endpoints retrieval | §3/§6 imply ANN pool + rerank | `/match-resume` scores **all jobs** in memory (no ANN pre-filter) | ANN-first is future work §9.3 |
 | Phase11 skills | Table 10 titled multimodal (Jaccard implied) | phase11 uses default Jaccard, not soft embed | Soft embed numbers come from progression table only |
 | Cross-encoder | pool=10, ms-marco-MiniLM-L-6-v2, blend 0.4 | Matches `cross_encoder_rerank.py` | OK |
@@ -908,7 +910,7 @@ Five bullets: lexical baselines; soft embed @0.7; cautious ANN on tiny corpus; b
 | Parameter | Paper | Code default | Env override |
 |-----------|-------|--------------|--------------|
 | Bi-encoder | all-MiniLM-L6-v2 | same | `EMBEDDING_MODEL` |
-| Embedding dim | 384 | 384 | — |
+| Embedding dim | 384 | 384 | · |
 | Multimodal α | 0.7 | 0.7 in `compute_multimodal` | request/benchmark args |
 | RRF k | 60 | 60 | hardcoded |
 | RRF list weight | 1.0 | `SearchConfig.weight` | API |
@@ -917,13 +919,13 @@ Five bullets: lexical baselines; soft embed @0.7; cautious ANN on tiny corpus; b
 | CE pool | 10 | 10 | `--rerank-pool` |
 | ANN pool (phase11) | 10 | 10 | `--candidate-pool` |
 | ANN pool (daily) | 120 | 120 | `candidate_pool` request |
-| LLM blend α_r | 0.4 | — | not implemented |
+| LLM blend α_r | 0.4 | · | not implemented |
 | Top-K eval | 5 | 5 | `--top-k` |
-| Bootstrap resamples | — | 5000 | `paired_bootstrap_ndcg` |
+| Bootstrap resamples | · | 5000 | `paired_bootstrap_ndcg` |
 
 ---
 
-## Skill catalog (`skill_catalog.py`) — full alias map
+## Skill catalog (`skill_catalog.py`) · full alias map
 
 react.js/reactjs/react js→react; node.js/nodejs→node; vue.js→vue; ml→machine learning; ai→artificial intelligence; dl→deep learning; nlp→natural language processing; torch→pytorch; tf→tensorflow; k8s/kube→kubernetes; aws lambda/amazon web services→aws; gcp/google cloud platform→google cloud; js→javascript; ts→typescript; postgres→postgresql; powerbi→power bi; ci cd/cicd→ci/cd; ui ux/uiux→ui/ux; figma design→figma; springboot/spring-boot→spring boot; data viz/data visualisation→data visualization; micro services→microservices; sys design→system design.
 
@@ -931,13 +933,13 @@ react.js/reactjs/react js→react; node.js/nodejs→node; vue.js→vue; ml→mac
 
 ## Declarations & portal Q&A (full)
 
-**Information sheet Q1 — claim:** Separable pipeline stages; multimodal skill blend; RRF; HTTP batch workflows; JAAMAS agentic = orchestrated endpoints with ablatable stages.
+**Information sheet Q1 · claim:** Separable pipeline stages; multimodal skill blend; RRF; HTTP batch workflows; JAAMAS agentic = orchestrated endpoints with ablatable stages.
 
-**Q2 — evidence:** Dual protocol tables (identical to Table 9/10); artifact list; bootstrap CI; LLM not tabulated.
+**Q2 · evidence:** Dual protocol tables (identical to Table 9/10); artifact list; bootstrap CI; LLM not tabulated.
 
-**Q3 — related work:** Karpukhin, Reimers, Malkov, Cormack, Nogueira/Sun — mapped in §2.
+**Q3 · related work:** Karpukhin, Reimers, Malkov, Cormack, Nogueira/Sun · mapped in §2.
 
-**Q4 — prior publication:** None archival; GitHub + technical report are non-archival companions.
+**Q4 · prior publication:** None archival; GitHub + technical report are non-archival companions.
 
 **Cover letter highlights:** JAAMAS fit (agents + IR); soft 0.969 vs semantic 0.911; ANN 0.913 vs 0.884; replication package; synthetic data; Dr Bhatia supervision.
 
@@ -962,7 +964,7 @@ react.js/reactjs/react js→react; node.js/nodejs→node; vue.js→vue; ml→mac
 
 ---
 
-## Codebase Encyclopedia — file-by-file
+## Codebase Encyclopedia · file-by-file
 
 ### Repository layout (top level)
 
@@ -979,7 +981,7 @@ Agentic-Job-Matching/
 └── .claude/knowledge_graph.md   ← this file (gitignored)
 ```
 
-### Backend — every source file
+### Backend · every source file
 
 | File | LOC (approx) | Role | Key exports / entry points |
 |------|--------------|------|---------------------------|
@@ -1001,7 +1003,7 @@ Agentic-Job-Matching/
 | `text_tokenizer.py` | 53 | tiktoken cl100k_base or regex fallback | `tokenize`, `tokenize_fallback` |
 | `cross_encoder_rerank.py` | 65 | ms-marco cross-encoder rerank | `rerank_jobs`, blend α=0.4 |
 | **stores/** | | Vector index abstraction | |
-| `base_vector_store.py` | — | Abstract interface | `add_job`, `add_resume`, `search_jobs`, `search_resumes` |
+| `base_vector_store.py` | · | Abstract interface | `add_job`, `add_resume`, `search_jobs`, `search_resumes` |
 | `vector_store.py` | 72 | Chroma HNSW collections | `jobs_collection`, `resumes_collection`, `CHROMA_SPACE` |
 | `qdrant_vector_store.py` | 171 | Qdrant local path client | UUID5 point ids, `SearchParams(hnsw_ef=…)` |
 | `vector_store_factory.py` | 16 | Backend switch | `get_vector_store`, `SUPPORTED_VECTOR_STORES` |
@@ -1010,15 +1012,15 @@ Agentic-Job-Matching/
 | `phase11.py` | 529 | Table 10 ANN 40-config sweep | `evaluate_config`, `evaluate_lexical_config` |
 | `research_sweep.py` | 199 | Fair pool comparison + paper-style RRF | `rank_exhaustive`, `rank_ann_pool`, `rrf_fuse` |
 | `metrics.py` | 68 | Shared P/R/nDCG | `eval_rankings`, `ndcg_at_k`, … |
-| `lexical.py` | — | Label loader duplicate for sweep | `load_eval_labels` |
-| `bootstrap.py` | — | Bootstrap utilities | |
-| `progression.py` | — | Older progression variant | |
-| `analyze_gaps.py` | — | Diagnostic script | |
+| `lexical.py` | · | Label loader duplicate for sweep | `load_eval_labels` |
+| `bootstrap.py` | · | Bootstrap utilities | |
+| `progression.py` | · | Older progression variant | |
+| `analyze_gaps.py` | · | Diagnostic script | |
 | **scripts/** | | CLI helpers | |
-| `print_paper_table.py` | — | Print Table 9 from JSON | |
-| `measure_agent_ops.py` | — | Agent endpoint timing | |
-| `sync_real_jobs_once.py` | — | One-shot job sync | |
-| `benchmark_v1.py` | — | Legacy benchmark | |
+| `print_paper_table.py` | · | Print Table 9 from JSON | |
+| `measure_agent_ops.py` | · | Agent endpoint timing | |
+| `sync_real_jobs_once.py` | · | One-shot job sync | |
+| `benchmark_v1.py` | · | Legacy benchmark | |
 | **tests/** | 63 tests | See test inventory below | |
 
 ### Algorithm walkthroughs
@@ -1034,7 +1036,7 @@ Agentic-Job-Matching/
 6. Uvicorn serves app with in-memory resumes[], jobs[], store, active_vector_store
 ```
 
-#### B. POST `/match-resume` (current — exhaustive)
+#### B. POST `/match-resume` (current · exhaustive)
 
 ```
 Input: { name, top_k, strategy, metric }
@@ -1111,22 +1113,22 @@ final = 0.7 * semantic_cosine + 0.3 * soft_score
 
 ---
 
-### RRF configuration — three sources (important)
+### RRF configuration · three sources (important)
 
 | Source | Four lists fused | Matches paper §4 text? |
 |--------|------------------|------------------------|
 | **Paper §4.4** (typical example) | semantic+cosine, semantic+euclidean, multimodal+cosine, multimodal+euclidean (Jaccard) | Reference text |
-| **`research_sweep.py`** | sem cos, mm Jaccard cos w=0.7, sem euc, mm Jaccard euc w=0.7 | **Yes — aligns with paper** |
-| **`paper_progression.py`** (Table 9 row) | sem cos, mm Jaccard cos, **soft embed cos**, mm Jaccard euc | **No — includes soft embed** |
+| **`research_sweep.py`** | sem cos, mm Jaccard cos w=0.7, sem euc, mm Jaccard euc w=0.7 | **Yes · aligns with paper** |
+| **`paper_progression.py`** (Table 9 row) | sem cos, mm Jaccard cos, **soft embed cos**, mm Jaccard euc | **No · includes soft embed** |
 | **Frontend ensemble default** | all 4 strategy×metric combos, weight 1.0 | Matches paper §4 example |
 
 Table 9 RRF nDCG 0.935 comes from **paper_progression** driver (soft embed in fusion), not from research_sweep's paper-aligned four-list fusion.
 
 ---
 
-### Data layer — schemas and examples
+### Data layer · schemas and examples
 
-#### `data/cvs.json` — 30 resumes
+#### `data/cvs.json` · 30 resumes
 
 ```json
 {
@@ -1142,7 +1144,7 @@ Table 9 RRF nDCG 0.935 comes from **paper_progression** driver (soft embed in fu
 
 **IDs:** `cv_01` … `cv_30`. Names are unique lookup keys for API (`name` field).
 
-#### `data/jobs.json` — 15 jobs
+#### `data/jobs.json` · 15 jobs
 
 ```json
 {
@@ -1190,7 +1192,7 @@ Table 9 RRF nDCG 0.935 comes from **paper_progression** driver (soft embed in fu
 
 ---
 
-### API — complete request/response shapes
+### API · complete request/response shapes
 
 #### Match (exhaustive)
 
@@ -1334,7 +1336,7 @@ Table 9 RRF nDCG 0.935 comes from **paper_progression** driver (soft embed in fu
 
 ---
 
-### Bibliography — full entries (`references.bib`)
+### Bibliography · full entries (`references.bib`)
 
 | Key | Authors | Title | Venue | Year | DOI |
 |-----|---------|-------|-------|------|-----|
@@ -1363,7 +1365,7 @@ Table 9 RRF nDCG 0.935 comes from **paper_progression** driver (soft embed in fu
 
 ---
 
-### Environment variables — complete list
+### Environment variables · complete list
 
 | Variable | Default | Module | Effect |
 |----------|---------|--------|--------|
@@ -1404,13 +1406,13 @@ Table 9 RRF nDCG 0.935 comes from **paper_progression** driver (soft embed in fu
 | §6.1–6.4 | Small corpus caveats; dual drivers; pool size caps recall |
 | §7.1–7.5 | Soft embed best exhaustive; ANN Jaccard best store row; bootstrap n.s. |
 | §8 | Integrated stack + honest limits + agentic workflows for JAAMAS |
-| §9.1–9.5 | Autonomy, preferences, scale, data, taxonomy — migration roadmap |
+| §9.1–9.5 | Autonomy, preferences, scale, data, taxonomy · migration roadmap |
 
 ---
 
 ## Ultra-detailed Reference (v4)
 
-### Manuscript abstract — verbatim (`main.tex`)
+### Manuscript abstract · verbatim (`main.tex`)
 
 > Lexical matching fails when resumes and postings use different words for the same skill. Semantic similarity alone can still miss structured constraints unless representation, indexing, fusion, and graded labels are assessed separately.
 >
@@ -1422,7 +1424,7 @@ Table 9 RRF nDCG 0.935 comes from **paper_progression** driver (soft embed in fu
 
 ---
 
-### Complete evaluation corpus — all 30 resumes
+### Complete evaluation corpus · all 30 resumes
 
 | ID | Name | Skills | Exp | Remote | Summary theme |
 |----|------|--------|-----|--------|---------------|
@@ -1457,11 +1459,11 @@ Table 9 RRF nDCG 0.935 comes from **paper_progression** driver (soft embed in fu
 | cv_29 | Om Prakash | Rust, Systems Programming, Concurrency | 4 | no | Systems/Rust |
 | cv_30 | Zoya Khan | UX Research, User Testing, Prototyping | 3 | yes | UX research |
 
-**Salary fields:** `preferred_salary` on each resume (85k–150k range) — stored but **not used in scoring** or encoding templates.
+**Salary fields:** `preferred_salary` on each resume (85k–150k range) · stored but **not used in scoring** or encoding templates.
 
 ---
 
-### Complete job corpus — all 15 postings
+### Complete job corpus · all 15 postings
 
 | ID | Title | Required skills | Min exp | Budget | Remote |
 |----|-------|-----------------|---------|--------|--------|
@@ -1485,7 +1487,7 @@ Table 9 RRF nDCG 0.935 comes from **paper_progression** driver (soft embed in fu
 
 ---
 
-### Complete graded judgments — all 47 pairs (per query)
+### Complete graded judgments · all 47 pairs (per query)
 
 | Query | Candidate | rel=2 (strong) | rel=1 (partial) |
 |-------|-----------|----------------|-----------------|
@@ -1495,32 +1497,32 @@ Table 9 RRF nDCG 0.935 comes from **paper_progression** driver (soft embed in fu
 | cv_04 | Neha Kapoor | Data Analyst | BI Analyst |
 | cv_05 | Vikram Rao | DevOps Engineer | Cloud Architect |
 | cv_06 | Sneha Iyer | ML Engineer | NLP Engineer |
-| cv_07 | Rohit Singh | — | Backend Engineer |
-| cv_08 | Ananya Das | UI/UX Designer | — |
+| cv_07 | Rohit Singh | · | Backend Engineer |
+| cv_08 | Ananya Das | UI/UX Designer | · |
 | cv_09 | Karan Malhotra | Cloud Architect | DevOps Engineer |
 | cv_10 | Meera Nair | BI Analyst | Data Analyst |
-| cv_11 | Amit Tiwari | — | Backend Engineer, Systems Engineer |
+| cv_11 | Amit Tiwari | · | Backend Engineer, Systems Engineer |
 | cv_12 | Pooja Shah | NLP Engineer | ML Engineer |
-| cv_13 | Sahil Gupta | Frontend Developer | — |
+| cv_13 | Sahil Gupta | Frontend Developer | · |
 | cv_14 | Ritika Jain | ML Engineer | Data Analyst |
-| cv_15 | Aditya Rao | Systems Engineer | — |
+| cv_15 | Aditya Rao | Systems Engineer | · |
 | cv_16 | Isha Kapoor | Mobile Developer | Frontend Developer |
 | cv_17 | Harsh Vardhan | DevOps Engineer | Cloud Architect |
 | cv_18 | Tanvi Sharma | ML Engineer | Data Analyst |
-| cv_19 | Manav Khanna | Cybersecurity Engineer | — |
-| cv_20 | Ayesha Ali | Product Manager | — |
-| cv_21 | Nikhil Bansal | — | Data Analyst |
-| cv_22 | Simran Kaur | — | BI Analyst, Data Analyst |
-| cv_23 | Dev Patel | — | Mobile Developer |
-| cv_24 | Kavya Reddy | — | ML Engineer, NLP Engineer |
-| cv_25 | Yash Agarwal | Blockchain Developer | — |
-| cv_26 | Rhea Thomas | — | BI Analyst |
+| cv_19 | Manav Khanna | Cybersecurity Engineer | · |
+| cv_20 | Ayesha Ali | Product Manager | · |
+| cv_21 | Nikhil Bansal | · | Data Analyst |
+| cv_22 | Simran Kaur | · | BI Analyst, Data Analyst |
+| cv_23 | Dev Patel | · | Mobile Developer |
+| cv_24 | Kavya Reddy | · | ML Engineer, NLP Engineer |
+| cv_25 | Yash Agarwal | Blockchain Developer | · |
+| cv_26 | Rhea Thomas | · | BI Analyst |
 | cv_27 | Kabir Sethi | Data Engineer | Cloud Architect |
-| cv_28 | Naina Bhatia | — | Product Manager |
-| cv_29 | Om Prakash | Systems Engineer | — |
-| cv_30 | Zoya Khan | — | UI/UX Designer |
+| cv_28 | Naina Bhatia | · | Product Manager |
+| cv_29 | Om Prakash | Systems Engineer | · |
+| cv_30 | Zoya Khan | · | UI/UX Designer |
 
-**Queries with only partial labels (no rel=2):** cv_07, cv_11, cv_21, cv_22, cv_23, cv_24, cv_26, cv_28, cv_30 — harder for nDCG (ideal ranking mixes 1s only).
+**Queries with only partial labels (no rel=2):** cv_07, cv_11, cv_21, cv_22, cv_23, cv_24, cv_26, cv_28, cv_30 · harder for nDCG (ideal ranking mixes 1s only).
 
 **Job label frequency (how often each job is judged relevant):**
 
@@ -1542,7 +1544,7 @@ Table 9 RRF nDCG 0.935 comes from **paper_progression** driver (soft embed in fu
 
 ---
 
-### Measured metrics — exact floats (`paper_progression_summary.json`)
+### Measured metrics · exact floats (`paper_progression_summary.json`)
 
 | Method | P@5 (exact) | R@5 (exact) | nDCG@5 (exact) |
 |--------|-------------|-------------|----------------|
@@ -1569,64 +1571,64 @@ Table 9 RRF nDCG 0.935 comes from **paper_progression** driver (soft embed in fu
 
 ---
 
-### Phase11 — all 40 configurations (`phase11_summary.csv`, exact floats)
+### Phase11 · all 40 configurations (`phase11_summary.csv`, exact floats)
 
 | # | Store | Strategy | Metric | w | Space | ef | P@5 | R@5 | nDCG@5 | avg ms | p95 ms |
 |---|-------|----------|--------|---|-------|-----|-----|-----|--------|--------|--------|
-| 1 | chroma | semantic | cosine | — | cosine | — | 0.2667 | 0.8667 | 0.8845 | 0.805 | 0.891 |
-| 2 | chroma | semantic | cosine | — | l2 | — | 0.2667 | 0.8667 | 0.8845 | 0.742 | 0.856 |
-| 3 | chroma | semantic | euclidean | — | cosine | — | 0.2667 | 0.8667 | 0.8845 | 0.724 | 0.864 |
-| 4 | chroma | semantic | euclidean | — | l2 | — | 0.2667 | 0.8667 | 0.8845 | 0.743 | 0.827 |
-| 5 | chroma | multimodal | cosine | 0.8 | cosine | — | 0.2800 | 0.9167 | 0.9010 | 0.753 | 0.871 |
-| 6 | chroma | multimodal | cosine | **0.7** | cosine | — | 0.2800 | 0.9167 | **0.9132** | 0.666 | 0.741 |
-| 7 | chroma | multimodal | cosine | 0.6 | cosine | — | 0.2800 | 0.9167 | 0.9132 | 0.661 | 0.738 |
-| 8 | chroma | multimodal | cosine | 0.5 | cosine | — | 0.2800 | 0.9167 | 0.9132 | 0.662 | 0.727 |
-| 9 | chroma | multimodal | cosine | 0.8 | l2 | — | 0.2800 | 0.9167 | 0.9010 | 0.650 | 0.718 |
-| 10 | chroma | multimodal | cosine | 0.7 | l2 | — | 0.2800 | 0.9167 | 0.9132 | 0.712 | 0.835 |
-| 11 | chroma | multimodal | cosine | 0.6 | l2 | — | 0.2800 | 0.9167 | 0.9132 | 0.731 | 0.837 |
-| 12 | chroma | multimodal | cosine | 0.5 | l2 | — | 0.2800 | 0.9167 | 0.9132 | 0.751 | 0.839 |
-| 13 | chroma | multimodal | euclidean | 0.8 | cosine | — | 0.2800 | 0.9167 | 0.9132 | 0.786 | 0.902 |
-| 14 | chroma | multimodal | euclidean | 0.7 | cosine | — | 0.2800 | 0.9167 | 0.9132 | 0.786 | 0.892 |
-| 15 | chroma | multimodal | euclidean | 0.6 | cosine | — | 0.2800 | 0.9167 | 0.9132 | 0.814 | 0.991 |
-| 16 | chroma | multimodal | euclidean | 0.5 | cosine | — | 0.2800 | 0.9167 | 0.9132 | 0.779 | 0.870 |
-| 17 | chroma | multimodal | euclidean | 0.8 | l2 | — | 0.2800 | 0.9167 | 0.9132 | 0.737 | 0.823 |
-| 18 | chroma | multimodal | euclidean | 0.7 | l2 | — | 0.2800 | 0.9167 | 0.9132 | 0.741 | 0.828 |
-| 19 | chroma | multimodal | euclidean | 0.6 | l2 | — | 0.2800 | 0.9167 | 0.9132 | 0.785 | 1.000 |
-| 20 | chroma | multimodal | euclidean | 0.5 | l2 | — | 0.2800 | 0.9167 | 0.9132 | 0.732 | 0.855 |
-| 21 | qdrant | semantic | cosine | — | — | 64 | 0.2667 | 0.8667 | 0.8845 | **0.384** | 0.483 |
-| 22 | qdrant | semantic | cosine | — | — | 128 | 0.2667 | 0.8667 | 0.8845 | 0.376 | 0.429 |
-| 23 | qdrant | semantic | euclidean | — | — | 64 | 0.2667 | 0.8667 | 0.8845 | 0.364 | 0.405 |
-| 24 | qdrant | semantic | euclidean | — | — | 128 | 0.2667 | 0.8667 | 0.8845 | 0.399 | 0.548 |
-| 25 | qdrant | multimodal | cosine | 0.8 | — | 64 | 0.2800 | 0.9167 | 0.9010 | 0.413 | 0.572 |
-| 26 | qdrant | multimodal | cosine | **0.7** | — | 64 | 0.2800 | 0.9167 | **0.9132** | 0.432 | 0.587 |
-| 27 | qdrant | multimodal | cosine | 0.6 | — | 64 | 0.2800 | 0.9167 | 0.9132 | 0.378 | 0.514 |
-| 28 | qdrant | multimodal | cosine | 0.5 | — | 64 | 0.2800 | 0.9167 | 0.9132 | 0.438 | 0.615 |
-| 29 | qdrant | multimodal | cosine | 0.8 | — | 128 | 0.2800 | 0.9167 | 0.9010 | 0.403 | 0.576 |
-| 30 | qdrant | multimodal | cosine | 0.7 | — | 128 | 0.2800 | 0.9167 | 0.9132 | 0.376 | 0.502 |
-| 31 | qdrant | multimodal | cosine | 0.6 | — | 128 | 0.2800 | 0.9167 | 0.9132 | 0.390 | 0.524 |
-| 32 | qdrant | multimodal | cosine | 0.5 | — | 128 | 0.2800 | 0.9167 | 0.9132 | 0.384 | 0.519 |
-| 33 | qdrant | multimodal | euclidean | 0.8 | — | 64 | 0.2800 | 0.9167 | 0.9132 | 0.380 | 0.435 |
-| 34 | qdrant | multimodal | euclidean | 0.7 | — | 64 | 0.2800 | 0.9167 | 0.9132 | 0.375 | 0.503 |
-| 35 | qdrant | multimodal | euclidean | 0.6 | — | 64 | 0.2800 | 0.9167 | 0.9132 | 0.409 | 0.555 |
-| 36 | qdrant | multimodal | euclidean | 0.5 | — | 64 | 0.2800 | 0.9167 | 0.9132 | 0.383 | 0.510 |
-| 37 | qdrant | multimodal | euclidean | 0.8 | — | 128 | 0.2800 | 0.9167 | 0.9132 | 0.387 | 0.522 |
-| 38 | qdrant | multimodal | euclidean | 0.7 | — | 128 | 0.2800 | 0.9167 | 0.9132 | 0.408 | 0.547 |
-| 39 | qdrant | multimodal | euclidean | 0.6 | — | 128 | 0.2800 | 0.9167 | 0.9132 | 0.419 | 0.648 |
-| 40 | qdrant | multimodal | euclidean | 0.5 | — | 128 | 0.2800 | 0.9167 | 0.9132 | 0.364 | 0.464 |
+| 1 | chroma | semantic | cosine | · | cosine | · | 0.2667 | 0.8667 | 0.8845 | 0.805 | 0.891 |
+| 2 | chroma | semantic | cosine | · | l2 | · | 0.2667 | 0.8667 | 0.8845 | 0.742 | 0.856 |
+| 3 | chroma | semantic | euclidean | · | cosine | · | 0.2667 | 0.8667 | 0.8845 | 0.724 | 0.864 |
+| 4 | chroma | semantic | euclidean | · | l2 | · | 0.2667 | 0.8667 | 0.8845 | 0.743 | 0.827 |
+| 5 | chroma | multimodal | cosine | 0.8 | cosine | · | 0.2800 | 0.9167 | 0.9010 | 0.753 | 0.871 |
+| 6 | chroma | multimodal | cosine | **0.7** | cosine | · | 0.2800 | 0.9167 | **0.9132** | 0.666 | 0.741 |
+| 7 | chroma | multimodal | cosine | 0.6 | cosine | · | 0.2800 | 0.9167 | 0.9132 | 0.661 | 0.738 |
+| 8 | chroma | multimodal | cosine | 0.5 | cosine | · | 0.2800 | 0.9167 | 0.9132 | 0.662 | 0.727 |
+| 9 | chroma | multimodal | cosine | 0.8 | l2 | · | 0.2800 | 0.9167 | 0.9010 | 0.650 | 0.718 |
+| 10 | chroma | multimodal | cosine | 0.7 | l2 | · | 0.2800 | 0.9167 | 0.9132 | 0.712 | 0.835 |
+| 11 | chroma | multimodal | cosine | 0.6 | l2 | · | 0.2800 | 0.9167 | 0.9132 | 0.731 | 0.837 |
+| 12 | chroma | multimodal | cosine | 0.5 | l2 | · | 0.2800 | 0.9167 | 0.9132 | 0.751 | 0.839 |
+| 13 | chroma | multimodal | euclidean | 0.8 | cosine | · | 0.2800 | 0.9167 | 0.9132 | 0.786 | 0.902 |
+| 14 | chroma | multimodal | euclidean | 0.7 | cosine | · | 0.2800 | 0.9167 | 0.9132 | 0.786 | 0.892 |
+| 15 | chroma | multimodal | euclidean | 0.6 | cosine | · | 0.2800 | 0.9167 | 0.9132 | 0.814 | 0.991 |
+| 16 | chroma | multimodal | euclidean | 0.5 | cosine | · | 0.2800 | 0.9167 | 0.9132 | 0.779 | 0.870 |
+| 17 | chroma | multimodal | euclidean | 0.8 | l2 | · | 0.2800 | 0.9167 | 0.9132 | 0.737 | 0.823 |
+| 18 | chroma | multimodal | euclidean | 0.7 | l2 | · | 0.2800 | 0.9167 | 0.9132 | 0.741 | 0.828 |
+| 19 | chroma | multimodal | euclidean | 0.6 | l2 | · | 0.2800 | 0.9167 | 0.9132 | 0.785 | 1.000 |
+| 20 | chroma | multimodal | euclidean | 0.5 | l2 | · | 0.2800 | 0.9167 | 0.9132 | 0.732 | 0.855 |
+| 21 | qdrant | semantic | cosine | · | · | 64 | 0.2667 | 0.8667 | 0.8845 | **0.384** | 0.483 |
+| 22 | qdrant | semantic | cosine | · | · | 128 | 0.2667 | 0.8667 | 0.8845 | 0.376 | 0.429 |
+| 23 | qdrant | semantic | euclidean | · | · | 64 | 0.2667 | 0.8667 | 0.8845 | 0.364 | 0.405 |
+| 24 | qdrant | semantic | euclidean | · | · | 128 | 0.2667 | 0.8667 | 0.8845 | 0.399 | 0.548 |
+| 25 | qdrant | multimodal | cosine | 0.8 | · | 64 | 0.2800 | 0.9167 | 0.9010 | 0.413 | 0.572 |
+| 26 | qdrant | multimodal | cosine | **0.7** | · | 64 | 0.2800 | 0.9167 | **0.9132** | 0.432 | 0.587 |
+| 27 | qdrant | multimodal | cosine | 0.6 | · | 64 | 0.2800 | 0.9167 | 0.9132 | 0.378 | 0.514 |
+| 28 | qdrant | multimodal | cosine | 0.5 | · | 64 | 0.2800 | 0.9167 | 0.9132 | 0.438 | 0.615 |
+| 29 | qdrant | multimodal | cosine | 0.8 | · | 128 | 0.2800 | 0.9167 | 0.9010 | 0.403 | 0.576 |
+| 30 | qdrant | multimodal | cosine | 0.7 | · | 128 | 0.2800 | 0.9167 | 0.9132 | 0.376 | 0.502 |
+| 31 | qdrant | multimodal | cosine | 0.6 | · | 128 | 0.2800 | 0.9167 | 0.9132 | 0.390 | 0.524 |
+| 32 | qdrant | multimodal | cosine | 0.5 | · | 128 | 0.2800 | 0.9167 | 0.9132 | 0.384 | 0.519 |
+| 33 | qdrant | multimodal | euclidean | 0.8 | · | 64 | 0.2800 | 0.9167 | 0.9132 | 0.380 | 0.435 |
+| 34 | qdrant | multimodal | euclidean | 0.7 | · | 64 | 0.2800 | 0.9167 | 0.9132 | 0.375 | 0.503 |
+| 35 | qdrant | multimodal | euclidean | 0.6 | · | 64 | 0.2800 | 0.9167 | 0.9132 | 0.409 | 0.555 |
+| 36 | qdrant | multimodal | euclidean | 0.5 | · | 64 | 0.2800 | 0.9167 | 0.9132 | 0.383 | 0.510 |
+| 37 | qdrant | multimodal | euclidean | 0.8 | · | 128 | 0.2800 | 0.9167 | 0.9132 | 0.387 | 0.522 |
+| 38 | qdrant | multimodal | euclidean | 0.7 | · | 128 | 0.2800 | 0.9167 | 0.9132 | 0.408 | 0.547 |
+| 39 | qdrant | multimodal | euclidean | 0.6 | · | 128 | 0.2800 | 0.9167 | 0.9132 | 0.419 | 0.648 |
+| 40 | qdrant | multimodal | euclidean | 0.5 | · | 128 | 0.2800 | 0.9167 | 0.9132 | 0.364 | 0.464 |
 
 **Key observations:**
-- All semantic configs (rows 1–4, 21–24) share identical P/R/nDCG — metric choice is cosmetic when space matches.
+- All semantic configs (rows 1–4, 21–24) share identical P/R/nDCG · metric choice is cosmetic when space matches.
 - Multimodal w≥0.6 ties on nDCG@5=0.9132; w=0.8 drops to 0.9010 for cosine metric only.
 - Qdrant HNSW: `_M=16`, `_EF_CONSTRUCT=128` fixed in CSV; only `hnsw_ef` varies (64 vs 128).
 - Chroma avg latency ~0.66–0.81 ms (semantic row 1 worst at 0.805); Qdrant ~0.36–0.44 ms (~2× faster).
 
 ---
 
-### API — HTTP status and error matrix
+### API · HTTP status and error matrix
 
 | Route | Success | Error conditions | Response body on error |
 |-------|---------|------------------|------------------------|
-| GET /resumes, /jobs, … | 200 | — | — |
+| GET /resumes, /jobs, … | 200 | · | · |
 | POST /match-resume | 200 | unknown name | `{"error": "Resume not found"}` (still 200) |
 | POST /match-job | 200 | unknown title | `{"error": "Job not found"}` |
 | POST /match-*-ensemble | 200 | empty searches | **400** `"At least one search config is required"` |
@@ -1719,7 +1721,7 @@ Written to `data/daily_recommendations_YYYY-MM-DD.json`:
 
 ---
 
-### Frontend — helper function catalog (`App.jsx`)
+### Frontend · helper function catalog (`App.jsx`)
 
 | Function | Lines | Purpose |
 |----------|-------|---------|
@@ -1733,9 +1735,9 @@ Written to `data/daily_recommendations_YYYY-MM-DD.json`:
 | `normalizedResults` | ~660 | Apply normalization |
 | `enrichedResults` | ~677 | Attach explanation, band, scorePercent |
 | `handleMatch` | ~859 | Route to match / ensemble / daily rec endpoints |
-| `handleVectorStoreChange` | — | POST switch + reload config |
-| `handleSyncRealJobs` | — | POST /real-jobs/sync |
-| `handleRunDailyAgent` | — | POST agent batch |
+| `handleVectorStoreChange` | · | POST switch + reload config |
+| `handleSyncRealJobs` | · | POST /real-jobs/sync |
+| `handleRunDailyAgent` | · | POST agent batch |
 
 **localStorage keys (exact):**
 - `jobMatcher.savedConfigs.v1`
@@ -1789,7 +1791,7 @@ benchmarks.phase11
 
 ---
 
-### Chroma vs Qdrant — implementation comparison
+### Chroma vs Qdrant · implementation comparison
 
 | Aspect | Chroma (`vector_store.py`) | Qdrant (`qdrant_vector_store.py`) |
 |--------|---------------------------|-----------------------------------|
@@ -1822,7 +1824,7 @@ benchmarks.phase11
 
 ---
 
-### Test suite — every test with assertion focus
+### Test suite · every test with assertion focus
 
 | Test | Asserts |
 |------|---------|
@@ -1849,26 +1851,26 @@ benchmarks.phase11
 
 ---
 
-### Architecture migration — expanded checklist
+### Architecture migration · expanded checklist
 
-**Phase A — Preserve evaluation contract**
+**Phase A · Preserve evaluation contract**
 - [ ] Keep `data/eval_pairs.json` byte-identical or version with changelog
 - [ ] Keep `benchmarks.paper_progression` and `phase11` drivers runnable
 - [ ] Document any new protocol separately (don't overwrite Table 9/10 without re-run)
 
-**Phase B — Resolve paper↔code gaps before resubmit**
+**Phase B · Resolve paper↔code gaps before resubmit**
 - [ ] Implement or remove LLM/Ollama rerank (§4, §5, Fig 6)
 - [ ] Add `skills_mode` to API or revise §5.2 frontend claims
 - [ ] Align RRF list in `paper_progression.py` with §4 text OR update §4
 - [ ] Decide match endpoint: ANN-first vs exhaustive (§9.3)
 
-**Phase C — Manuscript sync**
+**Phase C · Manuscript sync**
 - [ ] §3 Fig 1–7 redraw if layers change
 - [ ] §5 Table 6 if routes change
 - [ ] Abstract + portal + README if metrics change
 - [ ] Rebuild Overleaf zip + supplementary JSON/CSV
 
-**Phase D — New architecture documentation**
+**Phase D · New architecture documentation**
 - [ ] Update this knowledge graph
 - [ ] Technical report `docs/latex/body.tex` if still maintained
 
@@ -1876,13 +1878,13 @@ benchmarks.phase11
 
 ## Table of Contents
 
-- [Module: rewrite (current)](#module-rewrite-current) (28 entries — **start here**)
-- [Module: research evaluation](#module-research-evaluation) (16 entries — **offline pipeline**)
-- [Module: backend (legacy monolith)](#module-backend-legacy-monolith) (35+ entries — `app.py` removed)
-- [Module: frontend (legacy)](#module-frontend) (4 entries — see rewrite for current portals)
+- [Module: rewrite (current)](#module-rewrite-current) (36 entries · **start here**)
+- [Module: research evaluation](#module-research-evaluation) (16 entries · **offline pipeline**)
+- [Module: backend (legacy monolith)](#module-backend-legacy-monolith) (35+ entries · `app.py` removed)
+- [Module: frontend (legacy)](#module-frontend) (4 entries · see rewrite for current portals)
 - [Module: data](#module-data) (3 entries)
 - [Module: submission-pdfs](#module-submission-pdfs) (3 entries)
-- [Module: docs/submission/jaamas](#module-docssubmissionjaamas) (manuscript source — see also **JAAMAS Manuscript** section above)
+- [Module: docs/submission/jaamas](#module-docssubmissionjaamas) (manuscript source · see also **JAAMAS Manuscript** section above)
 - [Module: docs](#module-docs) (5 entries)
 - [Module: root](#module-root) (2 entries)
 
@@ -1898,7 +1900,9 @@ benchmarks.phase11
 | `agents/matchmaking_agent.py` | `core/matchmaking_scoring.py` | score_pair_advanced, routing, RRF |
 | `core/scoring.py` | `core/component_scores.py` | compute_composite five-signal blend |
 | `frontend/src/api/client.js` | `gateway/routes/*` | axios withCredentials; default strategy composite |
-| `frontend/src/pages/candidate/Matches.jsx` | `api/client.runMatch` | Profile gate + refresh on visibility |
+| `frontend/src/pages/candidate/Matches.jsx` | `api/client.runMatch` | Profile gate (none/incomplete/stale/ready) + auto-search after onboarding save |
+| `frontend/src/utils/profileFields.js` | `api/client.fetchMyProfileOrNull` | Readiness + stale marker mapping for portal gates |
+| `auth/store.py` | `gateway/routes/employers.py` | `get_job_owner`, `link_job_if_unowned` on POST /jobs |
 | `auth/store.py` | `gateway/routes/candidates.py` | candidate_ownership link for GET/PUT /me |
 | `stores/feedback_store.py` | `gateway/routes/feedback.py` | user_feedback UI state (no ranking change) |
 | `demo_seed.py` | `auth/store`, corpus | Links demo.candidate → cv_01 Rahul Sharma |
@@ -1909,7 +1913,7 @@ benchmarks.phase11
 | `docs/research/RESEARCH-PAPER.md` | `backend/reports/research_run_*/` | Manuscript numbers from reports only |
 | `README.md` | `docs/design/HLD*.md`, `HANDOFF.md` | Onboarding + architecture pointers |
 
-**Legacy (monolith — removed):** `frontend/App.jsx` → `backend/app.py` (no longer exists)
+**Legacy (monolith · removed):** `frontend/App.jsx` → `backend/app.py` (no longer exists)
 
 ---
 
@@ -1948,7 +1952,7 @@ frontend/src/
 
 ### backend/main.py
 **Language:** python | **Importance:** HIGH | **Indexed:** 2026-05-27  
-**Purpose:** Uvicorn factory entry — creates SystemContainer then builds FastAPI gateway.  
+**Purpose:** Uvicorn factory entry · creates SystemContainer then builds FastAPI gateway.  
 **Dependencies:** imports from: `bootstrap`, `gateway.app` | used by: uvicorn CLI  
 **Core Logic:** `create_app()` returns `build_gateway(create_system())`. No routes here.  
 **Patterns:** factory
@@ -1957,7 +1961,7 @@ frontend/src/
 
 ### backend/bootstrap.py
 **Language:** python | **Importance:** HIGH | **Indexed:** 2026-05-27  
-**Purpose:** Composition root — wires event bus, three agents, vector stores, SQLite feedback/activity, optional fusion/calibration models.  
+**Purpose:** Composition root · wires event bus, three agents, vector stores, SQLite feedback/activity, optional fusion/calibration models.  
 **Key Elements:** `SystemContainer`, `create_system`  
 **Dependencies:** imports from: `agents/*`, `stores/factory`, `stores/feedback_store`, `bus/event_bus` | used by: `main.py`, `gateway/app.py`, tests  
 **Core Logic:** Creates Candidate + Employer agents with Chroma collections; MatchmakingAgent subscribes to profile events; bootstraps corpus from `data/cvs.json` + `data/jobs.json`; publishes `CorpusBootstrapped`.  
@@ -1972,7 +1976,7 @@ frontend/src/
 
 ### backend/gateway/app.py
 **Language:** python | **Importance:** HIGH | **Indexed:** 2026-05-27  
-**Purpose:** FastAPI application assembly — mounts routers, session middleware, read-only guard, demo seed.  
+**Purpose:** FastAPI application assembly · mounts routers, session middleware, read-only guard, demo seed.  
 **Key Elements:** `build_gateway`  
 **Dependencies:** imports from: route modules, `auth.routes`, `demo_seed`, `ReadOnlyMiddleware` | used by: `main.py`  
 **Core Logic:** Stores SystemContainer on `app.state.container`; UserStore on `app.state.auth_store`; calls `seed_demo_accounts` when `SEED_DEMO=true`. Session cookie `jm_session`, 7-day max age.  
@@ -1982,7 +1986,7 @@ frontend/src/
 
 ### backend/agents/matchmaking_agent.py
 **Language:** python | **Importance:** HIGH | **Indexed:** 2026-05-27  
-**Purpose:** Neutral broker — scores candidate–job pairs, ranks, explains; reads snapshots only.  
+**Purpose:** Neutral broker · scores candidate–job pairs, ranks, explains; reads snapshots only.  
 **Key Elements:** `MatchmakingAgent`, `MatchSession`, `register_handlers`  
 **Dependencies:** imports from: candidate/employer agents, `core/matchmaking_scoring`, `core/rrf`, explainer | used by: `bootstrap`, `gateway/routes/matching`  
 **Core Logic:** Subscribes to profile update events to invalidate cache. `_score_pair` delegates to `score_pair_advanced` (composite, semantic, multimodal, learned fusion). Supports ensemble RRF, daily batch ANN, cross-encoder rerank hook.  
@@ -1997,7 +2001,7 @@ frontend/src/
 
 ### backend/core/scoring.py
 **Language:** python | **Importance:** HIGH | **Indexed:** 2026-05-27  
-**Purpose:** Core scoring functions — semantic, multimodal weighted, and **composite** (product default).  
+**Purpose:** Core scoring functions · semantic, multimodal weighted, and **composite** (product default).  
 **Key Elements:** `COMPOSITE_WEIGHTS`, `compute_semantic`, `compute_multimodal_weighted`, `compute_composite`  
 **Dependencies:** imports from: `component_scores`, `similarity`, `skills` | used by: `matchmaking_scoring`, benchmarks  
 **Core Logic:** Composite blends five signals with fixed weights 40/30/15/10/5%; clamps final to [0,1].  
@@ -2011,7 +2015,7 @@ frontend/src/
 
 ### backend/core/matchmaking_scoring.py
 **Language:** python | **Importance:** HIGH | **Indexed:** 2026-05-27  
-**Purpose:** Advanced scoring orchestration — strategy routing, constraints, calibration, feedback boost hook.  
+**Purpose:** Advanced scoring orchestration · strategy routing, constraints, calibration, feedback boost hook.  
 **Key Elements:** `score_pair_advanced`, `resolve_routing`  
 **Dependencies:** imports from: `scoring`, `constraints`, `calibration`, `fusion`, `strategy_router` | used by: `matchmaking_agent`  
 **Core Logic:** Dispatches strategy string to compute_semantic, compute_multimodal_weighted, compute_composite, or learned fusion path.
@@ -2037,7 +2041,7 @@ frontend/src/
 
 ### backend/core/resume_suggestions.py
 **Language:** python | **Importance:** MEDIUM | **Indexed:** 2026-05-27  
-**Purpose:** Read-only resume coach — role-targeted improvement tips via LLM for a specific job.  
+**Purpose:** Read-only resume coach · role-targeted improvement tips via LLM for a specific job.  
 **Used by:** `POST /candidates/me/resume-suggestions`
 
 ---
@@ -2050,31 +2054,31 @@ frontend/src/
 ---
 
 ### backend/gateway/routes/candidates.py
-**Language:** python | **Importance:** HIGH | **Indexed:** 2026-05-27  
-**Purpose:** Candidate API — list, get mine, upsert, resume upload, saved jobs, applications, resume suggestions.  
-**Key Elements:** `_upsert_my_candidate`, `_sanitize_profile_payload`, `upload_resume`  
+**Language:** python | **Importance:** HIGH | **Indexed:** 2026-05-27 (refreshed)  
+**Purpose:** Candidate API · list, get mine, upsert, resume upload, saved jobs, applications, resume suggestions.  
+**Key Elements:** `_upsert_my_candidate`, `_sanitize_profile_payload`, `upload_resume`, GET `/me`  
 **Dependencies:** imports from: auth deps, candidate agent, resume_clean, contact_extract, llm_parser | used by: frontend client  
-**Core Logic:** PUT /me always upserts — creates with generated id if no ownership link; strips empty id from payload. Upload: clean text → regex contacts → LLM parse with unavailable fallback.  
+**Core Logic:** PUT /me always upserts · creates with generated id if no ownership link; strips empty id from payload. GET /me returns 404 `NOT_FOUND` when no link, 404 `PROFILE_NOT_FOUND` when link exists but agent profile missing (restart recovery via PUT). Upload: clean text → regex contacts → LLM parse with unavailable fallback.  
 **Patterns:** FastAPI router, role-guarded
 
 #### _upsert_my_candidate(raw, request, user)
 **Purpose:** Single code path for profile create/update.  
-**Calls:** `candidate_agent.register`, `auth_store.link_candidate` — idempotent link.  
+**Calls:** `candidate_agent.register`, `auth_store.link_candidate` · idempotent link.  
 **Called by:** PUT /me, POST /candidates when logged-in candidate.
 
 ---
 
 ### backend/gateway/routes/employers.py
-**Language:** python | **Importance:** HIGH | **Indexed:** 2026-05-27  
-**Purpose:** Employer job API — list mine, upload JD file, **parse pasted JD text**, update jobs, applications feed.  
-**Key Elements:** `_parse_job_description_text`, `parse_description`, `upload_description`  
-**Core Logic:** Paste and file upload share same LLM parser path with manual fallback.
+**Language:** python | **Importance:** HIGH | **Indexed:** 2026-05-27 (refreshed)  
+**Purpose:** Employer job API · list mine, register job, upload JD file, parse pasted JD text, update/close jobs.  
+**Key Elements:** `register_job`, `_parse_job_description_text`, `_employer_owns_job`, `_slug_job_id`  
+**Core Logic:** POST /jobs for employers auto-slugs id from title when omitted; calls `link_job_if_unowned`. Before register, rejects 403 `JOB_NOT_OWNED` if job id owned by another user. Paste and file upload share same LLM parser path with manual fallback. PUT/PATCH `/mine/{id}` require ownership via auth store.
 
 ---
 
 ### backend/gateway/routes/matching.py
 **Language:** python | **Importance:** HIGH | **Indexed:** 2026-05-27  
-**Purpose:** Match endpoints — candidate-to-jobs, job-to-candidates, ensemble, daily-batch; legacy aliases.  
+**Purpose:** Match endpoints · candidate-to-jobs, job-to-candidates, ensemble, daily-batch; legacy aliases.  
 **Used by:** admin console, portal runMatch, curl smoke tests
 
 ---
@@ -2093,10 +2097,10 @@ frontend/src/
 ---
 
 ### backend/auth/store.py
-**Language:** python | **Importance:** HIGH | **Indexed:** 2026-05-27  
+**Language:** python | **Importance:** HIGH | **Indexed:** 2026-05-27 (refreshed)  
 **Purpose:** SQLite user store + candidate/job ownership links.  
-**Key Elements:** `UserStore`, `link_candidate`, `get_candidate_id`, `link_job_if_unowned`  
-**Core Logic:** `link_candidate` is idempotent — same id no-ops, different id updates. Ownership link kept on GET 404 so PUT recreates profile at stable id after restart.  
+**Key Elements:** `UserStore`, `link_candidate`, `get_candidate_id`, `get_job_owner`, `link_job_if_unowned`, `list_job_ids`  
+**Core Logic:** `link_candidate` is idempotent · same id no-ops, different id updates. `link_job_if_unowned` inserts only when unowned; returns True if caller already owns. `get_job_owner` used by POST /jobs to block cross-tenant id hijack. Ownership link kept on GET 404 so PUT recreates profile at stable id after restart.  
 **Patterns:** OOP, sqlite3
 
 ---
@@ -2104,7 +2108,7 @@ frontend/src/
 ### backend/stores/feedback_store.py
 **Language:** python | **Importance:** MEDIUM | **Indexed:** 2026-05-27  
 **Purpose:** SQLite tables `user_feedback` (portal UI state) and `match_feedback` (legacy research).  
-**Core Logic:** Feedback actions do not alter match rankings — UI state only.
+**Core Logic:** Feedback actions do not alter match rankings · UI state only.
 
 ---
 
@@ -2117,34 +2121,93 @@ frontend/src/
 ---
 
 ### frontend/src/api/client.js
-**Language:** javascript | **Importance:** HIGH | **Indexed:** 2026-05-27  
-**Purpose:** Axios API client — all portal HTTP calls with session cookies.  
-**Key Elements:** `DEFAULT_CANDIDATE_MATCH`, `upsertCandidateProfile`, `fetchMyProfileOrNull`, `runMatch`, `parseJobDescriptionText`  
-**Core Logic:** Default match strategy is `composite`. `saveCandidateProfile` delegates to PUT upsert. `fetchMyProfileOrNull` swallows 404 for profile gate.  
+**Language:** javascript | **Importance:** HIGH | **Indexed:** 2026-05-27 (refreshed)  
+**Purpose:** Axios API client · all portal HTTP calls with session cookies.  
+**Key Elements:** `DEFAULT_CANDIDATE_MATCH`, `upsertCandidateProfile`, `fetchMyProfileOrNull`, `PROFILE_STALE_MARKER`, `runMatch`, `parseJobDescriptionText`  
+**Core Logic:** Default match strategy is `composite`. `fetchMyProfileOrNull` returns null for no link, `PROFILE_STALE_MARKER` for `PROFILE_NOT_FOUND`, else profile object. `saveCandidateProfile` delegates to PUT upsert.  
 **Patterns:** async, module exports
 
 ---
 
 ### frontend/src/components/MatchDetailsDrawer.jsx
 **Language:** javascript | **Importance:** HIGH | **Indexed:** 2026-05-27  
-**Purpose:** Product match detail panel — score bars, skill gaps, resume coach, similar recs.  
+**Purpose:** Product match detail panel · score bars, skill gaps, resume coach, similar recs.  
 **Key Elements:** `SCORE_COMPONENTS`, `ScoreBar`, `ResumeImprovementPanel`, `SimilarRecommendations`  
 **Used by:** CandidateJobResults, EmployerCandidateResults
 
 ---
 
 ### frontend/src/pages/candidate/Matches.jsx
+**Language:** javascript | **Importance:** HIGH | **Indexed:** 2026-05-27 (refreshed)  
+**Purpose:** Candidate jobs page · four profile states (none/incomplete/stale/ready), find/refresh matches, auto-search after onboarding save.  
+**Key Elements:** `loadProfile`, `handleFindJobs`, `searchAfterSave` navigation state, `PROFILE_UPDATED_EVENT` listener  
+**Dependencies:** imports from: `api/client`, `profileFields`, `profileEvents`, `EmptyState`  
+**Core Logic:** Uses `hasCandidateProfile`, `isProfileStale`, `isCandidateProfileReady` for gates. Header CTA only when results exist; initial search CTA in `JobsReadyEmpty`. Tab visibility refetches profile.
+
+---
+
+### frontend/src/pages/candidate/Profile.jsx
 **Language:** javascript | **Importance:** HIGH | **Indexed:** 2026-05-27  
-**Purpose:** Candidate jobs page — profile gate, find/refresh matches, listens for profile update + tab visibility.  
-**Key Elements:** `loadProfile`, `handleFindJobs`, uses `isCandidateProfileReady`  
-**Dependencies:** imports from: `api/client`, `profileFields`, `profileEvents`
+**Purpose:** Candidate profile view/edit · handles no profile, stale restore, incomplete finish, and summary view.  
+**Key Elements:** `profileRecord`, `editing`, re-upload resume, `ProfileIncompleteEmpty`, `ProfileStaleEmpty`  
+**Dependencies:** imports from: `api/client`, `profileFields`, `profileEvents`, `ProfileForm`  
+**Core Logic:** Stale link shows restore form (empty fields, PUT recreates). Incomplete opens edit mode automatically. Ready shows `CandidateProfileSummary` with edit toggle.
+
+---
+
+### frontend/src/pages/candidate/Onboarding.jsx
+**Language:** javascript | **Importance:** HIGH | **Indexed:** 2026-05-27  
+**Purpose:** Two-step candidate onboarding · upload resume or manual entry, then review and save.  
+**Key Elements:** `handleSave`, `Continue to jobs` when profile ready, navigates with `searchAfterSave: true`  
+**Dependencies:** imports from: `api/client`, `profileFields`, `profileEvents`  
+**Core Logic:** Existing profile merges upload into form; save upserts then routes to Matches for auto-search.
 
 ---
 
 ### frontend/src/utils/profileFields.js
+**Language:** javascript | **Importance:** MEDIUM | **Indexed:** 2026-05-27 (refreshed)  
+**Purpose:** Profile form ↔ API mapping; portal readiness gates for job search.  
+**Key Elements:** `profileToPayload`, `profileFromApi`, `hasCandidateProfile`, `isCandidateProfileReady`, `isProfileStale`  
+**Core Logic:** Omits empty id on first save. Ready = id + name (queryKey). Stale marker maps to empty form fields for re-save.
+
+---
+
+### frontend/src/components/EmptyState.jsx
 **Language:** javascript | **Importance:** MEDIUM | **Indexed:** 2026-05-27  
-**Purpose:** Profile form ↔ API mapping; omits empty id in payload; readiness check for Jobs page unlock.  
-**Key Elements:** `profileToPayload`, `isCandidateProfileReady`, `profileFromApi`
+**Purpose:** Shared empty-state cards for portals · profile, jobs, employer, no-results variants.  
+**Key Elements:** `ProfileNeededEmpty`, `ProfileIncompleteEmpty`, `ProfileStaleEmpty`, `JobsReadyEmpty`, `NoMatchingRolesEmpty`, `EmployerAllClosedEmpty`  
+**Core Logic:** `NoMatchingRolesEmpty` uses `filteredOut` prop to distinguish filter-empty vs zero API matches.
+
+---
+
+### frontend/src/pages/employer/Jobs.jsx
+**Language:** javascript | **Importance:** HIGH | **Indexed:** 2026-05-27  
+**Purpose:** Employer job list + post/edit form · JD import, optimistic list merge on save.  
+**Key Elements:** `handleSubmit`, `load`, `EmployerJobList`, `JobPostingForm`  
+**Core Logic:** After POST/PUT merges API response into local jobs before refetch; load failure shows toast without clearing list.
+
+---
+
+### frontend/src/pages/employer/Matches.jsx
+**Language:** javascript | **Importance:** HIGH | **Indexed:** 2026-05-27  
+**Purpose:** Employer candidate matching · role picker, find/refresh ranked candidates.  
+**Key Elements:** `jobsLoading`, `openJobs`, `handleRefresh`, `EmployerAllClosedEmpty` vs `EmployerNoJobsEmpty`  
+**Core Logic:** Skeleton while jobs load; distinguishes zero jobs vs all closed before showing match UI.
+
+---
+
+### frontend/src/components/CandidateJobResults.jsx
+**Language:** javascript | **Importance:** HIGH | **Indexed:** 2026-05-27  
+**Purpose:** Candidate match results table · filters, save/apply/dismiss, refresh with loading state.  
+**Key Elements:** `MatchSummaryCards`, `JobMatchCard`, filter bar, `NoMatchingRolesEmpty` with `filteredOut`  
+**Used by:** `pages/candidate/Matches.jsx`
+
+---
+
+### frontend/src/pages/candidate/Saved.jsx
+**Language:** javascript | **Importance:** MEDIUM | **Indexed:** 2026-05-27  
+**Purpose:** Saved jobs and applications list for candidate · refresh with separate loading state.  
+**Key Elements:** `load({ refresh })`, `fetchSavedJobs`, `fetchMyApplications`
 
 ---
 
@@ -2157,21 +2220,21 @@ frontend/src/
 
 ### README.md
 **Language:** markdown | **Importance:** HIGH | **Indexed:** 2026-05-27  
-**Purpose:** Primary onboarding doc — architecture, setup, API reference, demo accounts, troubleshooting (602 lines).  
+**Purpose:** Primary onboarding doc · architecture, setup, API reference, demo accounts, troubleshooting (602 lines).  
 **Dependencies:** links to HLD, SDD, demo script, session notes
 
 ---
 
 ### HANDOFF.md
 **Language:** markdown | **Importance:** HIGH | **Indexed:** 2026-05-27  
-**Purpose:** Agent session handoff — current state, decisions, open questions, test counts, demo commands.  
+**Purpose:** Agent session handoff · current state, decisions, open questions, test counts, demo commands.  
 **Core Logic:** v3 format; tracks main @ bfa27e1, 208+20 tests, composite scoring shipped.
 
 ---
 
 ### tests/integration/test_feature_reverification.py
 **Language:** python | **Importance:** MEDIUM | **Indexed:** 2026-05-27  
-**Purpose:** Feature checklist tests — composite scoring, JD parse, feedback, CID cleanup, profile upsert endpoints.
+**Purpose:** Feature checklist tests · composite scoring, JD parse, feedback, CID cleanup, profile upsert endpoints.
 
 ---
 
@@ -2229,7 +2292,7 @@ frontend/src/
 
 ### backend/benchmarks/ablation.py
 **Language:** python | **Importance:** HIGH | **Indexed:** 2026-05-27  
-**Purpose:** Nine-variant component ablation — singles, partial composites, full composite, RRF over singles.  
+**Purpose:** Nine-variant component ablation · singles, partial composites, full composite, RRF over singles.  
 **Run:** `python -m benchmarks.run_ablation`  
 **Outputs:** `ablation_summary.json`, `ablation_summary.md`, `ablation_per_query.csv`  
 **Best on demo corpus:** Full composite nDCG@5 0.942.
@@ -2253,7 +2316,7 @@ frontend/src/
 
 ### backend/benchmarks/fairness_audit.py
 **Language:** python | **Importance:** HIGH | **Indexed:** 2026-05-27  
-**Purpose:** Synthetic counterfactual fairness audit — rank stability, score delta, explanation drift.  
+**Purpose:** Synthetic counterfactual fairness audit · rank stability, score delta, explanation drift.  
 **Input:** `data/fairness_audit_profiles.json` (10 pairs). **Strategy:** composite.  
 **Outputs:** `fairness_audit_report.json`, `fairness_audit_pairs.csv`, flagged cases CSV.
 
@@ -2306,7 +2369,7 @@ frontend/src/
 
 ### docs/research/RESEARCH-PAPER.md
 **Language:** markdown | **Importance:** HIGH | **Indexed:** 2026-05-27  
-**Purpose:** Manuscript draft — methodology, architecture, algorithms, evaluation, results, fairness/explainability limits, future work.  
+**Purpose:** Manuscript draft · methodology, architecture, algorithms, evaluation, results, fairness/explainability limits, future work.  
 **Rule:** All numbers from `backend/reports/` only; missing studies marked TODO.  
 **Primary source run:** `research_run_smoke_test`; CE from root `cross_encoder_report.json`.
 
@@ -2314,13 +2377,13 @@ frontend/src/
 
 ## Module: backend (legacy monolith)
 
-> **[LEGACY]** Pre-rewrite monolith. `backend/app.py` **removed** — kept for benchmark/scoring algorithm reference and paper artifact cross-links.
+> **[LEGACY]** Pre-rewrite monolith. `backend/app.py` **removed** · kept for benchmark/scoring algorithm reference and paper artifact cross-links.
 
 ### Layout
 
 ```
 backend/
-├── app.py              FastAPI monolith — 14 routes, global state, RRF, agent
+├── app.py              FastAPI monolith · 14 routes, global state, RRF, agent
 ├── ingestion.py        JSON load + Pydantic validate + embed upsert
 ├── schemas.py          Resume/Job Pydantic models
 ├── paths.py            DATA_DIR, BENCHMARK_OUTPUTS_DIR, CHROMA/QDRANT paths
@@ -2349,7 +2412,7 @@ backend/
 **Purpose:** Route strategy string to semantic or multimodal scorer.  
 **Params:** `strategy` accepts `"cosine"` as alias for `"semantic"` via `normalize_strategy`.  
 **Returns:** `(scores_dict, normalized_strategy)` where scores has `semantic_score`, `skills_score`, `final_score`.  
-**Calls:** `compute_semantic` or `compute_multimodal` (always Jaccard skills — no `skills_mode` param exposed).  
+**Calls:** `compute_semantic` or `compute_multimodal` (always Jaccard skills · no `skills_mode` param exposed).  
 **Called by:** all match, ensemble, daily, and agent endpoints.
 
 #### rrf_aggregate(result_runs, key_field, base_k=60)
@@ -2369,7 +2432,7 @@ backend/
 #### _build_why_ranked(resume, job, scores, strategy)
 **Purpose:** Generate human-readable ranking bullets for daily/agent output.  
 **Returns:** Up to 4 reason strings: skill overlap (raw lowercase set intersection), title/summary token overlap, semantic tier (≥0.65 high, ≥0.5 moderate), multimodal blend note.  
-**Note:** Does NOT use `skill_catalog` — raw string intersection only.
+**Note:** Does NOT use `skill_catalog` · raw string intersection only.
 
 #### _sync_real_jobs(reindex=True)
 **Purpose:** Fetch external jobs, write snapshot, replace in-memory jobs, optional reindex.  
@@ -2381,7 +2444,7 @@ backend/
 **Output fields:** job_title/candidate_name, semantic_score, skills_score, similarity, metric_used, strategy_used, vector_store_used, rank.
 
 #### run_daily_recommendations (route handler)
-**Purpose:** Batch agent — optional sync, loop all resumes (or `max_users` subset), write dated JSON to `data/daily_recommendations_YYYY-MM-DD.json`.  
+**Purpose:** Batch agent · optional sync, loop all resumes (or `max_users` subset), write dated JSON to `data/daily_recommendations_YYYY-MM-DD.json`.  
 **Default:** `sync_before_run=True`, `candidate_pool=120`, `max_users=0` (all 30 resumes).
 
 #### 14 HTTP endpoints
@@ -2405,7 +2468,7 @@ backend/
 
 ### backend/matching/similarity_engine.py
 **Language:** python | **Importance:** HIGH | **Indexed:** 2026-05-27  
-**Purpose:** Central scoring orchestrator — semantic-only and weighted multimodal blends.  
+**Purpose:** Central scoring orchestrator · semantic-only and weighted multimodal blends.  
 **Dependencies:** imports from: `semantic_similarity`, `skills_similarity`, `soft_skills` | used by: `app.py`, all benchmark drivers  
 **Patterns:** functional, pure scoring (no I/O)
 
@@ -2419,7 +2482,7 @@ backend/
 **Calls:** `compute_multimodal_weighted`.
 
 #### compute_multimodal_weighted(resume, job, metric, semantic_weight=0.7, skills_mode="jaccard")
-**Purpose:** Weighted blend — paper's primary scoring function.  
+**Purpose:** Weighted blend · paper's primary scoring function.  
 **Params:** `skills_mode`: `"jaccard"` → set Jaccard on canonical skills; `"embedding"` → soft overlap (best nDCG driver).  
 **Formula:** `final = w * semantic + (1-w) * skills`.  
 **Returns:** Includes `semantic_weight`, `skills_weight`, optional `skills_details` (embedding mode only).  
@@ -2450,7 +2513,7 @@ backend/
 
 ### backend/matching/document_text.py
 **Language:** python | **Importance:** HIGH | **Indexed:** 2026-05-27  
-**Purpose:** Normative text serialization for bi-encoder and lexical IR — field order matters for reproducibility.  
+**Purpose:** Normative text serialization for bi-encoder and lexical IR · field order matters for reproducibility.  
 **Dependencies:** imports from: `skill_catalog` | used by: `embedding`, `lexical_retrieval`, benchmarks  
 **Key Elements:** `resume_document_text`, `job_document_text`, `_format_skills`
 
@@ -2465,14 +2528,14 @@ backend/
 
 ### backend/matching/semantic_similarity.py
 **Language:** python | **Importance:** HIGH | **Indexed:** 2026-05-27  
-**Purpose:** Pairwise bi-encoder score — embeds both documents fresh each call (no vector cache at pair level).  
+**Purpose:** Pairwise bi-encoder score · embeds both documents fresh each call (no vector cache at pair level).  
 **Calls:** `embed_resume`, `embed_job`, `compute_similarity(metric)`.
 
 ---
 
 ### backend/matching/soft_skills.py
 **Language:** python | **Importance:** HIGH | **Indexed:** 2026-05-27  
-**Purpose:** Embedding-based skill overlap — **best exhaustive nDCG driver** (0.969 @ w=0.7).  
+**Purpose:** Embedding-based skill overlap · **best exhaustive nDCG driver** (0.969 @ w=0.7).  
 **Dependencies:** imports from: `embedding.model`, `skills_similarity.normalize` | used by: `similarity_engine`, `paper_progression`  
 **Module cache:** `_skill_cache` dict keyed by normalized skill string.
 
@@ -2515,7 +2578,7 @@ backend/
 
 ### backend/matching/cross_encoder_rerank.py
 **Language:** python | **Importance:** MEDIUM | **Indexed:** 2026-05-27  
-**Purpose:** Two-stage rerank on shortlist — ms-marco cross-encoder.  
+**Purpose:** Two-stage rerank on shortlist · ms-marco cross-encoder.  
 **Env:** `CROSS_ENCODER_MODEL`  
 **Blend:** `0.4 * prior_score + 0.6 * ce_norm` after min-max normalize within pool.  
 **Used by:** `paper_progression` last ladder row only (nDCG 0.939, below soft embed 0.969).  
@@ -2543,7 +2606,7 @@ backend/
 
 #### load_data()
 **Returns:** `(resumes, jobs)` as list of dicts from `data/cvs.json` + `data/jobs.json`.  
-**Validation:** `Resume(**r).dict()`, `Job(**j).dict()` — extra JSON fields stripped by Pydantic.
+**Validation:** `Resume(**r).dict()`, `Job(**j).dict()` · extra JSON fields stripped by Pydantic.
 
 #### ingest_data(store, resumes, jobs)
 **Side effects:** Prints progress; upserts each entity with `_clean_metadata` (flattens list fields to comma strings for Chroma compatibility).
@@ -2555,7 +2618,7 @@ backend/
 **Purpose:** Pydantic v2 models for corpus validation.  
 **Resume fields:** id, name, skills, experience_years, preferred_salary, remote_preference, summary  
 **Job fields:** id, title, required_skills, required_experience, budget, remote_policy, description  
-**Note:** Optional job fields (company, location, link) exist in JSON but not in strict schema — passed through if loaded without validation.
+**Note:** Optional job fields (company, location, link) exist in JSON but not in strict schema · passed through if loaded without validation.
 
 ---
 
@@ -2578,7 +2641,7 @@ backend/
 
 ### backend/stores/qdrant_vector_store.py
 **Language:** python | **Importance:** HIGH | **Indexed:** 2026-05-27  
-**Purpose:** Qdrant local path client — ~2× faster latency in phase11 sweep.  
+**Purpose:** Qdrant local path client · ~2× faster latency in phase11 sweep.  
 **Persist:** `backend/qdrant_db/` | **Point IDs:** UUID5 from `job:{id}` / `resume:{id}`  
 **Env:** `QDRANT_HNSW_EF`, `QDRANT_HNSW_M`, `QDRANT_EF_CONSTRUCT`, `QDRANT_COLLECTION_SUFFIX`  
 **Distance:** Fixed COSINE 384-d; search converts score to distance as `1 - score`.
@@ -2593,7 +2656,7 @@ backend/
 
 ### backend/benchmarks/paper_progression.py
 **Language:** python | **Importance:** HIGH | **Indexed:** 2026-05-27  
-**Purpose:** Table 9 method ladder — exhaustive scoring over all 15 jobs, 30 queries.  
+**Purpose:** Table 9 method ladder · exhaustive scoring over all 15 jobs, 30 queries.  
 **Run:** `python -m benchmarks.paper_progression`  
 **Outputs:** `paper_progression_summary.json`, `paper_progression_per_query.csv`, `paper_bootstrap_significance.json`, `paper_failure_cases.json`
 
@@ -2617,7 +2680,7 @@ backend/
 
 ### backend/benchmarks/phase11.py
 **Language:** python | **Importance:** HIGH | **Indexed:** 2026-05-27  
-**Purpose:** Table 10 — 40-config ANN sweep (pool=10, 3 latency repeats × 30 queries).  
+**Purpose:** Table 10 · 40-config ANN sweep (pool=10, 3 latency repeats × 30 queries).  
 **Run:** `python -m benchmarks.phase11`  
 **Skills mode:** Jaccard only via `score_pair` → `compute_multimodal_weighted` (no soft embed in grid)
 
@@ -2655,7 +2718,7 @@ backend/
 
 ### backend/paths.py
 **Language:** python | **Importance:** LOW | **Indexed:** 2026-05-27  
-**Constants:** `DATA_DIR`, `BENCHMARK_OUTPUTS_DIR`, `CHROMA_DB_DIR`, `QDRANT_DB_DIR` — all Path objects relative to repo root.
+**Constants:** `DATA_DIR`, `BENCHMARK_OUTPUTS_DIR`, `CHROMA_DB_DIR`, `QDRANT_DB_DIR` · all Path objects relative to repo root.
 
 ---
 
@@ -2683,17 +2746,17 @@ backend/
 
 ## Module: frontend
 
-> **[LEGACY partial]** Old App.jsx debug console entries below. Current product portals live under `frontend/src/pages/{candidate,employer,admin}/` — see [Module: rewrite (current)](#module-rewrite-current).
+> **[LEGACY partial]** Old App.jsx debug console entries below. Current product portals live under `frontend/src/pages/{candidate,employer,admin}/` · see [Module: rewrite (current)](#module-rewrite-current).
 
 ### frontend/src/main.jsx
 **Language:** javascript | **Importance:** LOW | **Indexed:** 2026-05-27  
-**Purpose:** React 19 entry — mounts `<App />` with StrictMode.
+**Purpose:** React 19 entry · mounts `<App />` with StrictMode.
 
 ---
 
 ### frontend/src/App.jsx
 **Language:** javascript (React 19) | **Importance:** HIGH | **Indexed:** 2026-05-27  
-**Purpose:** Entire dashboard in one ~1812-line file — matching UI, ensemble, ops, theme, persistence.  
+**Purpose:** Entire dashboard in one ~1812-line file · matching UI, ensemble, ops, theme, persistence.  
 **Stack:** React 19, Vite 7, axios; styling via `App.css` (FORGE theme), Tailwind configured but unused for layout.  
 **Dependencies:** axios → backend 14 endpoints | used by: browser user  
 **Patterns:** hooks, useMemo enrichment pipeline, localStorage persistence
@@ -2715,7 +2778,7 @@ backend/
 | `agentRunSummary` | null | Last batch agent response |
 
 #### handleMatch()
-**Purpose:** Primary user action — routes to correct endpoint based on mode/ensemble/live toggles.  
+**Purpose:** Primary user action · routes to correct endpoint based on mode/ensemble/live toggles.  
 **Live path:** POST `/candidate/daily-recommendations` (resume mode, non-ensemble only).  
 **Ensemble path:** Builds `searches[]` from `availableSearches` filtered by `selectedSearches`, weight hardcoded to 1.  
 **Standard path:** POST `/match-resume` or `/match-job` with strategy/metric.  
@@ -2723,7 +2786,7 @@ backend/
 
 #### scoreStats / normalizedResults / enrichedResults (useMemo chain)
 **Purpose:** Detect clustered low scores and min-max normalize for display.  
-**Trigger:** `max > 1 || min < 0 || max <= 0.2` — matches paper §5.2 description.  
+**Trigger:** `max > 1 || min < 0 || max <= 0.2` · matches paper §5.2 description.  
 **Enrichment:** Adds `label`, `scorePercent`, `band` (high/mid/low), client-side `explanation` via `buildExplanation`.
 
 #### buildExplanation({ item, mode, selectedValue, resumeLookup, jobLookup, normalizedScore })
@@ -2740,19 +2803,19 @@ backend/
 **Snapshot fields:** mode, topK, strategy, metric, useEnsemble, selectedSearches, vectorStore.
 
 #### SmoothDropdown (component, ~line 262)
-**Purpose:** Accessible type-ahead select for resume/job names — keyboard nav, filtered options.
+**Purpose:** Accessible type-ahead select for resume/job names · keyboard nav, filtered options.
 
 #### Paper vs UI gaps (not implemented)
-- `skills_mode` (Jaccard vs soft embed) — backend supports via `compute_multimodal_weighted` but API doesn't expose it  
-- LLM rerank toggle — not in backend or frontend  
-- Per-search ensemble weights — always 1.0  
-- `candidate_pool` on standard match — only on daily endpoints
+- `skills_mode` (Jaccard vs soft embed) · backend supports via `compute_multimodal_weighted` but API doesn't expose it  
+- LLM rerank toggle · not in backend or frontend  
+- Per-search ensemble weights · always 1.0  
+- `candidate_pool` on standard match · only on daily endpoints
 
 ---
 
 ### frontend/src/App.css
 **Language:** css | **Importance:** MEDIUM | **Indexed:** 2026-05-27  
-**Purpose:** FORGE design system — CSS variables for light/dark, dashboard grid, control panel, ranking cards, detail drawer, ops strip, responsive breakpoints (~800+ lines).
+**Purpose:** FORGE design system · CSS variables for light/dark, dashboard grid, control panel, ranking cards, detail drawer, ops strip, responsive breakpoints (~800+ lines).
 
 ---
 
@@ -2784,9 +2847,9 @@ backend/
 **Structure:** Abstract → §1 Introduction → §2 Literature → §3 Architecture → §4 Matching → §5 Realization → §6 Evaluation → §7 Results → §8 Conclusion → §9 Future Work → **Appendix: Recommendation Summary** → Declarations → References.
 
 **Key tables in PDF:**
-- **Table 9** — Method progression (BM25 through cross-encoder); soft embed **nDCG@5 0.969**
-- **Table 10** — ANN store sweep; Jaccard w=0.7 **nDCG@5 0.913** vs semantic **0.884**
-- **Table 11** — Chroma vs Qdrant characteristics
+- **Table 9** · Method progression (BM25 through cross-encoder); soft embed **nDCG@5 0.969**
+- **Table 10** · ANN store sweep; Jaccard w=0.7 **nDCG@5 0.913** vs semantic **0.884**
+- **Table 11** · Chroma vs Qdrant characteristics
 
 **Appendix recommendations (5 bullets):** retain lexical baselines; prefer soft overlap @ w=0.7; cautious ANN on tiny corpus; document backend parity; expose batch workflows.
 
@@ -2809,7 +2872,7 @@ backend/
 
 ## Module: docs/submission/jaamas
 
-> **Full manuscript architecture:** See **JAAMAS Manuscript — Complete Architecture Reference** (top of this file) for section map, labels, tables, figures, compile pipeline, and migration notes.
+> **Full manuscript architecture:** See **JAAMAS Manuscript · Complete Architecture Reference** (top of this file) for section map, labels, tables, figures, compile pipeline, and migration notes.
 
 ### Per-file index (manuscript/)
 
@@ -2844,7 +2907,7 @@ backend/
 | Fig5.pdf | §3.6 | Data plane |
 | Fig6.pdf | §3.7 | LLM rerank + offline benchmark |
 | Fig7.pdf | §3.8 | End-to-end consolidated diagram |
-| Fig8–10.pdf | (archive/supplementary) | May exist for SI or legacy — check `figures/README.md` |
+| Fig8–10.pdf | (archive/supplementary) | May exist for SI or legacy · check `figures/README.md` |
 
 ### build/ and scripts
 
@@ -2872,7 +2935,7 @@ Editor-facing; **must stay metric-consistent** with Table 9/10 and abstract when
 **Purpose:** Technical report PDF (XeLaTeX from `docs/latex/`). README: “read for detailed understanding.”
 
 ### docs/report/DOCUMENTATION.md
-**Purpose:** Canonical Markdown report — edit first, sync via `python3 docs/latex/build_from_md.py`
+**Purpose:** Canonical Markdown report · edit first, sync via `python3 docs/latex/build_from_md.py`
 
 ### docs/latex/main.tex
 **Engine:** XeLaTeX; `\documentclass` in main.tex; `\raggedbottom`; May 2026 date.
@@ -2886,7 +2949,7 @@ Editor-facing; **must stay metric-consistent** with Table 9/10 and abstract when
 
 ### README.md
 **Language:** markdown | **Importance:** HIGH | **Indexed:** 2026-05-27  
-**Purpose:** GitHub landing — full onboarding for multi-agent rewrite: architecture diagram, three-agent model, composite scoring, setup, API reference, demo accounts, tests (208+20), troubleshooting.  
+**Purpose:** GitHub landing · full onboarding for multi-agent rewrite: architecture diagram, three-agent model, composite scoring, setup, API reference, demo accounts, tests (208+20), troubleshooting.  
 **Dependencies:** links to HLD, SDD, V1-V2 scope, demo script, session notes  
 **Note:** Supersedes legacy dual-metric-table README; no longer points to monolith `app.py` on port 8000.
 
@@ -2899,7 +2962,7 @@ Editor-facing; **must stay metric-consistent** with Table 9/10 and abstract when
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│ PRODUCT MATCH (rewrite — current)                               │
+│ PRODUCT MATCH (rewrite · current)                               │
 │ Portal → api/client.runMatch(strategy: composite)              │
 │ → gateway/routes/matching → MatchmakingAgent                  │
 │ → score_pair_advanced → compute_composite (40/30/15/10/5)     │
@@ -2910,7 +2973,15 @@ Editor-facing; **must stay metric-consistent** with Table 9/10 and abstract when
 │ CANDIDATE ONBOARDING                                            │
 │ upload-resume → resume_clean + contact_extract → LlmParser      │
 │ → review form → PUT /candidates/me (upsert) → link ownership    │
-│ → Matches page: fetchMyProfileOrNull → runMatch                 │
+│ → Matches: fetchMyProfileOrNull (null | stale | ready)          │
+│ → runMatch(queryKey=name) · auto-search if searchAfterSave      │
+└─────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────┐
+│ STALE PROFILE RECOVERY                                          │
+│ GET /candidates/me → 404 PROFILE_NOT_FOUND (link kept)          │
+│ → client returns PROFILE_STALE_MARKER                           │
+│ → Profile/Matches show restore UI → PUT /me recreates in agent  │
 └─────────────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────────────┐
@@ -2943,8 +3014,8 @@ Editor-facing; **must stay metric-consistent** with Table 9/10 and abstract when
 
 ## Staleness
 
-**Last refresh:** 2026-05-27 v7 — added Module: research evaluation (16 entries); updated handoff, benchmark results table, key flows, relationships.  
-**Legacy drift:** Module: backend (legacy monolith) still documents removed `app.py` — use for algorithm/benchmark reference only.  
-**Uncommitted:** entire research stack + RESEARCH-PAPER.md not yet committed since `bfa27e1`.  
-**Known open items (from HANDOFF):** 100×50 pipeline eval TODO; CE in unified run TODO; commit research stack; AdminConsole ResultsPanel props; demo.admin 401 in smoke.  
-**Refresh command:** `/knowledge refresh backend/benchmarks/` or `/knowledge learn backend/scripts/`
+**Last refresh:** 2026-05-27 v8 · portal QA: stale profile flow, job ownership guard, employer/candidate empty states, 8 frontend page entries added/updated.  
+**Legacy drift:** Module: backend (legacy monolith) still documents removed `app.py` · use for algorithm/benchmark reference only.  
+**Uncommitted:** portal QA + copy humanization + research stack since `c1a451d`.  
+**Known open items:** 100×50 pipeline eval TODO; CE in unified run TODO; commit pending changes; Playwright E2E optional; HMR may blank React root until hard refresh in dev.  
+**Refresh command:** `/knowledge refresh frontend/src/pages/` or `/knowledge learn tests/integration/`

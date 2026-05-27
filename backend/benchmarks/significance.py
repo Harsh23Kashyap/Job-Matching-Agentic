@@ -358,7 +358,7 @@ def render_significance_markdown(report: SignificanceReport) -> str:
     meta = report.meta
     k = meta.get("top_k")
     lines = [
-        "# Bootstrap Significance — Benchmark Results",
+        "# Bootstrap Significance · Benchmark Results",
         "",
         f"Generated: {meta['generated_at']}",
         "",
@@ -429,7 +429,7 @@ def render_significance_markdown(report: SignificanceReport) -> str:
 def print_significance_summary(report: SignificanceReport) -> None:
     meta = report.meta
     print(
-        f"\nBootstrap significance — baseline: {meta['baseline']}, "
+        f"\nBootstrap significance · baseline: {meta['baseline']}, "
         f"{meta['n_resamples']:,} resamples\n"
     )
     print(f"{'Compare':<28} {'Metric':<10} {'Δ':>8} {'CI lo':>8} {'CI hi':>8} {'p':>7} {'W/L/T':>9}")

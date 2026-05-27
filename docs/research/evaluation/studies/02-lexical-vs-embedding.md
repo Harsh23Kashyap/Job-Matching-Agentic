@@ -1,4 +1,4 @@
-# Study 2 — Lexical vs Embedding Baselines
+# Study 2 · Lexical vs Embedding Baselines
 
 ## Protocol
 

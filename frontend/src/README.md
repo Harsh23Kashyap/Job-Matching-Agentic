@@ -8,20 +8,20 @@ React application entry and shared modules.
 |------|------|
 | `main.jsx` | React DOM mount |
 | `App.jsx` | Router, auth provider, role-guarded routes |
-| `App.css` | Design system — tokens, portal layouts, match drawer, dark mode |
+| `App.css` | Design system · tokens, portal layouts, match drawer, dark mode |
 
 ## Subfolders
 
 | Folder | README |
 |--------|--------|
-| `pages/` | [pages/README.md](pages/README.md) — portal routes |
-| `components/` | [components/README.md](components/README.md) — reusable UI |
-| `api/` | [api/README.md](api/README.md) — backend HTTP client |
-| `layouts/` | [layouts/README.md](layouts/README.md) — shell chrome |
-| `utils/` | [utils/README.md](utils/README.md) — helpers |
-| `context/` | `AuthContext.jsx` — session user state |
+| `pages/` | [pages/README.md](pages/README.md) · portal routes |
+| `components/` | [components/README.md](components/README.md) · reusable UI |
+| `api/` | [api/README.md](api/README.md) · backend HTTP client |
+| `layouts/` | [layouts/README.md](layouts/README.md) · shell chrome |
+| `utils/` | [utils/README.md](utils/README.md) · helpers |
+| `context/` | `AuthContext.jsx` · session user state |
 | `hooks/` | `useTheme`, `useReducedMotion` |
-| `constants/` | `demoAccounts.js` — demo email hints |
+| `constants/` | `demoAccounts.js` · demo email hints |
 
 ## Routing overview
 

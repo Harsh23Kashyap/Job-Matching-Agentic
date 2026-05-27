@@ -26,13 +26,13 @@ export default function EmployerApplications() {
       <PageHeader
         eyebrow="Employer"
         title="Applicants"
-        subtitle="Candidates who applied to your posted roles."
+        subtitle="Applications to your posted roles."
       />
       <PortalSection title="Application feed">
         {loading && <p className="auth-sub">Loading…</p>}
         {error && <p className="notice-warning">{error}</p>}
         {!loading && !error && applications.length === 0 && (
-          <p className="auth-sub">No applications yet. Candidates can apply from their match results.</p>
+          <p className="auth-sub">No applications yet. Candidates apply from their job match list.</p>
         )}
         {Object.entries(byJob).map(([title, rows]) => (
           <div key={title} className="portal-section-block" style={{ marginBottom: 20 }}>

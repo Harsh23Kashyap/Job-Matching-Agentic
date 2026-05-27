@@ -164,11 +164,11 @@ def _metrics_table(rows: list[dict], name_field: str, extra_cols: list[tuple[str
 
 def _write_embedding_study(path: Path, payload: dict | None) -> None:
     if not payload:
-        path.write_text("# Embedding strategies\n\n*No data — run research suite first.*\n", encoding="utf-8")
+        path.write_text("# Embedding strategies\n\n*No data: run research suite first.*\n", encoding="utf-8")
         return
     meta = payload["meta"]
     lines = [
-        "# Study 1 — Embedding Retrieval Strategies",
+        "# Study 1: Embedding Retrieval Strategies",
         "",
         f"Generated from: `artifacts/.../embedding/benchmark_report.json`",
         "",
@@ -195,7 +195,7 @@ def _write_embedding_study(path: Path, payload: dict | None) -> None:
         [
             "## Best method",
             "",
-            f"**{best['method']}** — nDCG@{meta['top_k']} = {best['ndcg_at_k']:.3f}, "
+            f"**{best['method']}**: nDCG@{meta['top_k']} = {best['ndcg_at_k']:.3f}, "
             f"MRR = {best['mrr']:.3f}",
             "",
         ]
@@ -211,7 +211,7 @@ def _write_comparison_study(path: Path, payload: dict | None) -> None:
     lexical = [r for r in payload["summary"] if r.get("family") == "lexical"]
     embedding = [r for r in payload["summary"] if r.get("family") == "embedding"]
     lines = [
-        "# Study 2 — Lexical vs Embedding Baselines",
+        "# Study 2: Lexical vs Embedding Baselines",
         "",
         "## Protocol",
         "",
@@ -253,7 +253,7 @@ def _write_ablation_study(path: Path, payload: dict | None) -> None:
     meta = payload["meta"]
     weights = meta.get("composite_weights", {})
     lines = [
-        "# Study 3 — Composite Matching Ablation",
+        "# Study 3: Composite Matching Ablation",
         "",
         "## Production composite weights",
         "",
@@ -355,7 +355,7 @@ def _write_cross_encoder_study(path: Path, payload: dict | None) -> None:
     q = meta.get("quality_summary", {})
     lat = meta.get("latency_summary", {})
     lines = [
-        "# Study 5 — Two-Stage Cross-Encoder Reranking",
+        "# Study 5: Two-Stage Cross-Encoder Reranking",
         "",
         "## Setup",
         "",
@@ -369,7 +369,7 @@ def _write_cross_encoder_study(path: Path, payload: dict | None) -> None:
         f"| Metric | Bi-encoder | + Cross-encoder | Δ |",
         f"|--------|------------|-----------------|---|",
         f"| nDCG@K | {q.get('ndcg_baseline', 0):.3f} | {q.get('ndcg_with_ce', 0):.3f} | {q.get('ndcg_delta', 0):+.3f} |",
-        f"| MRR | — | — | {q.get('mrr_delta', 0):+.3f} |",
+        f"| MRR | - | - | {q.get('mrr_delta', 0):+.3f} |",
         "",
         "## Latency",
         "",
@@ -393,7 +393,7 @@ def _write_fairness_audit_study(path: Path, payload: dict | None) -> None:
     meta = payload["meta"]
     summaries = payload.get("pair_summaries", [])
     lines = [
-        "# Study 6 — Fairness & Bias Audit (Synthetic Profiles)",
+        "# Study 6: Fairness & Bias Audit (Synthetic Profiles)",
         "",
         f"> {meta.get('warning', 'Synthetic profiles only.')}",
         "",
@@ -426,7 +426,7 @@ def _write_findings(path: Path, bundle: dict[str, Any]) -> None:
     fair = bundle.get("fairness_audit") or {}
 
     lines = [
-        "# Research Findings — Synthesis",
+        "# Research Findings: Synthesis",
         "",
         f"Run ID: `{bundle.get('run_id', 'unknown')}`",
         "",
@@ -443,7 +443,7 @@ def _write_findings(path: Path, bundle: dict[str, Any]) -> None:
     if emb.get("summary"):
         best = max(emb["summary"], key=lambda r: r["ndcg_at_k"])
         lines.append(
-            f"1. **Best embedding strategy:** {best['method']} — "
+            f"1. **Best embedding strategy:** {best['method']}: "
             f"nDCG@5={best['ndcg_at_k']:.3f}, MRR={best['mrr']:.3f}"
         )
     if abl.get("summary"):
@@ -451,7 +451,7 @@ def _write_findings(path: Path, bundle: dict[str, Any]) -> None:
         if full:
             lines.append(
                 f"2. **Production composite (ablation):** nDCG@5={full['ndcg_at_k']:.3f}, "
-                f"R@5={full['recall_at_k']:.3f} — best among ablation variants"
+                f"R@5={full['recall_at_k']:.3f}: best among ablation variants"
             )
     if sig.get("comparisons"):
         sig_ndcg = [r for r in sig["comparisons"] if r["metric"] == "ndcg_at_k" and r["significant_at_05"]]
@@ -470,7 +470,7 @@ def _write_findings(path: Path, bundle: dict[str, Any]) -> None:
         fm = fair["meta"]
         lines.append(
             f"5. **Fairness audit (synthetic):** {fm.get('flagged_pairs', 0)}/{fm.get('pairs', 0)} pairs flagged "
-            f"under demographic counterfactuals — manual review required"
+            f"under demographic counterfactuals: manual review required"
         )
 
     lines.extend(
@@ -478,7 +478,7 @@ def _write_findings(path: Path, bundle: dict[str, Any]) -> None:
             "",
             "## Limitations",
             "",
-            "- Small fixed corpus (n=30 queries) — bootstrap CIs are wide",
+            "- Small fixed corpus (n=30 queries): bootstrap CIs are wide",
             "- Exhaustive evaluation ≠ ANN production path (see phase11 for store sweep)",
             "- Cross-encoder model adds heavy latency; not default in portals",
             "- Composite weights (40/30/15/10/5) are hand-tuned, not learned",
@@ -647,13 +647,13 @@ def export_research_bundle(
     _write_significance_study(
         studies_dir / "04-significance-embedding.md",
         bundle.get("significance_benchmark"),
-        title="Study 4a — Bootstrap Significance (Embedding Strategies)",
+        title="Study 4a: Bootstrap Significance (Embedding Strategies)",
         baseline_note="- Compares embedding suite vs **Semantic cosine** baseline",
     )
     _write_significance_study(
         studies_dir / "04-significance-ablation.md",
         bundle.get("significance_ablation"),
-        title="Study 4b — Bootstrap Significance (Ablation Variants)",
+        title="Study 4b: Bootstrap Significance (Ablation Variants)",
         baseline_note="- Compares ablation variants vs **Semantic only** baseline",
     )
     _write_cross_encoder_study(studies_dir / "05-cross-encoder.md", bundle.get("cross_encoder"))

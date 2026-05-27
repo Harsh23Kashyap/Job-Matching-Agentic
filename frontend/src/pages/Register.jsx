@@ -6,9 +6,9 @@ import { IconCheck, IconBriefcase, IconConsole, IconProfile } from "../component
 import AuthLayout from "../layouts/AuthLayout.jsx";
 
 const ROLES = [
-  { value: "candidate", label: "Candidate", hint: "Upload a resume and browse matched roles", icon: IconProfile },
-  { value: "employer", label: "Employer", hint: "Post openings and review ranked applicants", icon: IconBriefcase },
-  { value: "admin", label: "Admin", hint: "Run matching experiments and system checks", icon: IconConsole },
+  { value: "candidate", label: "Candidate", hint: "Build a profile and browse matched roles", icon: IconProfile },
+  { value: "employer", label: "Employer", hint: "Post roles and review ranked candidates", icon: IconBriefcase },
+  { value: "admin", label: "Admin", hint: "Console for matching tests and corpus checks", icon: IconConsole },
 ];
 
 export default function Register() {
@@ -44,7 +44,7 @@ export default function Register() {
   };
 
   return (
-    <AuthLayout variant="register" title="Create your account" subtitle="Choose your workspace — we'll send you to the right place.">
+    <AuthLayout variant="register" title="Create your account" subtitle="Choose candidate, employer, or admin.">
       <form onSubmit={handleSubmit} className="auth-form auth-form--register">
         <label>
           Email
@@ -102,7 +102,7 @@ export default function Register() {
         <button type="submit" className="btn-primary btn-block" disabled={loading}>
           {loading ? "Creating account…" : "Create account"}
         </button>
-        <p className="auth-hint">Most people choose Candidate or Employer. You can update your profile after sign-up.</p>
+        <p className="auth-hint">You can fill in your profile after you sign up.</p>
       </form>
       <p className="auth-footer">
         Already registered? <Link to="/login">Sign in</Link>

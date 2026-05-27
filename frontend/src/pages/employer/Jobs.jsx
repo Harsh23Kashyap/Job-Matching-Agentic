@@ -41,12 +41,12 @@ function applyExtractionResponse(data, { setFields, setJdError, showToast, scrol
   if (data.llm_status === "ok") {
     setFields((prev) => ({ ...prev, ...jobFieldsFromExtracted(data.extracted_fields || {}) }));
     setJdError("");
-    showToast("Details extracted — review the fields below.");
+    showToast("Details extracted. Review the form below.");
     scrollToForm?.();
     return;
   }
   const message =
-    data.message || "Could not extract details automatically. Fill in the form manually.";
+    data.message || "Extraction didn't work. Fill in the form yourself.";
   setJdError(message);
   showToast(message, "error");
 }
@@ -71,9 +71,11 @@ export default function EmployerJobs() {
 
   const load = () => {
     setLoading(true);
-    fetchMyJobs()
+    return fetchMyJobs()
       .then(setJobs)
-      .catch(() => setJobs([]))
+      .catch((err) => {
+        showToast(apiErrorMessage(err, "Could not load your roles. Try again."), "error");
+      })
       .finally(() => setLoading(false));
   };
 
@@ -171,10 +173,20 @@ export default function EmployerJobs() {
     setFieldErrors({});
     try {
       if (editingJobId) {
-        await updateEmployerJob(editingJobId, jobToPayload(fields, editingJobId));
-        showToast("Role updated. Future candidate matches will use the new details.");
+        const updated = await updateEmployerJob(editingJobId, jobToPayload(fields, editingJobId));
+        setJobs((prev) => prev.map((j) => (j.id === updated.id ? { ...j, ...updated } : j)));
+        showToast("Role updated.");
       } else {
-        await saveJobPosting(jobToPayload(fields));
+        const created = await saveJobPosting(jobToPayload(fields));
+        setJobs((prev) => {
+          const idx = prev.findIndex((j) => j.id === created.id);
+          if (idx >= 0) {
+            const next = [...prev];
+            next[idx] = { ...next[idx], ...created };
+            return next;
+          }
+          return [created, ...prev];
+        });
         showToast("Role posted. Find candidates from your active postings.");
       }
       resetForm();
@@ -198,7 +210,7 @@ export default function EmployerJobs() {
       <PageHeader
         eyebrow="Employer"
         title="My jobs"
-        subtitle="Manage active postings and publish new roles for candidate matching."
+        subtitle="Manage postings and publish new roles."
         stats={
           !loading
             ? [
@@ -214,7 +226,7 @@ export default function EmployerJobs() {
           span={5}
           className="employer-jobs-list-panel"
           title="Active postings"
-          description="Search, filter, and manage your open and closed roles."
+          description="Search and manage open and closed roles."
         >
           <EmployerJobList
             jobs={jobs}
@@ -233,8 +245,8 @@ export default function EmployerJobs() {
           title={editingJobId ? "Edit role" : "Post a new role"}
           description={
             editingJobId
-              ? "Update posting details — changes apply to future candidate matches."
-              : "Complete the form below or import a JD to pre-fill fields."
+              ? "Updates apply to future candidate matches."
+              : "Fill in the form or import a job description."
           }
         >
           <div id="employer-post-role" ref={formPanelRef} className="employer-post-role-anchor" />
@@ -284,7 +296,7 @@ export default function EmployerJobs() {
                     </Button>
                   ) : (
                     <span className="employer-form-footer__hint form-helper">
-                      Required: job title. Add skills and compensation for stronger matches.
+                      Job title required. Skills and pay range improve match quality.
                     </span>
                   )}
                   <Button

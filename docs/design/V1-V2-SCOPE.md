@@ -18,7 +18,7 @@
 
 ---
 
-## V1 — Ship in first release
+## V1 · Ship in first release
 
 ### Architecture & agents
 
@@ -30,24 +30,24 @@
 | **Event bus** | In-process pub-sub (`AgentEventBus`); sync handlers |
 | **Events** | `CandidateProfileUpdated`, `JobProfileUpdated`, `CorpusBootstrapped`, `MatchCompleted` |
 | **Bootstrap** | Load `data/cvs.json` + `data/jobs.json` from legacy repo copy on startup |
-| **Naming** | **Candidate Agent** (code, paper, UI — no Client/Employee split) |
+| **Naming** | **Candidate Agent** (code, paper, UI · no Client/Employee split) |
 
 ### Core ML / matching (v1)
 
 | Item | Detail |
 |------|--------|
 | **Bi-encoder** | `all-MiniLM-L6-v2`, 384-d, sentence-transformers |
-| **Document templates** | Normative field order (`core/document_text.py`) — benchmark-safe |
+| **Document templates** | Normative field order (`core/document_text.py`) · benchmark-safe |
 | **Skill catalog** | Alias normalization before overlap |
 | **Semantic strategy** | Cosine + Euclidean-derived similarity |
 | **Multimodal strategy** | Weighted blend @ α=0.7 |
-| **Skills modes** | **Jaccard** and **soft skill embed** — exposed in API + UI |
+| **Skills modes** | **Jaccard** and **soft skill embed** · exposed in API + UI |
 | **Default strategy** | **Semantic cosine** (user toggles multimodal) |
 | **RRF ensemble** | k=60; multiple strategy×metric lists |
-| **Retrieval — UI match** | **Exhaustive** over full corpus (≤15 jobs) |
-| **Retrieval — daily batch** | **ANN** shortlist via agent `search_jobs` |
+| **Retrieval · UI match** | **Exhaustive** over full corpus (≤15 jobs) |
+| **Retrieval · daily batch** | **ANN** shortlist via agent `search_jobs` |
 | **Explanations** | Rule-based `why_ranked` bullets (`RuleExplainer`) |
-| **Parser** | `JsonParser` — Pydantic validation only |
+| **Parser** | `JsonParser` · Pydantic validation only |
 
 ### Vector store (v1)
 
@@ -63,17 +63,17 @@
 |------|--------|
 | **New routes** | `/candidates`, `/jobs`, `/match/candidate-to-jobs`, `/match/job-to-candidates`, `/match/ensemble`, `/match/daily-batch`, `/agents/status`, `/system/config` |
 | **Legacy aliases** | `/match-resume`, `/match-job`, `/match-resume-ensemble`, `/match-job-ensemble`, `/agent/run-daily-recommendations` → map to new handlers |
-| **Agent observability** | `GET /agents/status` — entity counts, store version, last event |
+| **Agent observability** | `GET /agents/status` · entity counts, store version, last event |
 | **Skills mode param** | On match + ensemble requests |
 | **Auth** | None (local research demo) |
 
-### V1.1 — Role portals, auth, LLM resume (shipped)
+### V1.1 · Role portals, auth, LLM resume (shipped)
 
 | Item | Detail |
 |------|--------|
 | **Auth** | Email/password, HTTP-only session cookie, SQLite user store |
-| **Portals** | Candidate, Employer, Admin — React Router role-guarded routes |
-| **LLM CV parser** | `LlmParser` — Ollama default; OpenAI-compatible fallback |
+| **Portals** | Candidate, Employer, Admin · React Router role-guarded routes |
+| **LLM CV parser** | `LlmParser` · Ollama default; OpenAI-compatible fallback |
 | **Resume upload** | `POST /candidates/upload-resume` (PDF/DOCX/TXT) |
 | **Ownership** | `GET /candidates/me`, `GET /jobs/mine`; 1:1 candidate profile per user |
 | **Tests** | 59 total (41 v1 + 18 v1.1) |
@@ -82,15 +82,15 @@
 
 | Workflow | In v1? |
 |----------|--------|
-| Candidate → jobs match | ✅ |
-| Job → candidates match | ✅ |
-| RRF ensemble (4 strategy×metric combos) | ✅ |
-| Daily batch recommendations + dated JSON | ✅ |
-| Register new CV/JD via POST | ✅ |
-| Real jobs external API sync | ❌ → v2 |
-| Agent event log API (`/agents/events/recent`) | ❌ → v2 (optional v1.1) |
+| Candidate → jobs match | yes |
+| Job → candidates match | yes |
+| RRF ensemble (4 strategy×metric combos) | yes |
+| Daily batch recommendations + dated JSON | yes |
+| Register new CV/JD via POST | yes |
+| Real jobs external API sync | no → v2 |
+| Agent event log API (`/agents/events/recent`) | no → v2 (optional v1.1) |
 
-### Frontend (v1 — full rewrite)
+### Frontend (v1 · full rewrite)
 
 | Item | Detail |
 |------|--------|
@@ -108,14 +108,14 @@
 | **Corpus copy** | `data/cvs.json`, `data/jobs.json`, `data/eval_pairs.json` from legacy `Agentic-Job-Matching` repo |
 | **Smoke test** | End-to-end: Rahul Sharma → Machine Learning Engineer rank 1 |
 | **Unit + integration tests** | Agent contracts, event bus, bootstrap, API gateway (target ≥40 tests) |
-| **Benchmark regression gate** | **Deferred** — no hard block on Table 9/10 floats in v1 |
+| **Benchmark regression gate** | **Deferred** · no hard block on Table 9/10 floats in v1 |
 
 ### Documentation (v1)
 
 | Item | Detail |
 |------|--------|
-| HLD / SDD / this scope doc | ✅ |
-| README — run instructions | ✅ |
+| HLD / SDD / this scope doc | yes |
+| README · run instructions | yes |
 | Paper intro + §3 diagram | After working demo (code first) |
 
 ### Ethics / Khan guardrails (v1)
@@ -128,15 +128,15 @@
 
 ---
 
-## V2 — Parked for later
+## V2 · Parked for later
 
 ### Advanced ML & benchmarks
 
 | Item | Why v2 |
 |------|--------|
 | **BM25 + TF-IDF lexical baselines** | Table 9 rows 0–1; needs `core/lexical.py` + tiktoken |
-| **Cross-encoder rerank** | Two-stage pool=10, ms-marco, blend 0.4/0.6 — progression row 6 |
-| **Bootstrap significance** | Paired nDCG CI, 5000 resamples — `paper_bootstrap_significance.json` |
+| **Cross-encoder rerank** | Two-stage pool=10, ms-marco, blend 0.4/0.6 · progression row 6 |
+| **Bootstrap significance** | Paired nDCG CI, 5000 resamples · `paper_bootstrap_significance.json` |
 | **Full `paper_progression` driver** | Complete Table 9 ladder as merge gate |
 | **Full `phase11` driver** | 40-config ANN sweep + latency table |
 | **Rich templates ablation** | `BENCHMARK_RICH_TEMPLATES=1` |
@@ -151,7 +151,7 @@
 | **LLM match explainer** | Natural-language why_ranked |
 | **LLM query refinement** | Interpret user intent |
 | **LLM strategy selection** | Agent picks strategy (§9.1 future work) |
-| **LLM rerank** | Ollama/Mistral blend — was in old paper, never built |
+| **LLM rerank** | Ollama/Mistral blend · was in old paper, never built |
 | **AI-use disclosure policy** | Applicant + employer rules for assisted documents |
 
 ### Infrastructure & scale
@@ -163,7 +163,7 @@
 | **Real jobs sync** | `real_jobs_sync.py` → Employer Agent external API |
 | **ANN-first UI matching** | Scale beyond 15-job corpus (§9.3) |
 | **Read-only demo mode** | `settings.read_only` disable POST |
-| **Authentication (production)** | OAuth, email verification, Postgres, public deploy hardening — basic auth shipped in v1.1 |
+| **Authentication (production)** | OAuth, email verification, Postgres, public deploy hardening · basic auth shipped in v1.1 |
 
 ### Frontend & ops (v2)
 
@@ -183,7 +183,7 @@
 | **New §3 multi-agent block diagram** | After code matches diagram |
 | **§5 Quality Metrics** | Full DCG/IDCG formulas, bootstrap prose |
 | **Portal PDF sync** | Cover letter + information sheet metrics |
-| **ESCO/O*NET skill taxonomy** | §9.5 — replace string skills |
+| **ESCO/O*NET skill taxonomy** | §9.5 · replace string skills |
 | **Fairness evaluation** | Demographic proxy testing on larger corpus |
 | **Larger labeled dataset** | Beyond 30/15/47 synthetic pairs |
 
@@ -201,7 +201,7 @@ Reproduce from old `Agentic-Job-Matching` repo:
 
 ---
 
-## V1.1 — Optional fast follow (between v1 and v2)
+## V1.1 · Optional fast follow (between v1 and v2)
 
 Small additions that do not require full v2 scope:
 

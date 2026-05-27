@@ -1,4 +1,4 @@
-# Study 4a — Bootstrap Significance (Embedding Strategies)
+# Study 4a · Bootstrap Significance (Embedding Strategies)
 
 ## Setup
 

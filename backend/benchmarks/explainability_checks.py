@@ -1,4 +1,4 @@
-"""Automated checks for match explanation quality — offline research only."""
+"""Automated checks for match explanation quality (offline research only)."""
 from __future__ import annotations
 
 import re

@@ -1,6 +1,6 @@
 # JobMatch: A Multi-Agent Composite Matching System for Transparent Job–Candidate Ranking
 
-**Status:** Draft — results synced from offline benchmark reports  
+**Status:** Draft · results synced from offline benchmark reports  
 **Report source:** `backend/reports/research_run_smoke_test/` (pipeline run, 2026-05-27)  
 **Cross-encoder source:** `backend/reports/cross_encoder_report.json` (separate run, 2026-05-27)  
 **Paper tables:** `backend/reports/research_run_smoke_test/paper_tables/`
@@ -11,7 +11,7 @@
 
 Recruiting systems must rank candidates against job requirements while remaining explainable and auditable. We present **JobMatch**, a three-agent event-driven system that combines semantic bi-encoder similarity, structured skill overlap, and auxiliary signals (experience, compensation, location) into a weighted composite score with rule-based explanations.
 
-We evaluate on a fixed offline corpus of **30 candidate profiles**, **15 job postings**, and **47 graded relevance pairs** (scale 0–2). Under exhaustive resume→jobs ranking at **K=5**, production composite scoring achieves **nDCG@5 = 0.942**, **MRR = 0.944**, and **Recall@5 = 0.983** — the best result among nine ablation variants. Paired bootstrap testing (5,000 resamples, one-sided, α = 0.05) shows full composite significantly improves nDCG@5 over semantic-only scoring (**Δ = +0.064**, **p = 0.019**). Lexical baselines (best: BM25, nDCG@5 = 0.894) and single-signal rankers underperform the full composite.
+We evaluate on a fixed offline corpus of **30 candidate profiles**, **15 job postings**, and **47 graded relevance pairs** (scale 0–2). Under exhaustive resume→jobs ranking at **K=5**, production composite scoring achieves **nDCG@5 = 0.942**, **MRR = 0.944**, and **Recall@5 = 0.983** · the best result among nine ablation variants. Paired bootstrap testing (5,000 resamples, one-sided, α = 0.05) shows full composite significantly improves nDCG@5 over semantic-only scoring (**Δ = +0.064**, **p = 0.019**). Lexical baselines (best: BM25, nDCG@5 = 0.894) and single-signal rankers underperform the full composite.
 
 A synthetic fairness audit flags **6/10** counterfactual profile pairs under demographic-like perturbations. Automated explainability checks find the rules explainer passes skill-mention checks on only **25.3%** of instances, while a grounded template explainer reaches **100%** skill mention at **96.2%** faithfulness. Optional cross-encoder reranking on composite matches **degrades** nDCG@5 by **0.108** while adding **~141 ms/query** latency; it is disabled in production by default.
 
@@ -124,7 +124,7 @@ Experience, compensation, and location are normalized component scores in \([0, 
 
 ### 4.5 RRF ensemble
 
-Reciprocal Rank Fusion (k = 60) merges ranked lists from multiple strategies. In the **comparison** benchmark, RRF over embedding strategies achieves nDCG@5 = **0.913**. In the **ablation** study, RRF over five single-component rankers achieves nDCG@5 = **0.564** — substantially below full composite on this corpus.
+Reciprocal Rank Fusion (k = 60) merges ranked lists from multiple strategies. In the **comparison** benchmark, RRF over embedding strategies achieves nDCG@5 = **0.913**. In the **ablation** study, RRF over five single-component rankers achieves nDCG@5 = **0.564** · substantially below full composite on this corpus.
 
 ### 4.6 Lexical baselines (offline)
 
@@ -182,11 +182,11 @@ Paired bootstrap on per-query nDCG@5 and MRR:
 - **Seed:** 42  
 - **Baseline (comparison):** semantic cosine  
 - **Baseline (ablation):** semantic only  
-- **p-value:** one-sided — fraction of bootstrap mean-diffs ≤ 0 (H₁: compare > baseline)
+- **p-value:** one-sided · fraction of bootstrap mean-diffs ≤ 0 (H₁: compare > baseline)
 
 ### 5.5 Fairness audit protocol
 
-- **10 synthetic counterfactual pairs** (`fairness_audit_profiles.json`); fabricated profiles only — no real-user demographic inference.
+- **10 synthetic counterfactual pairs** (`fairness_audit_profiles.json`); fabricated profiles only · no real-user demographic inference.
 - **Strategy:** production composite, K = 5.
 - **Flags:** top-1 change, score delta > 0.01, explanation drift in top-K union.
 
@@ -200,8 +200,8 @@ Paired bootstrap on per-query nDCG@5 and MRR:
 
 | Study | Status |
 |-------|--------|
-| 100 candidate × 50 job research corpus (`data/research/`) | **TODO** — generator exists, full pipeline not run |
-| ANN vs exhaustive (Chroma/Qdrant sweep) | **TODO** — `phase11.py` exists, not in pipeline run |
+| 100 candidate × 50 job research corpus (`data/research/`) | **TODO** · generator exists, full pipeline not run |
+| ANN vs exhaustive (Chroma/Qdrant sweep) | **TODO** · `phase11.py` exists, not in pipeline run |
 | Job → candidate reverse direction | **TODO** |
 | Learned fusion / weight tuning | **TODO** |
 | Human explanation ratings | **TODO** |
@@ -217,7 +217,7 @@ Paired bootstrap on per-query nDCG@5 and MRR:
 | **MRR** | Mean of 1/rank(first relevant) | Binary |
 | **nDCG@K** | DCG@K / IDCG@K | Grades 0–2 |
 | **MAP** | Mean average precision | Binary |
-| **Latency** | Mean ms per query (exhaustive) | — |
+| **Latency** | Mean ms per query (exhaustive) | · |
 
 Copy-pasteable paper tables: `backend/reports/research_run_smoke_test/paper_tables/` (Markdown, CSV, LaTeX booktabs).
 
@@ -311,7 +311,7 @@ Not significant at α = 0.05: semantic + skills (p = 0.113), semantic + skills +
 
 ---
 
-## 8. Fairness Audit — Limitations
+## 8. Fairness Audit · Limitations
 
 ### 8.1 Scope
 
@@ -330,12 +330,12 @@ Flagged cases cluster around:
 - **Name/ethnicity proxy pairs:** score deltas up to **0.024**, rank changes in top-K, explanation drift on some jobs.
 - **Hometown and email domain perturbations:** score deltas above 0.01 threshold on individual jobs.
 
-Name/gender proxy pairs (identical qualifications, different first names) showed **stable top-1** and full top-5 overlap — but names still appear in embedded document text, so semantic paths can couple to surface tokens.
+Name/gender proxy pairs (identical qualifications, different first names) showed **stable top-1** and full top-5 overlap · but names still appear in embedded document text, so semantic paths can couple to surface tokens.
 
 ### 8.3 Limitations (must appear in paper)
 
-1. **Synthetic fixtures only** — no protected-attribute labels on real users.  
-2. **Small pair count (n=10)** — wide uncertainty; exploratory, not confirmatory.  
+1. **Synthetic fixtures only** · no protected-attribute labels on real users.  
+2. **Small pair count (n=10)** · wide uncertainty; exploratory, not confirmatory.  
 3. **Flags indicate review triggers**, not adjudicated discrimination.  
 4. **Embedding path** may legitimately shift when counterfactual text changes (e.g., nationality phrase in summary).  
 5. **No intersectional or subgroup power analysis.**  
@@ -357,16 +357,16 @@ From `explainability_report.json` (300 instances, composite top-5):
 | Template | 0.962 | 1.000 | 100.0% | 88.7% | **11.3%** | 1.000 |
 
 - **Total flagged instances:** 131 / 300  
-- **Hallucination count:** 19 (mostly template path — 11.3% fail no-hallucination check)  
+- **Hallucination count:** 19 (mostly template path · 11.3% fail no-hallucination check)  
 - **Consistency** on synthetic similar-profile pairs: perfect (Jaccard = 1.0) for both explainers
 
 ### 9.2 Discussion
 
-The **rules explainer** fails primarily on **skill mention** (only 25.3% pass) despite strong component alignment (100%). Explanations can be faithful to numeric components yet omit readable skill grounding — a usability gap for recruiters.
+The **rules explainer** fails primarily on **skill mention** (only 25.3% pass) despite strong component alignment (100%). Explanations can be faithful to numeric components yet omit readable skill grounding · a usability gap for recruiters.
 
 The **template explainer** achieves near-perfect specificity and skill mention by construction but shows higher hallucination flags (11.3%): templated text can reference skills not supported by the structured profile check.
 
-Both explainers show perfect consistency on controlled pairs — explanation bullets are stable when qualifications match — but this does not imply fairness under demographic counterfactuals (see §8).
+Both explainers show perfect consistency on controlled pairs · explanation bullets are stable when qualifications match · but this does not imply fairness under demographic counterfactuals (see §8).
 
 **TODO:** Human evaluation (recruiter comprehension, trust). **TODO:** LLM-generated explanations with citation grounding. **TODO:** Link explanation drift flags to fairness cases in a unified case study table.
 
@@ -374,10 +374,10 @@ Both explainers show perfect consistency on controlled pairs — explanation bul
 
 ## 10. Limitations (General)
 
-1. **Small corpus:** 30 queries, 15 jobs — bootstrap CIs are wide; results may not generalize.  
+1. **Small corpus:** 30 queries, 15 jobs · bootstrap CIs are wide; results may not generalize.  
 2. **Exhaustive vs production ANN:** offline eval scores all jobs; live system uses vector retrieval.  
-3. **Hand-tuned composite weights** (40/30/15/10/5) — not learned from data.  
-4. **Synthetic/demo corpus** — not real labor-market distribution.  
+3. **Hand-tuned composite weights** (40/30/15/10/5) · not learned from data.  
+4. **Synthetic/demo corpus** · not real labor-market distribution.  
 5. **Cross-encoder evaluated separately** from main pipeline run.  
 6. **No end-to-end user study** of portal workflows.
 
@@ -401,11 +401,11 @@ Both explainers show perfect consistency on controlled pairs — explanation bul
 
 ## 12. Conclusion
 
-JobMatch demonstrates that a multi-agent composite ranker — combining semantic, skill, and structural signals with transparent explanations — achieves the strongest offline ranking quality on the demo corpus (nDCG@5 = **0.942**), significantly beating semantic-only retrieval (p = **0.019**). Lexical and single-signal baselines are insufficient alone. Cross-encoder reranking trades large latency for worse nDCG on this setup. Synthetic fairness and explainability audits reveal review-worthy instability and explanation gaps that require larger studies before production fairness claims.
+JobMatch demonstrates that a multi-agent composite ranker · combining semantic, skill, and structural signals with transparent explanations · achieves the strongest offline ranking quality on the demo corpus (nDCG@5 = **0.942**), significantly beating semantic-only retrieval (p = **0.019**). Lexical and single-signal baselines are insufficient alone. Cross-encoder reranking trades large latency for worse nDCG on this setup. Synthetic fairness and explainability audits reveal review-worthy instability and explanation gaps that require larger studies before production fairness claims.
 
 ---
 
-## Appendix A — Report file index
+## Appendix A · Report file index
 
 | Section | Primary report file |
 |---------|---------------------|
@@ -420,15 +420,15 @@ JobMatch demonstrates that a multi-agent composite ranker — combining semantic
 | Explainability | `research_run_smoke_test/explainability_report.json` |
 | Paper tables | `research_run_smoke_test/paper_tables/` |
 
-## Appendix B — LaTeX table inclusion
+## Appendix B · LaTeX table inclusion
 
 Copy `\input{}` or paste from:
 
-- `table1_method_comparison.tex` — `\label{tab:method-comparison}`
-- `table2_ablation.tex` — `\label{tab:ablation}`
-- `table3_latency.tex` — `\label{tab:latency}`
-- `table4_fairness.tex` — `\label{tab:fairness}`
-- `table5_explanation_quality.tex` — `\label{tab:explanation-quality}`
-- `table6_qualitative_examples.tex` — `\label{tab:qualitative}`
+- `table1_method_comparison.tex` · `\label{tab:method-comparison}`
+- `table2_ablation.tex` · `\label{tab:ablation}`
+- `table3_latency.tex` · `\label{tab:latency}`
+- `table4_fairness.tex` · `\label{tab:fairness}`
+- `table5_explanation_quality.tex` · `\label{tab:explanation-quality}`
+- `table6_qualitative_examples.tex` · `\label{tab:qualitative}`
 
 Requires `\usepackage{booktabs}` in LaTeX preamble.

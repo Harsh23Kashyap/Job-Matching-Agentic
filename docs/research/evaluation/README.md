@@ -1,4 +1,4 @@
-# JobMatch Offline Evaluation — Research Archive
+# JobMatch Offline Evaluation · Research Archive
 
 Paper- and thesis-ready evaluation bundle for the JobMatch multi-agent matching system.
 
@@ -92,6 +92,6 @@ python -m benchmarks.run_research_suite --from-cache
 
 ## Related docs
 
-- [PAPER-FEATURES-INVENTORY.md](../PAPER-FEATURES-INVENTORY.md) — feature ↔ paper mapping
-- [backend/benchmarks/README.md](../../backend/benchmarks/README.md) — driver reference
-- [data/README.md](../../data/README.md) — corpus files
+- [PAPER-FEATURES-INVENTORY.md](../PAPER-FEATURES-INVENTORY.md) · feature ↔ paper mapping
+- [backend/benchmarks/README.md](../../backend/benchmarks/README.md) · driver reference
+- [data/README.md](../../data/README.md) · corpus files

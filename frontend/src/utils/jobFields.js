@@ -85,7 +85,7 @@ export function validateJobFields(fields) {
   if (!fields.title?.trim()) errors.title = "Job title is required.";
   const skills = skillsToPayload(fields.required_skills);
   if (!skills.length) {
-    errors.required_skills = "Add at least one required skill for matching.";
+    errors.required_skills = "Add at least one required skill.";
   }
   if (fields.required_experience !== "" && fields.required_experience != null) {
     const exp = parseFloat(fields.required_experience);

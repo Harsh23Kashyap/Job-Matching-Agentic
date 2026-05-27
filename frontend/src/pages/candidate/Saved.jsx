@@ -8,10 +8,12 @@ export default function CandidateSaved() {
   const [saved, setSaved] = useState([]);
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState(null);
 
-  const load = async () => {
-    setLoading(true);
+  const load = async ({ refresh = false } = {}) => {
+    if (refresh) setRefreshing(true);
+    else setLoading(true);
     setError(null);
     try {
       const [savedRows, appRows] = await Promise.all([fetchSavedJobs(), fetchMyApplications()]);
@@ -21,6 +23,7 @@ export default function CandidateSaved() {
       setError(err.response?.data?.detail?.error || err.message);
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
@@ -38,7 +41,7 @@ export default function CandidateSaved() {
       <PageHeader
         eyebrow="Candidate"
         title="Saved & applied"
-        subtitle="Your shortlist and applications are stored in your account."
+        subtitle="Jobs you saved and roles you applied to."
         inlineAction={
           <Link to="/candidate/matches" className="btn-secondary">
             Back to matches
@@ -54,7 +57,7 @@ export default function CandidateSaved() {
             <div className="portal-section-block">
               <h2 className="portal-section-title">Saved jobs ({saved.length})</h2>
               {saved.length === 0 ? (
-                <p className="auth-sub">No saved jobs yet. Save roles from your match results.</p>
+                <p className="auth-sub">Nothing saved yet. Save roles from your job matches.</p>
               ) : (
                 <ul className="activity-list">
                   {saved.map((row) => (
@@ -91,7 +94,9 @@ export default function CandidateSaved() {
               )}
             </div>
             <div style={{ marginTop: 16 }}>
-              <Button onClick={load}>Refresh</Button>
+              <Button loading={refreshing} loadingLabel="Refreshing…" onClick={() => load({ refresh: true })}>
+                Refresh
+              </Button>
             </div>
           </>
         )}

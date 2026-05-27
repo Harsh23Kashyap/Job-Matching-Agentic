@@ -1,4 +1,4 @@
-# Study 5 — Two-Stage Cross-Encoder Reranking
+# Study 5 · Two-Stage Cross-Encoder Reranking
 
 ## Setup
 
@@ -12,7 +12,7 @@
 | Metric | Bi-encoder | + Cross-encoder | Δ |
 |--------|------------|-----------------|---|
 | nDCG@K | 0.942 | 0.834 | -0.108 |
-| MRR | — | — | -0.112 |
+| MRR | · | · | -0.112 |
 
 ## Latency
 

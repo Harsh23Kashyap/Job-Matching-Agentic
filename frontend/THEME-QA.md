@@ -62,8 +62,14 @@ Run after any theme or CSS token change. Toggle theme with the moon/sun control 
 
 ## Token reference
 
-Semantic tokens live in `frontend/src/theme/tokens.css`:
+Semantic tokens live in `frontend/src/theme/tokens.css`; dark component overrides in `frontend/src/theme/dark-mode.css`.
 
-`--background`, `--foreground`, `--muted`, `--muted-foreground`, `--card`, `--card-foreground`, `--border`, `--input`, `--primary`, `--primary-foreground`, `--secondary`, `--secondary-foreground`, `--accent`, `--accent-foreground`, `--destructive`, `--destructive-foreground`
+Core: `--background`, `--foreground`, `--muted`, `--muted-foreground`, `--card`, `--card-foreground`, `--border`, `--input`, `--primary`, `--primary-foreground`
+
+Surfaces: `--bg-elevated`, `--upload-bg`, `--upload-border`, `--skeleton-base`, `--skeleton-shine`, `--nav-backdrop`, `--sticky-footer-bg`
+
+Focus: `--focus-ring`, `--focus-ring-error`
+
+Illustrations: `--illustration-stroke`, `--illustration-accent`, `--illustration-sand`
 
 Utility classes: `.text-foreground`, `.text-muted-foreground`, `.text-card-foreground`, `.bg-card`, `.bg-input`, `.border-border`
