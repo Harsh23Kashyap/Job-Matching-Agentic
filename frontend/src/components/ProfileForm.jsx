@@ -1,4 +1,5 @@
 import FormField from "./FormField.jsx";
+import FormSection from "./FormSection.jsx";
 import CompensationInput from "./CompensationInput.jsx";
 import ExperienceInput from "./ExperienceInput.jsx";
 import CustomCheckbox from "./CustomCheckbox.jsx";
@@ -14,8 +15,8 @@ export default function ProfileForm({
   requireSkills = false,
 }) {
   return (
-    <div className="profile-form-wrap">
-      <div className="profile-form-fields">
+    <div className="portal-form-wrap">
+      <div className="portal-form-fields">
         <FormField
           label="Name"
           helper="Use your full name as shown on your resume."
@@ -30,12 +31,10 @@ export default function ProfileForm({
           />
         </FormField>
 
-        <div className="profile-form-section">
-          <h3 className="profile-form-section-title">Contact & links</h3>
-          <p className="profile-form-section-helper">
-            Add how employers can reach you. These are pulled from your resume when you upload one.
-          </p>
-
+        <FormSection
+          title="Contact & links"
+          helper="Add how employers can reach you. These are pulled from your resume when you upload one."
+        >
           <FormField
             label="Email"
             helper="Work or personal email from your resume."
@@ -109,7 +108,7 @@ export default function ProfileForm({
               error={errors.other_links}
             />
           </FormField>
-        </div>
+        </FormSection>
 
         <FormField
           label="Skills"
@@ -184,7 +183,7 @@ export default function ProfileForm({
           </span>
         </FormField>
       </div>
-      {footer && <div className="profile-form-footer">{footer}</div>}
+      {footer && <div className="portal-form-footer">{footer}</div>}
     </div>
   );
 }

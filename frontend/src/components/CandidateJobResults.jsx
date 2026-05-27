@@ -6,11 +6,15 @@ import {
   isApplyAvailable,
   matchSkills,
   matchTier,
+  matchDisplayScore,
+  matchScoreValue,
   pluralGoodMatches,
 } from "../utils/format.js";
-import { createApplication, fetchMyApplications, fetchSavedJobs, updateSavedJob, apiErrorMessage } from "../api/client.js";
+import { fetchMyApplications, fetchMyFeedback, recordFeedbackAction, apiErrorMessage } from "../api/client.js";
+import { buildFeedbackMaps } from "../utils/feedbackState.js";
 import { IconAlert } from "./icons.jsx";
-import BackgroundPattern from "./BackgroundPattern.jsx";
+import ResultsPanel from "./ResultsPanel.jsx";
+import SkillChip, { SkillChipList } from "./SkillChip.jsx";
 import { NoMatchingRolesEmpty } from "./EmptyState.jsx";
 import MatchDetailsDrawer from "./MatchDetailsDrawer.jsx";
 import { useToast } from "./Toast.jsx";
@@ -71,13 +75,13 @@ function ApplyAction({ row, applied, onApply }) {
   );
 }
 
-function JobMatchCard({ row, onViewDetails, saved, applied, onSave, onApply }) {
-  const tier = matchTier(row.similarity);
+function JobMatchCard({ row, onViewDetails, saved, applied, notInterested, onSave, onDismiss, onApply }) {
+  const tier = matchTier(matchScoreValue(row));
   const { matched } = matchSkills(row);
   const whyLine = deriveWhyMatch(row);
 
   return (
-    <article className="job-match-card job-match-row">
+    <article className={`portal-card job-match-card job-match-row${notInterested ? " job-match-row--muted" : ""}`}>
       <div className="job-match-col job-match-col--role">
         <span className="col-label">Role</span>
         <h3>{row.target_label}</h3>
@@ -86,7 +90,7 @@ function JobMatchCard({ row, onViewDetails, saved, applied, onSave, onApply }) {
         <span className="col-label">Match</span>
         <div className="match-pill-stack">
           <span className={`match-badge match-badge--pill ${tier.className}`}>
-            {formatCandidateMatchScore(row.similarity)} match
+            {matchDisplayScore(row)} match
           </span>
           <span className={`match-tier-pill ${tier.className}`}>{tier.label}</span>
         </div>
@@ -98,18 +102,9 @@ function JobMatchCard({ row, onViewDetails, saved, applied, onSave, onApply }) {
       <div className="job-match-col job-match-col--skills">
         <span className="col-label">Skills</span>
         {matched.length > 0 ? (
-          <div className="signal-chips">
-            {matched.slice(0, 4).map((skill) => (
-              <span key={skill} className="signal-chip signal-chip--match">
-                {skill}
-              </span>
-            ))}
-            {matched.length > 4 && (
-              <span className="signal-chip signal-chip--more">+{matched.length - 4}</span>
-            )}
-          </div>
+          <SkillChipList skills={matched} limit={4} />
         ) : (
-          <span className="signal-chip signal-chip--empty">No direct overlap</span>
+          <SkillChip variant="empty">No direct overlap</SkillChip>
         )}
       </div>
       <div className="job-match-col job-match-col--actions">
@@ -121,6 +116,13 @@ function JobMatchCard({ row, onViewDetails, saved, applied, onSave, onApply }) {
           <button type="button" className="row-action-btn" onClick={() => onSave(row)}>
             {saved ? "Unsave" : "Save"}
           </button>
+          {notInterested ? (
+            <span className="row-action-status row-action-status--muted">Not interested</span>
+          ) : (
+            <button type="button" className="row-action-btn row-action-btn--ghost" onClick={() => onDismiss(row)}>
+              Not interested
+            </button>
+          )}
           <ApplyAction row={row} applied={applied} onApply={() => onApply(row)} />
         </div>
       </div>
@@ -137,13 +139,25 @@ export default function CandidateJobResults({ response, error, onRefresh, loadin
   const [drawer, setDrawer] = useState(null);
   const [savedIds, setSavedIds] = useState(new Set());
   const [appliedIds, setAppliedIds] = useState(new Set());
+  const [dismissedIds, setDismissedIds] = useState(new Set());
   const filtersRef = useRef(null);
 
+  const applyFeedbackState = (rows) => {
+    const maps = buildFeedbackMaps(rows);
+    setSavedIds(maps.saved);
+    setAppliedIds(maps.applied);
+    setDismissedIds(maps.notInterested);
+  };
+
   useEffect(() => {
-    Promise.all([fetchSavedJobs(), fetchMyApplications()])
-      .then(([saved, apps]) => {
-        setSavedIds(new Set(saved.map((s) => s.job_id)));
-        setAppliedIds(new Set(apps.map((a) => a.job_id)));
+    Promise.all([fetchMyFeedback(), fetchMyApplications()])
+      .then(([feedback, apps]) => {
+        applyFeedbackState(feedback);
+        setAppliedIds((prev) => {
+          const next = new Set(prev);
+          apps.forEach((a) => next.add(a.job_id));
+          return next;
+        });
       })
       .catch(() => {});
   }, [response?.session_id]);
@@ -151,7 +165,11 @@ export default function CandidateJobResults({ response, error, onRefresh, loadin
   const toggleSave = async (row) => {
     const saving = !savedIds.has(row.target_id);
     try {
-      await updateSavedJob(row.target_id, row.target_label, saving);
+      await recordFeedbackAction({
+        targetId: row.target_id,
+        action: saving ? "save" : "unsave",
+        targetLabel: row.target_label,
+      });
       setSavedIds((prev) => {
         const next = new Set(prev);
         if (saving) next.add(row.target_id);
@@ -162,18 +180,38 @@ export default function CandidateJobResults({ response, error, onRefresh, loadin
         saving ? `Saved ${row.target_label} to your list.` : `Removed ${row.target_label} from saved.`,
       );
     } catch (err) {
-      showToast(apiErrorMessage(err, "Could not update saved jobs. Try again."));
+      showToast(apiErrorMessage(err, "Could not update saved jobs. Try again."), "error");
+    }
+  };
+
+  const handleDismiss = async (row) => {
+    if (dismissedIds.has(row.target_id)) return;
+    try {
+      await recordFeedbackAction({
+        targetId: row.target_id,
+        action: "not_interested",
+        targetLabel: row.target_label,
+      });
+      setDismissedIds((prev) => new Set(prev).add(row.target_id));
+      showToast(`Marked ${row.target_label} as not interested.`);
+    } catch (err) {
+      showToast(apiErrorMessage(err, "Could not save your feedback. Try again."), "error");
     }
   };
 
   const handleApply = async (row) => {
     if (appliedIds.has(row.target_id) || !isApplyAvailable(row)) return;
     try {
-      await createApplication(row.target_id, row.target_label, row.similarity);
+      await recordFeedbackAction({
+        targetId: row.target_id,
+        action: "apply",
+        targetLabel: row.target_label,
+        matchScore: row.similarity,
+      });
       setAppliedIds((prev) => new Set(prev).add(row.target_id));
       showToast(`Applied to ${row.target_label}.`);
     } catch (err) {
-      showToast(apiErrorMessage(err, "Could not record your application. Try again."));
+      showToast(apiErrorMessage(err, "Could not record your application. Try again."), "error");
     }
   };
 
@@ -212,8 +250,7 @@ export default function CandidateJobResults({ response, error, onRefresh, loadin
 
   return (
     <>
-      <section className="portal-panel portal-panel--elevated candidate-results">
-        <BackgroundPattern variant="jobs" scope="panel" />
+      <ResultsPanel backgroundVariant="jobs" className="candidate-results">
         {error && (
           <div className="notice-warning match-error-banner">
             <IconAlert />
@@ -285,14 +322,16 @@ export default function CandidateJobResults({ response, error, onRefresh, loadin
                 row={row}
                 saved={savedIds.has(row.target_id)}
                 applied={appliedIds.has(row.target_id)}
+                notInterested={dismissedIds.has(row.target_id)}
                 onSave={toggleSave}
+                onDismiss={handleDismiss}
                 onApply={handleApply}
                 onViewDetails={(r, why) => setDrawer({ row: r, whyLine: why })}
               />
             ))
           )}
         </div>
-      </section>
+      </ResultsPanel>
       {drawer && (
         <MatchDetailsDrawer
           row={drawer.row}

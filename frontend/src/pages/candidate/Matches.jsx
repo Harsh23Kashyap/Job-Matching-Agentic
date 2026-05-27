@@ -3,10 +3,12 @@ import { Link, useLocation } from "react-router-dom";
 import PageHeader from "../../components/PageHeader.jsx";
 import CandidateJobResults from "../../components/CandidateJobResults.jsx";
 import { ProfileNeededEmpty, JobsReadyEmpty } from "../../components/EmptyState.jsx";
+import EmptyStatePanel from "../../components/EmptyStatePanel.jsx";
 import Button from "../../components/Button.jsx";
 import { useToast } from "../../components/Toast.jsx";
-import { apiErrorMessage, fetchMyProfile, runMatch, DEFAULT_CANDIDATE_MATCH } from "../../api/client.js";
+import { apiErrorMessage, fetchMyProfileOrNull, runMatch, DEFAULT_CANDIDATE_MATCH } from "../../api/client.js";
 import { matchPercent } from "../../utils/format.js";
+import { isCandidateProfileReady } from "../../utils/profileFields.js";
 import { PROFILE_UPDATED_EVENT } from "../../utils/profileEvents.js";
 
 export default function CandidateMatches() {
@@ -21,8 +23,8 @@ export default function CandidateMatches() {
 
   const loadProfile = useCallback(() => {
     setProfileLoading(true);
-    fetchMyProfile()
-      .then(setProfile)
+    fetchMyProfileOrNull()
+      .then((data) => setProfile(isCandidateProfileReady(data) ? data : null))
       .catch(() => setProfile(null))
       .finally(() => setProfileLoading(false));
   }, []);
@@ -35,6 +37,14 @@ export default function CandidateMatches() {
     const onProfileUpdated = () => loadProfile();
     window.addEventListener(PROFILE_UPDATED_EVENT, onProfileUpdated);
     return () => window.removeEventListener(PROFILE_UPDATED_EVENT, onProfileUpdated);
+  }, [loadProfile]);
+
+  useEffect(() => {
+    const onVisible = () => {
+      if (document.visibilityState === "visible") loadProfile();
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => document.removeEventListener("visibilitychange", onVisible);
   }, [loadProfile]);
 
   const handleFindJobs = async () => {
@@ -99,9 +109,9 @@ export default function CandidateMatches() {
             </Link>
           }
         />
-        <section className="portal-panel portal-panel--elevated portal-panel--empty">
+        <EmptyStatePanel>
           <ProfileNeededEmpty action={<Link to="/candidate/onboarding" className="btn-primary">Set up profile</Link>} />
-        </section>
+        </EmptyStatePanel>
       </>
     );
   }
@@ -125,7 +135,7 @@ export default function CandidateMatches() {
         }
       />
       {!response && !error ? (
-        <section className="portal-panel portal-panel--elevated portal-panel--empty">
+        <EmptyStatePanel>
           <JobsReadyEmpty
             action={
               <Button loading={loading} loadingLabel="Searching…" onClick={handleFindJobs}>
@@ -133,7 +143,7 @@ export default function CandidateMatches() {
               </Button>
             }
           />
-        </section>
+        </EmptyStatePanel>
       ) : error && !response ? (
         <section className="portal-panel portal-panel--elevated">
           <div className="notice-warning match-error-banner">

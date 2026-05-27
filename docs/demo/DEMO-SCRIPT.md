@@ -8,7 +8,7 @@
 
 ## Narrative arc (one sentence)
 
-> JobMatch is a three-agent system where candidates and employers use separate portals, while admins keep the full research console — matching is semantic + skills-based with plain-language explanations.
+> JobMatch is a three-agent system where candidates and employers use separate portals, while admins keep the full research console — matching blends semantic retrieval with skills, experience, compensation, and location into an explainable composite score.
 
 ---
 
@@ -46,9 +46,10 @@
 4. Click **Find jobs** / **Refresh matches**.
 5. Walk one row: match %, why it matches, skill chips.
 6. Click **View details** drawer:
-   - Matched skills
-   - **Missing skills** (gaps vs job requirements)
-   - Score explanation (overall, skills overlap, profile alignment)
+   - Overall match % and band (Strong / Good / Moderate / Low)
+   - Score breakdown bars (semantic, skills, experience, compensation, location)
+   - Matched skills and **missing skills** (gaps vs job requirements)
+   - Short plain-language explanation
 
 **Transition:** *"Employers post jobs and see the mirror view — ranked candidates for a role."*
 
@@ -63,10 +64,10 @@
 - Same explainability drawer — useful for shortlisting, not auto-hire.
 
 **Live action:**
-1. **Jobs** → create a job (title, required skills, experience, remote).
-2. **Matches** → select the job → **Find candidates**.
+1. **Jobs** → paste a raw JD → **Extract details** (or upload PDF/DOCX) → review prefilled form → post role.
+2. **Matches** → select the job → **Find candidates** / **Refresh matches**.
 3. Show summary cards (profiles reviewed, good matches, top match %).
-4. Open **View details** on the top candidate — matched vs missing skills.
+4. Open **View details** on the top candidate — composite breakdown, matched vs missing skills, contact links.
 
 ---
 
@@ -87,7 +88,7 @@
 |----------|--------|
 | Is this production-ready? | v1.1 demo — auth is session cookie + SQLite; fine for research demo, not public deploy without hardening. |
 | What if OpenAI is down? | Regex still extracts contact info; profile can be filled manually; LLM returns graceful fallback. |
-| How is match score computed? | Default: semantic cosine on structured document text; optional multimodal blend with Jaccard/soft skills. |
+| How is match score computed? | Portal default: **composite** — 40% semantic cosine, 30% skills overlap, 15% experience fit, 10% compensation alignment, 5% location/remote. Admin console can still run raw semantic-only for research. |
 | Bias / fairness? | Acknowledged in docs; no automated fairness metrics in v1 — human review required. |
 
 ---

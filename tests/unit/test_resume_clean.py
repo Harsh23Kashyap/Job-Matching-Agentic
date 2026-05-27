@@ -9,6 +9,7 @@ from core.resume_clean import clean_resume_text, resume_preview_excerpt
         ("Harsh Kashyap (cid:131) Python", "(cid:"),
         ("Skills (cid:239) Java (cid:1)", "(cid:"),
         ("Contact (cid:155) info", "(cid:"),
+        ("Harsh Kashyap (cid:131), (cid:239), (cid:1), (cid:155)", "(cid:"),
         ("Skills § Java", "§"),
         ("Notes ¶ more", "¶"),
     ],
@@ -16,6 +17,12 @@ from core.resume_clean import clean_resume_text, resume_preview_excerpt
 def test_removes_pdf_noise(raw, forbidden):
     cleaned = clean_resume_text(raw)
     assert forbidden not in cleaned
+
+
+def test_removes_cid_comma_debris():
+    raw = "Harsh Kashyap (cid:131), (cid:239), (cid:1), (cid:155)\nPython developer"
+    cleaned = clean_resume_text(raw)
+    assert cleaned == "Harsh Kashyap\nPython developer"
 
 
 def test_preserves_name_and_skills():

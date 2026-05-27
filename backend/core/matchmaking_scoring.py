@@ -7,7 +7,7 @@ from core.calibration import PlattCalibrator
 from core.constraints import apply_constraints
 from core.feedback_boost import apply_feedback_adjustment
 from core.fusion import LearnedFusionModel, compute_hierarchical_multimodal
-from core.scoring import compute_multimodal_weighted, compute_semantic
+from core.scoring import compute_composite, compute_multimodal_weighted, compute_semantic
 from core.strategy_router import route_strategy
 from stores.feedback_store import FeedbackStore
 
@@ -47,6 +47,14 @@ def score_pair_advanced(
         )
     elif strategy == "semantic":
         breakdown = compute_semantic(candidate, job, request.metric)
+    elif strategy == "composite":
+        breakdown = compute_composite(
+            candidate,
+            job,
+            metric=request.metric,
+            skills_mode=skills_mode,
+            model_name=model_name,
+        )
     else:
         breakdown = compute_multimodal_weighted(
             candidate,

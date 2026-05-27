@@ -15,10 +15,11 @@ test("matchPercent rounds to whole percent", () => {
   assert.equal(formatCandidateMatchScore(0.5898), "59%");
 });
 
-test("matchTier labels are candidate friendly", () => {
-  assert.equal(matchTier(0.62).label, "Good fit");
-  assert.equal(matchTier(0.45).label, "Moderate fit");
-  assert.equal(matchTier(0.2).label, "Low fit");
+test("matchTier labels use score bands", () => {
+  assert.equal(matchTier(0.82).label, "Strong");
+  assert.equal(matchTier(0.62).label, "Good");
+  assert.equal(matchTier(0.45).label, "Moderate");
+  assert.equal(matchTier(0.2).label, "Low");
 });
 
 test("formatSkillExperienceLine", () => {

@@ -2,10 +2,20 @@ import { skillsToPayload } from "./skills.js";
 
 export const JOB_DESCRIPTION_MAX = 2000;
 
+export const JOB_TYPE_OPTIONS = [
+  "",
+  "Full-time",
+  "Part-time",
+  "Contract",
+  "Internship",
+  "Temporary",
+];
+
 export const EMPTY_JOB_FIELDS = {
   title: "",
   company: "",
   location: "",
+  job_type: "",
   required_skills: "",
   required_experience: "",
   budget_currency: "INR",
@@ -20,6 +30,7 @@ export function jobFieldsFromExtracted(ext = {}) {
     title: ext.title || "",
     company: ext.company || "",
     location: ext.location || "",
+    job_type: ext.job_type || "",
     required_skills: Array.isArray(ext.required_skills) ? ext.required_skills.join(", ") : "",
     required_experience: ext.required_experience != null ? String(ext.required_experience) : "",
     budget_currency: ext.budget_currency || "INR",
@@ -39,6 +50,7 @@ export function jobToPayload(fields, jobId = null) {
     title: fields.title.trim(),
     company: fields.company?.trim() || null,
     location: fields.location?.trim() || null,
+    job_type: fields.job_type?.trim() || null,
     required_skills: skillsToPayload(fields.required_skills),
     required_experience: Number.isFinite(exp) && exp >= 0 ? exp : 0,
     budget_currency: fields.budget_currency || "INR",
@@ -57,6 +69,7 @@ export function jobFromApi(job) {
     title: job.title || "",
     company: job.company || "",
     location: job.location || "",
+    job_type: job.job_type || "",
     required_skills: Array.isArray(job.required_skills) ? job.required_skills.join(", ") : "",
     required_experience: job.required_experience != null ? String(job.required_experience) : "",
     budget_currency: job.budget_currency || "INR",

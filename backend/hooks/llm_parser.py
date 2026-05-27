@@ -4,6 +4,7 @@ import re
 import httpx
 
 from config import Settings
+from core.compensation import normalize_preferred_currency, normalize_preferred_salary
 
 
 class LlmUnavailableError(Exception):
@@ -19,13 +20,33 @@ Return ONLY valid JSON with these keys:
 - title (string)
 - required_skills (array of strings)
 - required_experience (integer years, minimum 0)
-- description (string, 1-4 sentences summarizing the role)
+- budget_min (integer annual total compensation minimum, or null)
+- budget_max (integer annual total compensation maximum, or null)
+- budget_currency (string: INR, USD, EUR, GBP, or SGD — infer from the JD)
 - company (string)
 - location (string)
 - remote_policy (boolean — true if remote or hybrid-friendly)
+- job_type (string e.g. Full-time, Part-time, Contract, Internship)
+- description (string, 1-4 sentences summarizing the role)
 - link (string URL for application, or empty string)
 
-Use empty string or empty array when unknown. Do not include markdown."""
+Use empty string, empty array, or null when unknown. Do not include markdown."""
+
+
+RESUME_COACH_PROMPT = """You suggest resume improvements for a specific job application.
+Return ONLY valid JSON with these keys:
+- missing_keywords (array of strings — ATS keywords from the job missing or weak in the resume)
+- weak_skills (array of strings — skills the candidate lists but does not demonstrate in text)
+- missing_skills (array of strings — required job skills not evidenced in the profile)
+- suggested_summary (string — rewritten 2-3 sentence professional summary for this role)
+- bullet_improvements (array of objects with keys: original, suggested, reason)
+- ats_checklist (array of objects with keys: item, status, tip — status must be pass, warn, or fail)
+
+Rules:
+- Base suggestions ONLY on the candidate profile and job posting provided.
+- Do NOT invent employers, degrees, tools, or metrics the candidate does not plausibly have.
+- Keep suggestions actionable and specific to the target role.
+- Do not include markdown."""
 
 
 SYSTEM_PROMPT = """You extract structured candidate profile data from resume text.
@@ -54,6 +75,17 @@ class LlmParser:
 
     def parse_job_from_text(self, text: str) -> dict:
         return self._parse_with_prompt(text, JOB_SYSTEM_PROMPT, "Job description text", self._normalize_job)
+
+    def suggest_resume_for_job(self, candidate: dict, job: dict) -> dict:
+        import json as json_module
+
+        payload = json_module.dumps({"candidate": candidate, "job": job}, ensure_ascii=False)
+        return self._parse_with_prompt(
+            payload,
+            RESUME_COACH_PROMPT,
+            "Resume coaching context",
+            self._normalize_resume_coach,
+        )
 
     def _parse_with_prompt(
         self,
@@ -134,6 +166,42 @@ class LlmParser:
             content = re.sub(r"\s*```$", "", content)
         return json.loads(content)
 
+    def _normalize_resume_coach(self, raw: dict) -> dict:
+        def _str_list(key: str) -> list[str]:
+            values = raw.get(key) or []
+            if isinstance(values, str):
+                values = [values]
+            return [str(v).strip() for v in values if str(v).strip()]
+
+        bullets: list[dict[str, str]] = []
+        for row in raw.get("bullet_improvements") or []:
+            if not isinstance(row, dict):
+                continue
+            original = str(row.get("original") or "").strip()
+            suggested = str(row.get("suggested") or "").strip()
+            reason = str(row.get("reason") or "").strip()
+            if original and suggested:
+                bullets.append({"original": original, "suggested": suggested, "reason": reason})
+
+        checklist: list[dict[str, str]] = []
+        for row in raw.get("ats_checklist") or []:
+            if not isinstance(row, dict):
+                continue
+            item = str(row.get("item") or "").strip()
+            status = str(row.get("status") or "warn").strip().lower()
+            tip = str(row.get("tip") or "").strip()
+            if item and status in {"pass", "warn", "fail"}:
+                checklist.append({"item": item, "status": status, "tip": tip})
+
+        return {
+            "missing_keywords": _str_list("missing_keywords"),
+            "weak_skills": _str_list("weak_skills"),
+            "missing_skills": _str_list("missing_skills"),
+            "suggested_summary": str(raw.get("suggested_summary") or "").strip(),
+            "bullet_improvements": bullets,
+            "ats_checklist": checklist,
+        }
+
     def _normalize(self, raw: dict) -> dict:
         skills = raw.get("skills") or []
         if isinstance(skills, str):
@@ -180,6 +248,17 @@ class LlmParser:
         link = str(raw.get("link") or "").strip() or None
         company = str(raw.get("company") or "").strip() or None
         location = str(raw.get("location") or "").strip() or None
+        job_type = str(raw.get("job_type") or "").strip() or None
+        budget_min = normalize_preferred_salary(raw.get("budget_min"))
+        budget_max = normalize_preferred_salary(raw.get("budget_max"))
+        budget = normalize_preferred_salary(raw.get("budget"))
+        if budget_min is None and budget_max is None:
+            budget_min = budget
+            budget_max = budget
+        elif budget_min is None:
+            budget_min = budget_max
+        elif budget_max is None:
+            budget_max = budget_min
         return {
             "title": str(raw.get("title") or "Untitled Job").strip(),
             "required_skills": [str(s) for s in skills],
@@ -188,5 +267,10 @@ class LlmParser:
             "company": company,
             "location": location,
             "remote_policy": bool(raw.get("remote_policy", False)),
+            "job_type": job_type,
             "link": link,
+            "budget_currency": normalize_preferred_currency(raw.get("budget_currency")),
+            "budget_min": budget_min,
+            "budget_max": budget_max,
+            "budget": budget_max or budget_min,
         }

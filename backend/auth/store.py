@@ -145,6 +145,13 @@ class UserStore:
             ).fetchone()
         return row["candidate_id"] if row else None
 
+    def clear_candidate_link(self, user_id: str) -> None:
+        with self._connect() as conn:
+            conn.execute(
+                "DELETE FROM candidate_ownership WHERE user_id = ?",
+                (user_id,),
+            )
+
     def link_job(self, user_id: str, job_id: str) -> None:
         with self._connect() as conn:
             conn.execute(

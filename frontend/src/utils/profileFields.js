@@ -52,8 +52,7 @@ export function fieldsFromExtracted(ext) {
 }
 
 export function profileToPayload(fields) {
-  return {
-    id: fields.id,
+  const payload = {
     name: fields.name.trim(),
     skills: skillsToPayload(fields.skills),
     experience_years: Number(fields.experience_years) || 0,
@@ -67,4 +66,13 @@ export function profileToPayload(fields) {
     portfolio: fields.portfolio?.trim() || "",
     other_links: (fields.other_links || []).map((l) => l.trim()).filter(Boolean),
   };
+  if (fields.id?.trim()) {
+    payload.id = fields.id.trim();
+  }
+  return payload;
+}
+
+/** True when GET /candidates/me returned a usable profile for job search. */
+export function isCandidateProfileReady(profile) {
+  return Boolean(profile?.id?.trim() && profile?.name?.trim());
 }

@@ -8,6 +8,7 @@ import { useToast } from "../../components/Toast.jsx";
 import {
   apiErrorMessage,
   fetchMyJobs,
+  parseJobDescriptionText,
   saveJobPosting,
   updateEmployerJob,
   updateEmployerJobStatus,
@@ -21,6 +22,22 @@ import {
   validateJobFields,
 } from "../../utils/jobFields.js";
 
+const JD_PASTE_MIN = 40;
+
+function applyExtractionResponse(data, { setFields, setError, showToast, scrollToForm }) {
+  if (data.llm_status === "ok") {
+    setFields((prev) => ({ ...prev, ...jobFieldsFromExtracted(data.extracted_fields || {}) }));
+    setError("");
+    showToast("Details extracted — review the fields below.");
+    scrollToForm?.();
+    return;
+  }
+  const message =
+    data.message || "Could not extract details automatically. Fill in the form manually.";
+  setError(message);
+  showToast(message, "error");
+}
+
 export default function EmployerJobs() {
   const { showToast } = useToast();
   const [jobs, setJobs] = useState([]);
@@ -30,6 +47,8 @@ export default function EmployerJobs() {
   const [saving, setSaving] = useState(false);
   const [closingId, setClosingId] = useState("");
   const [uploading, setUploading] = useState(false);
+  const [extracting, setExtracting] = useState(false);
+  const [jdPaste, setJdPaste] = useState("");
   const [editingJobId, setEditingJobId] = useState(null);
   const [error, setError] = useState("");
   const fileRef = useRef(null);
@@ -56,6 +75,11 @@ export default function EmployerJobs() {
     setFieldErrors({});
     setEditingJobId(null);
     setError("");
+    setJdPaste("");
+  };
+
+  const handleExtraction = (data) => {
+    applyExtractionResponse(data, { setFields, setError, showToast, scrollToForm });
   };
 
   const handleUpload = async (file) => {
@@ -64,14 +88,30 @@ export default function EmployerJobs() {
     setError("");
     try {
       const data = await uploadJobDescription(file);
-      setFields((prev) => ({ ...prev, ...jobFieldsFromExtracted(data.extracted_fields || {}) }));
-      showToast("Job description parsed — review the fields below.");
-      scrollToForm();
+      handleExtraction(data);
     } catch (err) {
       setError(apiErrorMessage(err, "Upload failed. Try a PDF, DOCX, or TXT under 5MB."));
     } finally {
       setUploading(false);
       if (fileRef.current) fileRef.current.value = "";
+    }
+  };
+
+  const handleExtractPaste = async () => {
+    const text = jdPaste.trim();
+    if (text.length < JD_PASTE_MIN) {
+      setError(`Paste at least ${JD_PASTE_MIN} characters of job description text to extract.`);
+      return;
+    }
+    setExtracting(true);
+    setError("");
+    try {
+      const data = await parseJobDescriptionText(text);
+      handleExtraction(data);
+    } catch (err) {
+      setError(apiErrorMessage(err, "Extraction failed. Try again or fill in the form manually."));
+    } finally {
+      setExtracting(false);
     }
   };
 
@@ -127,6 +167,8 @@ export default function EmployerJobs() {
     }
   };
 
+  const canExtractPaste = jdPaste.trim().length >= JD_PASTE_MIN;
+
   return (
     <>
       <PageHeader
@@ -166,23 +208,61 @@ export default function EmployerJobs() {
           }
         >
           <div id="employer-post-role" ref={formPanelRef} className="employer-post-role-anchor" />
-          <div className="jd-upload-bar">
-            <div className="jd-upload-bar-text">
-              <h4 className="jd-upload-bar-title">Upload job description</h4>
-              <p className="form-helper">PDF, DOCX, or TXT — fields below will pre-fill when parsing succeeds.</p>
+
+          <div className="jd-import-panel">
+            <div className="jd-import-panel__head">
+              <div className="jd-import-panel__intro">
+                <h4 className="jd-import-panel__title">Import job description</h4>
+                <p className="form-helper">
+                  Paste a raw JD or upload a file — AI will pre-fill the form when extraction succeeds.
+                </p>
+              </div>
+              <div className="jd-import-panel__upload">
+                <input
+                  ref={fileRef}
+                  type="file"
+                  accept=".pdf,.docx,.txt"
+                  className="visually-hidden"
+                  id="jd-upload"
+                  onChange={(e) => handleUpload(e.target.files?.[0])}
+                />
+                <Button loading={uploading} loadingLabel="Parsing…" onClick={() => fileRef.current?.click()}>
+                  Upload file
+                </Button>
+              </div>
             </div>
-            <input
-              ref={fileRef}
-              type="file"
-              accept=".pdf,.docx,.txt"
-              className="visually-hidden"
-              id="jd-upload"
-              onChange={(e) => handleUpload(e.target.files?.[0])}
-            />
-            <Button loading={uploading} loadingLabel="Parsing…" onClick={() => fileRef.current?.click()}>
-              Upload JD
-            </Button>
+
+            <label className="jd-paste-field" htmlFor="jd-paste">
+              <span className="jd-paste-field__label">Paste job description</span>
+              <textarea
+                id="jd-paste"
+                className="jd-paste-field__textarea"
+                rows={6}
+                placeholder="Paste the full job description here — title, requirements, compensation, location, and responsibilities."
+                value={jdPaste}
+                onChange={(e) => setJdPaste(e.target.value)}
+              />
+              <span className="jd-paste-field__hint">
+                {jdPaste.trim().length > 0
+                  ? `${jdPaste.trim().length.toLocaleString()} characters`
+                  : `At least ${JD_PASTE_MIN} characters needed`}
+              </span>
+            </label>
+
+            <div className="jd-import-panel__actions">
+              <Button
+                loading={extracting}
+                loadingLabel="Extracting…"
+                onClick={handleExtractPaste}
+                disabled={!canExtractPaste || uploading}
+              >
+                Extract details
+              </Button>
+            </div>
+            {error && <p className="auth-error jd-import-error">{error}</p>}
           </div>
+
+          <div className="employer-form-divider" aria-hidden="true" />
 
           <form className="employer-job-form" onSubmit={handleSubmit}>
             <JobPostingForm
@@ -190,7 +270,7 @@ export default function EmployerJobs() {
               errors={fieldErrors}
               onChange={setFields}
               footer={
-                <div className="form-actions form-actions--sticky profile-form-footer">
+                <div className="form-actions form-actions--sticky portal-form-footer">
                   {editingJobId && (
                     <Button className="btn-secondary" type="button" onClick={resetForm}>
                       Cancel
@@ -207,7 +287,6 @@ export default function EmployerJobs() {
               }
             />
           </form>
-          {error && <p className="auth-error">{error}</p>}
         </PortalSection>
       </div>
     </>

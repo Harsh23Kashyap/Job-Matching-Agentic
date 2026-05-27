@@ -121,3 +121,66 @@ def test_document_text_field_order_job():
 def test_soft_overlap_perfect_skill_match():
     score = soft_overlap(["Python"], ["Python"], model_name="all-MiniLM-L6-v2")
     assert score == pytest.approx(1.0, abs=0.05)
+
+
+def test_composite_weights_sum_to_one():
+    from core.scoring import COMPOSITE_WEIGHTS
+
+    assert sum(COMPOSITE_WEIGHTS.values()) == pytest.approx(1.0)
+
+
+def test_composite_perfect_alignment():
+    from core.scoring import compute_composite
+
+    cand = _candidate(
+        skills=["Python", "Machine Learning"],
+        experience_years=5,
+        preferred_salary=100000,
+        remote_preference=True,
+        embedding=[1.0, 0.0],
+    )
+    job = _job(
+        required_skills=["Python", "Machine Learning"],
+        required_experience=3,
+        remote_policy=True,
+        budget_min=90000,
+        budget_max=110000,
+        embedding=[1.0, 0.0],
+    )
+    result = compute_composite(cand, job, metric="cosine", skills_mode="jaccard")
+    assert result.semantic_score == pytest.approx(1.0, abs=1e-5)
+    assert result.skills_score == pytest.approx(1.0, abs=1e-5)
+    assert result.experience_score == pytest.approx(1.0)
+    assert result.compensation_score == pytest.approx(1.0)
+    assert result.location_score == pytest.approx(1.0)
+    assert result.final_score == pytest.approx(1.0, abs=1e-5)
+    assert result.strategy_used == "composite"
+
+
+def test_composite_semantic_only_strategy_unchanged():
+    cand = _candidate(embedding=[1.0, 0.0])
+    job = _job(embedding=[1.0, 0.0])
+    semantic = compute_semantic(cand, job, metric="cosine")
+    assert semantic.final_score == pytest.approx(1.0, abs=1e-5)
+    assert semantic.skills_score is None
+    assert semantic.experience_score is None
+
+
+def test_composite_penalizes_experience_gap():
+    from core.scoring import compute_composite
+
+    cand = _candidate(experience_years=1)
+    job = _job(required_experience=5)
+    result = compute_composite(cand, job)
+    assert result.experience_score == pytest.approx(0.2)
+    assert result.final_score < result.semantic_score
+
+
+def test_composite_compensation_overshoot():
+    from core.scoring import compute_composite
+
+    cand = _candidate(preferred_salary=150000)
+    job = _job(budget_min=80000, budget_max=100000)
+    result = compute_composite(cand, job)
+    assert result.compensation_score == pytest.approx(0.4)
+    assert result.final_score < 1.0

@@ -60,15 +60,8 @@ def list_applications_for_my_jobs(
     return {"applications": [row.__dict__ for row in rows]}
 
 
-@router.post("/upload-description")
-async def upload_job_description(
-    file: UploadFile = File(...),
-    user: User = Depends(require_role("employer")),
-    llm: LlmParser = Depends(_get_llm_parser),
-):
-    text = extract_text_from_upload(file)
-    preview = text[:500] + ("…" if len(text) > 500 else "")
-    empty_fields = {
+def _empty_job_extracted_fields() -> dict:
+    return {
         "title": "",
         "required_skills": [],
         "required_experience": 0,
@@ -76,16 +69,27 @@ async def upload_job_description(
         "company": "",
         "location": "",
         "remote_policy": False,
+        "job_type": "",
         "link": "",
+        "budget_currency": "INR",
+        "budget_min": None,
+        "budget_max": None,
+        "budget": None,
     }
+
+
+def _parse_job_description_text(llm: LlmParser, text: str) -> dict:
+    cleaned = text.strip()
+    preview = cleaned[:500] + ("…" if len(cleaned) > 500 else "")
+    empty_fields = _empty_job_extracted_fields()
     try:
-        extracted = llm.parse_job_from_text(text)
+        extracted = llm.parse_job_from_text(cleaned)
     except LlmUnavailableError:
         return {
             "extracted_fields": empty_fields,
             "raw_text_preview": preview,
             "llm_status": "unavailable",
-            "message": "AI extraction unavailable. Review the text preview and fill in job details manually.",
+            "message": "AI extraction unavailable. Review the text and fill in job details manually.",
         }
     except LlmParseError as exc:
         return {
@@ -99,6 +103,46 @@ async def upload_job_description(
         "raw_text_preview": preview,
         "llm_status": "ok",
     }
+
+
+@router.post("/upload-description")
+async def upload_job_description(
+    file: UploadFile = File(...),
+    user: User = Depends(require_role("employer")),
+    llm: LlmParser = Depends(_get_llm_parser),
+):
+    text = extract_text_from_upload(file)
+    return _parse_job_description_text(llm, text)
+
+
+class ParseJobDescriptionBody(BaseModel):
+    text: str
+
+
+@router.post("/parse-description")
+async def parse_job_description(
+    body: ParseJobDescriptionBody,
+    user: User = Depends(require_role("employer")),
+    llm: LlmParser = Depends(_get_llm_parser),
+):
+    cleaned = body.text.strip()
+    if len(cleaned) < 40:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "error": "Job description text is too short to extract from.",
+                "code": "TEXT_TOO_SHORT",
+            },
+        )
+    if len(cleaned) > 50000:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "error": "Job description text exceeds the 50,000 character limit.",
+                "code": "TEXT_TOO_LONG",
+            },
+        )
+    return _parse_job_description_text(llm, cleaned)
 
 
 @router.get("/{title}")

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import PageHeader from "../../components/PageHeader.jsx";
 import ProfileForm from "../../components/ProfileForm.jsx";
+import FormSection from "../../components/FormSection.jsx";
 import ProfileStrength from "../../components/ProfileStrength.jsx";
 import ResumePreview from "../../components/ResumePreview.jsx";
 import Button from "../../components/Button.jsx";
@@ -71,7 +72,7 @@ export default function Profile() {
       setHasProfile(true);
       notifyProfileUpdated();
       showToast(
-        hasProfile ? "Profile updated." : "Profile saved.",
+        hasProfile ? "Profile updated. You can refresh matches now." : "Profile saved.",
         <Link to="/candidate/matches" className="btn-secondary btn-sm">
           Find jobs
         </Link>,
@@ -118,11 +119,11 @@ export default function Profile() {
             </Link>
           </div>
         )}
-        <div className="profile-reupload-bar">
-          <div>
-            <h3 className="profile-form-section-title">Update from resume</h3>
-            <p className="profile-form-section-helper">Upload a new PDF, DOCX, or TXT to refresh skills and contact fields.</p>
-          </div>
+        <FormSection
+          title="Update from resume"
+          helper="Upload a new PDF, DOCX, or TXT to refresh skills and contact fields."
+          className="profile-reupload-bar"
+        >
           <input
             ref={fileRef}
             type="file"
@@ -134,7 +135,7 @@ export default function Profile() {
           <Button loading={reuploading} loadingLabel="Parsing…" onClick={() => fileRef.current?.click()}>
             Re-upload resume
           </Button>
-        </div>
+        </FormSection>
         {resumePreview && <ResumePreview text={resumePreview} defaultCollapsed />}
         <ProfileStrength percent={strength.percent} hint={strength.hint} />
         <ProfileForm
@@ -142,7 +143,7 @@ export default function Profile() {
           errors={fieldErrors}
           onChange={setFields}
           footer={
-            <div className="form-actions form-actions--sticky">
+            <div className="form-actions form-actions--sticky portal-form-footer">
               <Link to="/candidate/matches" className="btn-secondary">
                 Back to jobs
               </Link>

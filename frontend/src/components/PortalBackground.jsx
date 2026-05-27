@@ -1,25 +1,10 @@
 import { useLocation } from "react-router-dom";
-import BackgroundPattern from "./BackgroundPattern.jsx";
-
-function resolveVariant(pathname) {
-  if (pathname.includes("/candidate/onboarding")) return "onboarding";
-  if (pathname.includes("/candidate/profile")) return "profile";
-  if (pathname.includes("/employer/jobs")) return "employer-jobs";
-  if (pathname.includes("/employer/matches") || pathname.includes("/employer/applications")) {
-    return "employer-candidates";
-  }
-  if (
-    pathname.includes("/candidate/matches")
-    || pathname.includes("/candidate/saved")
-  ) {
-    return "jobs";
-  }
-  return "base";
-}
+import BackgroundOrnaments from "./BackgroundOrnaments.jsx";
+import { resolveBackgroundVariant } from "../utils/portalBackground.js";
 
 export default function PortalBackground() {
   const { pathname } = useLocation();
-  const variant = resolveVariant(pathname);
+  const variant = resolveBackgroundVariant(pathname);
 
-  return <BackgroundPattern variant={variant} scope="page" />;
+  return <BackgroundOrnaments variant={variant} scope="page" />;
 }

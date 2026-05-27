@@ -34,6 +34,17 @@ export function formatCompensationPreview(amount, currency = "INR") {
   return `Shown as ${meta.symbol}${formatted} total compensation / year`;
 }
 
+export function formatCompensationRangePreview(minAmount, maxAmount, currency = "INR") {
+  const meta = CURRENCY_META[currency] || CURRENCY_META.INR;
+  const sym = meta.symbol;
+  const min = formatAmount(minAmount, currency);
+  const max = formatAmount(maxAmount, currency);
+  if (min && max) return `${sym}${min} – ${sym}${max} total compensation / year`;
+  if (max) return `Up to ${sym}${max} total compensation / year`;
+  if (min) return `From ${sym}${min} total compensation / year`;
+  return "";
+}
+
 export function formatInr(amount) {
   const formatted = formatAmount(amount, "INR");
   return formatted ? `₹ ${formatted}` : "";
@@ -93,11 +104,21 @@ export function matchPercent(score) {
 
 export function matchTier(score) {
   const pct = Math.round(Number(score) * 100);
-  if (Number.isNaN(pct)) return { label: "Low fit", className: "match-tier--low" };
-  if (pct >= 80) return { label: "Strong fit", className: "match-tier--strong" };
-  if (pct >= 60) return { label: "Good fit", className: "match-tier--good" };
-  if (pct >= 40) return { label: "Moderate fit", className: "match-tier--moderate" };
-  return { label: "Low fit", className: "match-tier--low" };
+  if (Number.isNaN(pct)) return { label: "Low", className: "match-tier--low" };
+  if (pct >= 80) return { label: "Strong", className: "match-tier--strong" };
+  if (pct >= 60) return { label: "Good", className: "match-tier--good" };
+  if (pct >= 40) return { label: "Moderate", className: "match-tier--moderate" };
+  return { label: "Low", className: "match-tier--low" };
+}
+
+export function matchDisplayScore(row) {
+  const score = row?.final_score ?? row?.similarity;
+  return formatCandidateMatchScore(score);
+}
+
+export function matchScoreValue(row) {
+  const score = row?.final_score ?? row?.similarity;
+  return Number(score) || 0;
 }
 
 export function formatCandidateMatchScore(score) {
@@ -120,6 +141,7 @@ export function humanizeStrategy(strategy) {
   const map = {
     semantic: "Meaning-based resume match",
     multimodal: "Skills + meaning blend",
+    composite: "Weighted multi-signal score",
     ensemble: "Combined ranking",
     batch: "Batch review",
   };

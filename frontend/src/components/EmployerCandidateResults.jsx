@@ -11,12 +11,17 @@ import {
   formatRemotePreference,
   matchSkills,
   matchTier,
+  matchDisplayScore,
+  matchScoreValue,
   pluralStrongMatches,
 } from "../utils/format.js";
-import { apiErrorMessage, recordFeedback } from "../api/client.js";
-import BackgroundPattern from "./BackgroundPattern.jsx";
+import { apiErrorMessage, fetchMyFeedback, recordFeedbackAction } from "../api/client.js";
+import { buildFeedbackMaps } from "../utils/feedbackState.js";
+import ResultsPanel from "./ResultsPanel.jsx";
+import EmptyStatePanel from "./EmptyStatePanel.jsx";
+import SkillChip, { SkillChipList } from "./SkillChip.jsx";
 import MatchDetailsDrawer from "./MatchDetailsDrawer.jsx";
-import EmptyState, { EmployerNoCandidatesEmpty } from "./EmptyState.jsx";
+import EmptyState, { EmployerNoCandidatesEmpty, EmployerCandidatesReadyEmpty } from "./EmptyState.jsx";
 import { useToast } from "./Toast.jsx";
 import { IconAlert } from "./icons.jsx";
 
@@ -62,8 +67,8 @@ function MatchSkeletonRows() {
   );
 }
 
-function EmployerCandidateCard({ row, saved, onViewProfile, onSave, onContact }) {
-  const tier = matchTier(row.similarity);
+function EmployerCandidateCard({ row, saved, rejected, contacted, onViewProfile, onSave, onReject, onContact }) {
+  const tier = matchTier(matchScoreValue(row));
   const { matched } = matchSkills(row);
   const whyLine = deriveEmployerWhyMatch(row);
   const experience = formatCandidateExperience(row.candidate_experience_years);
@@ -71,13 +76,13 @@ function EmployerCandidateCard({ row, saved, onViewProfile, onSave, onContact })
   const remote = formatRemotePreference(row);
 
   return (
-    <article className="employer-candidate-card">
+    <article className={`portal-card employer-candidate-card${rejected ? " employer-candidate-card--muted" : ""}`}>
       <div className="employer-candidate-card__head">
         <div className="employer-candidate-card__identity">
           <h3>{row.target_label}</h3>
           <div className="match-pill-stack">
             <span className={`match-badge match-badge--pill ${tier.className}`}>
-              {formatCandidateMatchScore(row.similarity)} match
+              {matchDisplayScore(row)} match
             </span>
             <span className={`match-tier-pill ${tier.className}`}>{tier.label}</span>
           </div>
@@ -108,16 +113,7 @@ function EmployerCandidateCard({ row, saved, onViewProfile, onSave, onContact })
       {matched.length > 0 && (
         <div className="employer-candidate-card__skills">
           <span className="employer-candidate-card__meta-label">Matching skills</span>
-          <div className="signal-chips">
-            {matched.slice(0, 6).map((skill) => (
-              <span key={skill} className="signal-chip signal-chip--match">
-                {skill}
-              </span>
-            ))}
-            {matched.length > 6 && (
-              <span className="signal-chip signal-chip--muted">+{matched.length - 6}</span>
-            )}
-          </div>
+          <SkillChipList skills={matched} limit={6} />
         </div>
       )}
 
@@ -133,15 +129,15 @@ function EmployerCandidateCard({ row, saved, onViewProfile, onSave, onContact })
         <button type="button" className="row-action-btn" onClick={() => onSave(row)}>
           {saved ? "Saved" : "Save"}
         </button>
+        {rejected ? (
+          <span className="row-action-status row-action-status--muted">Rejected</span>
+        ) : (
+          <button type="button" className="row-action-btn row-action-btn--ghost" onClick={() => onReject(row)}>
+            Reject
+          </button>
+        )}
         <button type="button" className="row-action-btn" onClick={() => onContact(row)}>
-          Contact
-        </button>
-        <button
-          type="button"
-          className="row-action-btn row-action-btn--ghost"
-          onClick={() => onViewProfile(row, whyLine)}
-        >
-          View match details
+          {contacted ? "Contacted" : "Contact"}
         </button>
       </div>
     </article>
@@ -161,33 +157,40 @@ export default function EmployerCandidateResults({
   const { showToast } = useToast();
   const [search, setSearch] = useState("");
   const [minMatch, setMinMatch] = useState("0");
+  const [sort, setSort] = useState("best");
   const [drawer, setDrawer] = useState(null);
   const [savedIds, setSavedIds] = useState(new Set());
+  const [rejectedIds, setRejectedIds] = useState(new Set());
+  const [contactedIds, setContactedIds] = useState(new Set());
   const filtersRef = useRef(null);
 
   useEffect(() => {
-    setSavedIds(new Set());
-  }, [response?.session_id, jobId]);
-
-  const filtered = useMemo(() => {
-    if (!response?.results) return [];
-    let rows = [...response.results];
-    if (search.trim()) {
-      const q = search.toLowerCase();
-      rows = rows.filter((r) => r.target_label.toLowerCase().includes(q));
+    if (!jobId) {
+      setSavedIds(new Set());
+      setRejectedIds(new Set());
+      setContactedIds(new Set());
+      return;
     }
-    const min = Number(minMatch) / 100;
-    rows = rows.filter((r) => r.similarity >= min);
-    return rows.sort((a, b) => b.similarity - a.similarity);
-  }, [response, search, minMatch]);
+    fetchMyFeedback(jobId)
+      .then((rows) => {
+        const maps = buildFeedbackMaps(rows, { contextId: jobId });
+        setSavedIds(maps.saved);
+        setRejectedIds(maps.rejected);
+        setContactedIds(maps.contacted);
+      })
+      .catch(() => {});
+  }, [response?.session_id, jobId]);
 
   const handleSave = async (row) => {
     if (!jobId) return;
     const saving = !savedIds.has(row.target_id);
     try {
-      if (saving) {
-        await recordFeedback(row.target_id, jobId, "save");
-      }
+      await recordFeedbackAction({
+        targetId: row.target_id,
+        action: saving ? "save" : "unsave",
+        contextId: jobId,
+        targetLabel: row.target_label,
+      });
       setSavedIds((prev) => {
         const next = new Set(prev);
         if (saving) next.add(row.target_id);
@@ -196,11 +199,41 @@ export default function EmployerCandidateResults({
       });
       showToast(saving ? `${row.target_label} saved to your shortlist.` : `${row.target_label} removed from saved.`);
     } catch (err) {
-      showToast(apiErrorMessage(err, "Could not update saved candidates."));
+      showToast(apiErrorMessage(err, "Could not update saved candidates."), "error");
     }
   };
 
-  const handleContact = (row) => {
+  const handleReject = async (row) => {
+    if (!jobId || rejectedIds.has(row.target_id)) return;
+    try {
+      await recordFeedbackAction({
+        targetId: row.target_id,
+        action: "reject",
+        contextId: jobId,
+        targetLabel: row.target_label,
+      });
+      setRejectedIds((prev) => new Set(prev).add(row.target_id));
+      showToast(`${row.target_label} marked as rejected for this role.`);
+    } catch (err) {
+      showToast(apiErrorMessage(err, "Could not save your feedback. Try again."), "error");
+    }
+  };
+
+  const handleContact = async (row) => {
+    if (!jobId) return;
+    try {
+      await recordFeedbackAction({
+        targetId: row.target_id,
+        action: "contact",
+        contextId: jobId,
+        targetLabel: row.target_label,
+      });
+      setContactedIds((prev) => new Set(prev).add(row.target_id));
+    } catch (err) {
+      showToast(apiErrorMessage(err, "Could not record contact feedback."), "error");
+      return;
+    }
+
     if (row.contact_email) {
       window.location.href = `mailto:${row.contact_email}`;
       return;
@@ -213,23 +246,44 @@ export default function EmployerCandidateResults({
       setDrawer({ row, whyLine: deriveEmployerWhyMatch(row) });
       return;
     }
-    showToast("No contact details on file — open the profile for more context.");
+    showToast("No contact details on file — open the profile for more context.", "info");
     setDrawer({ row, whyLine: deriveEmployerWhyMatch(row) });
   };
+
+  const filtered = useMemo(() => {
+    if (!response?.results) return [];
+    let rows = [...response.results];
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      rows = rows.filter((r) => r.target_label.toLowerCase().includes(q));
+    }
+    const min = Number(minMatch) / 100;
+    rows = rows.filter((r) => r.similarity >= min);
+    if (sort === "best") {
+      rows.sort((a, b) => b.similarity - a.similarity);
+    } else if (sort === "name") {
+      rows.sort((a, b) => a.target_label.localeCompare(b.target_label));
+    }
+    return rows;
+  }, [response, search, minMatch, sort]);
 
   const handleAdjustFilters = () => {
     setSearch("");
     setMinMatch("0");
+    setSort("best");
     filtersRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
     filtersRef.current?.querySelector(".filter-search")?.focus();
   };
 
   if (error && !response) {
     return (
-      <section className="portal-panel">
-        <div className="notice-warning">
+      <section className="portal-panel portal-panel--elevated">
+        <div className="notice-warning match-error-banner">
           <IconAlert />
           <span>{error}</span>
+        </div>
+        <div className="empty-state-action" style={{ marginTop: 16 }}>
+          <ButtonRefresh disabled={!jobTitle || loading} loading={loading} onRefresh={onRefresh} />
         </div>
       </section>
     );
@@ -237,24 +291,20 @@ export default function EmployerCandidateResults({
 
   if (!response) {
     return (
-      <section className="portal-panel portal-panel--elevated portal-panel--empty">
-        <EmptyState
-          title="Ready to review candidates"
-          description="Select a role and refresh matches to see ranked profiles for that posting."
-          patternVariant="employer-empty"
+      <EmptyStatePanel patternVariant="employer-candidates">
+        <EmployerCandidatesReadyEmpty
+          jobTitle={jobTitle}
           action={
             <ButtonRefresh disabled={!jobTitle || loading} loading={loading} onRefresh={onRefresh} />
           }
-          helperText="Matches rank candidates by skills overlap, experience, and profile fit."
         />
-      </section>
+      </EmptyStatePanel>
     );
   }
 
   return (
     <>
-      <section className="portal-panel portal-panel--elevated candidate-results employer-candidate-results">
-        <BackgroundPattern variant="employer-candidates" scope="panel" />
+      <ResultsPanel backgroundVariant="employer-candidates" className="candidate-results employer-candidate-results">
         {error && (
           <div className="notice-warning match-error-banner">
             <IconAlert />
@@ -288,8 +338,19 @@ export default function EmployerCandidateResults({
             aria-label="Minimum match"
           >
             <option value="0">Any match</option>
-            <option value="60">60%+ match</option>
-            <option value="80">80%+ match</option>
+            <option value="50">50%+</option>
+            <option value="60">60%+</option>
+            <option value="70">70%+</option>
+            <option value="80">80%+</option>
+          </select>
+          <select
+            className="filter-select"
+            value={sort}
+            onChange={(e) => setSort(e.target.value)}
+            aria-label="Sort results"
+          >
+            <option value="best">Best match</option>
+            <option value="name">Candidate name</option>
           </select>
           <button type="button" className="btn-secondary filter-refresh" onClick={onRefresh} disabled={loading}>
             {loading ? "Refreshing…" : "Refresh matches"}
@@ -322,14 +383,17 @@ export default function EmployerCandidateResults({
                 key={row.target_id}
                 row={row}
                 saved={savedIds.has(row.target_id)}
+                rejected={rejectedIds.has(row.target_id)}
+                contacted={contactedIds.has(row.target_id)}
                 onViewProfile={(r, why) => setDrawer({ row: r, whyLine: why })}
                 onSave={handleSave}
+                onReject={handleReject}
                 onContact={handleContact}
               />
             ))
           )}
         </div>
-      </section>
+      </ResultsPanel>
       {drawer && (
         <MatchDetailsDrawer
           row={drawer.row}
@@ -359,14 +423,16 @@ function ButtonRefresh({ disabled, loading, onRefresh }) {
 
 export function EmployerNoJobsEmpty() {
   return (
-    <section className="portal-panel portal-panel--elevated portal-panel--empty">
+    <EmptyStatePanel patternVariant="employer-empty">
       <EmptyState
         title="No roles posted yet"
         description="Create a role first, then we'll rank matching candidates against it."
-        patternVariant="employer-empty"
+        illustrationVariant="employer-jobs"
+        checklist={["Post a role with required skills", "Set compensation and location", "Refresh matches for that role"]}
+        checklistStyle="todo"
         action={<Link to="/employer/jobs" className="btn-primary">Post a role</Link>}
         helperText="Add required skills and experience to improve match quality."
       />
-    </section>
+    </EmptyStatePanel>
   );
 }

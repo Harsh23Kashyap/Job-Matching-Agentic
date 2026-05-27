@@ -62,6 +62,9 @@ function restoreContactSpans(text, protectedValues) {
 function stripNoise(text) {
   let cleaned = text;
   cleaned = cleaned.replace(CID_RE, "");
+  cleaned = cleaned.replace(/\s*(?:,\s*)+$/gm, "");
+  cleaned = cleaned.replace(/^(?:,\s*)+/gm, "");
+  cleaned = cleaned.replace(/,\s*,+/g, ", ");
   cleaned = cleaned.replace(CONTROL_RE, "");
   cleaned = cleaned.replace(ZERO_WIDTH_RE, "");
   cleaned = cleaned.replace(REPLACEMENT_CHAR_RE, "");
@@ -77,7 +80,7 @@ function stripNoise(text) {
 function normalizeLines(text) {
   const lines = [];
   for (const rawLine of text.split("\n")) {
-    const line = rawLine.trim();
+    let line = rawLine.trim().replace(/\s*(?:,\s*)+$/, "").trim();
     if (!line) {
       if (lines.length && lines[lines.length - 1] !== "") lines.push("");
       continue;

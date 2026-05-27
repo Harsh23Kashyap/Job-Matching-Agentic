@@ -64,7 +64,7 @@ Optional: set `OPENAI_API_KEY` in `backend/.env` (see `backend/.env.example`) to
 | Role | Routes | Purpose |
 |------|--------|---------|
 | **Candidate** | `/candidate/onboarding`, `/profile`, `/matches` | Upload resume → AI extract → find jobs; save roles; re-upload from profile |
-| **Employer** | `/employer/jobs`, `/matches` | Create/upload JD → find candidates; view contact in match drawer |
+| **Employer** | `/employer/jobs`, `/matches` | Paste or upload JD → AI extract → post role; find candidates; view contact in match drawer |
 | **Admin** | `/admin/console` | Match Console, agent events, Chroma/Qdrant switch, ensemble weights |
 
 Register at `/register` and pick a role. Sign in at `/login`.
@@ -96,8 +96,14 @@ Follow the scripted walkthrough for supervisors and stakeholders:
 | `GET /candidates`, `GET /jobs` | List names / titles |
 | `GET /candidates/me`, `GET /jobs/mine` | Owned profile / jobs (authenticated) |
 | `POST /candidates/upload-resume` | PDF/DOCX/TXT → LLM field extraction (candidate) |
+| `POST /candidates/me/resume-suggestions` | Role-targeted resume improvement suggestions (read-only) |
 | `POST /jobs/upload-description` | PDF/DOCX/TXT → LLM JD extraction (employer) |
-| `POST /match/candidate-to-jobs` | Resume → jobs (`use_cross_encoder` optional) |
+| `POST /jobs/parse-description` | Paste raw JD text → LLM JD extraction (employer) |
+| `GET /similar/jobs/{job_id}` | Similar roles (embedding + skill overlap, candidate auth) |
+| `GET /similar/candidates/{candidate_id}` | Similar candidates (embedding + skill overlap, employer auth) |
+| `POST /feedback/actions` | Portal feedback (save, not interested, apply / save, reject, contact) |
+| `GET /feedback/me` | Latest feedback actions for UI state (optional `context_id` for employer) |
+| `POST /feedback` | Legacy pair feedback for research/boost |
 | `POST /match/job-to-candidates` | Job → candidates (includes contact fields when set) |
 | `POST /match/ensemble` | RRF over multiple strategy/metric combos |
 | `POST /match/daily-batch` | ANN daily recommendations JSON artifact |
@@ -112,16 +118,27 @@ Legacy aliases: `/match-resume`, `/match-job`, `/match-resume-ensemble`, `/agent
 2. Register as **admin** → `/admin/console` shows 3 agents with 30 candidates and 15 jobs.
 3. Select **Rahul Sharma**, run semantic cosine match → **Machine Learning Engineer** rank 1.
 4. Register as **candidate** → upload resume on onboarding → save profile → find jobs.
-5. Register as **employer** → create a job → find matching candidates.
+5. Register as **employer** → paste or upload a JD → post a job → find matching candidates.
+6. Open **View details** on a match — composite score breakdown (semantic, skills, experience, compensation, location).
+
+### Match scoring (default)
+
+Portals use **composite** matching: weighted blend of semantic (40%), skills (30%), experience (15%), compensation (10%), and location (5%). Results show a final % plus band (Strong / Good / Moderate / Low). Legacy `semantic` strategy remains available via API.
 
 ## Tests
 
 ```bash
 cd backend && source .venv/bin/activate
-pytest ../tests -v
+pytest ../tests -q
+
+# Frontend helpers (match formatting, skills input)
+node --test tests/unit/test_skills_input.mjs tests/unit/test_match_format.mjs
+
+# Employer jobs API smoke (requires backend on :8001)
+python3 scripts/smoke_employer_jobs.py
 ```
 
-Expected: **88 tests** pass, including Rahul Sharma → Machine Learning Engineer rank 1 smoke test and Table 9 regression gate.
+Expected: **164 pytest** + **12 node** tests pass, including composite scoring, JD parse, Rahul Sharma → Machine Learning Engineer rank 1, and Table 9 regression gate.
 
 ### Benchmarks (v2)
 

@@ -115,6 +115,8 @@ class EmployerAgent(BaseAgent):
             required_experience=profile.required_experience,
             remote_policy=profile.remote_policy,
             budget=profile.budget,
+            budget_min=profile.budget_min,
+            budget_max=profile.budget_max,
             description=profile.description,
             version=profile.version,
             document_text_hash=profile.document_text_hash,

@@ -7,7 +7,9 @@ Run this **30 minutes before** a supervisor or stakeholder demo.
 - [ ] Backend running on **port 8001** (`uvicorn main:create_app --factory --reload --port 8001`)
 - [ ] Frontend running on **port 5173** (`npm run dev`)
 - [ ] OpenAPI version is **2.0.0**: `curl -s http://localhost:8001/openapi.json | python3 -c "import sys,json; print(json.load(sys.stdin)['info']['version'])"`
-- [ ] Tests green: `cd backend && pytest ../tests -q` (expect **116 passed**)
+- [ ] Tests green: `cd backend && pytest ../tests -q` (expect **164 passed**)
+- [ ] Node tests green: `node --test tests/unit/test_skills_input.mjs tests/unit/test_match_format.mjs` (expect **12 passed**)
+- [ ] Frontend build: `cd frontend && npm run build`
 
 ## Secrets (local only — never commit)
 
@@ -18,14 +20,35 @@ Run this **30 minutes before** a supervisor or stakeholder demo.
 ## Corpus bootstrap
 
 - [ ] Admin console shows **~30 candidates** and **~15 jobs** (bootstrapped from `data/cvs.json` + `data/jobs.json`)
-- [ ] Quick API smoke: Rahul Sharma → Machine Learning Engineer **rank 1**
+- [ ] Quick API smoke: Rahul Sharma → Machine Learning Engineer **rank 1** (composite default)
 
 ```bash
+# Composite match (portal default) — expect rank 1 + score fields
+curl -s -X POST http://localhost:8001/match/candidate-to-jobs \
+  -H 'Content-Type: application/json' \
+  -d '{"query_key":"Rahul Sharma","top_k":1,"strategy":"composite","metric":"cosine"}' \
+  | python3 -c "import sys,json; r=json.load(sys.stdin)['results'][0]; print(r['rank'], r['target_label'], round(r['final_score'],2))"
+
+# Legacy semantic path still works
 curl -s -X POST http://localhost:8001/match/candidate-to-jobs \
   -H 'Content-Type: application/json' \
   -d '{"query_key":"Rahul Sharma","top_k":1,"strategy":"semantic","metric":"cosine"}' \
   | python3 -c "import sys,json; r=json.load(sys.stdin)['results'][0]; print(r['rank'], r['target_label'])"
 # Expected: 1 Machine Learning Engineer
+```
+
+- [ ] Employer jobs smoke: `python3 scripts/smoke_employer_jobs.py` (expect 5 jobs for demo employer)
+- [ ] JD paste parse (employer session): paste 40+ chars on **My Jobs → Import** or:
+
+```bash
+curl -s -X POST http://localhost:8001/auth/login -c /tmp/jm.txt \
+  -H 'Content-Type: application/json' \
+  -d '{"email":"demo.employer@test.com","password":"demo1234"}' > /dev/null
+curl -s -X POST http://localhost:8001/jobs/parse-description -b /tmp/jm.txt \
+  -H 'Content-Type: application/json' \
+  -d '{"text":"Senior Python Developer at Acme. Skills: Python, FastAPI. 5+ years. Budget 80-100k USD. Remote full-time."}' \
+  | python3 -c "import sys,json; d=json.load(sys.stdin); f=d.get('extracted_fields',{}); print(d.get('llm_status'), f.get('title')); assert f.get('title') or d.get('llm_status') in ('ok','unavailable')"
+# Expected: ok + title (Ollama/OpenAI) or unavailable + partial fields (graceful fallback)
 ```
 
 ## Demo accounts (optional — create fresh or reuse)

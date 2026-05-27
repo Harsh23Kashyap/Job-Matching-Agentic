@@ -78,6 +78,16 @@ export async function fetchMyProfile() {
   return data;
 }
 
+/** Returns null when the candidate has no linked profile yet (404). */
+export async function fetchMyProfileOrNull() {
+  try {
+    return await fetchMyProfile();
+  } catch (err) {
+    if (err.response?.status === 404) return null;
+    throw err;
+  }
+}
+
 export async function fetchMyJobs() {
   const { data } = await api.get("/jobs/mine");
   return data;
@@ -93,8 +103,7 @@ export async function uploadResume(file) {
 }
 
 export async function saveCandidateProfile(profile) {
-  const { data } = await api.post("/candidates", profile);
-  return data;
+  return upsertCandidateProfile(profile);
 }
 
 export async function updateCandidateProfile(profile) {
@@ -117,6 +126,11 @@ export async function uploadJobDescription(file) {
   return data;
 }
 
+export async function parseJobDescriptionText(text) {
+  const { data } = await api.post("/jobs/parse-description", { text });
+  return data;
+}
+
 export async function saveJobPosting(job) {
   const { data } = await api.post("/jobs", job);
   return data;
@@ -136,34 +150,49 @@ export async function updateEmployerJobStatus(jobId, status) {
 export const DEFAULT_CANDIDATE_MATCH = {
   mode: "candidate_to_jobs",
   topK: 10,
-  strategy: "multimodal",
+  strategy: "composite",
   metric: "cosine",
   skillsMode: "jaccard",
   semanticWeight: 0.7,
   ensemble: false,
-  fusionMode: "learned",
-  applyConstraints: true,
-  autoStrategy: true,
-  useCalibration: true,
-  useFeedbackBoost: true,
-  explainMode: "llm",
+  fusionMode: "fixed",
+  applyConstraints: false,
+  autoStrategy: false,
+  useCalibration: false,
+  useFeedbackBoost: false,
+  explainMode: "rules",
 };
 
 export const DEFAULT_EMPLOYER_MATCH = {
   mode: "job_to_candidates",
   topK: 10,
-  strategy: "multimodal",
+  strategy: "composite",
   metric: "cosine",
   skillsMode: "jaccard",
   semanticWeight: 0.7,
   ensemble: false,
-  fusionMode: "learned",
-  applyConstraints: true,
+  fusionMode: "fixed",
+  applyConstraints: false,
   autoStrategy: false,
-  useCalibration: true,
+  useCalibration: false,
   useFeedbackBoost: false,
   explainMode: "rules",
 };
+
+export async function fetchSimilarJobs(jobId, limit = 3) {
+  const { data } = await api.get(`/similar/jobs/${jobId}`, { params: { limit } });
+  return data;
+}
+
+export async function fetchSimilarCandidates(candidateId, limit = 3) {
+  const { data } = await api.get(`/similar/candidates/${candidateId}`, { params: { limit } });
+  return data;
+}
+
+export async function fetchResumeSuggestions(jobId) {
+  const { data } = await api.post("/candidates/me/resume-suggestions", { job_id: jobId });
+  return data;
+}
 
 export async function fetchSavedJobs() {
   const { data } = await api.get("/candidates/me/saved-jobs");
@@ -248,6 +277,29 @@ export async function recordFeedback(candidateId, jobId, action) {
     candidate_id: candidateId,
     job_id: jobId,
     action,
+  });
+  return data;
+}
+
+export async function fetchMyFeedback(contextId) {
+  const params = contextId ? { context_id: contextId } : undefined;
+  const { data } = await api.get("/feedback/me", { params });
+  return data.feedback || [];
+}
+
+export async function recordFeedbackAction({
+  targetId,
+  action,
+  contextId,
+  targetLabel,
+  matchScore,
+}) {
+  const { data } = await api.post("/feedback/actions", {
+    target_id: targetId,
+    action,
+    context_id: contextId ?? null,
+    target_label: targetLabel ?? "",
+    match_score: matchScore ?? null,
   });
   return data;
 }

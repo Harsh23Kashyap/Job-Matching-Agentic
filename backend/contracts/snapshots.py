@@ -22,6 +22,8 @@ class JobSnapshot(BaseModel):
     required_experience: int
     remote_policy: bool
     budget: int | None = None
+    budget_min: int | None = None
+    budget_max: int | None = None
     description: str
     version: int
     document_text_hash: str

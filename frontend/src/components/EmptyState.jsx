@@ -1,5 +1,5 @@
 import EmptyStateIllustration from "./EmptyStateIllustration.jsx";
-import BackgroundPattern from "./BackgroundPattern.jsx";
+import BackgroundOrnaments from "./BackgroundOrnaments.jsx";
 
 export default function EmptyState({
   title,
@@ -15,7 +15,7 @@ export default function EmptyState({
 }) {
   return (
     <div className={`empty-state-card empty-state-card--${variant}${compact ? " empty-state-card--compact" : ""}`}>
-      {patternVariant && <BackgroundPattern variant={patternVariant} scope="inline" />}
+      {patternVariant && <BackgroundOrnaments variant={patternVariant} scope="inline" />}
       <div className="empty-state-card__body">
         <EmptyStateIllustration variant={illustrationVariant} />
         <h3>{title}</h3>
@@ -45,6 +45,7 @@ export function ProfileNeededEmpty({ action }) {
     <EmptyState
       variant="profile"
       illustrationVariant="profile-needed"
+      patternVariant="profile"
       title="Profile needed"
       description="Upload your resume or enter your skills so we can find roles that fit."
       checklist={PROFILE_CHECKLIST}
@@ -59,6 +60,7 @@ export function JobsReadyEmpty({ action }) {
     <EmptyState
       variant="jobs"
       illustrationVariant="ready"
+      patternVariant="jobs"
       title="Ready to find matches"
       description="Your profile is ready. Search roles matched to your skills and preferences."
       action={action}
@@ -71,10 +73,29 @@ export function NoMatchingRolesEmpty({ action }) {
     <EmptyState
       variant="no-results"
       illustrationVariant="no-results"
+      patternVariant="empty"
       title="No matching roles found"
       description="Try lowering the minimum match or updating your skills."
       compact
       action={action}
+    />
+  );
+}
+
+export function EmployerCandidatesReadyEmpty({ action, jobTitle }) {
+  return (
+    <EmptyState
+      variant="jobs"
+      illustrationVariant="ready"
+      patternVariant="employer-candidates"
+      title="Ready to review candidates"
+      description={
+        jobTitle
+          ? `Refresh matches to see candidates ranked for ${jobTitle}.`
+          : "Select a role and refresh matches to see ranked profiles for that posting."
+      }
+      action={action}
+      helperText="Matches rank candidates by skills overlap, experience, and profile fit."
     />
   );
 }
@@ -101,6 +122,8 @@ export function EmployerRolesEmpty({ action }) {
       patternVariant="employer-empty"
       title="No roles posted yet"
       description="Create your first role to start matching candidates."
+      checklist={["Add title and required skills", "Set compensation and work setup", "Paste or upload a JD to pre-fill"]}
+      checklistStyle="todo"
       action={action}
     />
   );

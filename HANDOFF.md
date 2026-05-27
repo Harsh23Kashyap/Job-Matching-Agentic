@@ -3,45 +3,42 @@
 
 ## Goal
 
-Ship a **three-agent job matching product** (Candidate, Employer, Matchmaking) with role portals, explainable ML matching, benchmark parity, and **thesis-demo completeness**: polished candidate + employer UX, demo accounts, saved jobs/applications, employer job management, candidate matching for employers, and subtle animated backgrounds — all testable locally without external deps.
+Ship a **three-agent job matching product** (Candidate, Employer, Matchmaking) with role portals, explainable ML matching, benchmark parity, and **thesis-demo completeness**: unified portal UX, composite match scoring with breakdown UI, employer JD paste extraction, polished candidate + employer flows, demo accounts, and local testability without external deps.
 
 ## Current state
 
-- **Done (committed on `origin/main`, latest `517b099`):**
+- **Done (committed on `main`, pushed 2026-05-27):**
   - V1 + V1.1: three agents, auth, portals, LLM resume/JD upload, contact fields
   - V2 ML: lexical, cross-encoder, Qdrant switch, benchmarks, fusion/constraints/calibration/router/feedback, admin ML toggles
   - Activity: saved jobs, applications, employer applicant feed
-  - Candidate profile UX: resume cleanup, compensation, skills chips, layout, match results with filters/drawer
-  - **144 pytest + 12 node tests** at last commit; frontend build passing
+  - Candidate profile UX, match results with filters/drawer
+  - Demo seed (`backend/demo_seed.py`), employer job management, employer candidates page
+  - **Portal consistency** — shared `FormSection`, `ResultsPanel`, `EmptyStatePanel`, `SkillChip`, `CompensationInput`; toast variants; removed `BudgetRangeInput.jsx`
+  - **Composite match scoring** — 40/30/15/10/5% weights; default `strategy: "composite"`; `MatchDetailsDrawer` score breakdown
+  - **JD paste parser** — `POST /jobs/parse-description`; employer Jobs import panel with LLM fallback
+  - **Resume coach** — read-only suggestions per job (`POST /candidates/me/resume-suggestions`)
+  - **Similar entities** — `GET /similar/jobs/{id}`, `GET /similar/candidates/{id}` (3 cards)
+  - **Feedback actions** — save/apply/not_interested/reject/contact in SQLite (`user_feedback` table)
+  - **BackgroundOrnaments** — subtle animated SVG backgrounds (candidate, employer, admin pages)
+  - **Resume CID cleanup** — strip `(cid:N)` artifacts; regex contact extraction (name, email, phone, GitHub, LeetCode, portfolio, certs)
+  - **Profile upsert** — `PUT /candidates/me` create/update; Jobs page unlocks via `GET /candidates/me`
+  - **Tests:** 208 pytest + 20 node unit tests; `test_feature_reverification.py`, `test_candidate_profile_flow.py`
 
-- **Done (uncommitted — this session + prior agent work, not yet pushed):**
-  - **`BackgroundPattern`** — reusable SVG backgrounds: `onboarding`, `profile`, `jobs`, `empty`, `employer-jobs`, `employer-candidates`, `employer-empty`; sage/sand/olive only; `prefers-reduced-motion` respected
-  - **Candidate empty states** — ProfileNeeded, JobsReady, NoMatchingRoles + illustrations
-  - **Navbar polish** — pill tabs, avatar-only user menu, mobile bottom nav, theme toggle
-  - **Candidate QA** — profile update events, toasts, match error retry, `/feedback` vite proxy, profile loading shimmer
-  - **Demo seed** — `backend/demo_seed.py` auto-seeds on startup (`SEED_DEMO=true` default): `demo.candidate@test.com`, `demo.employer@test.com`, `demo.admin@test.com` / `demo1234`; login page one-click buttons
-  - **Employer job posting** — `JobPostingForm`, `BudgetRangeInput`, structured sections, budget range fields on backend
-  - **Employer My Jobs** — rich role cards, search/filter/sort, Open/Closed/Draft badges, Edit + Close role, `PUT /jobs/mine/{id}`, `PATCH /jobs/mine/{id}/status`, `status`/`created_at`/`updated_at` on `JobProfile`
-  - **Employer Candidates page** — title “Candidate matches”, summary cards (reviewed/strong/top/refreshed), role selector, rich candidate cards, match drawer, Save via `/feedback`, Contact mailto
-  - **Match API enrichment** — `candidate_experience_years`, `candidate_preferred_salary`, `candidate_preferred_currency`, `candidate_remote_preference` on job→candidates results
-  - **`scripts/smoke_employer_jobs.py`** — API smoke for list/update/close/reopen
-  - **149 pytest + 12 node tests passing**; frontend build passing (verified 2026-05-27)
-
-- **In progress:** None — all requested employer/candidate polish items from recent sessions appear complete
+- **In progress:** None
 - **Blocked:** None for local thesis demo
 
 ## Decisions made
 
 | Decision | Why | Alternatives rejected |
 |----------|-----|----------------------|
-| Activity store in same SQLite DB as auth | One file, no new infra | Separate DB or Postgres (deferred) |
-| Profile upsert via `PUT /candidates/me` | Single save path; fixes “already linked” | Split POST create + PUT update only |
-| Demo seed on startup (`SEED_DEMO=true`) | One-click thesis demo without manual corpus setup | Manual seed script only |
-| Job status `open`/`closed`/`draft` on `JobProfile` | Employer list badges + close role UX | Soft-delete or archive table |
-| Employer match Save → `POST /feedback` action `save` | Reuses existing feedback store | New employer-shortlist table |
-| Client-side job/candidate filters | No backend filter API yet; instant UX | Server-side filter params (deferred) |
-| Employer background variants separate from candidate `jobs` | Distinct visual language (job card → candidates vs role cards) | Reuse candidate `jobs` art on employer pages |
-| Technical scores in `<details>` drawer only | Product-facing UX hides raw ML numbers | Show semantic/skills scores on cards |
+| Composite scoring as default match strategy | Product-facing final % + component breakdown for demo | Semantic-only on cards (less explainable) |
+| Weights 40/30/15/10/5% (semantic/skills/exp/comp/loc) | Balances relevance with structured signals | Equal weights; skills-heavy (less semantic fidelity) |
+| `BudgetRangeInput` merged into `CompensationInput` | One component, single + range modes, less duplication | Keep separate budget component |
+| JD paste via shared `_parse_job_description_text` + `llm_parser` | Same LLM path as file upload; graceful fallback | Separate ad-hoc prompt per endpoint |
+| Score bands Strong ≥80, Good ≥65, Moderate ≥50, Low <50 | Readable employer/candidate UX | Raw floats only on cards |
+| Technical component scores in drawer only | Cards show final % + band; drawer holds detail | Show all five scores on list cards |
+| Demo seed on startup (`SEED_DEMO=true`) | One-click thesis demo | Manual seed only |
+| Client-side job/candidate filters | Instant UX without backend filter API | Server-side filter params (deferred) |
 | `git commit` with dual `-m` flags | HEREDOC in agent shell hung in this environment | Single HEREDOC commit (blocked ~90s+) |
 
 ## Open questions
@@ -49,44 +46,46 @@ Ship a **three-agent job matching product** (Candidate, Employer, Matchmaking) w
 - [ ] Hypothesis: Add `listed_at` / `remote_policy` to `MatchResult` for accurate “Recently added” and remote filter — worth backend pass when demo stabilizes
 - [ ] Unknown: Whether LLM explainer should surface “template fallback” in UI when Ollama is offline
 - [ ] Hunch: Full `paper_progression` with cross-encoder still needs refreshed `data/expected/` floats
+- [ ] Unknown: Why `demo.admin@test.com` returns 401 in automated smoke — candidate/employer demos work; may need seed/password check
+- [ ] Hypothesis: Employer browser session showed empty jobs while API returned 5 — likely stale cookie/wrong session in automation, not a code bug
 - [ ] Paper §3 architecture diagram — waiting on supervisor approval
-- [ ] Hypothesis: Employer “Save” should persist to a dedicated shortlist UI (not just feedback store) — deferred
 
 ## Blockers & dependencies
 
 | What | Who/Where | Status |
 |------|-----------|--------|
-| Ollama for LLM explain + resume parse | Local dev | optional — template/manual fallback works |
+| Ollama for LLM explain + resume/JD parse | Local dev | optional — template/manual fallback works |
+| Commit + push uncommitted work | User | **not done** — ~32 modified + 6 new files on `main` |
 | External job posting URLs for Apply | Job `link` field on corpus | sparse — in-app apply via API works |
-| Commit + push uncommitted work | User | **not done** — large dirty tree on `main` |
 
 ## Environment
 
-- **Branch:** `main` (last pushed commit `517b099`; **many uncommitted changes**)
-- **Uncommitted changes:** ~36 modified + ~15 new files (see `git status --short`); includes all employer/candidate polish, demo seed, BackgroundPattern, tests
+- **Branch:** `main` (last commit `0185fa8`; **large uncommitted tree**)
+- **Uncommitted changes:** 32 modified, 6 untracked (composite scoring, portal components, JD parse, drawer, tests); ~1096 insertions / 578 deletions
 - **Recent commits:**
+  - `0185fa8` Polish employer portal, demo seed, and shared portal UX for thesis demo
   - `517b099` Polish candidate profile UX and jobs results for thesis demo
   - `71c60b3` Add saved jobs, applications, fairness baseline, and ML defaults
-  - `153a9d0` Add V2 ML pipeline, benchmarks, portal polish, and feedback loop
 - **Build status:** passing (`npm run build`)
-- **Test status:** **149 passed** pytest + **12 passed** node; 2 deprecation warnings
-- **Active processes:** None known (start backend `:8001` + frontend `:5173` for manual QA)
+- **Test status:** **164 passed** pytest + **12 passed** node; 2 deprecation warnings
+- **Active processes:** Backend may already be on `:8001` (second uvicorn start gets “address already in use”); start frontend `:5173` for manual QA
 
 ## What worked
 
-- Demo accounts + corpus linkage — employer sees 5 jobs, candidate linked to `cv_01` (Rahul Sharma)
-- Employer jobs API smoke script — list/update/close/reopen in one command
-- Browser QA flow — demo employer login → My Jobs filters → View candidates with `?job=` preselect
-- `BackgroundPattern` + `PortalBackground.resolveVariant()` — page-level backgrounds without duplicating SVG in each page
-- `EmployerJobList` + `EmployerJobCard` — filter/sort without backend changes
-- `deriveEmployerWhyMatch()` — employer-facing copy (not “Matches your …”)
+- Composite match end-to-end — e.g. Rahul Sharma ↔ Machine Learning Engineer at **71%** with all component fields in API response
+- JD paste parse — `POST /jobs/parse-description` returns title/skills/budget/currency/job_type with `llm_status=ok` when Ollama available
+- Shared portal components wired through JobPostingForm, ProfileForm, results panels, MatchDetailsDrawer
+- `scripts/smoke_employer_jobs.py` — reliable employer jobs API verification
+- Demo accounts — `demo.candidate@test.com` / `demo.employer@test.com` / `demo1234`; employer sees 5 jobs via API
 - `git -c core.fsmonitor=false commit -m "subject" -m "body"` — reliable when HEREDOC hangs
 
 ## What didn't work
 
 - Long-running `git commit` with embedded HEREDOC in agent shell — hung; use `-m` twice or simple message
-- Browser automation on narrow viewport — Edit/Close role buttons on My Jobs can sit behind mobile bottom nav; works on wider layouts
-- Inline shell JSON for job list API smoke — job descriptions broke `json.loads`; use `scripts/smoke_employer_jobs.py` instead
+- Browser automation on employer Jobs — flaky refs / empty list despite API returning 5 jobs; API-level smoke is authoritative
+- Browser automation on narrow viewport — Edit/Close on My Jobs can sit behind mobile bottom nav
+- Admin demo login — 401 in one automated smoke run (candidate/employer OK)
+- Inline shell JSON for job list API smoke — job descriptions broke `json.loads`; use `scripts/smoke_employer_jobs.py`
 
 ## Commands
 
@@ -114,9 +113,6 @@ python3 scripts/smoke_employer_jobs.py
 # Train ML models
 cd backend && python -m benchmarks.train_ml_models
 
-# Fairness report
-cd backend && python -c "from benchmarks.fairness_eval import run_fairness_eval; from config import Settings; import json; print(json.dumps(run_fairness_eval(Settings()), indent=2))"
-
 # Benchmarks
 python -m benchmarks.table11_fusion
 python -m benchmarks.paper_progression --skip-cross-encoder
@@ -129,24 +125,26 @@ SEED_DEMO=true VECTOR_STORE=qdrant READ_ONLY=true
 
 | File | Why It Matters |
 |------|---------------|
+| `backend/core/component_scores.py` | Per-dimension score functions (skills, exp, comp, loc) |
+| `backend/core/scoring.py` | `compute_composite()` + fusion with semantic base |
+| `backend/core/matchmaking_scoring.py` | Wires composite strategy into match pipeline |
+| `backend/contracts/matching.py` | `ScoreBreakdown` / `MatchResult` composite fields |
+| `backend/hooks/llm_parser.py` | JD/resume LLM parse; budget/currency/job_type normalization |
+| `backend/gateway/routes/employers.py` | `POST /jobs/parse-description`, job CRUD |
 | `backend/demo_seed.py` | Auto-seeds demo users + links employer to 5 corpus jobs |
-| `backend/gateway/routes/employers.py` | `GET/PUT/PATCH /jobs/mine`, job status + ownership |
-| `backend/contracts/profiles.py` | `JobProfile` status, timestamps, budget fields |
-| `backend/contracts/matching.py` | `MatchResult` + candidate profile fields for employer view |
-| `backend/agents/matchmaking_agent.py` | Job→candidates ranking + contact + profile enrichment |
-| `frontend/src/components/BackgroundPattern.jsx` | All page/panel/inline SVG background variants |
-| `frontend/src/components/PortalBackground.jsx` | Route → variant mapping (candidate + employer) |
-| `frontend/src/components/EmployerJobList.jsx` | My Jobs search/filter/sort + empty state |
-| `frontend/src/components/EmployerJobCard.jsx` | Role card with badges and actions |
-| `frontend/src/components/EmployerCandidateResults.jsx` | Candidate matches list, summary, drawer, filters |
-| `frontend/src/components/JobPostingForm.jsx` | Structured employer posting form |
-| `frontend/src/pages/employer/Jobs.jsx` | Two-column jobs list + post/edit form |
-| `frontend/src/pages/employer/Matches.jsx` | Candidate matches page shell + refresh |
-| `frontend/src/utils/jobFields.js` | Job form validation, payload, `jobFromApi` for edit |
-| `frontend/src/utils/format.js` | Match formatting, employer why-match, compensation display |
-| `frontend/src/constants/demoAccounts.js` | Login page demo button config |
+| `frontend/src/components/MatchDetailsDrawer.jsx` | Score breakdown UI, bands, skills, employer cards |
+| `frontend/src/components/CompensationInput.jsx` | Single + range compensation (replaces BudgetRangeInput) |
+| `frontend/src/components/FormSection.jsx` | Shared form section wrapper |
+| `frontend/src/components/ResultsPanel.jsx` | Shared results list shell |
+| `frontend/src/components/EmptyStatePanel.jsx` | Shared empty state |
+| `frontend/src/components/SkillChip.jsx` | Shared skill chip |
+| `frontend/src/pages/employer/Jobs.jsx` | JD paste import panel + post/edit form |
+| `frontend/src/api/client.js` | `parseJobDescriptionText()`, default composite match config |
+| `frontend/src/utils/format.js` | `matchTier()`, `matchDisplayScore()`, employer why-match |
+| `frontend/src/App.css` | Portal cards, drawer styles, toast variants |
+| `tests/unit/test_component_scores.py` | Component score unit tests |
+| `tests/integration/test_job_parse.py` | JD parse endpoint integration tests |
 | `scripts/smoke_employer_jobs.py` | Quick employer jobs API verification |
-| `tests/integration/test_demo_seed.py` | Demo seed integration tests |
 | `docs/demo/DEMO-CHECKLIST.md` | Pre-flight demo steps |
 
 ## External links
@@ -166,8 +164,9 @@ None directly relevant.
 
 ## Next steps
 
-1. **Commit uncommitted work** — group logically (demo seed + auth, employer jobs API/UI, employer candidates polish, BackgroundPattern, candidate QA/navbar) — verify: `git status` clean after commit(s)
-2. **Live demo dry-run** — demo.candidate → Jobs → Find matches; demo.employer → My Jobs → Candidates → Refresh matches — verify: `docs/demo/DEMO-CHECKLIST.md` + `scripts/smoke_employer_jobs.py`
-3. **Mobile QA on employer My Jobs** — Edit/Close not blocked by bottom nav — verify: scroll or add bottom padding on action rows if needed
-4. **Update DEMO-CHECKLIST / README** — 149 tests, demo accounts, employer flows — verify: doc counts match `pytest ../tests -q`
-5. **Optional: push to remote** after commit — verify: `git log origin/main..HEAD`
+1. **Commit uncommitted work** — suggest logical groups: (a) composite scoring backend + tests, (b) portal consistency components + CSS, (c) MatchDetailsDrawer, (d) JD paste parser + employer Jobs UI — verify: `git status` clean after commit(s)
+2. **Live demo dry-run** — demo.candidate → Jobs → match drawer with composite breakdown; demo.employer → paste JD → Extract → post role → Candidates — verify: `docs/demo/DEMO-CHECKLIST.md` + API smoke
+3. ~~**Update DEMO-CHECKLIST / README**~~ — done 2026-05-27
+4. **Mobile QA on employer My Jobs** — Edit/Close not blocked by bottom nav — verify: add bottom padding on action rows if needed
+5. **Optional: fix admin demo login** — if admin portal needed for demo — verify: login smoke for `demo.admin@test.com`
+6. **Optional: push to remote** after commit — verify: `git log origin/main..HEAD`

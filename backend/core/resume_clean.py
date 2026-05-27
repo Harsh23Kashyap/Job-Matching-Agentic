@@ -3,23 +3,15 @@ from __future__ import annotations
 
 import re
 
-from core.contact_extract import EMAIL_RE, LINKEDIN_RE, PHONE_RE, URL_RE
+from core.contact_extract import EMAIL_RE, GITHUB_RE, LEETCODE_RE, LINKEDIN_RE, PHONE_RE, URL_RE
 
 # PDF font-encoding artifacts and stray punctuation common in extracted resumes.
 CID_RE = re.compile(r"\(?cid:\s*\d+\s*\)?", re.IGNORECASE)
+CID_COMMA_DEBRIS_RE = re.compile(r"\s*(?:,\s*)+$", re.MULTILINE)
 CONTROL_RE = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f-\x9f]")
 ZERO_WIDTH_RE = re.compile(r"[\u200b-\u200d\ufeff]")
 REPLACEMENT_CHAR_RE = re.compile(r"\ufffd")
 JUNK_SYMBOLS_RE = re.compile(r"[§¶†‡•◦·▪▫●○◆◇■□]+")
-LEETCODE_RE = re.compile(
-    r"https?://(?:[\w.-]+\.)?leetcode\.com/(?:u/)?[\w-]+/?",
-    re.IGNORECASE,
-)
-GITHUB_RE = re.compile(
-    r"https?://(?:[\w.-]+\.)?github\.com/[\w-]+/?",
-    re.IGNORECASE,
-)
-
 _PROTECT_PATTERNS = (
     EMAIL_RE,
     URL_RE,
@@ -70,6 +62,9 @@ def _restore_contact_spans(text: str, protected: list[str]) -> str:
 def _strip_noise(text: str) -> str:
     cleaned = text
     cleaned = CID_RE.sub("", cleaned)
+    cleaned = CID_COMMA_DEBRIS_RE.sub("", cleaned)
+    cleaned = re.sub(r"^(?:,\s*)+", "", cleaned, flags=re.MULTILINE)
+    cleaned = re.sub(r",\s*,+", ", ", cleaned)
     cleaned = CONTROL_RE.sub("", cleaned)
     cleaned = ZERO_WIDTH_RE.sub("", cleaned)
     cleaned = REPLACEMENT_CHAR_RE.sub("", cleaned)
@@ -86,6 +81,7 @@ def _normalize_lines(text: str) -> str:
     lines: list[str] = []
     for raw_line in text.split("\n"):
         line = raw_line.strip()
+        line = re.sub(r"\s*(?:,\s*)+$", "", line).strip()
         if not line:
             if lines and lines[-1] != "":
                 lines.append("")

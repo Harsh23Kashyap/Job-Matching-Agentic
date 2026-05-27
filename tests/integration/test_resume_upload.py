@@ -45,7 +45,7 @@ def test_upload_llm_unavailable_returns_manual_fallback(mock_factory, client):
     assert "raw_text_preview" in data
     assert "cleaned_text" in data
     assert "(cid:" not in data["cleaned_text"]
-    assert data["extracted_fields"]["name"] == ""
+    assert data["extracted_fields"]["name"] == "Harsh Kashyap"
     assert data["extracted_fields"]["email"] == "harsh@example.com"
     assert "linkedin.com/in/harsh" in data["extracted_fields"]["linkedin"]
 
@@ -68,7 +68,9 @@ def test_upload_strips_cid_noise_from_cleaned_text(mock_factory, client):
     data = resp.json()
     assert "(cid:" not in data["cleaned_text"]
     assert "\xc2\xa7" not in data["cleaned_text"]
+    assert data["cleaned_text"].startswith("Harsh Kashyap")
     assert "harsh@example.com" in data["cleaned_text"]
+    assert data["extracted_fields"]["name"] == "Harsh Kashyap"
     assert data["extracted_fields"]["email"] == "harsh@example.com"
 
 

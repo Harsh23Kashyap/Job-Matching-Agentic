@@ -2,7 +2,7 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 
-Strategy = Literal["semantic", "multimodal"]
+Strategy = Literal["semantic", "multimodal", "composite"]
 Metric = Literal["cosine", "euclidean"]
 SkillsMode = Literal["jaccard", "embedding"]
 RetrievalMode = Literal["exhaustive", "ann"]
@@ -58,6 +58,9 @@ class EnsembleRequest(BaseModel):
 class ScoreBreakdown(BaseModel):
     semantic_score: float
     skills_score: float | None = None
+    experience_score: float | None = None
+    compensation_score: float | None = None
+    location_score: float | None = None
     final_score: float
     strategy_used: str
     metric_used: str
@@ -85,6 +88,10 @@ class MatchResult(BaseModel):
     similarity: float
     semantic_score: float
     skills_score: float | None = None
+    experience_score: float | None = None
+    compensation_score: float | None = None
+    location_score: float | None = None
+    final_score: float | None = None
     matched_skills: list[str] = Field(default_factory=list)
     missing_skills: list[str] = Field(default_factory=list)
     why_ranked: list[str] = Field(default_factory=list)

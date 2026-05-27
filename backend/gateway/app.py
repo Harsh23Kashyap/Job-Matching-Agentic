@@ -6,7 +6,7 @@ from auth.store import UserStore
 from bootstrap import SystemContainer
 from demo_seed import seed_demo_accounts
 from gateway.middleware import ReadOnlyMiddleware
-from gateway.routes import agents, candidates, employers, feedback, matching, system
+from gateway.routes import agents, candidates, employers, feedback, matching, similar, system
 
 
 def build_gateway(container: SystemContainer) -> FastAPI:
@@ -36,6 +36,7 @@ def build_gateway(container: SystemContainer) -> FastAPI:
     app.include_router(candidates.router)
     app.include_router(employers.router)
     app.include_router(matching.router)
+    app.include_router(similar.router)
     app.include_router(feedback.router)
     app.include_router(system.router)
 

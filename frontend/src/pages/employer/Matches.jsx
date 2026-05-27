@@ -5,6 +5,7 @@ import EmployerCandidateResults, { EmployerNoJobsEmpty } from "../../components/
 import Button from "../../components/Button.jsx";
 import { useToast } from "../../components/Toast.jsx";
 import { apiErrorMessage, fetchMyJobs, runMatch, DEFAULT_EMPLOYER_MATCH } from "../../api/client.js";
+import { matchPercent, countStrongMatches } from "../../utils/format.js";
 
 export default function EmployerMatches() {
   const { showToast } = useToast();
@@ -73,6 +74,17 @@ export default function EmployerMatches() {
     setError(null);
   };
 
+  const heroStats = useMemo(() => {
+    if (!response?.results?.length) return [];
+    const strong = countStrongMatches(response.results);
+    const top = response.results[0]?.similarity ?? 0;
+    return [
+      { label: "Candidates reviewed", value: response.evaluated_count ?? response.results.length },
+      { label: "Strong matches", value: strong },
+      { label: "Top match", value: matchPercent(top) },
+    ];
+  }, [response]);
+
   if (openJobs.length === 0) {
     return (
       <>
@@ -91,17 +103,25 @@ export default function EmployerMatches() {
     );
   }
 
+  const matchCount = response?.results?.length || 0;
+  const subtitle = response
+    ? `${matchCount} candidate${matchCount === 1 ? "" : "s"} ranked for ${selectedJob?.title || selected}.`
+    : selectedJob?.title
+      ? `Matching candidates for ${selectedJob.title} based on skills and experience.`
+      : "Review candidates ranked by fit for your open roles.";
+
   return (
     <>
       <PageHeader
         eyebrow="Employer"
         title="Candidate matches"
-        subtitle="Review candidates ranked by fit for your open roles."
+        subtitle={subtitle}
+        stats={heroStats}
         inlineAction={
-          <div className="hero-toolbar">
+          <div className="hero-toolbar employer-matches-toolbar">
             <label className="hero-toolbar-field">
               <span className="field-label">Select role</span>
-              <select value={selected} onChange={(e) => handleRoleChange(e.target.value)}>
+              <select className="portal-select" value={selected} onChange={(e) => handleRoleChange(e.target.value)}>
                 {openJobs.map((job) => (
                   <option key={job.id} value={job.title}>
                     {job.title}
@@ -110,7 +130,7 @@ export default function EmployerMatches() {
               </select>
             </label>
             <Button loading={loading} loadingLabel="Refreshing…" onClick={handleRefresh} disabled={!selected}>
-              Refresh matches
+              {response ? "Refresh matches" : "Find candidates"}
             </Button>
           </div>
         }

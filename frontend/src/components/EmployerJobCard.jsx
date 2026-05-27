@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { formatBudgetRange, formatExperienceYears, formatPostedDate } from "../utils/format.js";
+import { SkillChipList } from "./SkillChip.jsx";
 
 const STATUS_LABELS = { open: "Open", closed: "Closed", draft: "Draft" };
 
@@ -15,7 +16,7 @@ export default function EmployerJobCard({ job, onEdit, onClose, closing }) {
   const skills = job.required_skills || [];
 
   return (
-    <article className={`employer-role-card${isClosed ? " employer-role-card--closed" : ""}`}>
+    <article className={`portal-card employer-role-card${isClosed ? " employer-role-card--closed" : ""}`}>
       <div className="employer-role-card__head">
         <div className="employer-role-card__title-row">
           <h3 className="employer-role-card__title">{job.title}</h3>
@@ -52,14 +53,7 @@ export default function EmployerJobCard({ job, onEdit, onClose, closing }) {
       {skills.length > 0 && (
         <div className="employer-role-card__skills">
           <span className="employer-role-card__meta-label">Required skills</span>
-          <div className="signal-chips">
-            {skills.slice(0, 8).map((skill) => (
-              <span key={skill} className="signal-chip">
-                {skill}
-              </span>
-            ))}
-            {skills.length > 8 && <span className="signal-chip signal-chip--muted">+{skills.length - 8}</span>}
-          </div>
+          <SkillChipList skills={skills} limit={8} variant="default" />
         </div>
       )}
 

@@ -8,6 +8,7 @@ import { useTheme } from "../hooks/useTheme.js";
 const JOBS_LAYOUT_PREFIXES = [
   "/candidate/matches",
   "/candidate/saved",
+  "/employer/jobs",
   "/employer/matches",
   "/employer/applications",
 ];

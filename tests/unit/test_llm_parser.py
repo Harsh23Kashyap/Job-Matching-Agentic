@@ -83,6 +83,10 @@ def test_parse_job_from_text_ollama(parser):
         "location": "Remote",
         "remote_policy": True,
         "link": "https://example.com/jobs/1",
+        "job_type": "Full-time",
+        "budget_min": 1200000,
+        "budget_max": 1800000,
+        "budget_currency": "INR",
     }
     mock_resp = MagicMock()
     mock_resp.json.return_value = {"message": {"content": json.dumps(payload)}}
@@ -96,6 +100,10 @@ def test_parse_job_from_text_ollama(parser):
     assert "Python" in result["required_skills"]
     assert result["required_experience"] == 3
     assert result["remote_policy"] is True
+    assert result["job_type"] == "Full-time"
+    assert result["budget_min"] == 1200000
+    assert result["budget_max"] == 1800000
+    assert result["budget_currency"] == "INR"
 
 
 def test_llm_unavailable(parser):

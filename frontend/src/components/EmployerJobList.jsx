@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import EmployerJobCard from "./EmployerJobCard.jsx";
+import EmptyStatePanel from "./EmptyStatePanel.jsx";
 import { EmployerRolesEmpty } from "./EmptyState.jsx";
 
 function filterEmployerJobs(jobs, { search, remoteOnly, sort }) {
@@ -52,13 +53,15 @@ export default function EmployerJobList({ jobs, loading, onEdit, onClose, closin
 
   if (jobs.length === 0) {
     return (
-      <EmployerRolesEmpty
-        action={
-          <button type="button" className="btn-primary" onClick={onPostRole}>
-            Post a role
-          </button>
-        }
-      />
+      <EmptyStatePanel patternVariant="employer-empty">
+        <EmployerRolesEmpty
+          action={
+            <button type="button" className="btn-primary" onClick={onPostRole}>
+              Post a role
+            </button>
+          }
+        />
+      </EmptyStatePanel>
     );
   }
 

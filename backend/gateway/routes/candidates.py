@@ -7,6 +7,7 @@ from auth.store import User
 from contracts.profiles import CandidateProfile
 from core.contact_extract import extract_contact_from_text, merge_contact_fields
 from core.resume_clean import clean_resume_text, resume_preview_excerpt
+from core.resume_suggestions import build_resume_suggestions
 from core.resume_text import extract_text_from_upload
 from hooks.llm_parser import LlmParseError, LlmParser, LlmUnavailableError
 from hooks.parser_factory import create_llm_parser, make_candidate_id
@@ -39,7 +40,8 @@ def get_my_candidate(
     request: Request,
     user: User = Depends(require_role("candidate")),
 ):
-    candidate_id = request.app.state.auth_store.get_candidate_id(user.id)
+    auth_store = request.app.state.auth_store
+    candidate_id = auth_store.get_candidate_id(user.id)
     if candidate_id is None:
         raise HTTPException(status_code=404, detail={"error": "No profile linked", "code": "NOT_FOUND"})
     profile = request.app.state.container.candidate.get_by_id(candidate_id)
@@ -58,6 +60,32 @@ class ApplicationBody(BaseModel):
     job_id: str
     job_title: str
     match_score: float | None = None
+
+
+class ResumeSuggestionsBody(BaseModel):
+    job_id: str
+
+
+@router.post("/me/resume-suggestions")
+def resume_suggestions_for_job(
+    body: ResumeSuggestionsBody,
+    request: Request,
+    user: User = Depends(require_role("candidate")),
+    llm: LlmParser = Depends(_get_llm_parser),
+):
+    candidate_id = request.app.state.auth_store.get_candidate_id(user.id)
+    if candidate_id is None:
+        raise HTTPException(status_code=404, detail={"error": "No profile linked", "code": "NOT_FOUND"})
+    profile = request.app.state.container.candidate.get_by_id(candidate_id)
+    if profile is None:
+        raise HTTPException(status_code=404, detail={"error": "Profile not found", "code": "NOT_FOUND"})
+
+    job = request.app.state.container.employer.get_by_id(body.job_id.strip())
+    if job is None:
+        raise HTTPException(status_code=404, detail={"error": "Job not found", "code": "NOT_FOUND"})
+
+    suggestions = build_resume_suggestions(profile, job, llm)
+    return suggestions
 
 
 @router.get("/me/saved-jobs")
@@ -145,17 +173,17 @@ async def upload_resume(
     regex_contact = extract_contact_from_text(text)
     preview = resume_preview_excerpt(text)
     empty_fields = {
-        "name": "",
+        "name": regex_contact.get("name") or "",
         "skills": [],
         "experience_years": 0,
         "preferred_salary": None,
         "remote_preference": False,
         "summary": "",
-        "email": "",
-        "phone": "",
-        "linkedin": "",
-        "portfolio": "",
-        "other_links": [],
+        "email": regex_contact.get("email") or "",
+        "phone": regex_contact.get("phone") or "",
+        "linkedin": regex_contact.get("linkedin") or "",
+        "portfolio": regex_contact.get("portfolio") or "",
+        "other_links": regex_contact.get("other_links") or [],
     }
     try:
         extracted = llm.parse_candidate_from_text(text)
@@ -194,6 +222,8 @@ def get_candidate(name: str, request: Request):
 
 def _sanitize_profile_payload(raw: dict) -> dict:
     payload = dict(raw)
+    if not str(payload.get("id") or "").strip():
+        payload.pop("id", None)
     summary = payload.get("summary")
     if summary:
         payload["summary"] = clean_resume_text(str(summary))
@@ -216,6 +246,7 @@ def _upsert_my_candidate(raw: dict, request: Request, user: User) -> dict:
         return _public_profile(profile)
     payload = {**raw, "id": candidate_id}
     profile = candidate_agent.register(payload)
+    auth_store.link_candidate(user.id, profile.id)
     return _public_profile(profile)
 
 
@@ -237,5 +268,6 @@ def register_candidate(
     if user is not None and user.role == "candidate":
         return _upsert_my_candidate(raw, request, user)
 
-    profile = request.app.state.container.candidate.register(raw)
+    payload = _sanitize_profile_payload(raw)
+    profile = request.app.state.container.candidate.register(payload)
     return _public_profile(profile)

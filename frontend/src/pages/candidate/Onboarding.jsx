@@ -75,12 +75,15 @@ export default function Onboarding() {
     setFieldErrors({});
     try {
       const payload = profileToPayload(fields);
-      if (fields.id) payload.id = fields.id;
       const saved = await upsertCandidateProfile(payload);
       setFields(profileFromApi(saved));
       setHasExistingProfile(true);
       notifyProfileUpdated();
-      showToast(hasExistingProfile ? "Profile updated." : "Profile saved. You're ready to find jobs.");
+      showToast(
+        hasExistingProfile
+          ? "Profile updated. You can refresh matches now."
+          : "Profile saved. You're ready to find jobs.",
+      );
       navigate("/candidate/matches");
     } catch (err) {
       setError(apiErrorMessage(err, "Save failed. Check your details and try again."));
