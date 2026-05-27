@@ -128,6 +128,14 @@ class CandidateAgent(BaseAgent):
             self.register(raw)
         return len(raw_list)
 
+    def rebootstrap_from_file(self, path: Path) -> int:
+        for candidate_id in list(self.state.profiles.keys()):
+            self.store.delete(candidate_id)
+        self.state.profiles.clear()
+        self.state.name_index.clear()
+        self.state.store_version = 0
+        return self.bootstrap_from_file(path)
+
     def status(self) -> AgentStatus:
         return self._base_status(
             len(self.state.profiles),

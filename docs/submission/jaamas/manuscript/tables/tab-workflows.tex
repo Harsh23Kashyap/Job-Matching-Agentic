@@ -12,7 +12,7 @@ Candidate & \texttt{/candidate/saved} & Saved jobs and applications & \texttt{GE
 Employer & \texttt{/employer/jobs} & Import JD, post/edit/close roles & \texttt{POST /jobs/upload-description} or \texttt{/parse-description} $\rightarrow$ \texttt{POST /jobs} or \texttt{PUT /jobs/mine/\{id\}} $\rightarrow$ Employer agent \\
 Employer & \texttt{/employer/matches} & Rank candidates for a owned job & \texttt{POST /match/job-to-candidates} (composite); job ownership required \\
 Employer & \texttt{/employer/applications} & Review applicants per posting & \texttt{GET /jobs/mine/applications} (SQLite activity store) \\
-Admin & \texttt{/admin/console} & Monitor agents, run matches, inspect fairness & \texttt{GET /agents/status}, \texttt{/agents/events/recent}, \texttt{/system/config}; optional \texttt{/match/*} and \texttt{/system/fairness} \\
+Admin & \texttt{/admin/console} & Monitor agents, run matches, inspect fairness & \texttt{GET /agents/status}, \texttt{/agents/events/recent}, \texttt{/system/config}; optional \texttt{/match/*}, \texttt{/system/fairness}, \texttt{POST /real-jobs/sync} when live feed enabled \\
 \bottomrule
 \end{tabular}
 \normalsize

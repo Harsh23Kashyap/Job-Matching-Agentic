@@ -32,6 +32,12 @@ Like its counterpart on the candidate side, it emits a job-updated signal when a
 The employer agent does \emph{not} manage candidate profiles or override match scores.
 Shortlisting and applicant review remain human decisions supported by ranked suggestions.
 
+\leadpara{Optional external job feed.}
+When enabled at deployment time, the Employer agent can also ingest paginated job listings from an external provider API.
+Each raw record is normalized to the same canonical job schema used for portal postings, deduplicated by stable identifier, and written to a local snapshot file for restart recovery.
+A sync operation replaces the in-memory employer corpus and re-embeds job snapshots; the frozen \texttt{jobs.json} demo seed remains the default for offline evaluation reported in \S\ref{sec:6}.
+The Matchmaking agent consumes the refreshed snapshots read-only; it does not call the external provider directly.
+
 \subsection{Matchmaking Agent}\label{sec:3-matchmaking}
 
 The \textbf{matchmaking agent} is a neutral broker between the two market sides.

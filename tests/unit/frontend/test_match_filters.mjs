@@ -6,7 +6,7 @@ import {
   createMatchFilters,
   filterAndSortMatchRows,
   hasActiveMatchFilters,
-} from "../../frontend/src/utils/matchFilters.js";
+} from "../../../frontend/src/utils/matchFilters.js";
 
 const sampleRows = [
   {

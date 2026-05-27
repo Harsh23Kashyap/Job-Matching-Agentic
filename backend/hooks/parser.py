@@ -46,6 +46,8 @@ class JsonParser:
             location=raw.get("location"),
             job_type=raw.get("job_type"),
             link=raw.get("link"),
+            source=raw.get("source"),
+            posted_at=str(raw.get("posted_at") or raw.get("created_at") or "") or None,
             accepts_applications=bool(raw.get("accepts_applications", True)),
             status=status,
             created_at=str(raw.get("created_at") or ""),

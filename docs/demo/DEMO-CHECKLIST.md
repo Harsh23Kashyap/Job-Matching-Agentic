@@ -7,8 +7,8 @@ Run this **30 minutes before** a supervisor or stakeholder demo.
 - [ ] Backend running on **port 8001** (`uvicorn main:create_app --factory --reload --port 8001`)
 - [ ] Frontend running on **port 5173** (`npm run dev`)
 - [ ] OpenAPI version is **2.0.0**: `curl -s http://localhost:8001/openapi.json | python3 -c "import sys,json; print(json.load(sys.stdin)['info']['version'])"`
-- [ ] Tests green: `cd backend && pytest ../tests -q` (expect **164 passed**)
-- [ ] Node tests green: `node --test tests/unit/test_skills_input.mjs tests/unit/test_match_format.mjs` (expect **12 passed**)
+- [ ] Tests green: `bash scripts/run_tests.sh` (expect **302 pytest** + node utils)
+- [ ] Node spot-check: `node --test tests/unit/frontend/test_skills_input.mjs tests/unit/frontend/test_match_format.mjs`
 - [ ] Frontend build: `cd frontend && npm run build`
 
 ## Secrets (local only: never commit)

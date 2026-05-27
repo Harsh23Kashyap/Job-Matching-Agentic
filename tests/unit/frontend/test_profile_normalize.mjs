@@ -1,13 +1,13 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { cleanFieldText } from "../../frontend/src/utils/resumeClean.js";
+import { cleanFieldText } from "../../../frontend/src/utils/resumeClean.js";
 import {
   mergeExtractedIntoFields,
   normalizeProfileFields,
   normalizeUrl,
-} from "../../frontend/src/utils/profileNormalize.js";
-import { EMPTY_PROFILE_FIELDS } from "../../frontend/src/utils/profileFields.js";
+} from "../../../frontend/src/utils/profileNormalize.js";
+import { EMPTY_PROFILE_FIELDS } from "../../../frontend/src/utils/profileFields.js";
 
 test("cleanFieldText removes CID artifacts from names", () => {
   assert.equal(cleanFieldText("Harsh Kashyap (cid:131), (cid:239)"), "Harsh Kashyap");

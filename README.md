@@ -489,7 +489,10 @@ cd backend && source .venv/bin/activate
 pytest ../tests -q
 
 # Frontend unit tests (match format, skills, feedback, profile, backgrounds)
-node --test tests/unit/test_*.mjs
+node --test tests/unit/frontend/test_*.mjs
+
+# Full suite (pytest + node)
+bash scripts/run_tests.sh
 
 # Feature checklist · composite, JD parse, feedback, CID cleanup, profile upsert
 pytest tests/integration/test_feature_reverification.py -q
@@ -501,7 +504,7 @@ python3 scripts/smoke_employer_jobs.py
 cd frontend && npm run build
 ```
 
-**Expected:** **208 pytest** + **20 node** tests pass.
+**Expected:** **302 pytest** + **39 node** tests pass.
 
 Key test areas:
 

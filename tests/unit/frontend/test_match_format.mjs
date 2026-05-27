@@ -8,7 +8,7 @@ import {
   isApplyAvailable,
   matchPercent,
   matchTier,
-} from "../../frontend/src/utils/format.js";
+} from "../../../frontend/src/utils/format.js";
 
 test("matchPercent rounds to whole percent", () => {
   assert.equal(matchPercent(0.5898), "59%");

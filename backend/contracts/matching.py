@@ -191,6 +191,7 @@ class DailyBatchRequest(BaseModel):
     candidate_pool: int = 120
     max_users: int = 0
     output_path: str | None = None
+    sync_before_run: bool = True
 
 
 class DailyBatchResponse(BaseModel):

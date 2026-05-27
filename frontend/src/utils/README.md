@@ -19,7 +19,8 @@ Pure helpers · no React, easy to unit test with Node `node --test`.
 ## Tests
 
 ```bash
-node --test tests/unit/test_profile_fields.mjs
-node --test tests/unit/test_match_format.mjs
-node --test tests/unit/test_feedback_state.mjs
+node --test tests/unit/frontend/test_profile_fields.mjs
+node --test tests/unit/frontend/test_match_format.mjs
+node --test tests/unit/frontend/test_feedback_state.mjs
+node --test tests/unit/frontend/test_*.mjs
 ```

@@ -4,7 +4,7 @@ import test from "node:test";
 import {
   BACKGROUND_VARIANTS,
   resolveBackgroundVariant,
-} from "../../frontend/src/utils/portalBackground.js";
+} from "../../../frontend/src/utils/portalBackground.js";
 
 test("resolveBackgroundVariant maps candidate and employer routes", () => {
   assert.equal(resolveBackgroundVariant("/candidate/onboarding"), "onboarding");

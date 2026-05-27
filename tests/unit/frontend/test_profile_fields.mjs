@@ -8,7 +8,7 @@ import {
   isProfileStale,
   profileFromApi,
   profileToPayload,
-} from "../../frontend/src/utils/profileFields.js";
+} from "../../../frontend/src/utils/profileFields.js";
 const PROFILE_STALE_MARKER = { __profileStale: true };
 
 test("profileToPayload omits empty id on first save", () => {

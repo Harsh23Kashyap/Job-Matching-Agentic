@@ -10,6 +10,7 @@ from core.calibration import PlattCalibrator
 from core.fusion import LearnedFusionModel
 from hooks.explainer import RuleExplainer
 from hooks.parser import JsonParser
+from services.real_jobs_service import RealJobsService
 from stores.candidate_activity_store import CandidateActivityStore
 from stores.factory import create_store
 from stores.feedback_store import FeedbackStore
@@ -24,6 +25,7 @@ class SystemContainer:
     matchmaker: MatchmakingAgent
     feedback_store: FeedbackStore
     activity_store: CandidateActivityStore
+    real_jobs: RealJobsService | None = None
 
 
 def create_system(settings: Settings | None = None) -> SystemContainer:
@@ -75,7 +77,7 @@ def create_system(settings: Settings | None = None) -> SystemContainer:
         )
     )
 
-    return SystemContainer(
+    container = SystemContainer(
         bus=bus,
         settings=settings,
         candidate=candidate_agent,
@@ -84,3 +86,9 @@ def create_system(settings: Settings | None = None) -> SystemContainer:
         feedback_store=feedback_store,
         activity_store=activity_store,
     )
+    container.real_jobs = RealJobsService(container)
+    if not container.real_jobs.boot_from_snapshot_if_available():
+        container.real_jobs.state.job_count = n_j
+        container.real_jobs.state.source = "local_seed"
+
+    return container

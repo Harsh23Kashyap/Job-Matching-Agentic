@@ -34,8 +34,11 @@ def match_ensemble(body: EnsembleRequest, request: Request):
 
 @router.post("/match/daily-batch")
 def run_daily_batch(body: DailyBatchRequest, request: Request):
+    container = request.app.state.container
     try:
-        return request.app.state.container.matchmaker.run_daily_batch(body)
+        if body.sync_before_run and container.settings.real_jobs_enable:
+            container.real_jobs.sync(reindex=True)
+        return container.matchmaker.run_daily_batch(body)
     except LookupError as exc:
         raise lookup_not_found(exc) from exc
     except OSError as exc:

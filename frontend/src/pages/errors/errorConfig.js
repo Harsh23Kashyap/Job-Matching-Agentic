@@ -34,11 +34,10 @@ export const ERROR_CONTENT = {
     tone: "wip",
   },
   502: {
-    title: "Service unavailable",
-    description:
-      "JobMatch couldn't reach the API server. Make sure the backend is running on port 8001, then try again.",
+    title: "Server is taking a break",
+    description: "We couldn't reach JobMatch right now. Please try again in a moment.",
     primary: { label: "Try again", action: "reload" },
-    secondary: { label: "Back to home", to: "/" },
+    secondary: { label: "Go home", to: "/" },
     tone: "outage",
   },
 };

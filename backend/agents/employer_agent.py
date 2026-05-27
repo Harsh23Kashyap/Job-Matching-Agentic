@@ -72,7 +72,15 @@ class EmployerAgent(BaseAgent):
                 "id": profile.id,
                 "title": profile.title,
                 "company": profile.company or "",
+                "link": profile.link or "",
+                "budget": profile.budget or 0,
+                "remote_policy": profile.remote_policy,
+                "required_experience": profile.required_experience,
                 "required_skills": profile.required_skills,
+                "location": profile.location or "",
+                "job_type": profile.job_type or "",
+                "posted_at": profile.posted_at or profile.created_at or "",
+                "source": profile.source or "local_seed",
             },
         )
         self.state.profiles[profile.id] = profile
@@ -136,6 +144,16 @@ class EmployerAgent(BaseAgent):
         for raw in raw_list:
             self.register(raw)
         return len(raw_list)
+
+    def replace_corpus(self, raw_jobs: list[dict]) -> int:
+        for job_id in list(self.state.profiles.keys()):
+            self.store.delete(job_id)
+        self.state.profiles.clear()
+        self.state.title_index.clear()
+        self.state.store_version = 0
+        for raw in raw_jobs:
+            self.register(raw)
+        return len(raw_jobs)
 
     def status(self) -> AgentStatus:
         return self._base_status(

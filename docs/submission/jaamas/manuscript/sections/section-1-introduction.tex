@@ -32,7 +32,8 @@ Candidate and employer agents maintain their own state; a neutral \textbf{matchm
 When either side updates a resume or a job description, the owning agent refreshes its record and shares what the matchmaking layer needs so suggestions stay current.
 
 These components form \textbf{JobMatch}, a multi-agentic job-matching system delivered as a research prototype with separate web experiences for candidates, employers, and administrators.
-The platform parses resumes and job descriptions into structured states, builds comparable representations of people and roles, and routes matching through the matchmaking agent to produce ordered recommendations.
+The platform parses resumes and job descriptions into structured states, builds comparable representations of people and roles, and routes matching through the Matchmaking agent to produce ordered recommendations.
+For deployment scenarios, the Employer agent can optionally refresh its job corpus from an external provider API; offline evaluation in this paper uses a fixed demo corpus (\S\ref{sec:4}).
 Users remain in control throughout: they review extracted fields, read why a pairing ranked as it did, and decide whether to save, apply, or shortlist.
 The system advises; it does not hire or reject on anyone's behalf.
 We evaluate the matching core offline on a labeled demo corpus---30 resumes, 15 jobs, and 47 graded relevance pairs---using standard quality metrics and reproducible benchmark comparisons reported in later sections.
@@ -41,7 +42,7 @@ This paper makes the following contributions:
 \begin{itemize}[noitemsep]
   \item A \textbf{candidate/client-side agent} that processes resumes and CVs and maintains candidate state.
   \item An \textbf{employer-side agent} that processes job descriptions and maintains job state.
-  \item A \textbf{matchmaking engine} that uses semantic matching and ranking to produce ordered recommendations.
+  \item A \textbf{Matchmaking agent} that uses semantic matching and ranking to produce ordered recommendations with structured explanations.
   \item A \textbf{multi-agent communication flow} in which agents share relevant state and data when profiles change.
   \item A \textbf{complete UI and application layer} demonstrating end-to-end candidate, employer, and admin workflows.
   \item An \textbf{evaluation} using quality metrics and benchmark comparisons on a fixed labeled corpus.

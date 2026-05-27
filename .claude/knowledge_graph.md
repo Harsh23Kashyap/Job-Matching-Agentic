@@ -1,5 +1,5 @@
 # Codebase Knowledge Graph
-> Last updated: 2026-05-27 (v12 · manuscript §2–§7 rewrite local; last push `010dadf`) | Entries: 490+ | Modules: 15
+> Last updated: 2026-05-28 (v13 · live jobs API + test reorg + error UX; last push `9db6abc`) | Entries: 490+ | Modules: 15
 
 ---
 
@@ -10,7 +10,7 @@
 **Authors:** Harsh Kashyap, Taranumpreet Kaur Wasu (Thapar Institute). Supervisor: Dr Parteek Bhatia (WSU).
 
 **Repository:** https://github.com/Harsh23Kashyap/Job-Matching-Agentic  
-**Branch:** `main` @ `010dadf` (pushed) · **Local uncommitted:** manuscript §1–§7 rewrites, Fig1–5 PDFs, Algorithm 1, `HANDOFF.md`, this graph v12 · **Recent commit stack:** backend explainability → frontend filters/UX → tests → JAAMAS manuscript v1 → portal/build → knowledge graph
+**Branch:** `main` @ `9db6abc` (pushed) · **Local uncommitted:** live jobs API, test reorg (`unit/backend` + `unit/frontend`), error page UX, PortalShell nav fix, HANDOFF v13 · **Recent commit:** manuscript §2–§7 rewrite @ `9db6abc`
 
 **Legacy note:** Entries under [Module: backend (legacy monolith)](#module-backend-legacy-monolith) describe the **pre-rewrite** `app.py` monolith. Current runtime uses `main.py` → `bootstrap.py` → `gateway/app.py`. See [Module: rewrite (current)](#module-rewrite-current) and [Module: research evaluation](#module-research-evaluation).
 
@@ -32,6 +32,7 @@
 - **Match explainability** · `core/match_explanation.py` → structured `explanation` on every `MatchResult` (matched/missing skills, experience/compensation/remote fit, semantic reason, score breakdown); compact UI via `MatchExplainability.jsx`
 - **Search & filters** · role search, skill chips, remote, salary/budget, experience, match score range, sort (best/newest/compensation); `matchFilters.js`, `MatchResultsFilters.jsx` on both result panels
 - **Demo data mode** · `demo_reset.py`, `seed_demo_activity()` pre-seeds saved jobs/applications/employer shortlist; `POST /system/demo/reset` (admin); reset button in `SystemConfigPanel.jsx`; `DEMO_MODE` config flag
+- **External live jobs** · `core/real_jobs_sync.py` + `RealJobsService`; `GET/POST /real-jobs/*`; snapshot `data/jobs_live.json`; `EmployerAgent.replace_corpus()`; daily-batch pre-sync when `REAL_JOBS_ENABLE=true`
 - **Frontend state management** · profile/job cross-page events (`profileEvents.js`); stale-while-revalidate refresh; row-action guards; optimistic employer job close; `searchAfterSave` + `?job=` auto-match navigation
 - **Resume/JD parsing pipeline:** clean → rule extract → LLM merge (`document_parse.py`, structured extract modules)
 - **Skill normalization:** `shared/skill_catalog.json` · canonical dedupe on save and in UI (`skillCatalog.js`)
@@ -42,7 +43,7 @@
 - Gateway error envelopes (`gateway/errors.py`, `handlers.py`) · consistent `{detail: {error, code}}`
 - Candidate profile gates: `hasCandidateProfile` / `isCandidateProfileReady` / `isProfileStale`
 - Employer JD paste + file upload; resume coach; similar jobs/candidates; feedback in SQLite
-- **302 pytest + node tests** passing (product)
+- **310 pytest + node tests** passing (product; 2026-05-28)
 - Offline research pipeline · 9 stages → `backend/reports/research_run_<timestamp>/`
 
 ### Run locally
@@ -77,7 +78,8 @@ cd frontend && npm run dev
 | Doc | Path |
 |-----|------|
 | Onboarding README | `README.md` (602 lines, full setup + API) |
-| Session handoff | `HANDOFF.md` (updated 2026-05-27 · professor QA + code review) |
+| Session handoff | `HANDOFF.md` (2026-05-28 · live jobs + test reorg + error UX) |
+| Live jobs contract | `docs/design/external-live-jobs-api-HANDOFF.md` |
 | Research paper draft | `docs/research/RESEARCH-PAPER.md` |
 | **JAAMAS submission (active)** | `docs/submission/jaamas/manuscript/main.tex` · build: `bash docs/submission/jaamas/build_all.sh` |
 | Evaluation archive | `docs/research/evaluation/` |
@@ -2097,13 +2099,14 @@ backend/
 ├── demo_reset.py           Corpus reload + SQLite wipe + full demo reset
 ├── agents/                 Candidate, Employer, Matchmaking agents
 ├── bus/                    AgentEventBus + EventType enum
-├── core/                   Scoring, resume clean, structured extract, quality intel, skill catalog
+├── core/                   Scoring, resume clean, structured extract, quality intel, skill catalog, real_jobs_sync
+├── services/               real_jobs_service (sync orchestration)
 ├── gateway/                FastAPI app + route modules + errors/handlers + middleware
 ├── auth/                   Session auth, UserStore, ownership links
 ├── hooks/                  LLM parser, rule explainer, JsonParser
 ├── stores/                 Chroma, Qdrant, feedback, activity SQLite
 ├── contracts/              Pydantic profiles, snapshots, matching DTOs
-├── scripts/                run_research_pipeline.py (CLI)
+├── scripts/                run_research_pipeline.py, sync_real_jobs_once.py
 └── benchmarks/             research_pipeline, comparison, ablation, significance,
                             fairness_audit, explainability, paper_tables, legacy phase11
 
@@ -2126,12 +2129,11 @@ frontend/src/
 ---
 
 ### backend/bootstrap.py
-**Language:** python | **Importance:** HIGH | **Indexed:** 2026-05-27  
-**Purpose:** Composition root · wires event bus, three agents, vector stores, SQLite feedback/activity, optional fusion/calibration models.  
-**Key Elements:** `SystemContainer`, `create_system`  
-**Dependencies:** imports from: `agents/*`, `stores/factory`, `stores/feedback_store`, `bus/event_bus` | used by: `main.py`, `gateway/app.py`, tests  
-**Core Logic:** Creates Candidate + Employer agents with Chroma collections; MatchmakingAgent subscribes to profile events; bootstraps corpus from `data/cvs.json` + `data/jobs.json`; publishes `CorpusBootstrapped`.  
-**Patterns:** procedural, dataclass container
+**Language:** python | **Importance:** HIGH | **Indexed:** 2026-05-28  
+**Purpose:** Composition root · wires event bus, three agents, vector stores, SQLite feedback/activity, RealJobsService.  
+**Key Elements:** `SystemContainer`, `create_system`, `real_jobs`  
+**Dependencies:** imports from: `agents/*`, `stores/factory`, `services/real_jobs_service` | used by: `main.py`, tests  
+**Core Logic:** Bootstraps corpus from `data/cvs.json` + `data/jobs.json`; `RealJobsService.boot_from_snapshot_if_available()` may replace jobs from `jobs_live.json`; publishes `CorpusBootstrapped`.
 
 #### create_system(settings=None)
 **Purpose:** Build and return SystemContainer with all agents initialized.  
@@ -2325,10 +2327,55 @@ frontend/src/
 ---
 
 ### backend/gateway/routes/matching.py
-**Language:** python | **Importance:** HIGH | **Indexed:** 2026-05-27  
-**Purpose:** Match endpoints · candidate-to-jobs, job-to-candidates, ensemble, daily-batch; legacy aliases. **No auth on routes** — exposes PII (email/phone) on job-to-candidates responses.  
+**Language:** python | **Importance:** HIGH | **Indexed:** 2026-05-28  
+**Purpose:** Match endpoints · candidate-to-jobs, job-to-candidates, ensemble, daily-batch; pre-syncs live jobs when `sync_before_run` + `REAL_JOBS_ENABLE`. **No auth on routes** — exposes PII on job-to-candidates.  
 **Used by:** admin console, portal runMatch, curl smoke tests  
 **Security:** Critical if network-exposed · see Security review summary in JAAMAS block.
+
+---
+
+### backend/gateway/routes/real_jobs.py
+**Language:** python | **Importance:** HIGH | **Indexed:** 2026-05-28  
+**Purpose:** External live jobs proxy · `GET /real-jobs/status`, `POST /real-jobs/sync` with `{reindex}`.  
+**Dependencies:** imports from: `RealJobsService` on SystemContainer | used by: CLI, daily-batch pre-sync  
+**Core Logic:** 400 when disabled; 502 on upstream fetch failure; sync replaces employer corpus and optional full reindex.
+
+---
+
+### backend/core/real_jobs_sync.py
+**Language:** python | **Importance:** HIGH | **Indexed:** 2026-05-28  
+**Purpose:** Upstream provider contract · paginated GET, normalize_external_job, dedupe by id, snapshot read/write.  
+**Key Elements:** `RealJobsConfig.from_settings`, `fetch_all_jobs`, `normalize_external_job`, `write_snapshot`, `load_snapshot`  
+**Env:** `REAL_JOBS_ENABLE`, `REAL_JOBS_BASE_URL`, `REAL_JOBS_PATH`, `REAL_JOBS_PAGE_LIMIT`, `REAL_JOBS_TIMEOUT_SEC`, `REAL_JOBS_OUTPUT_PATH`  
+**Output:** `data/jobs_live.json` (gitignored)
+
+---
+
+### backend/services/real_jobs_service.py
+**Language:** python | **Importance:** HIGH | **Indexed:** 2026-05-28  
+**Purpose:** Sync orchestration · boot from snapshot, fetch upstream, replace employer corpus, reindex candidates+jobs.  
+**Key Elements:** `RealJobsService`, `boot_from_snapshot_if_available`, `sync`, `reindex_all`  
+**State:** `RealJobsState` (source: local_seed | snapshot | external_api)
+
+---
+
+### scripts/run_tests.sh
+**Language:** bash | **Importance:** MEDIUM | **Indexed:** 2026-05-28  
+**Purpose:** Unified test runner · `pytest ../tests` + `node --test tests/unit/frontend/test_*.mjs`.
+
+---
+
+### frontend/src/pages/errors/ErrorPage.jsx
+**Language:** javascript | **Importance:** MEDIUM | **Indexed:** 2026-05-28  
+**Purpose:** Full-screen centered error UX · broken-route SVG, animated background, 502-specific copy.  
+**Key Elements:** `ErrorBackground`, `ErrorIllustration`, secondary-first button order for [Go home][Try again]
+
+---
+
+### frontend/src/layouts/PortalShell.jsx
+**Language:** javascript | **Importance:** HIGH | **Indexed:** 2026-05-28  
+**Purpose:** Candidate/employer portal shell · top nav + mobile tabs. Uses `Link` + `linkIsActive()` (not NavLink) to avoid `isActive` DOM leak.  
+**Core Logic:** Custom `item.isActive(pathname)` for Jobs tab covering matches + saved routes.
 
 ---
 
@@ -2643,8 +2690,21 @@ frontend/src/
 
 ---
 
+### tests/unit/backend/test_real_jobs_sync.py
+**Language:** python | **Importance:** MEDIUM | **Indexed:** 2026-05-28  
+**Purpose:** Unit tests for normalize_external_job, pagination mock, snapshot roundtrip.
+
+---
+
+### tests/integration/test_real_jobs_api.py
+**Language:** python | **Importance:** MEDIUM | **Indexed:** 2026-05-28  
+**Purpose:** GET /real-jobs/status; POST /real-jobs/sync returns 400 when disabled.
+
+---
+
 ### tests/unit/test_match_explanation.py
-**Language:** python | **Importance:** MEDIUM | **Indexed:** 2026-05-27  
+**Language:** python | **Importance:** MEDIUM | **Indexed:** 2026-05-27 (stale · moved to backend/)  
+**Note:** Path is now `tests/unit/backend/test_match_explanation.py`.
 **Purpose:** Unit tests for build_match_explanation · skills, fit signals, score breakdown.
 
 ---
@@ -3500,8 +3560,8 @@ Editor-facing; **must stay metric-consistent** with Table 9/10 and abstract when
 
 ## Staleness
 
-**Last refresh:** 2026-05-27 v12 · local manuscript §2–§7 rewrite; professor QA; security review; Fig1 export fix; Algorithm 1 · last push `010dadf`  
-**Stale sections in graph:** Detailed legacy JAAMAS §1–§9 walkthrough (marked LEGACY) · individual backend file entries mostly unchanged since v11  
-**Legacy drift:** Module: backend (legacy monolith) still documents removed `app.py` · use for algorithm/benchmark reference only.  
-**Known open items:** Commit manuscript; ~29 `\todo`s; 12 §2 citations; author placeholders; portal-weight ablation; explainability/fairness/phase11 tables; API auth hardening if network-deployed; fix §1 “matchmaking engine” bullet  
-**Refresh command:** `/knowledge refresh docs/submission/jaamas/` or `/knowledge refresh backend/gateway/routes/`
+**Last refresh:** 2026-05-28 v13 · live jobs API ported; test reorg; error page UX; PortalShell fix · last push `9db6abc` (manuscript committed)  
+**Stale sections in graph:** Legacy monolith `real_jobs_sync.py` path under Module: backend (legacy) — current impl is `core/real_jobs_sync.py`  
+**Legacy drift:** Module: backend (legacy monolith) still documents removed `app.py` · use for benchmark reference only.  
+**Known open items:** Commit product work (live jobs, tests, error UX); ~29 manuscript `\todo`s; 12 §2 citations; author placeholders; `REAL_JOBS_BASE_URL` in deployment; optional admin sync UI; API auth hardening if network-deployed; fix §1 “matchmaking engine” bullet  
+**Refresh command:** `/knowledge refresh backend/core/real_jobs_sync.py` or `/knowledge refresh frontend/src/pages/errors/`

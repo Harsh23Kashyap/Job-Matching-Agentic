@@ -1,187 +1,123 @@
 {
   "version": "2.0",
-  "last_updated": "2026-05-27",
-  "graph_version": "v12",
+  "last_updated": "2026-05-28",
+  "graph_version": "v13",
   "project": "Job-Matching-Agentic",
   "branch": "main",
-  "commit_pushed": "010dadf",
+  "commit_pushed": "9db6abc",
   "local_uncommitted": [
-    "manuscript sections 1-7 rewrite",
-    "algorithms/alg-multi-agent-matching.tex",
-    "figures Fig1-5 PDFs",
+    "external live jobs API",
+    "test reorg unit/backend + unit/frontend",
+    "error page UX + PortalShell fix",
     "HANDOFF.md",
-    "knowledge_graph.md/json"
+    "knowledge_graph v13"
   ],
   "architecture": "multi-agent rewrite (Candidate, Employer, Matchmaking)",
-  "entry_count": 35,
+  "entry_count": 42,
   "manuscript": {
     "path": "docs/submission/jaamas/manuscript/main.tex",
-    "title": "JobMatch: An Agentic Multi-Role Platform for Explainable Job--Candidate Matching",
-    "sections": 7,
-    "pages_local": 33,
-    "build": "bash docs/submission/jaamas/build_all.sh",
-    "commits_pushed": ["cfae2c2", "3631bcb"],
-    "bib_entries": 7,
-    "citation_todos": 12,
-    "manuscript_todos": 29,
-    "algorithm1": "docs/submission/jaamas/manuscript/algorithms/alg-multi-agent-matching.tex"
+    "status": "committed @ 9db6abc",
+    "pages": 33,
+    "todos_approx": 29,
+    "citation_todos": 12
   },
-  "professor_qa": {
-    "date": "2026-05-27",
-    "pass": 10,
-    "partial": 4,
-    "fail": ["literature citations"]
+  "live_jobs": {
+    "enabled_env": "REAL_JOBS_ENABLE",
+    "base_url_env": "REAL_JOBS_BASE_URL",
+    "core_module": "backend/core/real_jobs_sync.py",
+    "service": "backend/services/real_jobs_service.py",
+    "routes": "backend/gateway/routes/real_jobs.py",
+    "snapshot": "data/jobs_live.json",
+    "contract_doc": "docs/design/external-live-jobs-api-HANDOFF.md",
+    "cli": "backend/scripts/sync_real_jobs_once.py"
   },
-  "security_review": {
-    "date": "2026-05-27",
-    "fixes_applied": false,
-    "critical": [
-      "open admin registration",
-      "unauthenticated match routes expose PII",
-      "unauthenticated full profile listing"
-    ],
-    "deployment_rule": "localhost/demo only until hardened"
+  "tests": {
+    "pytest_collected": 310,
+    "layout": "tests/unit/backend, tests/unit/frontend, tests/integration, tests/benchmarks",
+    "runner": "scripts/run_tests.sh",
+    "last_verified": "2026-05-28"
   },
   "entries": [
     {
-      "path": "backend/main.py",
+      "path": "backend/core/real_jobs_sync.py",
       "language": "python",
-      "purpose": "Uvicorn factory entry — create_app() wires bootstrap + gateway",
+      "purpose": "Fetch, normalize, paginate external jobs; write/load jobs_live.json snapshot",
       "importance": "HIGH",
-      "indexed": "2026-05-27"
+      "indexed": "2026-05-28"
     },
     {
-      "path": "backend/bootstrap.py",
+      "path": "backend/services/real_jobs_service.py",
       "language": "python",
-      "purpose": "Composition root: 3 agents, event bus, Chroma/Qdrant, SQLite stores, corpus bootstrap",
-      "key_elements": ["SystemContainer", "create_system"],
+      "purpose": "Sync orchestration: replace employer corpus, reindex, boot from snapshot",
       "importance": "HIGH",
-      "indexed": "2026-05-27"
+      "indexed": "2026-05-28"
     },
     {
-      "path": "backend/gateway/app.py",
+      "path": "backend/gateway/routes/real_jobs.py",
       "language": "python",
-      "purpose": "FastAPI assembly: routers, session middleware, demo seed, read-only guard",
-      "key_elements": ["build_gateway"],
+      "purpose": "GET /real-jobs/status, POST /real-jobs/sync",
       "importance": "HIGH",
-      "indexed": "2026-05-27"
+      "indexed": "2026-05-28"
     },
     {
-      "path": "backend/gateway/routes/matching.py",
+      "path": "backend/agents/employer_agent.py",
       "language": "python",
-      "purpose": "Match endpoints — NO AUTH (admin/tests); exposes PII on job-to-candidates",
-      "key_elements": ["match_candidate_to_jobs", "match_job_to_candidates", "run_daily_batch"],
+      "purpose": "Employer Agent with replace_corpus for live job feeds",
+      "key_elements": ["replace_corpus", "register"],
       "importance": "HIGH",
-      "indexed": "2026-05-27",
-      "security_note": "critical if network-exposed"
+      "indexed": "2026-05-28"
     },
     {
-      "path": "backend/auth/routes.py",
-      "language": "python",
-      "purpose": "Register/login — allows role=admin without gate",
-      "importance": "HIGH",
-      "indexed": "2026-05-27",
-      "security_note": "open admin registration"
-    },
-    {
-      "path": "backend/agents/matchmaking_agent.py",
-      "language": "python",
-      "purpose": "Neutral match broker: score, rank, explain; attaches MatchExplanation and job metadata",
-      "key_elements": ["MatchmakingAgent", "match_candidate_to_jobs", "match_job_to_candidates"],
-      "importance": "HIGH",
-      "indexed": "2026-05-27"
-    },
-    {
-      "path": "backend/core/match_explanation.py",
-      "language": "python",
-      "purpose": "build_match_explanation — structured skills/fit/breakdown on MatchResult",
-      "key_elements": ["build_match_explanation"],
-      "importance": "HIGH",
-      "indexed": "2026-05-27"
-    },
-    {
-      "path": "backend/demo_reset.py",
-      "language": "python",
-      "purpose": "POST /system/demo/reset — reload corpus, clear demo SQLite, re-seed activity",
+      "path": "scripts/run_tests.sh",
+      "language": "bash",
+      "purpose": "Unified pytest + node frontend utils runner",
       "importance": "MEDIUM",
-      "indexed": "2026-05-27"
+      "indexed": "2026-05-28"
     },
     {
-      "path": "backend/core/scoring.py",
-      "language": "python",
-      "purpose": "Semantic, multimodal, composite scoring; portal weights 28/27/10/15/10/10",
-      "key_elements": ["compute_composite", "compute_semantic"],
-      "importance": "HIGH",
-      "indexed": "2026-05-27"
+      "path": "frontend/src/pages/errors/ErrorPage.jsx",
+      "language": "javascript",
+      "purpose": "Centered error UX with broken-route illustration",
+      "importance": "MEDIUM",
+      "indexed": "2026-05-28"
     },
     {
-      "path": "docs/submission/jaamas/manuscript/sections/section-2-literature-review.tex",
-      "language": "latex",
-      "purpose": "6-theme literature review; 12 citation TODOs",
+      "path": "frontend/src/layouts/PortalShell.jsx",
+      "language": "javascript",
+      "purpose": "Portal shell nav; Link-based active state (no isActive DOM leak)",
       "importance": "HIGH",
-      "indexed": "2026-05-27"
+      "indexed": "2026-05-28"
     },
     {
-      "path": "docs/submission/jaamas/manuscript/sections/section-6-results-discussion.tex",
-      "language": "latex",
-      "purpose": "Narrative results + interpreted tables for general audience",
+      "path": "docs/design/external-live-jobs-api-HANDOFF.md",
+      "language": "markdown",
+      "purpose": "Six-contract live jobs API spec ported from legacy repo",
       "importance": "HIGH",
-      "indexed": "2026-05-27"
-    },
-    {
-      "path": "docs/submission/jaamas/manuscript/algorithms/alg-multi-agent-matching.tex",
-      "language": "latex",
-      "purpose": "Algorithm 1 — 15-step multi-agent matching (formulas deferred to section 5)",
-      "importance": "HIGH",
-      "indexed": "2026-05-27"
-    },
-    {
-      "path": "docs/submission/jaamas/manuscript/main.tex",
-      "language": "latex",
-      "purpose": "JAAMAS submission entry: 7-section multi-agent manuscript",
-      "importance": "HIGH",
-      "indexed": "2026-05-27"
+      "indexed": "2026-05-28"
     },
     {
       "path": "HANDOFF.md",
       "language": "markdown",
-      "purpose": "Session continuation: next steps, blockers, QA/review summaries",
+      "purpose": "Session continuation: next steps, blockers, env snapshot",
       "importance": "HIGH",
-      "indexed": "2026-05-27"
-    },
-    {
-      "path": "scripts/generate_jaamas_figures.py",
-      "language": "python",
-      "purpose": "Generate draw.io sources for paper Figs 1–5; export without --crop",
-      "importance": "MEDIUM",
-      "indexed": "2026-05-27"
+      "indexed": "2026-05-28"
     }
   ],
   "relationships": [
-    { "from": "backend/gateway/routes/matching.py", "to": "backend/agents/matchmaking_agent.py", "type": "unauthenticated HTTP → scoring" },
-    { "from": "docs/submission/jaamas/manuscript/sections/section-3-architecture.tex", "to": "algorithms/alg-multi-agent-matching.tex", "type": "Algorithm 1 input" },
-    { "from": "docs/submission/jaamas/manuscript/sections/section-5-quality-metrics.tex", "to": "docs/submission/jaamas/manuscript/sections/section-6-results-discussion.tex", "type": "definitions vs results split" },
-    { "from": "HANDOFF.md", "to": ".claude/knowledge_graph.md", "type": "session state sync" }
+    { "from": "backend/gateway/routes/real_jobs.py", "to": "backend/services/real_jobs_service.py", "type": "HTTP → sync" },
+    { "from": "backend/services/real_jobs_service.py", "to": "backend/core/real_jobs_sync.py", "type": "fetch + snapshot" },
+    { "from": "backend/services/real_jobs_service.py", "to": "backend/agents/employer_agent.py", "type": "replace_corpus" },
+    { "from": "backend/gateway/routes/matching.py", "to": "backend/services/real_jobs_service.py", "type": "daily-batch pre-sync" }
   ],
   "key_flows": [
-    "§3 Algorithm 1 → §5 formulas → §6 interpreted tables",
-    "matchmaking_agent → build_match_explanation → MatchExplainability UI",
-    "Admin → POST /system/demo/reset → demo_reset",
-    "bash docs/submission/jaamas/build_all.sh → main.pdf + portal + Overleaf zip"
+    "Provider GET ?limit&skip → real_jobs_sync → jobs_live.json → EmployerAgent.replace_corpus",
+    "POST /real-jobs/sync → fetch → snapshot → replace corpus → optional reindex",
+    "bash scripts/run_tests.sh → 310 pytest + node utils"
   ],
-  "benchmarks": {
-    "corpus": "30 resumes, 15 jobs, 47 graded pairs, K=5",
-    "ndcg5_soft_embed": 0.969,
-    "ndcg5_composite_ablation": 0.942,
-    "precision5_approx": 0.31,
-    "portal_composite_weights": "28/27/10/15/10/10",
-    "ablation_weights_in_table": "40/30/15/10/5"
-  },
-  "tests": { "pytest_collected": 302, "last_verified": "2026-05-27", "note": "full suite not re-run after manuscript session" },
   "next_steps": [
-    "Commit manuscript rewrite",
-    "Fix matchmaking engine → agent in section-1",
-    "Resolve citation TODOs in section-2",
-    "Optional API auth hardening"
+    "Commit product work (live jobs, tests, error UX)",
+    "Set REAL_JOBS_BASE_URL and smoke-test sync",
+    "Resolve manuscript todos and citations",
+    "Optional admin UI for live jobs sync"
   ]
 }

@@ -7,7 +7,7 @@ from bootstrap import SystemContainer
 from demo_seed import seed_demo_accounts, seed_demo_activity
 from gateway.handlers import register_exception_handlers
 from gateway.middleware import ReadOnlyMiddleware
-from gateway.routes import agents, candidates, employers, feedback, matching, similar, system
+from gateway.routes import agents, candidates, employers, feedback, matching, real_jobs, similar, system
 
 
 def build_gateway(container: SystemContainer) -> FastAPI:
@@ -46,6 +46,7 @@ def build_gateway(container: SystemContainer) -> FastAPI:
     app.include_router(candidates.router)
     app.include_router(employers.router)
     app.include_router(matching.router)
+    app.include_router(real_jobs.router)
     app.include_router(similar.router)
     app.include_router(feedback.router)
     app.include_router(system.router)

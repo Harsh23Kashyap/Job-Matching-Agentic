@@ -19,14 +19,15 @@ Routers mount at the application root (no global \texttt{/api} prefix):
 \texttt{/match/*} and legacy aliases (\texttt{gateway/routes/matching.py}),
 \texttt{/similar} (\texttt{gateway/routes/similar.py}),
 \texttt{/feedback} (\texttt{gateway/routes/feedback.py}),
-\texttt{/system} (\texttt{gateway/routes/system.py}).
+\texttt{/system} (\texttt{gateway/routes/system.py}),
+\texttt{/real-jobs} (\texttt{gateway/routes/real\_jobs.py}).
 Middleware: \texttt{SessionMiddleware} (cookie \texttt{jm\_session}, 7-day max age) and optional \texttt{ReadOnlyMiddleware} when \texttt{read\_only=true}.
 Default listen address: \texttt{0.0.0.0:8001} (\texttt{config.py}).
 
 \leadpara{Agent modules.}
 Three domain agents are constructed in \texttt{bootstrap.py} and share an in-process \texttt{AgentEventBus} (\texttt{bus/event\_bus.py}):
 \textbf{CandidateAgent} (\texttt{agents/candidate\_agent.py}) owns candidate profile ingestion, \texttt{JsonParser} resume parsing (\texttt{hooks/parser.py}), snapshot versioning, and vector upserts to \texttt{candidates\_collection};
-\textbf{EmployerAgent} (\texttt{agents/employer\_agent.py}) mirrors this for job postings in \texttt{jobs\_collection};
+\textbf{EmployerAgent} (\texttt{agents/employer\_agent.py}) mirrors this for job postings in \texttt{jobs\_collection}, including \texttt{replace\_corpus} for bulk refresh from external feeds or snapshots;
 \textbf{MatchmakingAgent} (\texttt{agents/matchmaking\_agent.py}) is read-only with respect to profile stores: it loads snapshots, runs retrieval and scoring, builds \texttt{MatchResult} lists, and publishes \texttt{MATCH\_COMPLETED} events.
 Each agent extends \texttt{BaseAgent} (\texttt{agents/base.py}) for status reporting exposed at \texttt{GET /agents/status}.
 
@@ -47,6 +48,15 @@ Embeddings are computed in \texttt{core/embedding.py} via Sentence-Transformers.
 \textbf{SQLite} (\texttt{backend/app.db}, path from \texttt{Settings.sqlite\_path}): \texttt{auth/store.py} (\texttt{UserStore}, roles and sessions), \texttt{stores/feedback\_store.py} (match and user feedback rows), \texttt{stores/candidate\_activity\_store.py} (saved jobs, applications, activity log).
 \textbf{Frozen JSON corpus:} \texttt{data/cvs.json}, \texttt{data/jobs.json} seed demo accounts when \texttt{seed\_demo=true}.
 
+\leadpara{External live jobs integration.}
+\texttt{core/real\_jobs\_sync.py} implements the upstream contract: paginated \texttt{GET} requests with \texttt{limit}/\texttt{skip}, field normalization (\texttt{normalize\_external\_job}), identifier deduplication, and snapshot persistence to \texttt{data/jobs\_live.json}.
+\texttt{services/real\_jobs\_service.py} orchestrates sync at runtime: fetch upstream, write snapshot, call \texttt{EmployerAgent.replace\_corpus}, and optionally re-embed candidates and jobs (\texttt{reindex\_all}).
+Gateway endpoints: \texttt{GET /real-jobs/status} (configuration and last sync state) and \texttt{POST /real-jobs/sync} with body \texttt{\{reindex: bool\}} (default \texttt{true}).
+On startup, \texttt{bootstrap.py} loads \texttt{jobs.json}, then replaces the employer corpus from \texttt{jobs\_live.json} when that snapshot contains jobs.
+Environment gates: \texttt{REAL\_JOBS\_ENABLE}, \texttt{REAL\_JOBS\_BASE\_URL}, \texttt{REAL\_JOBS\_PATH}, \texttt{REAL\_JOBS\_PAGE\_LIMIT}, \texttt{REAL\_JOBS\_TIMEOUT\_SEC}, \texttt{REAL\_JOBS\_OUTPUT\_PATH} (\texttt{backend/.env.example}).
+CLI one-shot sync: \texttt{python backend/scripts/sync\_real\_jobs\_once.py}.
+Daily batch requests may set \texttt{sync\_before\_run=true} (default) to pre-sync when live jobs are enabled.
+
 \leadpara{Authentication and role separation.}
 Roles are \texttt{candidate}, \texttt{employer}, and \texttt{admin} (\texttt{auth/deps.py}, \texttt{require\_role}).
 Session auth endpoints: \texttt{POST /auth/register}, \texttt{POST /auth/login}, \texttt{POST /auth/logout}, \texttt{GET /auth/me}.
@@ -62,7 +72,10 @@ Table~\ref{tab:workflows} summarizes end-to-end flows; representative endpoint g
 \texttt{GET/POST /jobs}, \texttt{PUT /jobs/mine/\{job\_id\}}, \texttt{PATCH /jobs/mine/\{job\_id\}/status}, description upload/parse (\texttt{POST /jobs/upload-description}, \texttt{POST /jobs/parse-description}), \texttt{GET /jobs/mine/applications}.
 
 \leadpara{Matching API surface.}
-\texttt{POST /match/candidate-to-jobs}, \texttt{POST /match/job-to-candidates}, \texttt{POST /match/ensemble}, \texttt{POST /match/daily-batch}, plus legacy aliases \texttt{/match-resume}, \texttt{/match-job}, \texttt{/match-resume-ensemble}, \texttt{/agent/run-daily-recommendations}.
+\texttt{POST /match/candidate-to-jobs}, \texttt{POST /match/job-to-candidates}, \texttt{POST /match/ensemble}, \texttt{POST /match/daily-batch} (optional pre-sync via \texttt{sync\_before\_run}), plus legacy aliases \texttt{/match-resume}, \texttt{/match-job}, \texttt{/match-resume-ensemble}, \texttt{/agent/run-daily-recommendations}.
+
+\leadpara{External jobs API surface.}
+\texttt{GET /real-jobs/status}, \texttt{POST /real-jobs/sync}.
 
 \leadpara{Feedback, similar items, and system routes.}
 \texttt{POST /feedback}, \texttt{POST /feedback/actions}, \texttt{GET /feedback/me}, \texttt{GET /feedback/counts};
@@ -92,6 +105,11 @@ Applicant lists read \texttt{GET /jobs/mine/applications}.
 Route: \texttt{/admin/console} (\texttt{pages/admin/AdminConsole.jsx}).
 Panels: \texttt{AgentStatusPanel}, \texttt{AgentEventStrip} (tails \texttt{GET /agents/events/recent}), \texttt{SystemConfigPanel}, \texttt{MatchControls} (manual \texttt{runMatch} / \texttt{runDailyBatch}), \texttt{ResultsPanel}, and fairness summary from \texttt{GET /system/fairness}.
 Recent run metadata is cached in \texttt{localStorage} (\texttt{jm\_recent\_runs}).
+Live job sync is invoked via API or CLI (\S\ref{sec:4}); a dedicated admin UI control is not yet wired.
+
+\leadpara{Shared layout and error handling.}
+All portals render inside \texttt{PortalShell} (\texttt{layouts/PortalShell.jsx}) with role-aware navigation.
+Dedicated error routes (\texttt{pages/errors/ErrorPage.jsx}) present full-screen, centered recovery pages for HTTP 404/502 and unknown failures, with copy that distinguishes client-side routing errors from upstream outages.
 
 \subsection{Data structures}\label{sec:4-data}
 
@@ -102,7 +120,8 @@ Editable portal fields: name, skills, experience years, preferred salary, remote
 On save, \texttt{CandidateSnapshot} (\texttt{contracts/snapshots.py}) stores \texttt{id}, \texttt{name}, \texttt{skills}, \texttt{experience\_years}, \texttt{remote\_preference}, \texttt{preferred\_salary}, \texttt{summary}, monotonic \texttt{version}, \texttt{document\_text\_hash}, and fixed-length \texttt{embedding}.
 
 \leadpara{Job profile and \texttt{JobSnapshot}.}
-Posting fields: title, description, \texttt{required\_skills}, \texttt{preferred\_skills}, \texttt{required\_experience}, budget (\texttt{budget}, \texttt{budget\_min}, \texttt{budget\_max}), \texttt{remote\_policy}, plus the same \texttt{version}, \texttt{document\_text\_hash}, and \texttt{embedding} triple as candidates.
+Posting fields: title, description, \texttt{required\_skills}, \texttt{preferred\_skills}, \texttt{required\_experience}, budget (\texttt{budget}, \texttt{budget\_min}, \texttt{budget\_max}), \texttt{remote\_policy}, optional \texttt{company}, \texttt{link}, \texttt{location}, \texttt{job\_type}, \texttt{source}, and \texttt{posted\_at} when supplied by portal or external feeds, plus the same \texttt{version}, \texttt{document\_text\_hash}, and \texttt{embedding} triple as candidates.
+Vector metadata upserts store company, link, location, compensation bounds, and source for portal filters and admin inspection.
 
 \leadpara{\texttt{MatchResult} and \texttt{MatchExplanation}.}
 \texttt{MatchResult} (\texttt{contracts/matching.py}) carries \texttt{target\_id}, \texttt{target\_label}, \texttt{rank}, bi-encoder \texttt{similarity}, per-component scores (\texttt{semantic\_score}, \texttt{skills\_score}, \texttt{title\_score}, \texttt{experience\_score}, \texttt{compensation\_score}, \texttt{remote\_score}), \texttt{final\_score}, skill overlap lists, optional contact and job metadata, constraint notes, and an optional \texttt{MatchExplanation}.
@@ -153,6 +172,11 @@ Hard constraint penalty default in \texttt{constraints.py}: factor $0.65$ when e
 Feedback boost deltas when enabled (\texttt{feedback\_boost.py}): save $+0.04$, apply $+0.06$, dismiss $-0.06$.
 Cross-encoder rerank pool default: 20; disabled in production settings (\texttt{enable\_cross\_encoder\_rerank=false}).
 
+\leadpara{External live jobs (optional).}
+Gated by \texttt{REAL\_JOBS\_ENABLE=false} by default.
+When enabled: \texttt{REAL\_JOBS\_BASE\_URL}, \texttt{REAL\_JOBS\_PATH} (default \texttt{/jobs}), \texttt{REAL\_JOBS\_PAGE\_LIMIT} (100), \texttt{REAL\_JOBS\_TIMEOUT\_SEC} (30), snapshot path \texttt{REAL\_JOBS\_OUTPUT\_PATH} (\texttt{data/jobs\_live.json}).
+Daily batch default \texttt{sync\_before\_run=true} pre-syncs only when live jobs are enabled.
+
 \leadpara{Vector-store update path.}
 On snapshot registration the owning agent (1)~embeds canonical document text, (2)~upserts into the active vector collection, and (3)~emits a profile-updated event.
 The Matchmaking agent reads snapshots, scores all or ANN-filtered pairs with the requested strategy, attaches explanations, and returns the top-$K$ list.
@@ -170,9 +194,11 @@ Entry scripts include \texttt{run\_eval.py}, \texttt{run\_comparison.py}, \textt
 One-shot wrapper: \texttt{backend/scripts/run\_research\_pipeline.py} (default \texttt{--top-k 5}).
 
 \leadpara{Automated tests.}
-Unit tests: \texttt{tests/unit/}.
+Layout: \texttt{tests/unit/backend/} (Python unit tests), \texttt{tests/unit/frontend/} (Node tests for \texttt{frontend/src/utils/*}), \texttt{tests/integration/} (HTTP flows), \texttt{tests/benchmarks/} (offline eval regression).
+Unified runner from repository root: \texttt{bash scripts/run\_tests.sh} (\texttt{pytest ../tests} plus Node utils).
 Regression gate: \texttt{tests/benchmarks/test\_eval\_regression.py} recomputes semantic and multimodal rankings on the frozen corpus and compares nDCG@5 against \texttt{paper\_progression\_summary.json} with tolerance $\pm 0.04$ (Eq.~\ref{eq:regression}).
+Live-jobs contract tests: \texttt{tests/unit/backend/test\_real\_jobs\_sync.py} (normalize, pagination mock, snapshot I/O) and \texttt{tests/integration/test\_real\_jobs\_api.py} (status endpoint; sync disabled returns HTTP~400).
 Additional benchmark tests cover ablations, fusion tables, fairness audit, explainability checks, significance resampling, synthetic dataset validation, and the research export pipeline (\texttt{tests/benchmarks/*.py}).
-Run backend tests from \texttt{backend/} with \texttt{pytest} (declared in \texttt{requirements-min.txt}).
+Run backend tests from \texttt{backend/} with \texttt{pytest ../tests -q} (310 tests collected as of submission tag; declared in \texttt{requirements-min.txt}).
 
 \todo{Commit \texttt{phase11\_summary.csv} from \texttt{benchmarks/phase11.py} for ANN shortlist latency.}

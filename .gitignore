@@ -17,6 +17,7 @@ frontend/.env.local
 !backend/.env.example
 
 data/daily_recommendations_*.json
+data/jobs_live.json
 backend/reports/*
 !backend/reports/README.md
 frontend/node_modules/

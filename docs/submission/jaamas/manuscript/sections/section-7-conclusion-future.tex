@@ -22,7 +22,7 @@ These results are reproducible from committed benchmark artifacts; they characte
 
 JobMatch is intentionally built as \textbf{decision-support software}, not an automated hiring replacement.
 It suggests, ranks, and explains; users save, apply, shortlist, or pass---the system does not hire, reject, or negotiate on anyone's behalf.
-The contribution is an integrated research prototype: role-aware agents, shared snapshots, explainable composite ranking, role-separated portals, and offline evaluation tied to the same scoring code the gateways invoke.
+The contribution is an integrated research prototype: role-aware agents, shared snapshots, explainable composite ranking, role-separated portals, optional external job-ingestion for deployment, and offline evaluation tied to the same scoring code the gateways invoke.
 Whether this design improves real-world trust, time-to-shortlist, or fairness is not settled by laboratory metrics alone and remains for field study.
 
 \subsection{Future scope}\label{sec:7-future}
@@ -39,7 +39,11 @@ Future work should retest reranking on larger corpora and tighter shortlists, wh
 
 \leadpara{Larger real-world datasets.}
 A synthetic scale corpus already lives under \texttt{data/research/} (100 candidates, 50 jobs, 5000 labeled pairs).
+The prototype also ships an optional external job-ingestion path (\texttt{/real-jobs/*}) that can refresh the Employer agent corpus from a provider API while offline benchmarks continue to use the frozen \texttt{jobs.json} demo set (\S\ref{sec:4}).
 The next step is held-out evaluation on real or expert-labeled résumé--job pairs, including composite ablation under portal-default weights (28/27/10/15/10/10) \todo{Run composite ablation with portal weights 28/27/10/15/10/10.}.
+
+\leadpara{Production hardening for live job feeds.}
+External sync is implemented as administrator-triggered HTTP endpoints and a CLI script; future work should add authenticated admin UI controls, rate limiting, and provider credential management before exposing sync in untrusted deployments.
 
 \leadpara{Human evaluator studies.}
 Offline precision and nDCG do not measure whether explanations help people decide faster or with more confidence.

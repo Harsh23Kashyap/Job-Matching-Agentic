@@ -1,138 +1,129 @@
 # Handoff
-> Written: 2026-05-27 | Branch: main (local edits uncommitted) | Dir: /Users/harshkashyap/Projects/JobMatcher-v1/Job-Matching-Agentic
+> Written: 2026-05-28 | Branch: main @ `9db6abc` (pushed) | Dir: /Users/harshkashyap/Projects/JobMatcher-v1/Job-Matching-Agentic
 
 ## Goal
 
-Deliver a thesis-ready **multi-agent JobMatch platform** and a **JAAMAS submission manuscript** reframed as an accessible multi-agent recruitment paper (not a technical report). Product code is committed and pushed at `010dadf`; this session completed major manuscript rewrites (§2–§7), professor QA, and a security-focused code review. Remaining work: commit manuscript, resolve `\todo` markers, fill author metadata, and optional API hardening before professor resubmission.
+Deliver a thesis-ready **multi-agent JobMatch platform** and a **JAAMAS submission manuscript** reframed as an accessible multi-agent recruitment paper. Manuscript §2–§7 rewrite is **committed and pushed**. Remaining work: commit product features (live jobs API, test reorg, error UX), resolve manuscript `\todo`s and citations, fill author metadata, optional API hardening before professor resubmission.
 
 ## Current state
 
-- **Done (committed & pushed on `main` @ `010dadf`):**
-  - Backend explainability, demo reset, frontend UX, tests, JAAMAS manuscript v1, portal/build artifacts, knowledge graph snapshot
+- **Done (committed & pushed @ `9db6abc`):**
+  - JAAMAS manuscript §1–§7 rewrite, Algorithm 1, Fig1–5 PDFs, knowledge graph v12 snapshot in that commit
 - **Done (local, not committed):**
-  - **§2 Literature Review** — rebuilt around 6 themes; 12 `\todo{Citation needed}` markers; only 7 bib entries
-  - **§4 Implementation** — consolidated backend/frontend/data/params/reproducibility (report-style, intentional)
-  - **§5 Quality Metrics** — all formulas/metrics; no numeric results; equations only in §5
-  - **§6 Results and Discussion** — narrative, interpreted tables, human-audience structure (7 subsections)
-  - **§7 Conclusion and Future Scope** — decision-support framing; 8 future-scope items
-  - **§3** — Fig1 multi-agent layout, expanded §3.4 communication, Algorithm 1 (`algorithms/alg-multi-agent-matching.tex`)
-  - **Fig1–Fig5 PDFs** + draw.io sources; Fig1 export fix (removed `--crop` from draw.io CLI)
-  - **Professor QA pass** — 10 PASS / 4 PARTIAL / 1 FAIL (citations); documented in chat, not in repo
-  - **Code review** — 13 security/findings (open admin registration, unauthenticated PII via match routes, etc.); **no fixes applied**
-  - Manuscript compiles to **33 pages** (`main.pdf` local)
+  - **External live jobs API** — `core/real_jobs_sync.py`, `services/real_jobs_service.py`, `GET/POST /real-jobs/*`, snapshot boot, daily-batch pre-sync, CLI `sync_real_jobs_once.py`, 8 new tests
+  - **Test reorganization** — `tests/unit/backend/` (33 py), `tests/unit/frontend/` (9 mjs), `scripts/run_tests.sh`, READMEs
+  - **Error page UX** — full-screen centered layout, broken-route SVG, animated background, 502 copy update
+  - **PortalShell fix** — replaced `NavLink` with `Link` + manual active state (fixes `isActive` DOM warning)
+  - **Docs** — `docs/design/external-live-jobs-api-HANDOFF.md` (full contract from legacy repo)
 - **In progress:** None
-- **Blocked:** Springer upload (author placeholders); professor resubmission (visible `\todo`s + thin bibliography)
+- **Blocked:** Springer upload (author placeholders); professor resubmission (~29 `\todo`s, 12 citation gaps in §2)
 
 ## Decisions made
 
 | Decision | Why | Alternatives rejected |
 |----------|-----|----------------------|
-| 7-section structure with §4 Implementation + §5 Metrics | Professor feedback: separate code from formulas from results | Single Methodology section mixing all three |
-| §6 narrative-first (not table dump) | General-audience readability; professor feedback | Table-per-subsection without interpretation |
-| §2 themed literature (not paper-by-paper) | Stronger positioning vs algorithm-only demos | Old 4-subsection lite review |
-| Citation gaps as `\todo{Citation needed}` | User rule: no fake references | Invent bib entries to fill gaps |
-| Matching routes unauthenticated in code | Admin console + integration tests; documented in §4 | Auth-gate all `/match/*` (would break tests/admin) |
-| Portal composite default vs best research nDCG | Explainability over max offline score | Switch portal to soft-embed/learned fusion |
-| Code review findings documented, not fixed | User `/review` requested findings only | Silent hardening in same session |
-| Fig1 before agent subsections (not diagram-first) | Brief principles paragraph sets context | Move figure immediately after `\section` title |
+| Port live jobs to multi-agent rewrite (Employer Agent) | Handoff contract from `Agentic-Job-Matching`; employer owns job corpus | Keep legacy monolith `app.py` sync only |
+| `RealJobsService` on `SystemContainer` | Orchestrates replace_corpus + reindex without bloating matchmaker | Global module state like legacy `app.py` |
+| Snapshot boot without `REAL_JOBS_ENABLE` | Survive restarts from last good fetch (legacy behavior) | Require enable flag for boot |
+| Test split `unit/backend` + `unit/frontend` | Mixed .py/.mjs in flat `unit/` was confusing | Domain subfolders under integration (deferred) |
+| `Link` instead of `NavLink` for portal nav | React 19 + RR7 leaked `isActive` to DOM | Styled transient props / custom wrapper |
+| Matching routes still unauthenticated | Admin console + existing tests | Auth-gate all `/match/*` (needs test rewrite) |
+| Manuscript committed before product features | User requested push of paper work first | Single mega-commit |
 
 ## Open questions
 
-- [ ] Hypothesis: Professor accepts 12 citation TODOs as “draft” or requires full bib before resubmission — evidence: QA marked **FAIL** on citations
-- [ ] Unknown: Commit manuscript as one commit or split (sections vs figures vs algorithms) — matters for review history
-- [ ] Unknown: Whether to add Sal Khan *Brave New Words* to `references.bib` — §1 cites narratively, no `\cite`
-- [ ] Unknown: Portal-weight composite ablation (28/27/10/15/10/10) — multiple `\todo`s; re-run or soften deployment claims?
-- [ ] Hunch: Code review security gaps will concern professor if live demo is network-exposed — evidence: open admin register, PII on unauthenticated match
+- [ ] Unknown: Production `REAL_JOBS_BASE_URL` (likely aiforjob.ai provider) — not in repo
+- [ ] Unknown: Whether provider requires auth headers — legacy client sends none
+- [ ] Hypothesis: Professor accepts 12 citation TODOs as draft — QA marked **FAIL** on citations
+- [ ] Unknown: Add admin UI button for `POST /real-jobs/sync` — API ready, no frontend yet
+- [ ] Hunch: Security review gaps matter if demo is network-exposed — open admin register, PII on match routes
 
 ## Blockers & dependencies
 
 | What | Who/Where | Status |
 |------|-----------|--------|
-| Author name/email/affiliation in `main.tex` | User | placeholder (`First Author`, `example.edu`) |
-| CRediT roles in `declarations.tex` | User | `\todo` |
-| 12 literature citations in §2 | User/literature search | `\todo{Citation needed}` |
-| Professor resubmission | User | waiting on commit + todo cleanup |
+| Author placeholders in `main.tex` | User | open |
+| 12 §2 citation TODOs + ~29 total `\todo`s | User/literature | open |
+| `REAL_JOBS_BASE_URL` for live sync | Deployment env | not in repo |
+| Professor resubmission | User | waiting on todo cleanup |
 | Springer upload | User | not started |
 
-None blocking local compile or demo on localhost.
+None blocking localhost demo or manuscript compile.
 
 ## Environment
 
-- **Branch:** `main` (last push `010dadf`; **large local diff uncommitted**)
-- **Uncommitted changes:** Manuscript §1–§7, figures, `algorithms/`, `generate_jaamas_figures.py`, `jaamas-macros.tex`, knowledge graph v11, `HANDOFF.md`, `main.pdf`
-- **Untracked:** `docs/submission/jaamas/manuscript/algorithms/`, LaTeX aux (`main.aux`, `.bbl`, `.blg`, `.log`, `.out`)
-- **Recent commits (remote):**
-  - `010dadf` Update codebase knowledge graph
-  - `3631bcb` Portal docs, build pipeline, submission artifacts
-  - `cfae2c2` JAAMAS manuscript source, figures, tables
-  - `a7093b7` Tests (explainability, filters, demo reset)
-  - `3f29d75` Frontend explainability + filters
-- **Build status:** Manuscript compiles (33 pp.) via `pdflatex` + `bibtex`; full package not re-run via `build_all.sh` this session
-- **Test status:** 302 tests collected; full suite not re-run after manuscript edits
-- **Active processes:** None known
+- **Branch:** `main` @ `9db6abc` (pushed)
+- **Uncommitted changes:** ~63 files — live jobs API, test reorg, error pages, PortalShell, READMEs, `.gitignore`, `backend/.env.example`
+- **Untracked:** `backend/services/`, `backend/core/real_jobs_sync.py`, `backend/gateway/routes/real_jobs.py`, test files, `scripts/run_tests.sh`, LaTeX aux in manuscript/
+- **Recent commits:**
+  - `9db6abc` Rewrite JAAMAS manuscript §2–§7 + artifacts
+  - `010dadf` Knowledge graph for JAAMAS/explainability
+  - `3631bcb` Portal docs, build pipeline
+- **Build status:** Frontend `npm run build` passes; manuscript was 33 pp. at last compile
+- **Test status:** **310 passed** (`pytest ../tests -q`, 2026-05-28); node utils via `run_tests.sh`
+- **Active processes:** None
 
 ## What worked
 
-- Research-paper-writing skill workflow: outline → rewrite → no invented numbers
-- Moving `tab-method-comparison` from §5 to §6 (definitions vs results separation)
-- §6 structure: evaluated → baselines → main result → agent usability → strengths → limits → implications
-- Algorithm 1 as architectural steps with formulas deferred to §5
-- draw.io export without `--crop` (fixes ~47 pt tall PDFs)
-- Professor QA checklist against 14 explicit criteria
-- `GIT_TERMINAL_PROMPT=0 git -c commit.gpgsign=false commit` when GPG/HEREDOC hangs
+- Porting `real_jobs_sync` from legacy repo with `EmployerAgent.replace_corpus()` + rich Chroma metadata
+- `scripts/run_tests.sh` as single entry point (pytest + node)
+- Error page: `.error-page` flex center + `ErrorBackground` matches dashboard ornament language
+- `Link` + `linkIsActive()` eliminates React `isActive` warning cleanly
+- Simple `git commit -m "..."` (avoid HEREDOC/trailer hangs in Cursor shell)
 
 ## What didn't work
 
-- HEREDOC `git commit` hangs in Cursor shell — use simple `-m` or `-c commit.gpgsign=false`
+- HEREDOC / `--trailer` git commits hang in Cursor shell — use plain `-m`
 - Do not commit LaTeX `.aux/.log/.bbl/.blg/.out`
-- Cross-encoder rerank: higher latency, **lower** nDCG on demo corpus — do not oversell in abstract/future scope
-- Learned fusion trained on same 47 pairs used for eval — overfitting risk; already downgraded in §6/§7
-- `/review` found tests that **assert insecure behavior** (e.g. `test_register_admin`, unauthenticated match) — fixing auth requires test rewrites
+- CSP `contentScript.bundle.js` console error is a **browser extension**, not app code
+- `/review` security findings still open — tests assert unauthenticated match/admin behavior
+- Cross-encoder rerank: worse nDCG on demo corpus — do not oversell
 
 ## Commands
 
 ```bash
-# Manuscript compile (from manuscript dir)
-cd docs/submission/jaamas/manuscript && pdflatex main.tex && bibtex main && pdflatex main.tex && pdflatex main.tex
+# Full test suite
+bash scripts/run_tests.sh
 
-# Full JAAMAS package rebuild
-bash docs/submission/jaamas/build_all.sh
-
-# Backend tests (302 collected)
+# Backend only
 cd backend && source .venv/bin/activate && pytest ../tests -q
+
+# Frontend utils only
+node --test tests/unit/frontend/test_*.mjs
 
 # Dev servers
 cd backend && uvicorn main:create_app --factory --reload --port 8001
 cd frontend && npm run dev
 
-# Regenerate draw.io figure sources
-python scripts/generate_jaamas_figures.py
+# Live jobs sync (requires REAL_JOBS_* in backend/.env)
+curl -s http://localhost:8001/real-jobs/status | jq
+curl -s -X POST http://localhost:8001/real-jobs/sync -H 'Content-Type: application/json' -d '{"reindex":true}' | jq
+python backend/scripts/sync_real_jobs_once.py
 
-# Count remaining manuscript TODOs
+# Manuscript compile
+cd docs/submission/jaamas/manuscript && pdflatex main.tex && bibtex main && pdflatex main.tex && pdflatex main.tex
+bash docs/submission/jaamas/build_all.sh
+
+# Count manuscript TODOs
 rg '\\todo' docs/submission/jaamas/manuscript
-
-# Demo reset (admin session, demo_mode on)
-curl -X POST http://localhost:8001/system/demo/reset -b cookies.txt
 ```
 
 ## Key files
 
 | File | Why It Matters |
 |------|---------------|
-| `docs/submission/jaamas/manuscript/sections/section-2-literature-review.tex` | Themed lit review; **12 citation TODOs** |
-| `docs/submission/jaamas/manuscript/sections/section-3-architecture.tex` | Multi-agent architecture, §3.4 communication, Fig1–3 |
-| `docs/submission/jaamas/manuscript/algorithms/alg-multi-agent-matching.tex` | Algorithm 1 (15 steps) |
-| `docs/submission/jaamas/manuscript/sections/section-4-implementation.tex` | All implementation detail consolidated here |
-| `docs/submission/jaamas/manuscript/sections/section-5-quality-metrics.tex` | Formulas + metric definitions only |
-| `docs/submission/jaamas/manuscript/sections/section-6-results-discussion.tex` | Interpreted results; 8 tables with narrative |
-| `docs/submission/jaamas/manuscript/sections/section-7-conclusion-future.tex` | Conclusion + 8 future-scope items |
-| `docs/submission/jaamas/manuscript/references.bib` | **Only 7 entries** — needs expansion |
-| `docs/submission/jaamas/manuscript/main.tex` | Abstract + author placeholders |
-| `docs/submission/jaamas/figures/Fig1.pdf` | Multi-agent block diagram (re-exported) |
-| `scripts/generate_jaamas_figures.py` | Fig source generator |
-| `backend/gateway/routes/matching.py` | Unauthenticated match routes (review finding) |
-| `backend/auth/routes.py` | Open admin registration (review finding) |
-| `.claude/knowledge_graph.md` | Codebase map (v11 local edits uncommitted) |
+| `backend/core/real_jobs_sync.py` | Upstream fetch, normalize, pagination, snapshot I/O |
+| `backend/services/real_jobs_service.py` | Sync orchestration, boot from snapshot, reindex |
+| `backend/gateway/routes/real_jobs.py` | `GET/POST /real-jobs/*` proxy API |
+| `backend/agents/employer_agent.py` | `replace_corpus()` for live job feed |
+| `docs/design/external-live-jobs-api-HANDOFF.md` | Full 6-contract spec (ported from legacy) |
+| `scripts/run_tests.sh` | Unified pytest + node runner |
+| `frontend/src/pages/errors/ErrorPage.jsx` | Redesigned error UX |
+| `frontend/src/layouts/PortalShell.jsx` | Portal nav (Link-based active state) |
+| `docs/submission/jaamas/manuscript/sections/section-2-literature-review.tex` | 12 citation TODOs |
+| `docs/submission/jaamas/manuscript/references.bib` | Only 7 entries — needs expansion |
+| `backend/gateway/routes/matching.py` | Unauthenticated match + daily-batch pre-sync |
+| `.claude/knowledge_graph.md` | Codebase map (v13 local refresh pending commit) |
 
 ## External links
 
@@ -140,28 +131,26 @@ None.
 
 ## Memory snapshot
 
-- `.claude/knowledge_graph.md` v11 — JAAMAS paths, section map; **local edits uncommitted**
-- `.claude/knowledge_graph.json` — curated export; **local edits uncommitted**
-- Professor QA (2026-05-27): structure PASS; citations FAIL; config drift (portal vs ablation weights) MEDIUM risk
-- Code review (2026-05-27): do not expose API publicly without auth/PII hardening
+- `.claude/knowledge_graph.md` v13 — live jobs, test layout, error pages (local)
+- Professor QA (2026-05-27): 10 PASS / 4 PARTIAL / 1 FAIL (citations)
+- Code review (2026-05-27): localhost-only until auth/PII hardening
+- Legacy live-jobs handoff source: `/Users/harshkashyap/Projects/JobMatcher-v1/Agentic-Job-Matching/HANDOFF.md`
 
 ## Persistent context
 
 - Knowledge graph: `.claude/knowledge_graph.md`, `.claude/knowledge_graph.json`
-- JAAMAS build: `docs/submission/jaamas/build_all.sh`, `docs/submission/jaamas/build/README.md`
-- Figures: `docs/submission/jaamas/figures/README.md`
+- Live jobs contract: `docs/design/external-live-jobs-api-HANDOFF.md`
+- JAAMAS build: `docs/submission/jaamas/build_all.sh`
 - Design: `docs/design/HLD-multi-agent-system.md`, `docs/design/SDD-multi-agent-system.md`
-- Demo: `docs/demo/DEMO-SCRIPT.md`
 
 ## Next steps
 
-1. **Commit manuscript rewrite** (§2–§7, algorithms, figures, macros, `main.pdf`) — verify: `git status` clean except aux/knowledge graph
-2. **Fix intro contribution bullet** — change “matchmaking engine” → “Matchmaking agent” in `section-1-introduction.tex` — verify: `rg 'matchmaking engine' manuscript` → 0
-3. **Resolve or hide `\todo` markers** (~29 across manuscript/tables) — verify: `rg '\\todo' docs/submission/jaamas/manuscript` → 0 or only intentional deferrals
-4. **Add §2 bibliography entries** (12 citation TODOs minimum) — verify: `references.bib` ≥15 entries, BibTeX clean
-5. **Fill author block + CRediT** in `main.tex` / `declarations.tex` — verify: no `First Author` / `example.edu`
-6. **Run portal-weight composite ablation** OR downgrade table/claim in `tab-ablation.tex` — verify: weights 28/27/10/15/10/10 in artifact or footnote honest
-7. **Re-run `build_all.sh`** and sync cover letter + information sheet with §6 numbers — verify: portal PDFs match abstract
-8. **Optional API hardening** from code review (admin register lock, match auth, PII redaction) — verify: new integration tests for 401/403; **only if professor/demo requires network exposure**
-9. **Commit knowledge graph v11** — verify: `.claude/knowledge_graph.md` matches current manuscript paths
-10. **Run full test suite before submission tag** — verify: `pytest ../tests -q` → 302 passed
+1. **Commit product work** (live jobs, tests, error UX, PortalShell) — verify: `git status` clean except aux/LaTeX
+2. **Set `REAL_JOBS_BASE_URL`** in deployment `.env` and smoke-test sync — verify: `POST /real-jobs/sync` → 200 + `jobs_live.json`
+3. **Fix §1 “matchmaking engine” → “Matchmaking agent”** — verify: `rg 'matchmaking engine' docs/submission/jaamas/manuscript` → 0
+4. **Resolve ~29 `\todo`s** (12 citations in §2) — verify: `rg '\\todo' docs/submission/jaamas/manuscript` minimal
+5. **Fill author block + CRediT** — verify: no `First Author` / `example.edu`
+6. **Optional: admin UI for live jobs sync** — verify: button calls `/real-jobs/sync` then refreshes `/jobs/full`
+7. **Optional API hardening** if network demo required — verify: match routes require auth; admin register gated
+8. **Re-run `build_all.sh`** + sync portal PDFs with §6 numbers — verify: cover letter matches abstract
+9. **Commit knowledge graph v13** after product commit — verify: graph documents `core/real_jobs_sync.py` path

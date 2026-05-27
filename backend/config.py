@@ -40,6 +40,19 @@ class Settings(BaseSettings):
     enable_cross_encoder_rerank: bool = False
     cross_encoder_rerank_pool: int = 20
 
+    real_jobs_enable: bool = False
+    real_jobs_base_url: str = ""
+    real_jobs_path: str = "/jobs"
+    real_jobs_page_limit: int = 50
+    real_jobs_timeout_sec: int = 30
+    real_jobs_output_path: Path | None = None
+
+    @property
+    def real_jobs_output_path_resolved(self) -> Path:
+        if self.real_jobs_output_path is not None:
+            return self.real_jobs_output_path
+        return self.data_dir / "jobs_live.json"
+
     @property
     def cvs_path(self) -> Path:
         return self.data_dir / "cvs.json"

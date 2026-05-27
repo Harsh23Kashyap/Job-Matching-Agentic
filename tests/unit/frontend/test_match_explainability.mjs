@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { resolveMatchExplanation } from "../../frontend/src/utils/matchExplainability.js";
+import { resolveMatchExplanation } from "../../../frontend/src/utils/matchExplainability.js";
 
 test("resolveMatchExplanation uses API explanation when present", () => {
   const row = {

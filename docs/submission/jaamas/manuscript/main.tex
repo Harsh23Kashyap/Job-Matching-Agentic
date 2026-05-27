@@ -24,6 +24,7 @@
 We present JobMatch, a multi-agent recruitment platform in which Candidate and Employer agents maintain role-specific profiles and shared embeddings, while a read-only Matchmaking agent scores and explains candidate--job pairs.
 Agents coordinate through an event bus; when a resume or job description changes, the owning agent updates vector representations and notifies the Matchmaking layer to refresh stale rankings.
 Separate candidate, employer, and admin portals keep save, apply, and shortlist decisions with human users.
+For deployment, the Employer agent can optionally refresh job postings from an external provider API; all offline metrics in this paper use the frozen demo corpus.
 
 The Matchmaking agent combines semantic similarity, skill overlap, and experience, compensation, and remote compatibility into a fixed composite score with structured explanations---assistive ranking, not autonomous hiring.
 We evaluate offline on 30 resumes, 15 job postings, and 47 graded relevance pairs using macro-averaged P@5, R@5, and nDCG@5 at $K{=}5$.

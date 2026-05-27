@@ -1,3 +1,27 @@
+export function ErrorArtBrokenRoute() {
+  return (
+    <svg
+      viewBox="0 0 180 140"
+      width="180"
+      height="140"
+      fill="none"
+      aria-hidden="true"
+      className="error-art-svg error-art-svg--broken"
+    >
+      <rect x="24" y="28" width="58" height="74" rx="10" fill="#f5f0e8" stroke="#ded6ca" strokeWidth="1.5" />
+      <rect x="34" y="42" width="38" height="6" rx="3" fill="#e5d8c7" />
+      <rect x="34" y="54" width="28" height="5" rx="2.5" fill="#e5d8c7" opacity="0.85" />
+      <rect x="34" y="65" width="32" height="5" rx="2.5" fill="#e5d8c7" opacity="0.7" />
+      <path d="M82 65h18" stroke="#52635a" strokeWidth="2" strokeLinecap="round" strokeDasharray="3 5" />
+      <circle cx="118" cy="65" r="16" fill="#e8efe9" stroke="#52635a" strokeWidth="1.5" />
+      <path d="M118 57v9" stroke="#52635a" strokeWidth="2.5" strokeLinecap="round" />
+      <circle cx="118" cy="72" r="1.5" fill="#52635a" />
+      <circle cx="146" cy="98" r="5" fill="#52635a" opacity="0.25" />
+      <circle cx="158" cy="88" r="3" fill="#c9d5cc" opacity="0.5" />
+    </svg>
+  );
+}
+
 export function ErrorArt401() {
   return (
     <svg viewBox="0 0 200 160" fill="none" aria-hidden="true" className="error-art-svg">
@@ -44,17 +68,7 @@ export function ErrorArt501() {
 }
 
 export function ErrorArt502() {
-  return (
-    <svg viewBox="0 0 200 160" fill="none" aria-hidden="true" className="error-art-svg">
-      <ellipse cx="100" cy="120" rx="70" ry="12" fill="var(--border-subtle)" />
-      <rect x="55" y="35" width="90" height="70" rx="8" fill="var(--bg-card)" stroke="var(--border)" strokeWidth="2" />
-      <rect x="65" y="48" width="70" height="8" rx="4" fill="var(--healthy)" opacity="0.4" />
-      <rect x="65" y="64" width="50" height="8" rx="4" fill="var(--accent)" opacity="0.35" />
-      <rect x="65" y="80" width="60" height="8" rx="4" fill="var(--critical)" opacity="0.5" />
-      <path d="M145 35l12-12M157 35l-12-12" stroke="var(--critical)" strokeWidth="2.5" strokeLinecap="round" />
-      <circle cx="151" cy="29" r="18" fill="none" stroke="var(--critical)" strokeWidth="2" strokeDasharray="4 4" />
-    </svg>
-  );
+  return <ErrorArtBrokenRoute />;
 }
 
 const ARTS = {
@@ -65,7 +79,10 @@ const ARTS = {
   502: ErrorArt502,
 };
 
-export function ErrorIllustration({ code }) {
-  const Art = ARTS[code] || ErrorArt502;
+export function ErrorIllustration({ code, variant = "default" }) {
+  if (variant === "broken") {
+    return <ErrorArtBrokenRoute />;
+  }
+  const Art = ARTS[code] || ErrorArtBrokenRoute;
   return <Art />;
 }

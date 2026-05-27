@@ -40,6 +40,8 @@ class JobProfile(BaseModel):
     job_type: str | None = None
     accepts_applications: bool = True
     link: str | None = None
+    source: str | None = None
+    posted_at: str | None = None
     status: str = "open"
     created_at: str = ""
     updated_at: str = ""

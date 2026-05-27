@@ -7,7 +7,7 @@ import {
   parseSkillsInput,
   skillsToPayload,
   splitSkillTokens,
-} from "../../frontend/src/utils/skills.js";
+} from "../../../frontend/src/utils/skills.js";
 
 test("parseSkillsInput trims and splits comma-separated values", () => {
   assert.deepEqual(parseSkillsInput(" Python, FastAPI ,  "), ["FastAPI", "Python"]);

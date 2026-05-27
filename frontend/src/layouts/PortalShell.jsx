@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { NavLink, Outlet, useLocation } from "react-router-dom";
+import { Link, Outlet, useLocation } from "react-router-dom";
 import { Logo, IconMoon, IconSun } from "../components/icons.jsx";
 import UserMenu from "../components/UserMenu.jsx";
 import PortalBackground from "../components/PortalBackground.jsx";
@@ -21,9 +21,15 @@ function pageContainerClass(pathname) {
   return "page-container page-container--form";
 }
 
-function navItemActive(item, pathname, routerActive) {
-  if (typeof item.isActive === "function") return item.isActive(pathname);
-  return routerActive;
+function linkIsActive(item, pathname) {
+  if (typeof item.isActive === "function") {
+    return item.isActive(pathname);
+  }
+  const { to, end } = item;
+  if (end) {
+    return pathname === to;
+  }
+  return pathname === to || pathname.startsWith(`${to}/`);
 }
 
 export default function PortalShell({ portal = "candidate", subtitle, navItems = [] }) {
@@ -42,28 +48,30 @@ export default function PortalShell({ portal = "candidate", subtitle, navItems =
     <div className="app" data-portal={portal}>
       <header className="top-nav">
         <div className="top-nav-inner">
-          <NavLink to="/" className="brand-mark">
+          <Link to="/" className="brand-mark">
             <Logo size={34} />
             <div className="brand-text">
               <span className="brand-name">JobMatch</span>
               {subtitle && <span className="brand-sub">{subtitle}</span>}
             </div>
-          </NavLink>
+          </Link>
 
           {navItems.length > 0 && (
             <nav className="top-nav-links" aria-label="Main">
-              {navItems.map((item) => (
-                <NavLink
-                  key={item.to}
-                  to={item.to}
-                  end={item.end}
-                  isActive={(props) => navItemActive(item, pathname, props.isActive)}
-                  className={({ isActive }) => `nav-link${isActive ? " nav-link--active" : ""}`}
-                >
-                  <span className="nav-link-icon">{item.icon}</span>
-                  <span className="nav-link-label">{item.label}</span>
-                </NavLink>
-              ))}
+              {navItems.map((item) => {
+                const active = linkIsActive(item, pathname);
+                return (
+                  <Link
+                    key={item.to}
+                    to={item.to}
+                    className={`nav-link${active ? " nav-link--active" : ""}`}
+                    aria-current={active ? "page" : undefined}
+                  >
+                    <span className="nav-link-icon">{item.icon}</span>
+                    <span className="nav-link-label">{item.label}</span>
+                  </Link>
+                );
+              })}
             </nav>
           )}
 
@@ -90,18 +98,20 @@ export default function PortalShell({ portal = "candidate", subtitle, navItems =
 
       {navItems.length > 0 && (
         <nav className="mobile-tab-bar" aria-label="Mobile navigation">
-          {navItems.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              end={item.end}
-              isActive={(props) => navItemActive(item, pathname, props.isActive)}
-              className={({ isActive }) => `mobile-tab${isActive ? " mobile-tab--active" : ""}`}
-            >
-              <span className="mobile-tab-icon">{item.icon}</span>
-              <span className="mobile-tab-label">{item.label}</span>
-            </NavLink>
-          ))}
+          {navItems.map((item) => {
+            const active = linkIsActive(item, pathname);
+            return (
+              <Link
+                key={item.to}
+                to={item.to}
+                className={`mobile-tab${active ? " mobile-tab--active" : ""}`}
+                aria-current={active ? "page" : undefined}
+              >
+                <span className="mobile-tab-icon">{item.icon}</span>
+                <span className="mobile-tab-label">{item.label}</span>
+              </Link>
+            );
+          })}
         </nav>
       )}
     </div>

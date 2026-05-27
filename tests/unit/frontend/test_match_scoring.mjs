@@ -5,7 +5,7 @@ import {
   COMPOSITE_WEIGHTS,
   describeMatchDrivers,
   resolveScoreComponents,
-} from "../../frontend/src/utils/matchScoring.js";
+} from "../../../frontend/src/utils/matchScoring.js";
 
 describe("matchScoring", () => {
   it("weights sum to 1", () => {

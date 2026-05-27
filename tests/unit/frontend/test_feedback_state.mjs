@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { buildFeedbackMaps } from "../../frontend/src/utils/feedbackState.js";
+import { buildFeedbackMaps } from "../../../frontend/src/utils/feedbackState.js";
 
 test("buildFeedbackMaps tracks candidate actions", () => {
   const maps = buildFeedbackMaps([
