@@ -1,5 +1,5 @@
 # Codebase Knowledge Graph
-> Last updated: 2026-05-27 (v8 · portal QA, stale profile, job ownership) | Entries: 458+ | Modules: 14
+> Last updated: 2026-05-27 (v10 · demo data mode, explainability, filters, frontend state) | Entries: 485+ | Modules: 15
 
 ---
 
@@ -10,7 +10,7 @@
 **Authors:** Harsh Kashyap, Taranumpreet Kaur Wasu (Thapar Institute). Supervisor: Dr Parteek Bhatia (WSU).
 
 **Repository:** https://github.com/Harsh23Kashyap/Job-Matching-Agentic  
-**Branch:** `main` @ `c1a451d` (pushed); **uncommitted:** portal QA fixes, copy humanization, research stack, `HANDOFF.md`, knowledge graph.
+**Branch:** `main` @ `57ad896` (pushed) · **local uncommitted:** demo data mode, match explainability, search/filters, frontend state management
 
 **Legacy note:** Entries under [Module: backend (legacy monolith)](#module-backend-legacy-monolith) describe the **pre-rewrite** `app.py` monolith. Current runtime uses `main.py` → `bootstrap.py` → `gateway/app.py`. See [Module: rewrite (current)](#module-rewrite-current) and [Module: research evaluation](#module-research-evaluation).
 
@@ -24,20 +24,26 @@
 
 **Event bus:** in-process pub-sub (`AgentEventBus`). Events: `CandidateProfileUpdated`, `JobProfileUpdated`, `CorpusBootstrapped`, `MatchCompleted`.
 
-**Default product scoring:** `composite` · semantic 40%, skills 30%, experience 15%, compensation 10%, location 5%. UI bands: Strong ≥80, Good ≥65, Moderate ≥50, Low <50.
+**Default product scoring:** `composite` · semantic 28%, skills 27%, title 10%, experience 15%, compensation 10%, remote 10%. UI bands: Strong ≥80, Good ≥65, Moderate ≥50, Low <50.
 
 ### Thesis-demo features (shipped)
 
-- Composite match + `MatchDetailsDrawer` score breakdown (candidate + employer portals)
-- Resume upload with CID cleanup + contact extraction; profile upsert via `PUT /candidates/me`; stale link recovery (`PROFILE_NOT_FOUND` → re-save)
-- Employer `POST /jobs` ownership guard (`get_job_owner` · 403 `JOB_NOT_OWNED` on cross-account id)
-- Candidate profile gates: `hasCandidateProfile` / `isCandidateProfileReady` / `isProfileStale`; empty states for filter vs API zero results
-- Employer JD paste (`POST /jobs/parse-description`) + file upload
-- Resume coach (read-only), similar jobs/candidates, feedback actions in SQLite
-- `BackgroundOrnaments` SVG backgrounds; demo seed (`demo_seed.py`) on startup
-- **208 pytest + 20 node tests** passing (product); **38 benchmark tests** in `tests/benchmarks/`
-- **Offline research pipeline** · 9 stages → `backend/reports/research_run_<timestamp>/`
-- **Manuscript draft** · `docs/research/RESEARCH-PAPER.md` (numbers from reports only)
+- **Six-signal composite** + `MatchDetailsDrawer` breakdown with contribution points (`score_components`)
+- **Match explainability** · `core/match_explanation.py` → structured `explanation` on every `MatchResult` (matched/missing skills, experience/compensation/remote fit, semantic reason, score breakdown); compact UI via `MatchExplainability.jsx`
+- **Search & filters** · role search, skill chips, remote, salary/budget, experience, match score range, sort (best/newest/compensation); `matchFilters.js`, `MatchResultsFilters.jsx` on both result panels
+- **Demo data mode** · `demo_reset.py`, `seed_demo_activity()` pre-seeds saved jobs/applications/employer shortlist; `POST /system/demo/reset` (admin); reset button in `SystemConfigPanel.jsx`; `DEMO_MODE` config flag
+- **Frontend state management** · profile/job cross-page events (`profileEvents.js`); stale-while-revalidate refresh; row-action guards; optimistic employer job close; `searchAfterSave` + `?job=` auto-match navigation
+- **Resume/JD parsing pipeline:** clean → rule extract → LLM merge (`document_parse.py`, structured extract modules)
+- **Skill normalization:** `shared/skill_catalog.json` · canonical dedupe on save and in UI (`skillCatalog.js`)
+- **Employer job quality** · `POST /jobs/quality-check`, `JobQualityPanel` on paste/upload/edit
+- **Candidate profile quality** · `POST /candidates/quality-check`, `ProfileQualityPanel` on onboarding/profile edit
+- Resume upload with CID cleanup; profile upsert via `PUT /candidates/me`; stale link recovery
+- Employer `POST /jobs` ownership guard (`get_job_owner` · 403 `JOB_NOT_OWNED`)
+- Gateway error envelopes (`gateway/errors.py`, `handlers.py`) · consistent `{detail: {error, code}}`
+- Candidate profile gates: `hasCandidateProfile` / `isCandidateProfileReady` / `isProfileStale`
+- Employer JD paste + file upload; resume coach; similar jobs/candidates; feedback in SQLite
+- **302 pytest + node tests** passing (product)
+- Offline research pipeline · 9 stages → `backend/reports/research_run_<timestamp>/`
 
 ### Run locally
 
@@ -51,6 +57,20 @@ cd frontend && npm run dev
 ```
 
 **Demo accounts:** `demo.candidate@test.com`, `demo.employer@test.com`, `demo.admin@test.com` / `demo1234`
+
+**Demo reset (local):** Admin Console → System → **Reset demo data**, or `POST /system/demo/reset` (requires `DEMO_MODE=true`, admin session, not read-only). Reloads 30 CVs + 15 jobs, re-links accounts, re-seeds saved/applied/shortlist activity.
+
+### Key flows (v10)
+
+| Flow | Path |
+|------|------|
+| Demo startup | `gateway/app.py` → `seed_demo_accounts` → `seed_demo_activity` (saved jobs, 1 application, employer shortlist) |
+| Demo reset | Admin → `POST /system/demo/reset` → `reload_corpus` → `clear_demo_sqlite` → re-seed |
+| Match explainability | `matchmaking_agent` → `build_match_explanation` → `MatchResult.explanation` → `MatchExplainability` compact/full |
+| Client filters | `MatchResultsFilters` → `filterAndSortMatchRows` (no extra API calls) |
+| Cross-page sync | `notifyProfileUpdated` / `notifyJobsUpdated` → Matches/Saved/employer pages invalidate or silent refetch |
+| Auto-search | Onboarding/Profile first save → `navigate(..., { searchAfterSave: true })` → Matches auto-runs once |
+| Employer deep link | `/employer/matches?job=job_01` → auto-match after role resolves |
 
 ### Key docs
 
@@ -1878,7 +1898,7 @@ benchmarks.phase11
 
 ## Table of Contents
 
-- [Module: rewrite (current)](#module-rewrite-current) (36 entries · **start here**)
+- [Module: rewrite (current)](#module-rewrite-current) (58 entries · **start here**)
 - [Module: research evaluation](#module-research-evaluation) (16 entries · **offline pipeline**)
 - [Module: backend (legacy monolith)](#module-backend-legacy-monolith) (35+ entries · `app.py` removed)
 - [Module: frontend (legacy)](#module-frontend) (4 entries · see rewrite for current portals)
@@ -1895,16 +1915,34 @@ benchmarks.phase11
 | `backend/main.py` | `bootstrap.create_system` | App factory entry |
 | `bootstrap.py` | `agents/*`, `stores/factory` | Wires 3 agents + Chroma/Qdrant + SQLite stores |
 | `gateway/app.py` | `gateway/routes/*` | FastAPI routers, session middleware, demo seed |
-| `gateway/routes/candidates.py` | `agents/candidate_agent` | Profile CRUD, resume upload, upsert |
+| `gateway/app.py` | `gateway/handlers.py` | Registers global exception handlers on startup |
+| `gateway/errors.py` | `gateway/routes/*` | Shared HTTPException helpers `{error, code}` |
+| `core/document_parse.py` | `resume_structured_extract`, `job_structured_extract`, `profile_quality` | Unified parse + quality attach on resume upload |
+| `core/job_quality.py` | `gateway/routes/employers.py` | `POST /jobs/quality-check`; included in JD parse response |
+| `core/profile_quality.py` | `gateway/routes/candidates.py` | `POST /candidates/quality-check`; included in resume upload |
+| `shared/skill_catalog.json` | `skill_catalog.py`, `skillCatalog.js` | Single synonym + display source for backend and frontend |
+| `hooks/parser.py` | `skill_catalog.normalize_skill_list` | Normalizes skills on profile/job register |
+| `frontend/src/components/JobQualityPanel.jsx` | `pages/employer/Jobs.jsx` | Debounced quality check while editing job form |
+| `frontend/src/components/ProfileQualityPanel.jsx` | `Onboarding.jsx`, `Profile.jsx` | Completeness, parse confidence, match suggestions |
+| `core/scoring.py` | `core/component_scores.py` | Six-signal composite (28/27/10/15/10/10) |
+| `frontend/src/utils/matchScoring.js` | `MatchDetailsDrawer.jsx` | Mirrors backend composite weights |
+| `gateway/routes/candidates.py` | `agents/candidate_agent` | Profile CRUD, resume upload, quality-check, upsert |
 | `gateway/routes/matching.py` | `agents/matchmaking_agent` | Composite/semantic/ensemble match endpoints |
 | `agents/matchmaking_agent.py` | `core/matchmaking_scoring.py` | score_pair_advanced, routing, RRF |
-| `core/scoring.py` | `core/component_scores.py` | compute_composite five-signal blend |
 | `frontend/src/api/client.js` | `gateway/routes/*` | axios withCredentials; default strategy composite |
 | `frontend/src/pages/candidate/Matches.jsx` | `api/client.runMatch` | Profile gate (none/incomplete/stale/ready) + auto-search after onboarding save |
 | `frontend/src/utils/profileFields.js` | `api/client.fetchMyProfileOrNull` | Readiness + stale marker mapping for portal gates |
 | `auth/store.py` | `gateway/routes/employers.py` | `get_job_owner`, `link_job_if_unowned` on POST /jobs |
 | `auth/store.py` | `gateway/routes/candidates.py` | candidate_ownership link for GET/PUT /me |
 | `stores/feedback_store.py` | `gateway/routes/feedback.py` | user_feedback UI state (no ranking change) |
+| `core/match_explanation.py` | `agents/matchmaking_agent.py` | Builds structured `MatchExplanation` on every MatchResult |
+| `frontend/src/components/MatchExplainability.jsx` | `CandidateJobResults`, `EmployerCandidateResults`, `MatchDetailsDrawer` | Compact + full explainability UI |
+| `frontend/src/utils/matchFilters.js` | `MatchResultsFilters.jsx` | Client-side filter/sort for match rows |
+| `frontend/src/utils/profileEvents.js` | candidate/employer pages | Cross-page invalidation: PROFILE_UPDATED, JOBS_UPDATED |
+| `demo_seed.py` | `demo_reset.py`, `gateway/app.py` | Demo accounts + `seed_demo_activity()` sample matches |
+| `demo_reset.py` | `gateway/routes/system.py` | `POST /system/demo/reset` reloads corpus + SQLite demo state |
+| `frontend/src/components/SystemConfigPanel.jsx` | `api/client.resetDemoData` | Admin demo stats + reset button |
+| `agents/matchmaking_agent.py` | `MatchResult` job metadata | Candidate view: job budget, remote, created_at for filters |
 | `demo_seed.py` | `auth/store`, corpus | Links demo.candidate → cv_01 Rahul Sharma |
 | `benchmarks/paper_progression.py` | `data/eval_pairs.json` | Legacy Table 9 regression |
 | `backend/scripts/run_research_pipeline.py` | `benchmarks/research_pipeline.py` | Single-command 9-stage eval |
@@ -1927,12 +1965,13 @@ benchmarks.phase11
 backend/
 ├── main.py                 App factory
 ├── bootstrap.py            SystemContainer: 3 agents + stores + event bus
-├── config.py               Settings (Pydantic): paths, secrets, vector store
-├── demo_seed.py            Idempotent demo accounts on startup
+├── config.py               Settings (Pydantic): paths, secrets, vector store, demo_mode
+├── demo_seed.py            Demo accounts + seed_demo_activity on startup
+├── demo_reset.py           Corpus reload + SQLite wipe + full demo reset
 ├── agents/                 Candidate, Employer, Matchmaking agents
 ├── bus/                    AgentEventBus + EventType enum
-├── core/                   Scoring, resume clean, embeddings, benchmarks ML
-├── gateway/                FastAPI app + route modules + middleware
+├── core/                   Scoring, resume clean, structured extract, quality intel, skill catalog
+├── gateway/                FastAPI app + route modules + errors/handlers + middleware
 ├── auth/                   Session auth, UserStore, ownership links
 ├── hooks/                  LLM parser, rule explainer, JsonParser
 ├── stores/                 Chroma, Qdrant, feedback, activity SQLite
@@ -1944,8 +1983,8 @@ backend/
 frontend/src/
 ├── api/client.js           All API calls; DEFAULT_CANDIDATE_MATCH uses composite
 ├── pages/                  candidate/, employer/, admin/ portals
-├── components/             MatchDetailsDrawer, BackgroundOrnaments, shared forms
-└── utils/                  profileFields, feedbackState, resumeClean mirrors
+├── components/             MatchDetailsDrawer, MatchExplainability, MatchResultsFilters, quality panels
+└── utils/                  profileFields, profileEvents, matchFilters, matchExplainability, matchScoring, skillCatalog
 ```
 
 ---
@@ -1976,10 +2015,10 @@ frontend/src/
 
 ### backend/gateway/app.py
 **Language:** python | **Importance:** HIGH | **Indexed:** 2026-05-27  
-**Purpose:** FastAPI application assembly · mounts routers, session middleware, read-only guard, demo seed.  
+**Purpose:** FastAPI application assembly · mounts routers, session middleware, read-only guard, demo seed, exception handlers.  
 **Key Elements:** `build_gateway`  
-**Dependencies:** imports from: route modules, `auth.routes`, `demo_seed`, `ReadOnlyMiddleware` | used by: `main.py`  
-**Core Logic:** Stores SystemContainer on `app.state.container`; UserStore on `app.state.auth_store`; calls `seed_demo_accounts` when `SEED_DEMO=true`. Session cookie `jm_session`, 7-day max age.  
+**Dependencies:** imports from: route modules, `auth.routes`, `demo_seed`, `ReadOnlyMiddleware`, `handlers` | used by: `main.py`  
+**Core Logic:** Stores SystemContainer on `app.state.container`; UserStore on `app.state.auth_store`; calls `seed_demo_accounts` when `SEED_DEMO=true`; when `DEMO_MODE=true` also calls `seed_demo_activity` for pre-populated saved/applied/shortlist. Registers `register_exception_handlers(app)` for consistent error envelopes. Session cookie `jm_session`, 7-day max age.  
 **Patterns:** procedural
 
 ---
@@ -1989,7 +2028,7 @@ frontend/src/
 **Purpose:** Neutral broker · scores candidate–job pairs, ranks, explains; reads snapshots only.  
 **Key Elements:** `MatchmakingAgent`, `MatchSession`, `register_handlers`  
 **Dependencies:** imports from: candidate/employer agents, `core/matchmaking_scoring`, `core/rrf`, explainer | used by: `bootstrap`, `gateway/routes/matching`  
-**Core Logic:** Subscribes to profile update events to invalidate cache. `_score_pair` delegates to `score_pair_advanced` (composite, semantic, multimodal, learned fusion). Supports ensemble RRF, daily batch ANN, cross-encoder rerank hook.  
+**Core Logic:** Subscribes to profile update events to invalidate cache. `_score_pair` delegates to `score_pair_advanced`. Attaches `build_match_explanation()` payload on every MatchResult. Candidate→jobs direction includes job metadata (budget, remote, experience, created_at) for frontend filters.  
 **Patterns:** OOP, event-driven
 
 #### match_candidate_to_jobs(request) / match_job_to_candidates(request)
@@ -2004,11 +2043,11 @@ frontend/src/
 **Purpose:** Core scoring functions · semantic, multimodal weighted, and **composite** (product default).  
 **Key Elements:** `COMPOSITE_WEIGHTS`, `compute_semantic`, `compute_multimodal_weighted`, `compute_composite`  
 **Dependencies:** imports from: `component_scores`, `similarity`, `skills` | used by: `matchmaking_scoring`, benchmarks  
-**Core Logic:** Composite blends five signals with fixed weights 40/30/15/10/5%; clamps final to [0,1].  
+**Core Logic:** Composite blends six signals: semantic 28%, skills 27%, title 10%, experience 15%, compensation 10%, remote 10%; clamps final to [0,1].  
 **Patterns:** functional, pure
 
 #### compute_composite(candidate, job, metric, skills_mode)
-**Purpose:** Product-facing five-signal score.  
+**Purpose:** Product-facing six-signal score.  
 **Returns:** ScoreBreakdown with all component scores + final_score, strategy_used="composite".
 
 ---
@@ -2024,10 +2063,92 @@ frontend/src/
 
 ### backend/core/resume_clean.py
 **Language:** python | **Importance:** MEDIUM | **Indexed:** 2026-05-27  
-**Purpose:** Strip PDF artifacts `(cid:N)`, control chars, junk symbols; protect contact spans during cleanup.  
+**Purpose:** Strip PDF artifacts, dedupe lines, join wrapped lines; protect contact spans during cleanup.  
 **Key Elements:** `clean_resume_text`, `resume_preview_excerpt`  
-**Dependencies:** imports from: `contact_extract` regex patterns | used by: `candidates.py` upload route, frontend `resumeClean.js` mirror  
-**Core Logic:** Protects email/URL/phone spans, strips CID debris and trailing comma runs, restores protected tokens.
+**Dependencies:** imports from: `contact_extract` regex patterns | used by: `document_parse.py`, `candidates.py`, frontend `resumeClean.js`  
+**Core Logic:** Removes `(cid:N)`, control chars, junk symbols; dedupes consecutive lines; merges hyphen-wrapped line breaks; protects email/URL/phone spans before restore.
+
+---
+
+### backend/core/document_parse.py
+**Language:** python | **Importance:** HIGH | **Indexed:** 2026-05-27  
+**Purpose:** Unified resume and JD parse pipeline · clean → rule extract → optional LLM merge → quality attach.  
+**Key Elements:** `parse_resume_document`, `parse_job_document`  
+**Dependencies:** imports from: `resume_clean`, `resume_structured_extract`, `job_structured_extract`, `profile_quality`, `job_quality`, LLM parser | used by: `candidates.py`, `employers.py`  
+**Core Logic:** Rule-based fields first; LLM enriches when available; attaches `quality` dict from profile/job quality analyzers on success.
+
+#### parse_resume_document(text, llm_status)
+**Purpose:** End-to-end resume parse for upload route.  
+**Returns:** dict with structured fields (name, skills, experience, education, projects, summary) plus optional `quality`.
+
+---
+
+### backend/core/resume_structured_extract.py
+**Language:** python | **Importance:** MEDIUM | **Indexed:** 2026-05-27  
+**Purpose:** Rule-based resume field extraction from cleaned text · contact, skills, experience, education, projects, summary.  
+**Key Elements:** `extract_resume_fields`  
+**Used by:** `document_parse.py`, tests
+
+---
+
+### backend/core/job_structured_extract.py
+**Language:** python | **Importance:** MEDIUM | **Indexed:** 2026-05-27  
+**Purpose:** Rule-based JD field extraction · title inference from prose, inline skills, education, responsibilities.  
+**Key Elements:** `extract_job_fields`  
+**Used by:** `document_parse.py`, tests
+
+---
+
+### backend/core/profile_quality.py
+**Language:** python | **Importance:** HIGH | **Indexed:** 2026-05-27  
+**Purpose:** Candidate profile quality intelligence · completeness score, missing fields, weak summary, salary guidance, parse confidence, match suggestions.  
+**Key Elements:** `analyze_profile_quality`  
+**Dependencies:** imports from: profile schema helpers | used by: `document_parse.py`, `POST /candidates/quality-check`
+
+#### analyze_profile_quality(profile, llm_status)
+**Purpose:** Score profile readiness for matching; emit warnings and actionable suggestions.  
+**Returns:** dict with `score`, `level`, `warnings`, `suggestions`, `parsing_confidence`.
+
+---
+
+### backend/core/job_quality.py
+**Language:** python | **Importance:** HIGH | **Indexed:** 2026-05-27  
+**Purpose:** Employer job posting quality · missing fields, unclear requirements, salary warnings, skill suggestions, experience mismatch.  
+**Key Elements:** `analyze_job_quality`  
+**Used by:** `document_parse.py`, `POST /jobs/quality-check`
+
+---
+
+### backend/core/skill_catalog.py
+**Language:** python | **Importance:** HIGH | **Indexed:** 2026-05-27  
+**Purpose:** Canonical skill normalization · synonym lookup, AWS prefix collapse, display names from shared JSON catalog.  
+**Key Elements:** `NormalizedSkill`, `canonical_skill`, `normalize_skills`, `normalize_skill_list`, `display_skills`  
+**Dependencies:** imports from: `shared/skill_catalog.json` | used by: `hooks/parser.py`, scoring skills overlap  
+**Core Logic:** Variant key expansion (dots, dashes, spaces); maps React.js→react, Spring Boot→spring boot, etc.; preserves display casing for UI.
+
+---
+
+### shared/skill_catalog.json
+**Language:** json | **Importance:** MEDIUM | **Indexed:** 2026-05-27  
+**Purpose:** Shared skill synonyms and display-name map · single source for backend and frontend dedupe.  
+**Key Elements:** `synonyms`, `display`  
+**Used by:** `backend/core/skill_catalog.py`, `frontend/src/utils/skillCatalog.js`
+
+---
+
+### backend/gateway/errors.py
+**Language:** python | **Importance:** MEDIUM | **Indexed:** 2026-05-27  
+**Purpose:** Shared HTTP error helpers · consistent `{detail: {error, code}}` envelopes for gateway routes.  
+**Key Elements:** `api_error`, domain-specific not-found/ownership helpers  
+**Used by:** `candidates.py`, `employers.py`, `matching.py`, `feedback.py`
+
+---
+
+### backend/gateway/handlers.py
+**Language:** python | **Importance:** MEDIUM | **Indexed:** 2026-05-27  
+**Purpose:** FastAPI global exception handlers · maps validation, HTTP, KeyError, and unhandled errors to API envelopes.  
+**Key Elements:** `register_exception_handlers`  
+**Used by:** `gateway/app.py` at startup
 
 ---
 
@@ -2054,11 +2175,11 @@ frontend/src/
 ---
 
 ### backend/gateway/routes/candidates.py
-**Language:** python | **Importance:** HIGH | **Indexed:** 2026-05-27 (refreshed)  
-**Purpose:** Candidate API · list, get mine, upsert, resume upload, saved jobs, applications, resume suggestions.  
-**Key Elements:** `_upsert_my_candidate`, `_sanitize_profile_payload`, `upload_resume`, GET `/me`  
-**Dependencies:** imports from: auth deps, candidate agent, resume_clean, contact_extract, llm_parser | used by: frontend client  
-**Core Logic:** PUT /me always upserts · creates with generated id if no ownership link; strips empty id from payload. GET /me returns 404 `NOT_FOUND` when no link, 404 `PROFILE_NOT_FOUND` when link exists but agent profile missing (restart recovery via PUT). Upload: clean text → regex contacts → LLM parse with unavailable fallback.  
+**Language:** python | **Importance:** HIGH | **Indexed:** 2026-05-27  
+**Purpose:** Candidate API · list, get mine, upsert, resume upload, quality-check, saved jobs, applications, resume suggestions.  
+**Key Elements:** `_upsert_my_candidate`, `_sanitize_profile_payload`, `upload_resume`, `quality_check`, GET `/me`  
+**Dependencies:** imports from: auth deps, candidate agent, `document_parse`, `profile_quality`, `errors` | used by: frontend client  
+**Core Logic:** PUT /me always upserts · creates with generated id if no ownership link. GET /me returns 404 `NOT_FOUND` or `PROFILE_NOT_FOUND` for stale recovery. Upload uses `parse_resume_document` (clean → rule → LLM → quality). `POST /quality-check` for debounced form validation.  
 **Patterns:** FastAPI router, role-guarded
 
 #### _upsert_my_candidate(raw, request, user)
@@ -2069,10 +2190,10 @@ frontend/src/
 ---
 
 ### backend/gateway/routes/employers.py
-**Language:** python | **Importance:** HIGH | **Indexed:** 2026-05-27 (refreshed)  
-**Purpose:** Employer job API · list mine, register job, upload JD file, parse pasted JD text, update/close jobs.  
-**Key Elements:** `register_job`, `_parse_job_description_text`, `_employer_owns_job`, `_slug_job_id`  
-**Core Logic:** POST /jobs for employers auto-slugs id from title when omitted; calls `link_job_if_unowned`. Before register, rejects 403 `JOB_NOT_OWNED` if job id owned by another user. Paste and file upload share same LLM parser path with manual fallback. PUT/PATCH `/mine/{id}` require ownership via auth store.
+**Language:** python | **Importance:** HIGH | **Indexed:** 2026-05-27  
+**Purpose:** Employer job API · list mine, register job, upload JD, parse pasted text, quality-check, update/close jobs.  
+**Key Elements:** `register_job`, `parse_job_description`, `quality_check`, `_employer_owns_job`, `_slug_job_id`  
+**Core Logic:** POST /jobs auto-slugs id; `link_job_if_unowned` + 403 `JOB_NOT_OWNED` guard. JD paste and file upload use `parse_job_document` with rule extract + LLM merge; responses include `quality`. Debounced `POST /jobs/quality-check` for live form editing.
 
 ---
 
@@ -2098,69 +2219,249 @@ frontend/src/
 
 ### backend/auth/store.py
 **Language:** python | **Importance:** HIGH | **Indexed:** 2026-05-27 (refreshed)  
-**Purpose:** SQLite user store + candidate/job ownership links.  
-**Key Elements:** `UserStore`, `link_candidate`, `get_candidate_id`, `get_job_owner`, `link_job_if_unowned`, `list_job_ids`  
-**Core Logic:** `link_candidate` is idempotent · same id no-ops, different id updates. `link_job_if_unowned` inserts only when unowned; returns True if caller already owns. `get_job_owner` used by POST /jobs to block cross-tenant id hijack. Ownership link kept on GET 404 so PUT recreates profile at stable id after restart.  
+**Purpose:** SQLite user store + candidate/job ownership links with cross-tenant guards.  
+**Key Elements:** `UserStore`, `link_candidate`, `get_candidate_id`, `get_job_owner`, `link_job_if_unowned`, `purge_users_by_email`, `CandidateIdOwnedError`, `JobIdOwnedError`  
+**Core Logic:** Idempotent candidate link; job link only when unowned. `purge_users_by_email` deletes demo users (CASCADE ownership) for demo reset. Link preserved on GET 404 so PUT recreates profile at stable id after restart.  
 **Patterns:** OOP, sqlite3
 
 ---
 
+### backend/stores/candidate_activity_store.py
+**Language:** python | **Importance:** MEDIUM | **Indexed:** 2026-05-27 (refreshed)  
+**Purpose:** SQLite saved jobs and job applications for candidate portal.  
+**Key Elements:** `SavedJob`, `JobApplication`, `save_job`, `apply`, `clear_all`  
+**Used by:** `gateway/routes/candidates.py`, `demo_seed.seed_demo_activity`, `demo_reset.py`
+
+---
+
 ### backend/stores/feedback_store.py
-**Language:** python | **Importance:** MEDIUM | **Indexed:** 2026-05-27  
+**Language:** python | **Importance:** MEDIUM | **Indexed:** 2026-05-27 (refreshed)  
 **Purpose:** SQLite tables `user_feedback` (portal UI state) and `match_feedback` (legacy research).  
-**Core Logic:** Feedback actions do not alter match rankings · UI state only.
+**Key Elements:** `record_user_action`, `list_latest_for_user`, `clear_all`  
+**Core Logic:** Feedback actions do not alter match rankings · UI state only. `clear_all` used by demo reset.
 
 ---
 
 ### backend/demo_seed.py
-**Language:** python | **Importance:** MEDIUM | **Indexed:** 2026-05-27  
-**Purpose:** Idempotent demo account seeding on startup when SEED_DEMO=true.  
-**Key Elements:** `seed_demo_accounts`, DEMO_CANDIDATE_ID=`cv_01` (Rahul Sharma), DEMO_EMPLOYER_JOB_IDS  
-**Used by:** `gateway/app.py` at startup
+**Language:** python | **Importance:** HIGH | **Indexed:** 2026-05-27 (refreshed)  
+**Purpose:** Idempotent demo account seeding + pre-populated sample activity for live demos.  
+**Key Elements:** `seed_demo_accounts`, `seed_demo_activity`, DEMO_CANDIDATE_ID=`cv_01` (Rahul Sharma), DEMO_EMPLOYER_JOB_IDS, DEMO_PRIMARY_JOB_ID=`job_01`  
+**Core Logic:** Links demo users to corpus IDs. `seed_demo_activity` runs live composite matches, saves top jobs, records application + employer shortlist; skips if activity already exists.  
+**Used by:** `gateway/app.py` at startup, `demo_reset.py`
+
+#### seed_demo_activity(container, auth_store, activity_store, feedback_store)
+**Purpose:** Make Saved/Applications/shortlist tabs look alive on first demo login.  
+**Returns:** dict with saved_jobs, applications, employer_shortlist counts.
+
+---
+
+### backend/demo_reset.py
+**Language:** python | **Importance:** HIGH | **Indexed:** 2026-05-27  
+**Purpose:** Full demo reset for local testing · reload corpus, wipe demo SQLite, re-seed accounts + activity.  
+**Key Elements:** `reload_corpus`, `clear_demo_sqlite`, `reset_demo_data`, `demo_snapshot`  
+**Dependencies:** imports from: `demo_seed`, `stores/factory` | used by: `gateway/routes/system.py`  
+**Core Logic:** Clears agent memory + recreates vector collections; bootstraps JSON corpus; clears activity/feedback tables; purges demo users; re-runs seed_demo_accounts + seed_demo_activity. `demo_snapshot` returns corpus/activity counts for admin UI.  
+**Patterns:** procedural
+
+#### reset_demo_data(container, auth_store)
+**Purpose:** Admin-triggered one-click demo restore.  
+**Returns:** corpus counts, demo credentials, activity seed stats.
+
+---
+
+### backend/config.py
+**Language:** python | **Importance:** HIGH | **Indexed:** 2026-05-27 (refreshed)  
+**Purpose:** Pydantic Settings from `backend/.env` · paths, secrets, feature flags.  
+**Key Elements:** `seed_demo`, `demo_mode`, `read_only`, `vector_store`, `sqlite_path`, `cvs_path`, `jobs_path`  
+**Core Logic:** `demo_mode=true` enables activity seeding + reset endpoint; `seed_demo=true` creates demo accounts on startup.
+
+---
+
+### backend/core/match_explanation.py
+**Language:** python | **Importance:** HIGH | **Indexed:** 2026-05-27  
+**Purpose:** Structured explainability payload for every candidate–job match.  
+**Key Elements:** `build_match_explanation`  
+**Dependencies:** imports from: `contracts/matching`, `core/scoring.build_composite_components` | used by: `matchmaking_agent.py`  
+**Core Logic:** Derives matched/missing skills, FitSignal for semantic/experience/compensation/remote, score_breakdown from composite components, human-readable reasons per dimension.
+
+#### build_match_explanation(candidate, job, breakdown, direction)
+**Purpose:** Attach rich explanation to MatchResult.  
+**Returns:** MatchExplanation pydantic model.
+
+---
+
+### backend/gateway/routes/system.py
+**Language:** python | **Importance:** HIGH | **Indexed:** 2026-05-27 (refreshed)  
+**Purpose:** System config API, vector store switch, fairness report, demo reset.  
+**Key Elements:** `get_system_config`, `set_vector_store`, `reset_demo`  
+**Core Logic:** GET `/system/config` exposes demo_mode, demo_accounts, demo_snapshot. POST `/system/demo/reset` admin-only, guarded by demo_mode and not read_only.
 
 ---
 
 ### frontend/src/api/client.js
 **Language:** javascript | **Importance:** HIGH | **Indexed:** 2026-05-27 (refreshed)  
 **Purpose:** Axios API client · all portal HTTP calls with session cookies.  
-**Key Elements:** `DEFAULT_CANDIDATE_MATCH`, `upsertCandidateProfile`, `fetchMyProfileOrNull`, `PROFILE_STALE_MARKER`, `runMatch`, `parseJobDescriptionText`  
-**Core Logic:** Default match strategy is `composite`. `fetchMyProfileOrNull` returns null for no link, `PROFILE_STALE_MARKER` for `PROFILE_NOT_FOUND`, else profile object. `saveCandidateProfile` delegates to PUT upsert.  
-**Patterns:** async, module exports
+**Key Elements:** `DEFAULT_CANDIDATE_MATCH`, `resetDemoData`, `upsertCandidateProfile`, `fetchMyProfileOrNull`, `checkProfileQuality`, `checkJobQuality`, `runMatch`  
+**Core Logic:** Default match strategy is `composite`. `resetDemoData()` calls POST `/system/demo/reset`. Quality-check endpoints for debounced profile/job panels.
+
+---
+
+### frontend/src/utils/skillCatalog.js
+**Language:** javascript | **Importance:** MEDIUM | **Indexed:** 2026-05-27  
+**Purpose:** Frontend mirror of shared skill catalog · canonical dedupe and display names.  
+**Key Elements:** imports `shared/skill_catalog.json`, `canonicalizeSkills`, `displaySkill`  
+**Used by:** `skills.js`, profile/job forms
+
+---
+
+### frontend/src/utils/matchScoring.js
+**Language:** javascript | **Importance:** MEDIUM | **Indexed:** 2026-05-27  
+**Purpose:** Composite score breakdown helpers · mirrors backend six-signal weights for drawer bars.  
+**Key Elements:** `COMPOSITE_WEIGHTS`, `scoreContributionPoints`  
+**Used by:** `MatchDetailsDrawer.jsx`
+
+---
+
+### frontend/src/components/ExtractedSectionsPanel.jsx
+**Language:** javascript | **Importance:** MEDIUM | **Indexed:** 2026-05-27  
+**Purpose:** Shows structured parse output (experience, education, projects) after resume/JD upload.  
+**Used by:** `Onboarding.jsx`, `Profile.jsx`, employer job form via `extractedSections.js`
+
+---
+
+### frontend/src/components/ProfileQualityPanel.jsx
+**Language:** javascript | **Importance:** HIGH | **Indexed:** 2026-05-27  
+**Purpose:** Live candidate profile quality · completeness, warnings, parse confidence, match suggestions.  
+**Core Logic:** Debounced `POST /candidates/quality-check` (~450ms) while editing onboarding/profile forms.  
+**Used by:** `Onboarding.jsx`, `Profile.jsx`
+
+---
+
+### frontend/src/components/JobQualityPanel.jsx
+**Language:** javascript | **Importance:** HIGH | **Indexed:** 2026-05-27  
+**Purpose:** Live job posting quality · missing fields, salary warnings, skill suggestions.  
+**Core Logic:** Debounced `POST /jobs/quality-check` while editing employer job form.  
+**Used by:** `pages/employer/Jobs.jsx`
 
 ---
 
 ### frontend/src/components/MatchDetailsDrawer.jsx
-**Language:** javascript | **Importance:** HIGH | **Indexed:** 2026-05-27  
-**Purpose:** Product match detail panel · score bars, skill gaps, resume coach, similar recs.  
-**Key Elements:** `SCORE_COMPONENTS`, `ScoreBar`, `ResumeImprovementPanel`, `SimilarRecommendations`  
+**Language:** javascript | **Importance:** HIGH | **Indexed:** 2026-05-27 (refreshed)  
+**Purpose:** Product match detail panel · full explainability, six-bar score breakdown, resume coach, similar recs.  
+**Key Elements:** `ScoreBar`, `MatchExplainability` (variant=full), `ResumeImprovementPanel`  
 **Used by:** CandidateJobResults, EmployerCandidateResults
+
+---
+
+### frontend/src/components/MatchExplainability.jsx
+**Language:** javascript | **Importance:** HIGH | **Indexed:** 2026-05-27  
+**Purpose:** Renders structured match explanation · compact on cards, full in drawer.  
+**Key Elements:** `MatchExplainability`, variants `compact` | `full`  
+**Dependencies:** imports from: `utils/matchExplainability.js` | used by: result cards, MatchDetailsDrawer  
+**Core Logic:** Shows matched/missing skills, fit signals (experience, compensation, remote), semantic reason, score breakdown.
+
+---
+
+### frontend/src/components/MatchResultsFilters.jsx
+**Language:** javascript | **Importance:** HIGH | **Indexed:** 2026-05-27  
+**Purpose:** Shared filter bar for candidate jobs and employer candidates result panels.  
+**Key Elements:** search, skill chips, remote toggle, salary/budget range, experience range, match score range, sort, clear all  
+**Dependencies:** imports from: `matchFilters.js` | used by: CandidateJobResults, EmployerCandidateResults
+
+---
+
+### frontend/src/components/SystemConfigPanel.jsx
+**Language:** javascript | **Importance:** HIGH | **Indexed:** 2026-05-27 (refreshed)  
+**Purpose:** Admin system panel · vector store switch, demo data stats, reset button.  
+**Key Elements:** `handleResetDemo`, demo account list, corpus/activity snapshot  
+**Core Logic:** Shows demo_mode, read_only, demo_accounts credentials; Reset demo data calls `resetDemoData()` with confirm dialog (admin, not read-only).
+
+---
+
+### frontend/src/utils/matchExplainability.js
+**Language:** javascript | **Importance:** MEDIUM | **Indexed:** 2026-05-27  
+**Purpose:** Client helpers to resolve and format MatchResult.explanation payloads.  
+**Key Elements:** `resolveMatchExplanation`, skill list formatters  
+**Used by:** MatchExplainability.jsx, matchFilters.js
+
+---
+
+### frontend/src/utils/matchFilters.js
+**Language:** javascript | **Importance:** HIGH | **Indexed:** 2026-05-27  
+**Purpose:** Client-side filter and sort for match result rows.  
+**Key Elements:** `createMatchFilters`, `filterAndSortMatchRows`, `collectSkillOptions`, `hasActiveMatchFilters`  
+**Core Logic:** Filters by search text, skills, remote, experience, salary/budget, match score range; sorts best/newest/compensation. Variant-aware for candidate-jobs vs employer-candidates.
+
+---
+
+### frontend/src/utils/profileEvents.js
+**Language:** javascript | **Importance:** MEDIUM | **Indexed:** 2026-05-27  
+**Purpose:** Cross-page browser events for profile and job list invalidation.  
+**Key Elements:** `PROFILE_UPDATED_EVENT`, `JOBS_UPDATED_EVENT`, `notifyProfileUpdated`, `notifyJobsUpdated`  
+**Used by:** Profile, Onboarding, Matches, Saved, employer Jobs/Matches
 
 ---
 
 ### frontend/src/pages/candidate/Matches.jsx
 **Language:** javascript | **Importance:** HIGH | **Indexed:** 2026-05-27 (refreshed)  
-**Purpose:** Candidate jobs page · four profile states (none/incomplete/stale/ready), find/refresh matches, auto-search after onboarding save.  
-**Key Elements:** `loadProfile`, `handleFindJobs`, `searchAfterSave` navigation state, `PROFILE_UPDATED_EVENT` listener  
-**Dependencies:** imports from: `api/client`, `profileFields`, `profileEvents`, `EmptyState`  
-**Core Logic:** Uses `hasCandidateProfile`, `isProfileStale`, `isCandidateProfileReady` for gates. Header CTA only when results exist; initial search CTA in `JobsReadyEmpty`. Tab visibility refetches profile.
+**Purpose:** Candidate jobs page · profile gates, find/refresh matches, cross-page invalidation.  
+**Key Elements:** `invalidateMatches`, `loadProfile({ silent })`, `searchAfterSave`, `PROFILE_UPDATED_EVENT` listener  
+**Core Logic:** Profile update event silently refetches profile and invalidates cached match results. Auto-search once when navigated with `searchAfterSave` state from onboarding/profile first save. No tab-visibility refetch.
 
 ---
 
 ### frontend/src/pages/candidate/Profile.jsx
-**Language:** javascript | **Importance:** HIGH | **Indexed:** 2026-05-27  
-**Purpose:** Candidate profile view/edit · handles no profile, stale restore, incomplete finish, and summary view.  
-**Key Elements:** `profileRecord`, `editing`, re-upload resume, `ProfileIncompleteEmpty`, `ProfileStaleEmpty`  
-**Dependencies:** imports from: `api/client`, `profileFields`, `profileEvents`, `ProfileForm`  
-**Core Logic:** Stale link shows restore form (empty fields, PUT recreates). Incomplete opens edit mode automatically. Ready shows `CandidateProfileSummary` with edit toggle.
+**Language:** javascript | **Importance:** HIGH | **Indexed:** 2026-05-27 (refreshed)  
+**Purpose:** Candidate profile view/edit · resume re-upload, quality panel, cancel reverts to saved record.  
+**Key Elements:** `handleCancelEdit`, `handleSave`, `ProfileQualityPanel`, stale/incomplete empty states  
+**Core Logic:** Cancel restores fields from profileRecord. First save navigates to Matches with searchAfterSave; updates notify PROFILE_UPDATED.
 
 ---
 
 ### frontend/src/pages/candidate/Onboarding.jsx
-**Language:** javascript | **Importance:** HIGH | **Indexed:** 2026-05-27  
-**Purpose:** Two-step candidate onboarding · upload resume or manual entry, then review and save.  
-**Key Elements:** `handleSave`, `Continue to jobs` when profile ready, navigates with `searchAfterSave: true`  
-**Dependencies:** imports from: `api/client`, `profileFields`, `profileEvents`  
-**Core Logic:** Existing profile merges upload into form; save upserts then routes to Matches for auto-search.
+**Language:** javascript | **Importance:** HIGH | **Indexed:** 2026-05-27 (refreshed)  
+**Purpose:** Two-step candidate onboarding · upload or manual entry, quality panel, save.  
+**Key Elements:** separate `uploading`/`saving` states, `searchAfterSave` navigation  
+**Core Logic:** Continue to jobs navigates with searchAfterSave; notifyProfileUpdated only after save completes (not before navigate).
+
+---
+
+### frontend/src/pages/employer/Jobs.jsx
+**Language:** javascript | **Importance:** HIGH | **Indexed:** 2026-05-27 (refreshed)  
+**Purpose:** Employer job list + post/edit · JD import, JobQualityPanel, optimistic close.  
+**Key Elements:** `load({ silent })`, `notifyJobsUpdated`, optimistic status patch with rollback  
+**Core Logic:** After save notifies JOBS_UPDATED; no redundant full reload after successful save.
+
+---
+
+### frontend/src/pages/employer/Matches.jsx
+**Language:** javascript | **Importance:** HIGH | **Indexed:** 2026-05-27 (refreshed)  
+**Purpose:** Employer candidate matching · role picker by job.id, auto-match on ?job= param.  
+**Key Elements:** `JOBS_UPDATED_EVENT`, `resolveJobSelection`, `autoMatchDone`, silent job refetch  
+**Core Logic:** Listens for job updates; auto-runs match silently when URL has ?job= after role resolves.
+
+---
+
+### frontend/src/components/CandidateJobResults.jsx
+**Language:** javascript | **Importance:** HIGH | **Indexed:** 2026-05-27 (refreshed)  
+**Purpose:** Candidate match results · filters, explainability, save/apply/dismiss with action guards.  
+**Key Elements:** `runRowAction`, `pendingAction`, stale-while-revalidate refresh (`results-panel--refreshing`), MatchResultsFilters  
+**Core Logic:** Skeleton only on first load; refresh keeps rows visible. One in-flight row action at a time. Feedback fetch scoped to session_id.
+
+---
+
+### frontend/src/components/EmployerCandidateResults.jsx
+**Language:** javascript | **Importance:** HIGH | **Indexed:** 2026-05-27 (refreshed)  
+**Purpose:** Employer candidate match results · filters, explainability, save/reject/contact with action guards.  
+**Key Elements:** same refresh/action patterns as CandidateJobResults  
+**Used by:** `pages/employer/Matches.jsx`
+
+---
+
+### frontend/src/pages/candidate/Saved.jsx
+**Language:** javascript | **Importance:** MEDIUM | **Indexed:** 2026-05-27 (refreshed)  
+**Purpose:** Saved jobs and applications · aligned with Matches feedback API, rollback on unsave error.  
+**Key Elements:** `recordFeedbackAction`, `unsavingId`, PROFILE_UPDATED refetch
 
 ---
 
@@ -2180,37 +2481,6 @@ frontend/src/
 
 ---
 
-### frontend/src/pages/employer/Jobs.jsx
-**Language:** javascript | **Importance:** HIGH | **Indexed:** 2026-05-27  
-**Purpose:** Employer job list + post/edit form · JD import, optimistic list merge on save.  
-**Key Elements:** `handleSubmit`, `load`, `EmployerJobList`, `JobPostingForm`  
-**Core Logic:** After POST/PUT merges API response into local jobs before refetch; load failure shows toast without clearing list.
-
----
-
-### frontend/src/pages/employer/Matches.jsx
-**Language:** javascript | **Importance:** HIGH | **Indexed:** 2026-05-27  
-**Purpose:** Employer candidate matching · role picker, find/refresh ranked candidates.  
-**Key Elements:** `jobsLoading`, `openJobs`, `handleRefresh`, `EmployerAllClosedEmpty` vs `EmployerNoJobsEmpty`  
-**Core Logic:** Skeleton while jobs load; distinguishes zero jobs vs all closed before showing match UI.
-
----
-
-### frontend/src/components/CandidateJobResults.jsx
-**Language:** javascript | **Importance:** HIGH | **Indexed:** 2026-05-27  
-**Purpose:** Candidate match results table · filters, save/apply/dismiss, refresh with loading state.  
-**Key Elements:** `MatchSummaryCards`, `JobMatchCard`, filter bar, `NoMatchingRolesEmpty` with `filteredOut`  
-**Used by:** `pages/candidate/Matches.jsx`
-
----
-
-### frontend/src/pages/candidate/Saved.jsx
-**Language:** javascript | **Importance:** MEDIUM | **Indexed:** 2026-05-27  
-**Purpose:** Saved jobs and applications list for candidate · refresh with separate loading state.  
-**Key Elements:** `load({ refresh })`, `fetchSavedJobs`, `fetchMyApplications`
-
----
-
 ### frontend/src/components/BackgroundOrnaments.jsx
 **Language:** javascript | **Importance:** LOW | **Indexed:** 2026-05-27  
 **Purpose:** Subtle animated SVG background variants for candidate, employer, admin portals.  
@@ -2226,9 +2496,40 @@ frontend/src/
 ---
 
 ### HANDOFF.md
-**Language:** markdown | **Importance:** HIGH | **Indexed:** 2026-05-27  
+**Language:** markdown | **Importance:** HIGH | **Indexed:** 2026-05-27 (stale · source @ 57ad896)  
 **Purpose:** Agent session handoff · current state, decisions, open questions, test counts, demo commands.  
-**Core Logic:** v3 format; tracks main @ bfa27e1, 208+20 tests, composite scoring shipped.
+**Note:** Knowledge graph handoff section above is more current than HANDOFF.md body until next handoff write.
+
+---
+
+### tests/integration/test_demo_reset.py
+**Language:** python | **Importance:** MEDIUM | **Indexed:** 2026-05-27  
+**Purpose:** Demo mode integration tests · config snapshot, activity seeding, admin reset, idempotent re-reset.  
+**Key Elements:** `test_demo_reset_restores_sample_data`, `test_demo_reset_requires_admin`
+
+---
+
+### tests/integration/test_demo_seed.py
+**Language:** python | **Importance:** MEDIUM | **Indexed:** 2026-05-27  
+**Purpose:** Demo account seeding · login, profile link, match smoke, idempotency.
+
+---
+
+### tests/unit/test_match_explanation.py
+**Language:** python | **Importance:** MEDIUM | **Indexed:** 2026-05-27  
+**Purpose:** Unit tests for build_match_explanation · skills, fit signals, score breakdown.
+
+---
+
+### tests/unit/test_match_filters.mjs
+**Language:** javascript | **Importance:** MEDIUM | **Indexed:** 2026-05-27  
+**Purpose:** Node tests for matchFilters.js · filter, sort, skill options, employer variant.
+
+---
+
+### tests/unit/test_match_explainability.mjs
+**Language:** javascript | **Importance:** LOW | **Indexed:** 2026-05-27  
+**Purpose:** Node tests for matchExplainability.js client helpers.
 
 ---
 
@@ -2965,13 +3266,14 @@ Editor-facing; **must stay metric-consistent** with Table 9/10 and abstract when
 │ PRODUCT MATCH (rewrite · current)                               │
 │ Portal → api/client.runMatch(strategy: composite)              │
 │ → gateway/routes/matching → MatchmakingAgent                  │
-│ → score_pair_advanced → compute_composite (40/30/15/10/5)     │
-│ → MatchDetailsDrawer (breakdown + gaps + coach + similar)     │
+│ → score_pair_advanced → compute_composite (28/27/10/15/10/10) │
+│ → MatchDetailsDrawer (6-bar breakdown + gaps + coach)         │
 └─────────────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────────────┐
 │ CANDIDATE ONBOARDING                                            │
-│ upload-resume → resume_clean + contact_extract → LlmParser      │
+│ upload-resume → document_parse (clean → rule → LLM → quality)   │
+│ → ExtractedSectionsPanel + ProfileQualityPanel (debounced)      │
 │ → review form → PUT /candidates/me (upsert) → link ownership    │
 │ → Matches: fetchMyProfileOrNull (null | stale | ready)          │
 │ → runMatch(queryKey=name) · auto-search if searchAfterSave      │
@@ -2986,9 +3288,9 @@ Editor-facing; **must stay metric-consistent** with Table 9/10 and abstract when
 
 ┌─────────────────────────────────────────────────────────────────┐
 │ EMPLOYER JD INGEST                                              │
-│ paste text → POST /jobs/parse-description (shared LLM path)     │
-│ OR upload file → POST /jobs/upload-description                  │
-│ → review JobPostingForm → employer agent register → vector upsert│
+│ paste text → parse_job_document (rule + LLM + quality)          │
+│ OR upload file → same pipeline via POST /jobs/upload-description│
+│ → JobQualityPanel debounced · review JobPostingForm → register  │
 └─────────────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────────────┐
@@ -3014,8 +3316,7 @@ Editor-facing; **must stay metric-consistent** with Table 9/10 and abstract when
 
 ## Staleness
 
-**Last refresh:** 2026-05-27 v8 · portal QA: stale profile flow, job ownership guard, employer/candidate empty states, 8 frontend page entries added/updated.  
-**Legacy drift:** Module: backend (legacy monolith) still documents removed `app.py` · use for algorithm/benchmark reference only.  
-**Uncommitted:** portal QA + copy humanization + research stack since `c1a451d`.  
-**Known open items:** 100×50 pipeline eval TODO; CE in unified run TODO; commit pending changes; Playwright E2E optional; HMR may blank React root until hard refresh in dev.  
-**Refresh command:** `/knowledge refresh frontend/src/pages/` or `/knowledge learn tests/integration/`
+**Last refresh:** 2026-05-27 v9 @ `57ad896` · parsing pipeline, skill catalog, quality intel, six-signal composite, gateway error envelopes, 12 new/updated rewrite entries.  
+**Legacy drift:** Module: backend (legacy monolith) still documents removed `app.py` · use for algorithm/benchmark reference only. HLD/SDD may still describe old composite weights.  
+**Known open items:** 100×50 pipeline eval TODO; CE in unified run TODO; review findings (stale parse confidence on quality panel, public /full endpoints); Playwright E2E optional.  
+**Refresh command:** `/knowledge refresh backend/core/` or `/knowledge learn tests/unit/test_*quality*`
