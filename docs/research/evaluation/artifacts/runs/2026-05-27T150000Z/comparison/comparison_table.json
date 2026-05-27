@@ -1,0 +1,352 @@
+{
+  "meta": {
+    "generated_at": "2026-05-27T14:51:17.116840+00:00",
+    "report_type": "lexical_vs_embedding_comparison",
+    "task": "resume_to_jobs",
+    "eval_path": "/Users/harshkashyap/Projects/JobMatcher-v1/Job-Matching-Agentic/data/eval_pairs.json",
+    "corpus": {
+      "candidates": 30,
+      "jobs": 15,
+      "labeled_queries": 30
+    },
+    "top_k": 5,
+    "embedding_model": "all-MiniLM-L6-v2",
+    "include_lexical_baselines": true,
+    "strategies": [
+      "bm25",
+      "tfidf_cosine",
+      "exact_skill_overlap",
+      "semantic_cosine",
+      "semantic_euclidean",
+      "skills_jaccard",
+      "soft_skill_embed",
+      "multimodal_weighted",
+      "rrf_ensemble"
+    ],
+    "table_columns": [
+      "method",
+      "metric",
+      "top_k",
+      "score",
+      "latency_ms"
+    ],
+    "note": "Offline research only \u2014 production APIs unchanged unless BENCHMARK_LEXICAL_API is enabled."
+  },
+  "rows": [
+    {
+      "method": "BM25 (lexical)",
+      "metric": "Precision@K",
+      "top_k": 5,
+      "score": 0.306667,
+      "latency_ms": 0.112
+    },
+    {
+      "method": "BM25 (lexical)",
+      "metric": "Recall@K",
+      "top_k": 5,
+      "score": 0.983333,
+      "latency_ms": 0.112
+    },
+    {
+      "method": "BM25 (lexical)",
+      "metric": "MRR",
+      "top_k": 5,
+      "score": 0.912222,
+      "latency_ms": 0.112
+    },
+    {
+      "method": "BM25 (lexical)",
+      "metric": "nDCG@K",
+      "top_k": 5,
+      "score": 0.893682,
+      "latency_ms": 0.112
+    },
+    {
+      "method": "BM25 (lexical)",
+      "metric": "MAP",
+      "top_k": 5,
+      "score": 0.838333,
+      "latency_ms": 0.112
+    },
+    {
+      "method": "TF-IDF cosine (lexical)",
+      "metric": "Precision@K",
+      "top_k": 5,
+      "score": 0.293333,
+      "latency_ms": 0.072
+    },
+    {
+      "method": "TF-IDF cosine (lexical)",
+      "metric": "Recall@K",
+      "top_k": 5,
+      "score": 0.95,
+      "latency_ms": 0.072
+    },
+    {
+      "method": "TF-IDF cosine (lexical)",
+      "metric": "MRR",
+      "top_k": 5,
+      "score": 0.917778,
+      "latency_ms": 0.072
+    },
+    {
+      "method": "TF-IDF cosine (lexical)",
+      "metric": "nDCG@K",
+      "top_k": 5,
+      "score": 0.89832,
+      "latency_ms": 0.072
+    },
+    {
+      "method": "TF-IDF cosine (lexical)",
+      "metric": "MAP",
+      "top_k": 5,
+      "score": 0.841984,
+      "latency_ms": 0.072
+    },
+    {
+      "method": "Exact skill overlap",
+      "metric": "Precision@K",
+      "top_k": 5,
+      "score": 0.233333,
+      "latency_ms": 0.026
+    },
+    {
+      "method": "Exact skill overlap",
+      "metric": "Recall@K",
+      "top_k": 5,
+      "score": 0.733333,
+      "latency_ms": 0.026
+    },
+    {
+      "method": "Exact skill overlap",
+      "metric": "MRR",
+      "top_k": 5,
+      "score": 0.815753,
+      "latency_ms": 0.026
+    },
+    {
+      "method": "Exact skill overlap",
+      "metric": "nDCG@K",
+      "top_k": 5,
+      "score": 0.748122,
+      "latency_ms": 0.026
+    },
+    {
+      "method": "Exact skill overlap",
+      "metric": "MAP",
+      "top_k": 5,
+      "score": 0.680897,
+      "latency_ms": 0.026
+    },
+    {
+      "method": "Semantic cosine",
+      "metric": "Precision@K",
+      "top_k": 5,
+      "score": 0.266667,
+      "latency_ms": 0.226
+    },
+    {
+      "method": "Semantic cosine",
+      "metric": "Recall@K",
+      "top_k": 5,
+      "score": 0.866667,
+      "latency_ms": 0.226
+    },
+    {
+      "method": "Semantic cosine",
+      "metric": "MRR",
+      "top_k": 5,
+      "score": 0.931481,
+      "latency_ms": 0.226
+    },
+    {
+      "method": "Semantic cosine",
+      "metric": "nDCG@K",
+      "top_k": 5,
+      "score": 0.878177,
+      "latency_ms": 0.226
+    },
+    {
+      "method": "Semantic cosine",
+      "metric": "MAP",
+      "top_k": 5,
+      "score": 0.809882,
+      "latency_ms": 0.226
+    },
+    {
+      "method": "Semantic euclidean-derived",
+      "metric": "Precision@K",
+      "top_k": 5,
+      "score": 0.266667,
+      "latency_ms": 0.21
+    },
+    {
+      "method": "Semantic euclidean-derived",
+      "metric": "Recall@K",
+      "top_k": 5,
+      "score": 0.866667,
+      "latency_ms": 0.21
+    },
+    {
+      "method": "Semantic euclidean-derived",
+      "metric": "MRR",
+      "top_k": 5,
+      "score": 0.931481,
+      "latency_ms": 0.21
+    },
+    {
+      "method": "Semantic euclidean-derived",
+      "metric": "nDCG@K",
+      "top_k": 5,
+      "score": 0.878177,
+      "latency_ms": 0.21
+    },
+    {
+      "method": "Semantic euclidean-derived",
+      "metric": "MAP",
+      "top_k": 5,
+      "score": 0.809882,
+      "latency_ms": 0.21
+    },
+    {
+      "method": "Skills Jaccard",
+      "metric": "Precision@K",
+      "top_k": 5,
+      "score": 0.233333,
+      "latency_ms": 0.034
+    },
+    {
+      "method": "Skills Jaccard",
+      "metric": "Recall@K",
+      "top_k": 5,
+      "score": 0.733333,
+      "latency_ms": 0.034
+    },
+    {
+      "method": "Skills Jaccard",
+      "metric": "MRR",
+      "top_k": 5,
+      "score": 0.815753,
+      "latency_ms": 0.034
+    },
+    {
+      "method": "Skills Jaccard",
+      "metric": "nDCG@K",
+      "top_k": 5,
+      "score": 0.748122,
+      "latency_ms": 0.034
+    },
+    {
+      "method": "Skills Jaccard",
+      "metric": "MAP",
+      "top_k": 5,
+      "score": 0.680897,
+      "latency_ms": 0.034
+    },
+    {
+      "method": "Soft skill embedding",
+      "metric": "Precision@K",
+      "top_k": 5,
+      "score": 0.28,
+      "latency_ms": 15.531
+    },
+    {
+      "method": "Soft skill embedding",
+      "metric": "Recall@K",
+      "top_k": 5,
+      "score": 0.9,
+      "latency_ms": 15.531
+    },
+    {
+      "method": "Soft skill embedding",
+      "metric": "MRR",
+      "top_k": 5,
+      "score": 0.910714,
+      "latency_ms": 15.531
+    },
+    {
+      "method": "Soft skill embedding",
+      "metric": "nDCG@K",
+      "top_k": 5,
+      "score": 0.868885,
+      "latency_ms": 15.531
+    },
+    {
+      "method": "Soft skill embedding",
+      "metric": "MAP",
+      "top_k": 5,
+      "score": 0.829233,
+      "latency_ms": 15.531
+    },
+    {
+      "method": "Multimodal weighted blend",
+      "metric": "Precision@K",
+      "top_k": 5,
+      "score": 0.286667,
+      "latency_ms": 0.258
+    },
+    {
+      "method": "Multimodal weighted blend",
+      "metric": "Recall@K",
+      "top_k": 5,
+      "score": 0.933333,
+      "latency_ms": 0.258
+    },
+    {
+      "method": "Multimodal weighted blend",
+      "metric": "MRR",
+      "top_k": 5,
+      "score": 0.961111,
+      "latency_ms": 0.258
+    },
+    {
+      "method": "Multimodal weighted blend",
+      "metric": "nDCG@K",
+      "top_k": 5,
+      "score": 0.923731,
+      "latency_ms": 0.258
+    },
+    {
+      "method": "Multimodal weighted blend",
+      "metric": "MAP",
+      "top_k": 5,
+      "score": 0.867037,
+      "latency_ms": 0.258
+    },
+    {
+      "method": "RRF ensemble",
+      "metric": "Precision@K",
+      "top_k": 5,
+      "score": 0.293333,
+      "latency_ms": 0.953
+    },
+    {
+      "method": "RRF ensemble",
+      "metric": "Recall@K",
+      "top_k": 5,
+      "score": 0.95,
+      "latency_ms": 0.953
+    },
+    {
+      "method": "RRF ensemble",
+      "metric": "MRR",
+      "top_k": 5,
+      "score": 0.944444,
+      "latency_ms": 0.953
+    },
+    {
+      "method": "RRF ensemble",
+      "metric": "nDCG@K",
+      "top_k": 5,
+      "score": 0.913141,
+      "latency_ms": 0.953
+    },
+    {
+      "method": "RRF ensemble",
+      "metric": "MAP",
+      "top_k": 5,
+      "score": 0.845132,
+      "latency_ms": 0.953
+    }
+  ]
+}

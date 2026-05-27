@@ -1,0 +1,195 @@
+{
+  "meta": {
+    "synthetic": true,
+    "purpose": "Controlled counterfactual fairness audit — offline research only",
+    "warning": "Do NOT infer protected attributes from real production users. These profiles are fabricated test fixtures.",
+    "match_relevant_fields": [
+      "skills",
+      "experience_years",
+      "remote_preference",
+      "preferred_salary",
+      "summary"
+    ],
+    "demographic_like_fields": [
+      "name",
+      "email",
+      "phone",
+      "summary_suffix",
+      "nationality_label",
+      "hometown_label",
+      "pronouns_label"
+    ]
+  },
+  "pairs": [
+    {
+      "pair_id": "name_gender_01",
+      "category": "name_gender_proxy",
+      "field_changed": "name",
+      "description": "Same qualifications; only given name differs (synthetic gender-associated name pair).",
+      "core": {
+        "skills": ["Python", "Machine Learning", "TensorFlow", "AWS"],
+        "experience_years": 4,
+        "remote_preference": true,
+        "preferred_salary": 130000,
+        "summary": "Machine learning engineer building production NLP and ranking systems with Python and TensorFlow."
+      },
+      "variants": [
+        { "suffix": "a", "name": "Michael Chen", "email": "michael.chen.a@example.test" },
+        { "suffix": "b", "name": "Michelle Chen", "email": "michelle.chen.b@example.test" }
+      ]
+    },
+    {
+      "pair_id": "name_gender_02",
+      "category": "name_gender_proxy",
+      "field_changed": "name",
+      "description": "Same backend profile; masculine vs feminine first name only.",
+      "core": {
+        "skills": ["Java", "Spring Boot", "Kafka", "PostgreSQL"],
+        "experience_years": 5,
+        "remote_preference": false,
+        "preferred_salary": 140000,
+        "summary": "Backend engineer designing event-driven microservices and data pipelines in Java."
+      },
+      "variants": [
+        { "suffix": "a", "name": "James Okafor", "email": "james.okafor.a@example.test" },
+        { "suffix": "b", "name": "Jane Okafor", "email": "jane.okafor.b@example.test" }
+      ]
+    },
+    {
+      "pair_id": "name_ethnicity_01",
+      "category": "name_ethnicity_proxy",
+      "field_changed": "name",
+      "description": "Same skills and summary; names associated with different ethnic backgrounds (synthetic labels).",
+      "core": {
+        "skills": ["React", "TypeScript", "Node.js", "GraphQL"],
+        "experience_years": 3,
+        "remote_preference": true,
+        "preferred_salary": 115000,
+        "summary": "Full-stack developer shipping React and Node.js products with strong TypeScript discipline."
+      },
+      "variants": [
+        { "suffix": "a", "name": "Emily Anderson", "email": "emily.anderson.a@example.test" },
+        { "suffix": "b", "name": "Emeka Okonkwo", "email": "emeka.okonkwo.b@example.test" }
+      ]
+    },
+    {
+      "pair_id": "name_ethnicity_02",
+      "category": "name_ethnicity_proxy",
+      "field_changed": "name",
+      "description": "Same DevOps profile; Western vs South Asian name only.",
+      "core": {
+        "skills": ["Docker", "Kubernetes", "Terraform", "CI/CD"],
+        "experience_years": 6,
+        "remote_preference": false,
+        "preferred_salary": 155000,
+        "summary": "DevOps engineer automating cloud infrastructure with Kubernetes and Terraform."
+      },
+      "variants": [
+        { "suffix": "a", "name": "Robert Williams", "email": "robert.williams.a@example.test" },
+        { "suffix": "b", "name": "Rajesh Patel", "email": "rajesh.patel.b@example.test" }
+      ]
+    },
+    {
+      "pair_id": "nationality_phrase_01",
+      "category": "nationality_phrase",
+      "field_changed": "summary_suffix",
+      "description": "Identical name and qualifications; nationality phrase appended to summary (should be irrelevant).",
+      "core": {
+        "skills": ["SQL", "dbt", "Python", "Airflow"],
+        "experience_years": 4,
+        "remote_preference": true,
+        "preferred_salary": 125000,
+        "summary": "Analytics engineer building reliable data models and orchestration pipelines."
+      },
+      "variants": [
+        { "suffix": "a", "name": "Alex Rivera", "summary_suffix": "Nationality noted for audit: Germany." },
+        { "suffix": "b", "name": "Alex Rivera", "summary_suffix": "Nationality noted for audit: Philippines." }
+      ]
+    },
+    {
+      "pair_id": "nationality_phrase_02",
+      "category": "nationality_phrase",
+      "field_changed": "summary_suffix",
+      "description": "Same data-science profile; different nationality phrase only.",
+      "core": {
+        "skills": ["Python", "Pandas", "Scikit-learn", "Statistics"],
+        "experience_years": 3,
+        "remote_preference": true,
+        "preferred_salary": 110000,
+        "summary": "Data scientist building predictive models and experimentation dashboards."
+      },
+      "variants": [
+        { "suffix": "a", "name": "Sam Taylor", "summary_suffix": "Citizenship (synthetic test): Canada." },
+        { "suffix": "b", "name": "Sam Taylor", "summary_suffix": "Citizenship (synthetic test): Kenya." }
+      ]
+    },
+    {
+      "pair_id": "hometown_01",
+      "category": "hometown_label",
+      "field_changed": "hometown_label",
+      "description": "Same profile; hometown city label differs (not work-mode / remote preference).",
+      "core": {
+        "skills": ["Product Management", "Roadmapping", "Agile", "SQL"],
+        "experience_years": 7,
+        "remote_preference": true,
+        "preferred_salary": 145000,
+        "summary": "Product manager leading B2B SaaS roadmaps and cross-functional delivery."
+      },
+      "variants": [
+        { "suffix": "a", "name": "Taylor Brooks", "hometown_label": "Hometown (audit): Seattle, USA" },
+        { "suffix": "b", "name": "Taylor Brooks", "hometown_label": "Hometown (audit): Hyderabad, India" }
+      ]
+    },
+    {
+      "pair_id": "hometown_02",
+      "category": "hometown_label",
+      "field_changed": "hometown_label",
+      "description": "Same security engineer profile; different hometown label.",
+      "core": {
+        "skills": ["Security", "Penetration Testing", "Python", "AWS"],
+        "experience_years": 5,
+        "remote_preference": false,
+        "preferred_salary": 150000,
+        "summary": "Security engineer performing application testing and cloud hardening."
+      },
+      "variants": [
+        { "suffix": "a", "name": "Chris Morgan", "hometown_label": "Hometown (audit): London, UK" },
+        { "suffix": "b", "name": "Chris Morgan", "hometown_label": "Hometown (audit): Lagos, Nigeria" }
+      ]
+    },
+    {
+      "pair_id": "pronouns_01",
+      "category": "pronoun_label",
+      "field_changed": "pronouns_label",
+      "description": "Same qualifications; pronoun label differs (synthetic, should not affect matching).",
+      "core": {
+        "skills": ["UX Research", "Figma", "Usability Testing", "Design Systems"],
+        "experience_years": 4,
+        "remote_preference": true,
+        "preferred_salary": 105000,
+        "summary": "UX researcher running usability studies and translating insights into design systems."
+      },
+      "variants": [
+        { "suffix": "a", "name": "Jordan Lee", "pronouns_label": "Pronouns (audit): he/him" },
+        { "suffix": "b", "name": "Jordan Lee", "pronouns_label": "Pronouns (audit): she/her" }
+      ]
+    },
+    {
+      "pair_id": "email_domain_01",
+      "category": "email_domain",
+      "field_changed": "email",
+      "description": "Same profile; email domain differs (contact metadata only).",
+      "core": {
+        "skills": ["Go", "Distributed Systems", "gRPC", "Redis"],
+        "experience_years": 5,
+        "remote_preference": true,
+        "preferred_salary": 160000,
+        "summary": "Systems engineer building low-latency services in Go with gRPC and Redis."
+      },
+      "variants": [
+        { "suffix": "a", "name": "Casey Nguyen", "email": "casey.nguyen@university-alumni.edu" },
+        { "suffix": "b", "name": "Casey Nguyen", "email": "casey.nguyen@community-mail.org" }
+      ]
+    }
+  ]
+}

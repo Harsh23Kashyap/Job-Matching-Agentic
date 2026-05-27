@@ -36,6 +36,8 @@ class Settings(BaseSettings):
     port: int = 8001
     read_only: bool = False
     seed_demo: bool = True
+    enable_cross_encoder_rerank: bool = False
+    cross_encoder_rerank_pool: int = 20
 
     @property
     def cvs_path(self) -> Path:

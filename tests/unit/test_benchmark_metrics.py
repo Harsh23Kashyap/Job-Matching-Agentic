@@ -1,10 +1,12 @@
 from benchmarks.metrics import (
     aggregate_query_metrics,
+    average_precision,
     dcg_at_k,
     eval_rankings,
     ndcg_at_k,
     precision_at_k,
     recall_at_k,
+    reciprocal_rank,
 )
 
 
@@ -36,5 +38,19 @@ def test_eval_rankings_aggregate():
     assert len(per_query) == 2
     assert summary["queries"] == 2
     assert summary["avg_precision_at_k"] > 0
+    assert summary["avg_mrr"] > 0
+    assert summary["avg_map"] > 0
+    assert per_query[0]["mrr"] == 1.0
     agg = aggregate_query_metrics(per_query)
     assert agg["queries"] == 2
+    assert "avg_mrr" in agg
+    assert "avg_map" in agg
+
+
+def test_reciprocal_rank_and_map():
+    pred = ["x", "doc_a", "doc_b"]
+    relevant = {"doc_a", "doc_b"}
+    assert reciprocal_rank(pred, relevant) == 0.5
+    assert average_precision(pred, relevant) > 0
+    assert reciprocal_rank(["x", "y"], relevant) == 0.0
+    assert average_precision(["x", "y"], relevant) == 0.0

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { fetchCandidates, fetchJobs } from "../api/client.js";
+import { fetchCandidates, fetchJobs, fetchSystemConfig } from "../api/client.js";
 import { IconMatch } from "./icons.jsx";
 
 const DEFAULT_ENSEMBLE = [
@@ -43,6 +43,8 @@ export default function MatchControls({ onRun, onDailyBatch, loading }) {
   const [useFeedbackBoost, setUseFeedbackBoost] = useState(saved?.useFeedbackBoost ?? false);
   const [explainMode, setExplainMode] = useState(saved?.explainMode || "rules");
   const [useCrossEncoder, setUseCrossEncoder] = useState(saved?.useCrossEncoder ?? false);
+  const [crossEncoderEnabled, setCrossEncoderEnabled] = useState(false);
+  const [rerankPool, setRerankPool] = useState(saved?.rerankPool ?? 20);
   const [names, setNames] = useState([]);
   const [titles, setTitles] = useState([]);
 
@@ -52,6 +54,15 @@ export default function MatchControls({ onRun, onDailyBatch, loading }) {
       setTitles(t);
       if (!queryKey) {
         setQueryKey(mode === "candidate_to_jobs" ? n[0] || "" : t[0] || "");
+      }
+    });
+  }, []);
+
+  useEffect(() => {
+    fetchSystemConfig().then((cfg) => {
+      setCrossEncoderEnabled(Boolean(cfg.enable_cross_encoder_rerank));
+      if (cfg.cross_encoder_rerank_pool) {
+        setRerankPool(cfg.cross_encoder_rerank_pool);
       }
     });
   }, []);
@@ -77,6 +88,7 @@ export default function MatchControls({ onRun, onDailyBatch, loading }) {
         useFeedbackBoost,
         explainMode,
         useCrossEncoder,
+        rerankPool,
       })
     );
   }, [
@@ -97,6 +109,7 @@ export default function MatchControls({ onRun, onDailyBatch, loading }) {
     useFeedbackBoost,
     explainMode,
     useCrossEncoder,
+    rerankPool,
   ]);
 
   const handleModeChange = (next) => {
@@ -121,6 +134,7 @@ export default function MatchControls({ onRun, onDailyBatch, loading }) {
     useFeedbackBoost,
     explainMode,
     useCrossEncoder,
+    rerankPool,
   });
 
   return (
@@ -289,10 +303,16 @@ export default function MatchControls({ onRun, onDailyBatch, loading }) {
               <input type="checkbox" checked={useFeedbackBoost} onChange={(e) => setUseFeedbackBoost(e.target.checked)} />
               Feedback boost
             </label>
-            {mode === "candidate_to_jobs" && (
+            {crossEncoderEnabled && mode === "candidate_to_jobs" && (
               <label className="checkbox-row">
                 <input type="checkbox" checked={useCrossEncoder} onChange={(e) => setUseCrossEncoder(e.target.checked)} />
-                Cross-encoder rerank
+                Cross-encoder rerank (top {rerankPool} → top K)
+              </label>
+            )}
+            {crossEncoderEnabled && mode === "job_to_candidates" && (
+              <label className="checkbox-row">
+                <input type="checkbox" checked={useCrossEncoder} onChange={(e) => setUseCrossEncoder(e.target.checked)} />
+                Cross-encoder rerank candidates (top {rerankPool})
               </label>
             )}
           </div>

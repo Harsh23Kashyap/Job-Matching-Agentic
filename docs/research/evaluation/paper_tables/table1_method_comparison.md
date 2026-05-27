@@ -1,0 +1,17 @@
+**Retrieval method comparison (macro-averaged, K=5).**
+
+*Label: `tab:method-comparison`*
+
+| Method | Family | P@5 | R@5 | MRR | nDCG@5 | MAP |
+| --- | --- | --- | --- | --- | --- | --- |
+| Multimodal | Embedding | 0.287 | 0.933 | 0.961 | **0.924** | 0.867 |
+| RRF | Embedding | 0.293 | 0.950 | 0.944 | 0.913 | 0.845 |
+| TF-IDF | Lexical | 0.293 | 0.950 | 0.918 | 0.898 | 0.842 |
+| BM25 | Lexical | 0.307 | 0.983 | 0.912 | 0.894 | 0.838 |
+| Semantic (cosine) | Embedding | 0.267 | 0.867 | 0.931 | 0.878 | 0.810 |
+| Semantic (L2) | Embedding | 0.267 | 0.867 | 0.931 | 0.878 | 0.810 |
+| Soft skill embed | Embedding | 0.280 | 0.900 | 0.911 | 0.869 | 0.829 |
+| Exact overlap | Lexical | 0.233 | 0.733 | 0.816 | 0.748 | 0.681 |
+| Skills Jaccard | Embedding | 0.233 | 0.733 | 0.816 | 0.748 | 0.681 |
+
+*Note: Exhaustive ranking over 15 jobs, 30 queries, K=5. Embedding model: all-MiniLM-L6-v2.*

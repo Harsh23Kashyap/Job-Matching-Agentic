@@ -3,149 +3,145 @@
 
 ## Goal
 
-Ship a **three-agent job matching product** (Candidate, Employer, Matchmaking) with role portals, explainable ML matching, benchmark parity, and **thesis-demo completeness**: unified portal UX, composite match scoring with breakdown UI, employer JD paste extraction, polished candidate + employer flows, demo accounts, and local testability without external deps.
+Deliver a **thesis-ready JobMatch system**: three-agent product with role portals and composite matching **plus** a complete **offline research evaluation pipeline** (benchmarks, ablation, significance, fairness, explainability, paper tables) and a **manuscript draft** (`docs/research/RESEARCH-PAPER.md`) grounded only in generated reports under `backend/reports/`.
 
 ## Current state
 
-- **Done (committed on `main`, pushed 2026-05-27):**
-  - V1 + V1.1: three agents, auth, portals, LLM resume/JD upload, contact fields
-  - V2 ML: lexical, cross-encoder, Qdrant switch, benchmarks, fusion/constraints/calibration/router/feedback, admin ML toggles
-  - Activity: saved jobs, applications, employer applicant feed
-  - Candidate profile UX, match results with filters/drawer
-  - Demo seed (`backend/demo_seed.py`), employer job management, employer candidates page
-  - **Portal consistency** — shared `FormSection`, `ResultsPanel`, `EmptyStatePanel`, `SkillChip`, `CompensationInput`; toast variants; removed `BudgetRangeInput.jsx`
-  - **Composite match scoring** — 40/30/15/10/5% weights; default `strategy: "composite"`; `MatchDetailsDrawer` score breakdown
-  - **JD paste parser** — `POST /jobs/parse-description`; employer Jobs import panel with LLM fallback
-  - **Resume coach** — read-only suggestions per job (`POST /candidates/me/resume-suggestions`)
-  - **Similar entities** — `GET /similar/jobs/{id}`, `GET /similar/candidates/{id}` (3 cards)
-  - **Feedback actions** — save/apply/not_interested/reject/contact in SQLite (`user_feedback` table)
-  - **BackgroundOrnaments** — subtle animated SVG backgrounds (candidate, employer, admin pages)
-  - **Resume CID cleanup** — strip `(cid:N)` artifacts; regex contact extraction (name, email, phone, GitHub, LeetCode, portfolio, certs)
-  - **Profile upsert** — `PUT /candidates/me` create/update; Jobs page unlocks via `GET /candidates/me`
-  - **Tests:** 208 pytest + 20 node unit tests; `test_feature_reverification.py`, `test_candidate_profile_flow.py`
-
-- **In progress:** None
-- **Blocked:** None for local thesis demo
+- **Done:**
+  - V1/V1.1 product: three agents, auth, portals, LLM resume/JD parse, composite scoring (40/30/15/10/5), drawer breakdown, demo seed, feedback, similar entities, resume coach
+  - **Offline research stack** (`backend/benchmarks/`): comparison, ablation (9 variants), paired bootstrap significance, fairness audit (synthetic pairs), explainability eval, synthetic 100×50 corpus generator, paper table generators (MD/CSV/LaTeX)
+  - **Full research pipeline** — `python backend/scripts/run_research_pipeline.py` → `backend/reports/research_run_<timestamp>/` (9 stages + manifest)
+  - **Research archive export** — `bash scripts/run_research_suite.sh` → `docs/research/evaluation/`
+  - **Manuscript draft** — `docs/research/RESEARCH-PAPER.md` synced from `research_run_smoke_test` + `cross_encoder_report.json`
+  - Smoke pipeline run validated: `backend/reports/research_run_smoke_test/` (all steps OK, CE skipped)
+  - Benchmark tests: **38 passed** in `tests/benchmarks/`
+- **In progress:** Large **uncommitted** research + doc additions (see Environment); not pushed since thesis-demo commit `bfa27e1`.
+- **Blocked:** None for local demo or offline eval.
 
 ## Decisions made
 
 | Decision | Why | Alternatives rejected |
 |----------|-----|----------------------|
-| Composite scoring as default match strategy | Product-facing final % + component breakdown for demo | Semantic-only on cards (less explainable) |
-| Weights 40/30/15/10/5% (semantic/skills/exp/comp/loc) | Balances relevance with structured signals | Equal weights; skills-heavy (less semantic fidelity) |
-| `BudgetRangeInput` merged into `CompensationInput` | One component, single + range modes, less duplication | Keep separate budget component |
-| JD paste via shared `_parse_job_description_text` + `llm_parser` | Same LLM path as file upload; graceful fallback | Separate ad-hoc prompt per endpoint |
-| Score bands Strong ≥80, Good ≥65, Moderate ≥50, Low <50 | Readable employer/candidate UX | Raw floats only on cards |
-| Technical component scores in drawer only | Cards show final % + band; drawer holds detail | Show all five scores on list cards |
-| Demo seed on startup (`SEED_DEMO=true`) | One-click thesis demo | Manual seed only |
-| Client-side job/candidate filters | Instant UX without backend filter API | Server-side filter params (deferred) |
-| `git commit` with dual `-m` flags | HEREDOC in agent shell hung in this environment | Single HEREDOC commit (blocked ~90s+) |
+| Single pipeline entry `backend/scripts/run_research_pipeline.py` | One timestamped run folder for paper reproducibility | Scattered shell scripts only |
+| All pipeline outputs under `research_run_<timestamp>/` | Keeps paper tables + reports co-located | Flat `backend/reports/` overwrite |
+| Cross-encoder optional in pipeline (`--enable-cross-encoder`) | CE adds ~141 ms/query and hurt nDCG on demo corpus | Always-on CE in pipeline |
+| Fail-fast dataset validation (empty corpus = error) | Prevents silent zero-query benchmark runs | Warn-only on empty labels |
+| Paper numbers only from `backend/reports/` | No hallucinated results in manuscript | Inline estimates in prose |
+| Composite eval separate from ablation step | Production `compute_composite` vs component variants | Only ablation for composite |
+| Significance reuses in-memory per-query (no re-run) | Saves ~4s per comparison bootstrap | Subprocess `run_significance` only |
+| Fairness audit synthetic fixtures only | No real-user demographic inference | Production user audit |
+| `research_run_smoke_test` as primary paper source | Latest full pipeline artifact set | Mixed root + run folder reports |
+| Composite scoring default in production UI | Explainable multi-signal ranker for demo | Semantic-only cards |
 
 ## Open questions
 
-- [ ] Hypothesis: Add `listed_at` / `remote_policy` to `MatchResult` for accurate “Recently added” and remote filter — worth backend pass when demo stabilizes
-- [ ] Unknown: Whether LLM explainer should surface “template fallback” in UI when Ollama is offline
-- [ ] Hunch: Full `paper_progression` with cross-encoder still needs refreshed `data/expected/` floats
-- [ ] Unknown: Why `demo.admin@test.com` returns 401 in automated smoke — candidate/employer demos work; may need seed/password check
-- [ ] Hypothesis: Employer browser session showed empty jobs while API returned 5 — likely stale cookie/wrong session in automation, not a code bug
+- [ ] Hypothesis: 100×50 corpus (`data/research/`) will widen bootstrap CIs but confirm composite lead — run `run_research_pipeline.py --data-dir data/research --eval-path data/research/eval_pairs.json`
+- [ ] Unknown: Whether cross-encoder should stay disabled permanently or needs domain-tuned model — evidence: nDCG Δ = −0.108 on demo corpus
+- [ ] Hunch: Rules explainer low skill-mention rate (25.3%) hurts recruiter trust more than template hallucination flags — needs human eval
+- [ ] Unknown: Why `demo.admin@test.com` 401 in some automated smoke runs — candidate/employer work
+- [ ] Hypothesis: `AdminConsole.jsx` wrong `ResultsPanel` props — admin match UI may be empty
 - [ ] Paper §3 architecture diagram — waiting on supervisor approval
+- [ ] Should research modules be committed in one PR or split (product vs research)?
 
 ## Blockers & dependencies
 
 | What | Who/Where | Status |
 |------|-----------|--------|
-| Ollama for LLM explain + resume/JD parse | Local dev | optional — template/manual fallback works |
-| Commit + push uncommitted work | User | **not done** — ~32 modified + 6 new files on `main` |
-| External job posting URLs for Apply | Job `link` field on corpus | sparse — in-app apply via API works |
+| Git commit + push of research stack | User | **not done** — large untracked tree |
+| Ollama for LLM explain/parse | Local dev | optional — template fallback works |
+| Cross-encoder in unified pipeline run | Dev | skipped in smoke test; report exists at `backend/reports/cross_encoder_report.json` |
+| 100×50 eval run | Dev | corpus generated; pipeline not run at scale |
 
 ## Environment
 
-- **Branch:** `main` (last commit `0185fa8`; **large uncommitted tree**)
-- **Uncommitted changes:** 32 modified, 6 untracked (composite scoring, portal components, JD parse, drawer, tests); ~1096 insertions / 578 deletions
-- **Recent commits:**
+- **Branch:** `main` (last pushed commit `bfa27e1`; **many uncommitted changes**)
+- **Uncommitted changes:** ~17 modified + ~90 untracked files (benchmarks, research docs, scripts, tests, `docs/research/RESEARCH-PAPER.md`, `backend/scripts/`, `data/research/`, `data/fairness_audit_profiles.json`)
+- **Recent commits (on remote):**
+  - `bfa27e1` Add composite scoring, portal polish, and candidate flow fixes for thesis demo
   - `0185fa8` Polish employer portal, demo seed, and shared portal UX for thesis demo
   - `517b099` Polish candidate profile UX and jobs results for thesis demo
-  - `71c60b3` Add saved jobs, applications, fairness baseline, and ML defaults
-- **Build status:** passing (`npm run build`)
-- **Test status:** **164 passed** pytest + **12 passed** node; 2 deprecation warnings
-- **Active processes:** Backend may already be on `:8001` (second uvicorn start gets “address already in use”); start frontend `:5173` for manual QA
+- **Build status:** passing (`npm run build` — last verified at thesis-demo push)
+- **Test status:** `tests/benchmarks/` **38 passed**; full suite count not re-run this session — run `pytest ../tests -q` before commit
+- **Active processes:** None assumed; backend `:8001`, frontend `:5173` if demo running
 
 ## What worked
 
-- Composite match end-to-end — e.g. Rahul Sharma ↔ Machine Learning Engineer at **71%** with all component fields in API response
-- JD paste parse — `POST /jobs/parse-description` returns title/skills/budget/currency/job_type with `llm_status=ok` when Ollama available
-- Shared portal components wired through JobPostingForm, ProfileForm, results panels, MatchDetailsDrawer
-- `scripts/smoke_employer_jobs.py` — reliable employer jobs API verification
-- Demo accounts — `demo.candidate@test.com` / `demo.employer@test.com` / `demo1234`; employer sees 5 jobs via API
-- `git -c core.fsmonitor=false commit -m "subject" -m "body"` — reliable when HEREDOC hangs
+- `python backend/scripts/run_research_pipeline.py --skip-cross-encoder --run-id research_run_smoke_test` — ~12s, all 9 stages OK
+- `generate_all_paper_tables()` → copy-paste LaTeX booktabs with `\label{tab:...}`
+- Paired bootstrap significance: multimodal p=0.013, full composite vs semantic-only p=0.019 (nDCG@5)
+- Dataset validation catches empty corpus before expensive embedding runs
+- `git commit -m "single line"` — reliable in agent shell (HEREDOC hangs)
 
 ## What didn't work
 
-- Long-running `git commit` with embedded HEREDOC in agent shell — hung; use `-m` twice or simple message
-- Browser automation on employer Jobs — flaky refs / empty list despite API returning 5 jobs; API-level smoke is authoritative
-- Browser automation on narrow viewport — Edit/Close on My Jobs can sit behind mobile bottom nav
-- Admin demo login — 401 in one automated smoke run (candidate/employer OK)
-- Inline shell JSON for job list API smoke — job descriptions broke `json.loads`; use `scripts/smoke_employer_jobs.py`
+- HEREDOC `git commit` in agent shell — hung 3+ minutes; use single `-m` line
+- Cross-encoder reranking on composite — nDCG **degrades** (−0.108) with +141 ms/query; not production default
+- RRF over single-component rankers in ablation — nDCG 0.564 vs full composite 0.942
+- Browser automation on demo login buttons — stale refs; use API smoke or manual demo
+- `@jobmatch.test` email in register smoke — pydantic rejects reserved TLD
 
 ## Commands
 
 ```bash
-# Backend
-cd backend && source .venv/bin/activate
-uvicorn main:create_app --factory --reload --port 8001
+# Full offline research pipeline (primary)
+python backend/scripts/run_research_pipeline.py
+python backend/scripts/run_research_pipeline.py --skip-cross-encoder --run-id my_run
+python backend/scripts/run_research_pipeline.py --enable-cross-encoder
 
-# Frontend
+# Export to docs/research/evaluation/
+bash scripts/run_research_suite.sh
+bash scripts/run_research_suite.sh --from-cache
+
+# Individual stages (write to backend/reports/ by default)
+cd backend && source .venv/bin/activate
+python -m benchmarks.run_comparison
+python -m benchmarks.run_ablation
+python -m benchmarks.run_significance
+python -m benchmarks.run_fairness_audit
+python -m benchmarks.run_explainability_eval
+python -m benchmarks.run_paper_tables
+python -m benchmarks.run_generate_research_dataset
+
+# Benchmark tests
+pytest ../tests/benchmarks -q
+
+# Product demo
+uvicorn main:create_app --factory --reload --port 8001   # from backend/
 cd frontend && npm run dev
 
-# Tests
-cd backend && source .venv/bin/activate && pytest ../tests -q
-node --test tests/unit/test_skills_input.mjs tests/unit/test_match_format.mjs
-
-# Build
-cd frontend && npm run build
-
-# Employer jobs API smoke
-python3 scripts/smoke_employer_jobs.py
+# Full test suite
+cd backend && pytest ../tests -q
+node --test tests/unit/test_*.mjs
 
 # Demo logins (password: demo1234)
 # demo.candidate@test.com | demo.employer@test.com | demo.admin@test.com
-
-# Train ML models
-cd backend && python -m benchmarks.train_ml_models
-
-# Benchmarks
-python -m benchmarks.table11_fusion
-python -m benchmarks.paper_progression --skip-cross-encoder
-
-# Optional env
-SEED_DEMO=true VECTOR_STORE=qdrant READ_ONLY=true
 ```
 
 ## Key files
 
 | File | Why It Matters |
 |------|---------------|
-| `backend/core/component_scores.py` | Per-dimension score functions (skills, exp, comp, loc) |
-| `backend/core/scoring.py` | `compute_composite()` + fusion with semantic base |
-| `backend/core/matchmaking_scoring.py` | Wires composite strategy into match pipeline |
-| `backend/contracts/matching.py` | `ScoreBreakdown` / `MatchResult` composite fields |
-| `backend/hooks/llm_parser.py` | JD/resume LLM parse; budget/currency/job_type normalization |
-| `backend/gateway/routes/employers.py` | `POST /jobs/parse-description`, job CRUD |
-| `backend/demo_seed.py` | Auto-seeds demo users + links employer to 5 corpus jobs |
-| `frontend/src/components/MatchDetailsDrawer.jsx` | Score breakdown UI, bands, skills, employer cards |
-| `frontend/src/components/CompensationInput.jsx` | Single + range compensation (replaces BudgetRangeInput) |
-| `frontend/src/components/FormSection.jsx` | Shared form section wrapper |
-| `frontend/src/components/ResultsPanel.jsx` | Shared results list shell |
-| `frontend/src/components/EmptyStatePanel.jsx` | Shared empty state |
-| `frontend/src/components/SkillChip.jsx` | Shared skill chip |
-| `frontend/src/pages/employer/Jobs.jsx` | JD paste import panel + post/edit form |
-| `frontend/src/api/client.js` | `parseJobDescriptionText()`, default composite match config |
-| `frontend/src/utils/format.js` | `matchTier()`, `matchDisplayScore()`, employer why-match |
-| `frontend/src/App.css` | Portal cards, drawer styles, toast variants |
-| `tests/unit/test_component_scores.py` | Component score unit tests |
-| `tests/integration/test_job_parse.py` | JD parse endpoint integration tests |
-| `scripts/smoke_employer_jobs.py` | Quick employer jobs API verification |
-| `docs/demo/DEMO-CHECKLIST.md` | Pre-flight demo steps |
+| `backend/scripts/run_research_pipeline.py` | **Single-command** research pipeline CLI |
+| `backend/benchmarks/research_pipeline.py` | Orchestrates 9 evaluation stages |
+| `backend/benchmarks/dataset_validation.py` | Corpus preflight checks |
+| `backend/benchmarks/composite_eval.py` | Production composite offline eval |
+| `backend/benchmarks/comparison.py` | Lexical vs embedding baselines |
+| `backend/benchmarks/ablation.py` | Nine-variant component ablation |
+| `backend/benchmarks/significance.py` | Paired bootstrap nDCG/MRR |
+| `backend/benchmarks/fairness_audit.py` | Synthetic counterfactual audit |
+| `backend/benchmarks/explainability_eval.py` | Explanation quality checks |
+| `backend/benchmarks/paper_tables/generators.py` | Paper-ready MD/CSV/LaTeX tables |
+| `backend/benchmarks/research_export.py` | Bundle → `docs/research/evaluation/` |
+| `backend/core/scoring.py` | `compute_composite()` + weights |
+| `docs/research/RESEARCH-PAPER.md` | **Manuscript draft** (report-backed numbers) |
+| `docs/research/evaluation/` | Methodology, studies, artifacts, paper_tables |
+| `backend/reports/research_run_smoke_test/` | Latest full pipeline outputs + paper tables |
+| `backend/reports/cross_encoder_report.json` | CE quality/latency (separate from smoke run) |
+| `data/eval_pairs.json` | Demo eval corpus (30 queries, 47 pairs) |
+| `data/research/` | Generated 100×50 research corpus (not yet evaluated) |
+| `data/fairness_audit_profiles.json` | 10 synthetic counterfactual pairs |
+| `scripts/run_research_pipeline.sh` | Shell wrapper for pipeline |
+| `tests/benchmarks/test_research_pipeline.py` | Pipeline validation-failure test |
 
 ## External links
 
@@ -159,14 +155,15 @@ None directly relevant.
 
 - Knowledge graph: `.claude/knowledge_graph.md`
 - Design specs: `docs/design/HLD-multi-agent-system.md`, `docs/design/SDD-multi-agent-system.md`, `docs/design/V1-V2-SCOPE.md`
+- Research: `docs/research/README.md`, `docs/research/RESEARCH-PAPER.md`, `docs/research/evaluation/FINDINGS.md`
 - Demo: `docs/demo/DEMO-SCRIPT.md`, `docs/demo/DEMO-CHECKLIST.md`
 - Paper inventory: `docs/research/PAPER-FEATURES-INVENTORY.md`
 
 ## Next steps
 
-1. **Commit uncommitted work** — suggest logical groups: (a) composite scoring backend + tests, (b) portal consistency components + CSS, (c) MatchDetailsDrawer, (d) JD paste parser + employer Jobs UI — verify: `git status` clean after commit(s)
-2. **Live demo dry-run** — demo.candidate → Jobs → match drawer with composite breakdown; demo.employer → paste JD → Extract → post role → Candidates — verify: `docs/demo/DEMO-CHECKLIST.md` + API smoke
-3. ~~**Update DEMO-CHECKLIST / README**~~ — done 2026-05-27
-4. **Mobile QA on employer My Jobs** — Edit/Close not blocked by bottom nav — verify: add bottom padding on action rows if needed
-5. **Optional: fix admin demo login** — if admin portal needed for demo — verify: login smoke for `demo.admin@test.com`
-6. **Optional: push to remote** after commit — verify: `git log origin/main..HEAD`
+1. **Commit research stack** — stage benchmarks, scripts, tests, `docs/research/`, `data/fairness_audit_profiles.json` (exclude `backend/reports/` runs if gitignored) — verify: `git status` clean after commit
+2. **Run pipeline with cross-encoder** — `python backend/scripts/run_research_pipeline.py --enable-cross-encoder --run-id research_run_with_ce` — verify: `pipeline_manifest.json` shows CE step OK; update RESEARCH-PAPER.md CE section from that run
+3. **Large-scale eval** — `python backend/scripts/run_research_pipeline.py --data-dir data/research --eval-path data/research/eval_pairs.json --run-id research_run_100x50` — verify: `dataset_validation.json` shows 100 candidates, 50 jobs
+4. **Refresh manuscript** after new runs — only copy numbers from new `backend/reports/research_run_*/` — verify: no TODO sections remain for completed studies
+5. **Live thesis demo dry-run** — `docs/demo/DEMO-CHECKLIST.md` — verify: composite drawer, JD paste, employer candidates flow
+6. **Full pytest before push** — `pytest ../tests -q` — verify: no regressions vs 208 baseline

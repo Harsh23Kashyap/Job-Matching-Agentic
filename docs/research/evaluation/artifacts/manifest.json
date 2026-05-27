@@ -1,0 +1,71 @@
+{
+  "run_id": "2026-05-27T150000Z",
+  "exported_at": "2026-05-27T15:00:00.384663+00:00",
+  "reports_source": "/Users/harshkashyap/Projects/JobMatcher-v1/Job-Matching-Agentic/backend/reports",
+  "top_k": 5,
+  "studies": {
+    "embedding": {
+      "dest": "artifacts/runs/2026-05-27T150000Z/embedding",
+      "files": [
+        "benchmark_report.json",
+        "benchmark_summary.csv",
+        "benchmark_per_query.csv"
+      ]
+    },
+    "comparison": {
+      "dest": "artifacts/runs/2026-05-27T150000Z/comparison",
+      "files": [
+        "comparison_table.csv",
+        "comparison_table.json",
+        "comparison_summary.json"
+      ]
+    },
+    "ablation": {
+      "dest": "artifacts/runs/2026-05-27T150000Z/ablation",
+      "files": [
+        "ablation_report.json",
+        "ablation_summary.json",
+        "ablation_summary.csv",
+        "ablation_table.csv",
+        "ablation_summary.md",
+        "ablation_per_query.csv"
+      ]
+    },
+    "significance_benchmark": {
+      "dest": "artifacts/runs/2026-05-27T150000Z/significance/benchmark",
+      "files": [
+        "significance_report.json",
+        "significance_summary.md",
+        "significance_comparisons.csv",
+        "significance_methods.csv"
+      ]
+    },
+    "significance_ablation": {
+      "dest": "artifacts/runs/2026-05-27T150000Z/significance/ablation",
+      "files": [
+        "significance_ablation_report.json",
+        "significance_ablation_summary.md",
+        "significance_ablation_comparisons.csv",
+        "significance_ablation_methods.csv"
+      ]
+    },
+    "cross_encoder": {
+      "dest": "artifacts/runs/2026-05-27T150000Z/cross_encoder",
+      "files": [
+        "cross_encoder_report.json",
+        "cross_encoder_table.csv",
+        "cross_encoder_rank_changes.json"
+      ]
+    }
+  },
+  "findings": "FINDINGS.md",
+  "studies_docs": [
+    "studies/01-embedding-strategies.md",
+    "studies/02-lexical-vs-embedding.md",
+    "studies/03-composite-ablation.md",
+    "studies/04-significance-ablation.md",
+    "studies/04-significance-embedding.md",
+    "studies/05-cross-encoder.md",
+    "studies/README.md"
+  ]
+}

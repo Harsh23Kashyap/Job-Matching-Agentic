@@ -248,6 +248,7 @@ export async function runMatch(config) {
     use_feedback_boost: Boolean(config.useFeedbackBoost),
     explain_mode: config.explainMode || "rules",
     use_cross_encoder: Boolean(config.useCrossEncoder),
+    rerank_pool: config.rerankPool ?? 20,
   };
 
   const body = config.ensemble

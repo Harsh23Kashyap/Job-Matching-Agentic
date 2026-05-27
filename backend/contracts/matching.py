@@ -30,7 +30,7 @@ class MatchRequest(BaseModel):
     retrieval: RetrievalMode = "exhaustive"
     candidate_pool: int = Field(default=120, ge=1)
     use_cross_encoder: bool = False
-    rerank_pool: int = Field(default=10, ge=1, le=50)
+    rerank_pool: int = Field(default=20, ge=1, le=50)
     fusion_mode: FusionMode = "fixed"
     apply_constraints: bool = False
     auto_strategy: bool = False
@@ -81,6 +81,25 @@ class EnsembleSource(BaseModel):
     rrf_contribution: float
 
 
+class RankChange(BaseModel):
+    target_id: str
+    target_label: str
+    rank_before: int | None = None
+    rank_after: int | None = None
+    moved: int | None = None
+
+
+class RerankDiagnostics(BaseModel):
+    applied: bool
+    enabled_by_config: bool
+    requested: bool
+    rerank_pool: int
+    bi_encoder_ms: float
+    cross_encoder_ms: float
+    ranking_changes: list[RankChange] = Field(default_factory=list)
+    top_k_unchanged: bool = True
+
+
 class MatchResult(BaseModel):
     target_id: str
     target_label: str
@@ -122,6 +141,7 @@ class MatchResponse(BaseModel):
     agent_versions: dict[str, int]
     routing_reason: str | None = None
     fusion_mode: str | None = None
+    rerank: RerankDiagnostics | None = None
 
 
 class DailyBatchRequest(BaseModel):

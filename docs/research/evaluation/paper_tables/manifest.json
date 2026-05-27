@@ -1,0 +1,44 @@
+{
+  "generated_at": "2026-05-27T15:06:45.034493+00:00",
+  "reports_dir": "/Users/harshkashyap/Projects/JobMatcher-v1/Job-Matching-Agentic/backend/reports",
+  "out_dir": "/Users/harshkashyap/Projects/JobMatcher-v1/Job-Matching-Agentic/docs/research/evaluation/paper_tables",
+  "top_k": 5,
+  "tables": {
+    "method_comparison": {
+      "label": "tab:method-comparison",
+      "stem": "table1_method_comparison",
+      "rows": 9,
+      "error": null
+    },
+    "ablation": {
+      "label": "tab:ablation",
+      "stem": "table2_ablation",
+      "rows": 9,
+      "error": null
+    },
+    "latency": {
+      "label": "tab:latency",
+      "stem": "table3_latency",
+      "rows": 11,
+      "error": null
+    },
+    "fairness": {
+      "label": "tab:fairness",
+      "stem": "table4_fairness",
+      "rows": 10,
+      "error": null
+    },
+    "explanation_quality": {
+      "label": "tab:explanation-quality",
+      "stem": "table5_explanation_quality",
+      "rows": 2,
+      "error": null
+    },
+    "qualitative_examples": {
+      "label": "tab:qualitative",
+      "stem": "table6_qualitative_examples",
+      "rows": 4,
+      "error": null
+    }
+  }
+}

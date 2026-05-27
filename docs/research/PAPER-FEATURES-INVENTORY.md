@@ -346,6 +346,11 @@ Upload (PDF/DOCX/TXT, max 5MB)
 | Paper section | Source material |
 |---------------|-----------------|
 | **§1 Introduction / motivation** | Khan Part VIII framing (knowledge graph §2b); human-in-the-loop hiring |
+| **§2–3 Methodology / architecture** | [RESEARCH-PAPER.md](RESEARCH-PAPER.md) §2–3; [HLD](../design/HLD-multi-agent-system.md) |
+| **§4 Matching algorithms** | [RESEARCH-PAPER.md](RESEARCH-PAPER.md) §4; `core/scoring.py`, `ablation_scoring.py` |
+| **§5–7 Evaluation / results** | [RESEARCH-PAPER.md](RESEARCH-PAPER.md) §5–7; `backend/reports/research_run_smoke_test/` |
+| **§8 Fairness** | [RESEARCH-PAPER.md](RESEARCH-PAPER.md) §8; `fairness_audit_report.json` |
+| **§9 Explainability** | [RESEARCH-PAPER.md](RESEARCH-PAPER.md) §9; `explainability_report.json` |
 | **§3 System architecture** | HLD §2–4; three-agent diagram; event bus; data ownership |
 | **§4 Matching methodology** | Semantic + multimodal formulas; skills modes; RRF; document templates |
 | **§5 Evaluation** | 30/15/47 corpus; smoke test; defer full Table 9 to v2 or "preliminary" |

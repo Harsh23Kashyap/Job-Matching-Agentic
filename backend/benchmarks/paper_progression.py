@@ -19,6 +19,7 @@ from core.lexical import LexicalRanker
 from benchmarks.eval_data import cv_to_snapshot, job_to_snapshot, load_eval_labels
 from benchmarks.metrics import eval_rankings
 from benchmarks.rank_utils import multimodal_score, rank_exhaustive, rrf_fuse_lists, semantic_score
+from benchmarks.significance import paired_bootstrap_ndcg
 
 
 def _run_config(name, eval_map, cv_snaps, job_snaps, jobs_raw, top_k, rank_fn):
@@ -28,30 +29,6 @@ def _run_config(name, eval_map, cv_snaps, job_snaps, jobs_raw, top_k, rank_fn):
     for r in per_q:
         r["method"] = name
     return row, per_q
-
-
-def paired_bootstrap_ndcg(per_query, baseline, compare, n_resamples=5000, seed=42):
-    base = {r["query_id"]: r["ndcg_at_k"] for r in per_query if r["method"] == baseline}
-    comp = {r["query_id"]: r["ndcg_at_k"] for r in per_query if r["method"] == compare}
-    keys = sorted(set(base) & set(comp))
-    diffs = [comp[k] - base[k] for k in keys]
-    rng = random.Random(seed)
-    means = []
-    for _ in range(n_resamples):
-        sample = [diffs[rng.randrange(len(diffs))] for _ in range(len(diffs))]
-        means.append(statistics.mean(sample))
-    means.sort()
-    lo = means[int(0.025 * n_resamples)]
-    hi = means[int(0.975 * n_resamples)]
-    return {
-        "baseline": baseline,
-        "compare": compare,
-        "mean_ndcg_diff": statistics.mean(diffs),
-        "ci95_lo": lo,
-        "ci95_hi": hi,
-        "n_queries": len(keys),
-        "significant_at_05": lo > 0,
-    }
 
 
 def main():

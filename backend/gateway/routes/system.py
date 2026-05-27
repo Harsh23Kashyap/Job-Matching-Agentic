@@ -31,6 +31,8 @@ def get_system_config(request: Request):
         "skills_modes": ["jaccard", "embedding"],
         "rrf_k": settings.rrf_k,
         "cross_encoder_available": True,
+        "enable_cross_encoder_rerank": settings.enable_cross_encoder_rerank,
+        "cross_encoder_rerank_pool": settings.cross_encoder_rerank_pool,
         "fusion_modes": ["fixed", "learned", "hierarchical"],
         "fusion_model_loaded": request.app.state.container.matchmaker.fusion_model is not None,
         "calibration_model_loaded": request.app.state.container.matchmaker.calibrator is not None,

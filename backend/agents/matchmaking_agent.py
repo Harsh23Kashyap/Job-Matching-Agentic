@@ -1,4 +1,5 @@
 import json
+import time
 import uuid
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
@@ -20,13 +21,15 @@ from contracts.matching import (
     MatchRequest,
     MatchResponse,
     MatchResult,
+    RerankDiagnostics,
     ScoreBreakdown,
 )
 from contracts.snapshots import CandidateSnapshot, JobSnapshot
 from core.calibration import PlattCalibrator
-from core.cross_encoder_rerank import rerank_jobs
+from core.cross_encoder_rerank import rerank_candidates, rerank_jobs
 from core.fusion import LearnedFusionModel
 from core.matchmaking_scoring import resolve_routing, score_pair_advanced
+from core.rerank_diagnostics import compute_rank_changes, top_k_ids
 from core.rrf import rrf_fuse
 from core.skills import skill_overlap_details
 from hooks.explainer import RuleExplainer
@@ -174,6 +177,45 @@ class MatchmakingAgent(BaseAgent):
             **contact,
         )
 
+    def _cross_encoder_requested(self, request: MatchRequest) -> bool:
+        return bool(request.use_cross_encoder)
+
+    def _cross_encoder_active(self, request: MatchRequest) -> bool:
+        return self.settings.enable_cross_encoder_rerank and request.use_cross_encoder
+
+    def _rerank_pool_size(self, request: MatchRequest, corpus_size: int) -> int:
+        pool = request.rerank_pool or self.settings.cross_encoder_rerank_pool
+        return min(pool, self.settings.cross_encoder_rerank_pool, corpus_size)
+
+    def _build_rerank_diagnostics(
+        self,
+        request: MatchRequest,
+        *,
+        pool: int,
+        bi_encoder_ms: float,
+        cross_encoder_ms: float,
+        before_ids: list[str],
+        after_ids: list[str],
+        labels: dict[str, str],
+    ) -> RerankDiagnostics | None:
+        if not self._cross_encoder_requested(request):
+            return None
+        changes = (
+            compute_rank_changes(before_ids, after_ids, labels, top_k=request.top_k)
+            if self._cross_encoder_active(request)
+            else []
+        )
+        return RerankDiagnostics(
+            applied=self._cross_encoder_active(request),
+            enabled_by_config=self.settings.enable_cross_encoder_rerank,
+            requested=True,
+            rerank_pool=pool,
+            bi_encoder_ms=round(bi_encoder_ms, 3),
+            cross_encoder_ms=round(cross_encoder_ms, 3),
+            ranking_changes=changes,
+            top_k_unchanged=len(changes) == 0,
+        )
+
     def _apply_ce_rerank_jobs(
         self,
         candidate: CandidateSnapshot,
@@ -194,6 +236,37 @@ class MatchmakingAgent(BaseAgent):
             return scored
         priors = {job.id: breakdown.final_score for job, breakdown, _ in shortlist}
         reranked = rerank_jobs(profile.model_dump(), jobs_raw, prior_scores=priors)
+        return self._merge_reranked(scored, shortlist, reranked, pool)
+
+    def _apply_ce_rerank_candidates(
+        self,
+        job: JobSnapshot,
+        scored: list[tuple[CandidateSnapshot, ScoreBreakdown, list[str]]],
+        rerank_pool: int,
+    ) -> list[tuple[CandidateSnapshot, ScoreBreakdown, list[str]]]:
+        job_profile = self.employer_agent.get_by_id(job.id)
+        if job_profile is None or not scored:
+            return scored
+        pool = min(rerank_pool, len(scored))
+        shortlist = scored[:pool]
+        candidates_raw = []
+        for candidate, _, _ in shortlist:
+            profile = self.candidate_agent.get_by_id(candidate.id)
+            if profile is not None:
+                candidates_raw.append(profile.model_dump())
+        if not candidates_raw:
+            return scored
+        priors = {candidate.id: breakdown.final_score for candidate, breakdown, _ in shortlist}
+        reranked = rerank_candidates(job_profile.model_dump(), candidates_raw, prior_scores=priors)
+        return self._merge_reranked_candidates(scored, shortlist, reranked, pool)
+
+    def _merge_reranked(
+        self,
+        scored: list[tuple[JobSnapshot, ScoreBreakdown, list[str]]],
+        shortlist: list[tuple[JobSnapshot, ScoreBreakdown, list[str]]],
+        reranked: list[tuple[str, float]],
+        pool: int,
+    ) -> list[tuple[JobSnapshot, ScoreBreakdown, list[str]]]:
         reordered: list[tuple[JobSnapshot, ScoreBreakdown, list[str]]] = []
         seen: set[str] = set()
         for jid, ce_score in reranked:
@@ -204,9 +277,33 @@ class MatchmakingAgent(BaseAgent):
                     )
                     seen.add(jid)
                     break
-        for job, breakdown, notes in scored:
+        for job, breakdown, notes in scored[pool:]:
             if job.id not in seen:
                 reordered.append((job, breakdown, notes))
+        return reordered
+
+    def _merge_reranked_candidates(
+        self,
+        scored: list[tuple[CandidateSnapshot, ScoreBreakdown, list[str]]],
+        shortlist: list[tuple[CandidateSnapshot, ScoreBreakdown, list[str]]],
+        reranked: list[tuple[str, float]],
+        pool: int,
+    ) -> list[tuple[CandidateSnapshot, ScoreBreakdown, list[str]]]:
+        reordered: list[tuple[CandidateSnapshot, ScoreBreakdown, list[str]]] = []
+        seen: set[str] = set()
+        for cid, ce_score in reranked:
+            for candidate, breakdown, notes in shortlist:
+                if candidate.id == cid:
+                    reordered.append(
+                        (candidate, breakdown.model_copy(update={"final_score": ce_score}), notes)
+                    )
+                    seen.add(cid)
+                    break
+        for candidate, breakdown, notes in scored[pool:]:
+            if candidate.id not in seen:
+                reordered.append((candidate, breakdown, notes))
+        return reordered
+
         return reordered
 
     def _rank_jobs_for_candidate(
@@ -215,7 +312,8 @@ class MatchmakingAgent(BaseAgent):
         jobs: list[JobSnapshot],
         request: MatchRequest,
         routing_reason: str | None = None,
-    ) -> list[MatchResult]:
+    ) -> tuple[list[MatchResult], RerankDiagnostics | None]:
+        t0 = time.perf_counter()
         scored: list[tuple[JobSnapshot, ScoreBreakdown, list[str]]] = []
         for job in jobs:
             breakdown, constraint_notes = self._score_pair(
@@ -224,8 +322,29 @@ class MatchmakingAgent(BaseAgent):
             scored.append((job, breakdown, constraint_notes))
 
         scored.sort(key=lambda x: x[1].final_score, reverse=True)
-        if request.use_cross_encoder:
-            scored = self._apply_ce_rerank_jobs(candidate, scored, request.rerank_pool)
+        bi_encoder_ms = (time.perf_counter() - t0) * 1000.0
+
+        pool = self._rerank_pool_size(request, len(scored))
+        labels = {job.id: job.title for job, _, _ in scored}
+        before_ids = top_k_ids(scored, request.top_k)
+        cross_encoder_ms = 0.0
+
+        if self._cross_encoder_active(request):
+            t1 = time.perf_counter()
+            scored = self._apply_ce_rerank_jobs(candidate, scored, pool)
+            cross_encoder_ms = (time.perf_counter() - t1) * 1000.0
+
+        after_ids = top_k_ids(scored, request.top_k)
+        rerank_diag = self._build_rerank_diagnostics(
+            request,
+            pool=pool,
+            bi_encoder_ms=bi_encoder_ms,
+            cross_encoder_ms=cross_encoder_ms,
+            before_ids=before_ids,
+            after_ids=after_ids,
+            labels=labels,
+        )
+
         results: list[MatchResult] = []
         for rank, (job, breakdown, constraint_notes) in enumerate(scored[: request.top_k], start=1):
             results.append(
@@ -240,14 +359,15 @@ class MatchmakingAgent(BaseAgent):
                     constraint_notes=constraint_notes,
                 )
             )
-        return results
+        return results, rerank_diag
 
     def _rank_candidates_for_job(
         self,
         job: JobSnapshot,
         candidates: list[CandidateSnapshot],
         request: MatchRequest,
-    ) -> list[MatchResult]:
+    ) -> tuple[list[MatchResult], RerankDiagnostics | None]:
+        t0 = time.perf_counter()
         scored: list[tuple[CandidateSnapshot, ScoreBreakdown, list[str]]] = []
         for candidate in candidates:
             req, reason = resolve_routing(candidate, request)
@@ -257,6 +377,29 @@ class MatchmakingAgent(BaseAgent):
             scored.append((candidate, breakdown, constraint_notes))
 
         scored.sort(key=lambda x: x[1].final_score, reverse=True)
+        bi_encoder_ms = (time.perf_counter() - t0) * 1000.0
+
+        pool = self._rerank_pool_size(request, len(scored))
+        labels = {candidate.id: candidate.name for candidate, _, _ in scored}
+        before_ids = top_k_ids(scored, request.top_k)
+        cross_encoder_ms = 0.0
+
+        if self._cross_encoder_active(request):
+            t1 = time.perf_counter()
+            scored = self._apply_ce_rerank_candidates(job, scored, pool)
+            cross_encoder_ms = (time.perf_counter() - t1) * 1000.0
+
+        after_ids = top_k_ids(scored, request.top_k)
+        rerank_diag = self._build_rerank_diagnostics(
+            request,
+            pool=pool,
+            bi_encoder_ms=bi_encoder_ms,
+            cross_encoder_ms=cross_encoder_ms,
+            before_ids=before_ids,
+            after_ids=after_ids,
+            labels=labels,
+        )
+
         results: list[MatchResult] = []
         for rank, (candidate, breakdown, constraint_notes) in enumerate(
             scored[: request.top_k], start=1
@@ -274,7 +417,7 @@ class MatchmakingAgent(BaseAgent):
                     include_contact=True,
                 )
             )
-        return results
+        return results, rerank_diag
 
     def _agent_versions(self) -> dict[str, int]:
         return {
@@ -312,7 +455,7 @@ class MatchmakingAgent(BaseAgent):
         jobs = self._get_jobs_for_retrieval(request, cand_snap)
         session_id = str(uuid.uuid4())
 
-        results = self._rank_jobs_for_candidate(
+        results, rerank_diag = self._rank_jobs_for_candidate(
             cand_snap,
             jobs,
             request,
@@ -343,6 +486,7 @@ class MatchmakingAgent(BaseAgent):
             agent_versions=self._agent_versions(),
             routing_reason=routing_reason,
             fusion_mode=request.fusion_mode,
+            rerank=rerank_diag,
         )
 
     def match_job_to_candidates(self, request: MatchRequest) -> MatchResponse:
@@ -354,7 +498,7 @@ class MatchmakingAgent(BaseAgent):
         candidates = self._get_candidates_for_retrieval(request, job_snap)
         session_id = str(uuid.uuid4())
 
-        results = self._rank_candidates_for_job(job_snap, candidates, request)
+        results, rerank_diag = self._rank_candidates_for_job(job_snap, candidates, request)
 
         event = self.bus.make_event(
             EventType.MATCH_COMPLETED,
@@ -374,6 +518,7 @@ class MatchmakingAgent(BaseAgent):
             evaluated_count=len(candidates),
             agent_versions=self._agent_versions(),
             fusion_mode=request.fusion_mode,
+            rerank=rerank_diag,
         )
 
     def match_ensemble(self, request: EnsembleRequest) -> MatchResponse:
@@ -399,7 +544,7 @@ class MatchmakingAgent(BaseAgent):
                 skills_mode=search.skills_mode,
                 semantic_weight=search.semantic_weight,
             )
-            ranked = self._rank_jobs_for_candidate(cand_snap, jobs, sub_req)
+            ranked, _ = self._rank_jobs_for_candidate(cand_snap, jobs, sub_req)
             run_items = [
                 {
                     "target_id": r.target_id,

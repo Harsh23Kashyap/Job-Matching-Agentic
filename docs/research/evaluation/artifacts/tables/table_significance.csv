@@ -1,0 +1,11 @@
+baseline,compare,metric,baseline_mean,compare_mean,mean_diff,ci95_lo,ci95_hi,p_value,significant_at_05,wins,losses,ties
+Semantic cosine,Multimodal weighted blend,nDCG@K,0.878177,0.923731,0.045554,0.001838,0.119574,0.0142,True,6,1,23
+Semantic cosine,Multimodal weighted blend,MRR,0.931481,0.961111,0.02963,0.0,0.088889,0.343,False,1,0,29
+Semantic cosine,RRF ensemble,nDCG@K,0.878177,0.913141,0.034965,0.002752,0.082634,0.008,True,8,3,19
+Semantic cosine,RRF ensemble,MRR,0.931481,0.944444,0.012963,0.0,0.038889,0.364,False,1,0,29
+Semantic cosine,Semantic euclidean-derived,nDCG@K,0.878177,0.878177,0.0,0.0,0.0,1.0,False,0,0,30
+Semantic cosine,Semantic euclidean-derived,MRR,0.931481,0.931481,0.0,0.0,0.0,1.0,False,0,0,30
+Semantic cosine,Skills Jaccard,nDCG@K,0.878177,0.748122,-0.130055,-0.26497,0.006838,0.9696,False,5,16,9
+Semantic cosine,Skills Jaccard,MRR,0.931481,0.815753,-0.115728,-0.245805,0.008466,0.9644,False,1,7,22
+Semantic cosine,Soft skill embedding,nDCG@K,0.878177,0.868885,-0.009291,-0.112786,0.103557,0.5766,False,10,11,9
+Semantic cosine,Soft skill embedding,MRR,0.931481,0.910714,-0.020767,-0.120238,0.084788,0.665,False,2,4,24

@@ -1,78 +1,85 @@
 # Codebase Knowledge Graph
-> Last updated: 2026-05-27 (code reference v5) | Entries: 400+ | Modules: 12
+> Last updated: 2026-05-27 (v7 — research evaluation pipeline) | Entries: 450+ | Modules: 14
 
 ---
 
 ## Team handoff — read this first
 
-**Project:** Agentic Job Matching — semantic resume-to-job retrieval with graded evaluation, FastAPI + React, JAAMAS submission (May 2026).
+**Project:** Job-Matching-Agentic — greenfield **multi-agent rewrite** of the job matching system. Three agents (Candidate, Employer, Matchmaking), role portals, composite explainable matching, thesis-demo ready.
 
-**Authors:** Harsh Kashyap, Taranumpreet Kaur Wasu (Thapar Institute of Engineering and Technology). Research supervisor: Dr Parteek Bhatia (Washington State University).
+**Authors:** Harsh Kashyap, Taranumpreet Kaur Wasu (Thapar Institute). Supervisor: Dr Parteek Bhatia (WSU).
 
-**Repository:** https://github.com/Taranum01/Agentic-Job-Matching
+**Repository:** https://github.com/Harsh23Kashyap/Job-Matching-Agentic  
+**Branch:** `main` @ `bfa27e1` (pushed); **uncommitted:** full offline research stack + `docs/research/RESEARCH-PAPER.md`.
 
-### What we built to improve scores (score-improvement push)
+**Legacy note:** Entries under [Module: backend (legacy monolith)](#module-backend-legacy-monolith) describe the **pre-rewrite** `app.py` monolith. Current runtime uses `main.py` → `bootstrap.py` → `gateway/app.py`. See [Module: rewrite (current)](#module-rewrite-current) and [Module: research evaluation](#module-research-evaluation).
 
-Honest measured progression on **30 queries, 47 labeled pairs, 15 jobs, K=5** (`benchmarks.paper_progression`, exhaustive rerank unless noted):
+### Current architecture (rewrite)
 
-| # | Feature built | Module(s) | nDCG@5 | R@5 | P@5 |
-|---|---------------|-----------|--------|-----|-----|
-| 0 | TF-IDF lexical baseline | `matching/lexical_retrieval.py` | 0.905 | 0.983 | 0.307 |
-| 0 | BM25 lexical baseline | `matching/lexical_retrieval.py` | 0.901 | 0.983 | 0.307 |
-| 1 | Semantic cosine (bi-encoder) | `matching/embedding.py`, `semantic_similarity.py` | 0.911 | 0.900 | 0.280 |
-| 2 | Multimodal + **Jaccard** skills @ w=0.7 | `similarity_engine.py`, `skills_similarity.py` | 0.933 | 0.950 | 0.293 |
-| 3 | **Multimodal + soft skill embed** @ w=0.7 | `matching/soft_skills.py` | **0.969** | **1.000** | **0.313** |
-| 4 | RRF over 4 exhaustive lists | `research_sweep.rrf_fuse`, `app.rrf_aggregate` | 0.935 | 0.950 | 0.293 |
-| 5 | Rich text templates (tested) | `document_text.py`, env `BENCHMARK_RICH_TEMPLATES` | 0.922 | 0.950 | 0.300 |
-| 6 | Soft embed + **cross-encoder** (pool=10) | `cross_encoder_rerank.py` | 0.939 | 0.983 | 0.307 |
+| Agent | Owns | Does not own |
+|-------|------|--------------|
+| **Candidate Agent** | CV profiles, embeddings (`candidates_collection`), profile events | Jobs, match scores |
+| **Employer Agent** | Job postings, embeddings (`jobs_collection`), job events | Candidates, rankings |
+| **Matchmaking Agent** | Scoring, ranking, explanations, match sessions | Vector writes, raw profiles |
 
-**Supporting score features (not separate rows but critical):**
-- **Skill catalog** (`skill_catalog.py`) — alias map (react.js→react, k8s→kubernetes) before overlap
-- **Structured document text** (`document_text.py`) — fixed labeled-field templates for fair lexical/dense comparison
-- **tiktoken tokenizer** (`text_tokenizer.py`) with regex fallback for BM25/TF-IDF
+**Event bus:** in-process pub-sub (`AgentEventBus`). Events: `CandidateProfileUpdated`, `JobProfileUpdated`, `CorpusBootstrapped`, `MatchCompleted`.
 
-**Bootstrap (soft embed vs semantic):** mean nDCG diff +0.057, 95% CI [−0.013, +0.146] — **not significant** at p<0.05 (n=30).
+**Default product scoring:** `composite` — semantic 40%, skills 30%, experience 15%, compensation 10%, location 5%. UI bands: Strong ≥80, Good ≥65, Moderate ≥50, Low <50.
 
-**Separate ANN protocol** (`benchmarks.phase11`, pool=10, 40 configs): Jaccard w=0.7 nDCG@5 **0.913** vs semantic **0.884**; Qdrant search **0.38 ms** vs Chroma **0.81 ms**.
+### Thesis-demo features (shipped)
 
-### Production recommendation (from paper Appendix)
+- Composite match + `MatchDetailsDrawer` score breakdown (candidate + employer portals)
+- Resume upload with CID cleanup + contact extraction; profile upsert via `PUT /candidates/me`
+- Employer JD paste (`POST /jobs/parse-description`) + file upload
+- Resume coach (read-only), similar jobs/candidates, feedback actions in SQLite
+- `BackgroundOrnaments` SVG backgrounds; demo seed (`demo_seed.py`) on startup
+- **208 pytest + 20 node tests** passing (product); **38 benchmark tests** in `tests/benchmarks/`
+- **Offline research pipeline** — 9 stages → `backend/reports/research_run_<timestamp>/`
+- **Manuscript draft** — `docs/research/RESEARCH-PAPER.md` (numbers from reports only)
 
-1. **Prefer soft skill overlap @ w=0.7** for best nDCG/R@5 under exhaustive scoring
-2. **Keep lexical baselines** in every benchmark run (transparent dense gains)
-3. **ANN pool=10** matches exhaustive on 15-job corpus; scale pool with corpus size
-4. **Chroma vs Qdrant** — same ranking on cited rows; pick by latency/ops
-5. **Expose batch workflows** (daily recs, sync, ensemble) as first-class agentic endpoints
-
-### Key artifact paths
-
-| Artifact | Path |
-|----------|------|
-| Compiled JAAMAS paper (31 pp.) | `docs/submission/jaamas/manuscript/Agentic Job Matching.pdf` |
-| Cover letter PDF | `docs/submission/jaamas/portal/cover-letter.pdf` |
-| Information sheet PDF | `docs/submission/jaamas/portal/information-sheet.pdf` |
-| Technical report PDF | `docs/report/Agentic Job Matching.pdf` |
-| Overleaf zip | `docs/submission/jaamas/build/jaamas-overleaf-upload.zip` |
-| Metrics JSON | `backend/benchmark_outputs/paper_progression_summary.json` |
-| Supplementary copies | `docs/submission/jaamas/supplementary/paper_*.json` |
-
-### Reproduce everything
+### Run locally
 
 ```bash
-cd backend
-.venv311/bin/python -m benchmarks.paper_progression   # progression table + bootstrap
-.venv311/bin/python -m benchmarks.phase11             # 40-config ANN sweep
-.venv311/bin/python -m pytest tests/ -v               # 63 tests
+# Backend :8001
+cd backend && source .venv/bin/activate
+uvicorn main:create_app --factory --reload --port 8001
 
-# Server + UI
-.venv311/bin/uvicorn app:app --reload --port 8000
-cd ../frontend && npm run dev                         # http://localhost:5173
+# Frontend :5173
+cd frontend && npm run dev
 ```
 
-Portal PDF rebuild:
+**Demo accounts:** `demo.candidate@test.com`, `demo.employer@test.com`, `demo.admin@test.com` / `demo1234`
+
+### Key docs
+
+| Doc | Path |
+|-----|------|
+| Onboarding README | `README.md` (602 lines, full setup + API) |
+| Session handoff | `HANDOFF.md` |
+| Research paper draft | `docs/research/RESEARCH-PAPER.md` |
+| Evaluation archive | `docs/research/evaluation/` |
+| HLD / SDD | `docs/design/HLD-multi-agent-system.md`, `SDD-multi-agent-system.md` |
+| Demo script | `docs/demo/DEMO-SCRIPT.md` |
+| Session notes | `docs/session/SESSION-2026-05-27.md` |
+
+### Benchmark & research evaluation
+
+Corpus (demo): 30 CVs, 15 jobs, 47 graded pairs (scale 0–2). **Primary driver:** `python backend/scripts/run_research_pipeline.py` → timestamped run folder with validation, baselines, composite, ablation, significance, fairness, explainability, paper tables.
+
+| Result (K=5, demo corpus) | Source report |
+|---------------------------|---------------|
+| Production composite nDCG@5 **0.942** | `composite_eval_report.json` |
+| Best comparison baseline multimodal **0.924** | `comparison_summary.json` |
+| Full composite vs semantic-only p=**0.019** (nDCG) | `significance_ablation_comparisons.csv` |
+| Cross-encoder nDCG Δ **−0.108**, +141 ms/query | `cross_encoder_report.json` |
+| Fairness flagged **6/10** synthetic pairs | `fairness_audit_report.json` |
+
+Legacy drivers still present: `paper_progression`, `phase11`, `research_sweep`. Large-scale corpus at `data/research/` (100×50) generated but not yet pipeline-evaluated.
+
 ```bash
-bash docs/submission/jaamas/archive/dev-scripts/build_cover_letter.sh
-bash docs/submission/jaamas/archive/dev-scripts/build_info_sheet.sh
-bash docs/submission/jaamas/archive/dev-scripts/make_overleaf_zip.sh
+python backend/scripts/run_research_pipeline.py
+python backend/scripts/run_research_pipeline.py --skip-cross-encoder --run-id my_run
+bash scripts/run_research_suite.sh   # export → docs/research/evaluation/
 ```
 
 ---
@@ -1869,8 +1876,10 @@ benchmarks.phase11
 
 ## Table of Contents
 
-- [Module: backend](#module-backend) (35+ file/function entries)
-- [Module: frontend](#module-frontend) (4 entries + function reference)
+- [Module: rewrite (current)](#module-rewrite-current) (28 entries — **start here**)
+- [Module: research evaluation](#module-research-evaluation) (16 entries — **offline pipeline**)
+- [Module: backend (legacy monolith)](#module-backend-legacy-monolith) (35+ entries — `app.py` removed)
+- [Module: frontend (legacy)](#module-frontend) (4 entries — see rewrite for current portals)
 - [Module: data](#module-data) (3 entries)
 - [Module: submission-pdfs](#module-submission-pdfs) (3 entries)
 - [Module: docs/submission/jaamas](#module-docssubmissionjaamas) (manuscript source — see also **JAAMAS Manuscript** section above)
@@ -1881,23 +1890,431 @@ benchmarks.phase11
 
 | From | To | Relationship |
 |------|-----|-------------|
-| `frontend/App.jsx` | `backend/app.py` | 14 HTTP endpoints via axios |
-| `backend/app.py` | `matching/similarity_engine.py` | All match scoring |
-| `backend/app.py` | `stores/vector_store_factory.py` | Chroma/Qdrant at startup |
-| `backend/ingestion.py` | `matching/embedding.py` | Embed + upsert on load |
-| `benchmarks/paper_progression.py` | `data/eval_pairs.json` | Exhaustive progression metrics |
-| `benchmarks/phase11.py` | `stores/*` | ANN sweep + latency |
-| `matching/document_text.py` | `matching/lexical_retrieval.py` | Same text for lexical + dense |
-| `matching/soft_skills.py` | `matching/embedding.py` | Skill-string embeddings |
-| `docs/report/DOCUMENTATION.md` | `docs/latex/body.tex` | `build_from_md.py` |
-| Manuscript PDF | `manuscript/sections/*.tex` | Compiled from LaTeX source |
-| `README.md` | `docs/report/Agentic Job Matching.pdf` | Full technical detail |
+| `backend/main.py` | `bootstrap.create_system` | App factory entry |
+| `bootstrap.py` | `agents/*`, `stores/factory` | Wires 3 agents + Chroma/Qdrant + SQLite stores |
+| `gateway/app.py` | `gateway/routes/*` | FastAPI routers, session middleware, demo seed |
+| `gateway/routes/candidates.py` | `agents/candidate_agent` | Profile CRUD, resume upload, upsert |
+| `gateway/routes/matching.py` | `agents/matchmaking_agent` | Composite/semantic/ensemble match endpoints |
+| `agents/matchmaking_agent.py` | `core/matchmaking_scoring.py` | score_pair_advanced, routing, RRF |
+| `core/scoring.py` | `core/component_scores.py` | compute_composite five-signal blend |
+| `frontend/src/api/client.js` | `gateway/routes/*` | axios withCredentials; default strategy composite |
+| `frontend/src/pages/candidate/Matches.jsx` | `api/client.runMatch` | Profile gate + refresh on visibility |
+| `auth/store.py` | `gateway/routes/candidates.py` | candidate_ownership link for GET/PUT /me |
+| `stores/feedback_store.py` | `gateway/routes/feedback.py` | user_feedback UI state (no ranking change) |
+| `demo_seed.py` | `auth/store`, corpus | Links demo.candidate → cv_01 Rahul Sharma |
+| `benchmarks/paper_progression.py` | `data/eval_pairs.json` | Legacy Table 9 regression |
+| `backend/scripts/run_research_pipeline.py` | `benchmarks/research_pipeline.py` | Single-command 9-stage eval |
+| `benchmarks/research_pipeline.py` | comparison, ablation, significance, fairness, explainability, paper_tables | Orchestrates offline studies |
+| `benchmarks/composite_eval.py` | `core/scoring.compute_composite` | Production composite offline nDCG |
+| `docs/research/RESEARCH-PAPER.md` | `backend/reports/research_run_*/` | Manuscript numbers from reports only |
+| `README.md` | `docs/design/HLD*.md`, `HANDOFF.md` | Onboarding + architecture pointers |
+
+**Legacy (monolith — removed):** `frontend/App.jsx` → `backend/app.py` (no longer exists)
 
 ---
 
-## Module: backend
+## Module: rewrite (current)
 
-> **Detailed function reference below.** For algorithm walkthroughs see **Codebase Encyclopedia** above.
+> **Active codebase.** Multi-agent event-driven monolith. Entry: `uvicorn main:create_app --factory --port 8001`.
+
+### Layout
+
+```
+backend/
+├── main.py                 App factory
+├── bootstrap.py            SystemContainer: 3 agents + stores + event bus
+├── config.py               Settings (Pydantic): paths, secrets, vector store
+├── demo_seed.py            Idempotent demo accounts on startup
+├── agents/                 Candidate, Employer, Matchmaking agents
+├── bus/                    AgentEventBus + EventType enum
+├── core/                   Scoring, resume clean, embeddings, benchmarks ML
+├── gateway/                FastAPI app + route modules + middleware
+├── auth/                   Session auth, UserStore, ownership links
+├── hooks/                  LLM parser, rule explainer, JsonParser
+├── stores/                 Chroma, Qdrant, feedback, activity SQLite
+├── contracts/              Pydantic profiles, snapshots, matching DTOs
+├── scripts/                run_research_pipeline.py (CLI)
+└── benchmarks/             research_pipeline, comparison, ablation, significance,
+                            fairness_audit, explainability, paper_tables, legacy phase11
+
+frontend/src/
+├── api/client.js           All API calls; DEFAULT_CANDIDATE_MATCH uses composite
+├── pages/                  candidate/, employer/, admin/ portals
+├── components/             MatchDetailsDrawer, BackgroundOrnaments, shared forms
+└── utils/                  profileFields, feedbackState, resumeClean mirrors
+```
+
+---
+
+### backend/main.py
+**Language:** python | **Importance:** HIGH | **Indexed:** 2026-05-27  
+**Purpose:** Uvicorn factory entry — creates SystemContainer then builds FastAPI gateway.  
+**Dependencies:** imports from: `bootstrap`, `gateway.app` | used by: uvicorn CLI  
+**Core Logic:** `create_app()` returns `build_gateway(create_system())`. No routes here.  
+**Patterns:** factory
+
+---
+
+### backend/bootstrap.py
+**Language:** python | **Importance:** HIGH | **Indexed:** 2026-05-27  
+**Purpose:** Composition root — wires event bus, three agents, vector stores, SQLite feedback/activity, optional fusion/calibration models.  
+**Key Elements:** `SystemContainer`, `create_system`  
+**Dependencies:** imports from: `agents/*`, `stores/factory`, `stores/feedback_store`, `bus/event_bus` | used by: `main.py`, `gateway/app.py`, tests  
+**Core Logic:** Creates Candidate + Employer agents with Chroma collections; MatchmakingAgent subscribes to profile events; bootstraps corpus from `data/cvs.json` + `data/jobs.json`; publishes `CorpusBootstrapped`.  
+**Patterns:** procedural, dataclass container
+
+#### create_system(settings=None)
+**Purpose:** Build and return SystemContainer with all agents initialized.  
+**Returns:** SystemContainer with bus, settings, candidate, employer, matchmaker, feedback_store, activity_store.  
+**Calls:** `create_store`, agent constructors, `bootstrap_from_file` on both entity agents.
+
+---
+
+### backend/gateway/app.py
+**Language:** python | **Importance:** HIGH | **Indexed:** 2026-05-27  
+**Purpose:** FastAPI application assembly — mounts routers, session middleware, read-only guard, demo seed.  
+**Key Elements:** `build_gateway`  
+**Dependencies:** imports from: route modules, `auth.routes`, `demo_seed`, `ReadOnlyMiddleware` | used by: `main.py`  
+**Core Logic:** Stores SystemContainer on `app.state.container`; UserStore on `app.state.auth_store`; calls `seed_demo_accounts` when `SEED_DEMO=true`. Session cookie `jm_session`, 7-day max age.  
+**Patterns:** procedural
+
+---
+
+### backend/agents/matchmaking_agent.py
+**Language:** python | **Importance:** HIGH | **Indexed:** 2026-05-27  
+**Purpose:** Neutral broker — scores candidate–job pairs, ranks, explains; reads snapshots only.  
+**Key Elements:** `MatchmakingAgent`, `MatchSession`, `register_handlers`  
+**Dependencies:** imports from: candidate/employer agents, `core/matchmaking_scoring`, `core/rrf`, explainer | used by: `bootstrap`, `gateway/routes/matching`  
+**Core Logic:** Subscribes to profile update events to invalidate cache. `_score_pair` delegates to `score_pair_advanced` (composite, semantic, multimodal, learned fusion). Supports ensemble RRF, daily batch ANN, cross-encoder rerank hook.  
+**Patterns:** OOP, event-driven
+
+#### match_candidate_to_jobs(request) / match_job_to_candidates(request)
+**Purpose:** Exhaustive corpus scoring for UI match requests.  
+**Params:** MatchRequest with query_key, top_k, strategy (default composite in frontend), metric, skills_mode.  
+**Returns:** MatchResponse with ranked MatchResult list including ScoreBreakdown and why_ranked bullets.
+
+---
+
+### backend/core/scoring.py
+**Language:** python | **Importance:** HIGH | **Indexed:** 2026-05-27  
+**Purpose:** Core scoring functions — semantic, multimodal weighted, and **composite** (product default).  
+**Key Elements:** `COMPOSITE_WEIGHTS`, `compute_semantic`, `compute_multimodal_weighted`, `compute_composite`  
+**Dependencies:** imports from: `component_scores`, `similarity`, `skills` | used by: `matchmaking_scoring`, benchmarks  
+**Core Logic:** Composite blends five signals with fixed weights 40/30/15/10/5%; clamps final to [0,1].  
+**Patterns:** functional, pure
+
+#### compute_composite(candidate, job, metric, skills_mode)
+**Purpose:** Product-facing five-signal score.  
+**Returns:** ScoreBreakdown with all component scores + final_score, strategy_used="composite".
+
+---
+
+### backend/core/matchmaking_scoring.py
+**Language:** python | **Importance:** HIGH | **Indexed:** 2026-05-27  
+**Purpose:** Advanced scoring orchestration — strategy routing, constraints, calibration, feedback boost hook.  
+**Key Elements:** `score_pair_advanced`, `resolve_routing`  
+**Dependencies:** imports from: `scoring`, `constraints`, `calibration`, `fusion`, `strategy_router` | used by: `matchmaking_agent`  
+**Core Logic:** Dispatches strategy string to compute_semantic, compute_multimodal_weighted, compute_composite, or learned fusion path.
+
+---
+
+### backend/core/resume_clean.py
+**Language:** python | **Importance:** MEDIUM | **Indexed:** 2026-05-27  
+**Purpose:** Strip PDF artifacts `(cid:N)`, control chars, junk symbols; protect contact spans during cleanup.  
+**Key Elements:** `clean_resume_text`, `resume_preview_excerpt`  
+**Dependencies:** imports from: `contact_extract` regex patterns | used by: `candidates.py` upload route, frontend `resumeClean.js` mirror  
+**Core Logic:** Protects email/URL/phone spans, strips CID debris and trailing comma runs, restores protected tokens.
+
+---
+
+### backend/core/contact_extract.py
+**Language:** python | **Importance:** MEDIUM | **Indexed:** 2026-05-27  
+**Purpose:** Regex extraction of name, email, phone, LinkedIn, GitHub, LeetCode, portfolio, certs from resume text.  
+**Key Elements:** `extract_contact_from_text`, `merge_contact_fields`  
+**Used by:** resume upload route, LLM parse fallback merge
+
+---
+
+### backend/core/resume_suggestions.py
+**Language:** python | **Importance:** MEDIUM | **Indexed:** 2026-05-27  
+**Purpose:** Read-only resume coach — role-targeted improvement tips via LLM for a specific job.  
+**Used by:** `POST /candidates/me/resume-suggestions`
+
+---
+
+### backend/core/similar_entities.py
+**Language:** python | **Importance:** MEDIUM | **Indexed:** 2026-05-27  
+**Purpose:** Find top-3 similar jobs or candidates by embedding cosine similarity.  
+**Used by:** `gateway/routes/similar.py`, MatchDetailsDrawer via SimilarRecommendations
+
+---
+
+### backend/gateway/routes/candidates.py
+**Language:** python | **Importance:** HIGH | **Indexed:** 2026-05-27  
+**Purpose:** Candidate API — list, get mine, upsert, resume upload, saved jobs, applications, resume suggestions.  
+**Key Elements:** `_upsert_my_candidate`, `_sanitize_profile_payload`, `upload_resume`  
+**Dependencies:** imports from: auth deps, candidate agent, resume_clean, contact_extract, llm_parser | used by: frontend client  
+**Core Logic:** PUT /me always upserts — creates with generated id if no ownership link; strips empty id from payload. Upload: clean text → regex contacts → LLM parse with unavailable fallback.  
+**Patterns:** FastAPI router, role-guarded
+
+#### _upsert_my_candidate(raw, request, user)
+**Purpose:** Single code path for profile create/update.  
+**Calls:** `candidate_agent.register`, `auth_store.link_candidate` — idempotent link.  
+**Called by:** PUT /me, POST /candidates when logged-in candidate.
+
+---
+
+### backend/gateway/routes/employers.py
+**Language:** python | **Importance:** HIGH | **Indexed:** 2026-05-27  
+**Purpose:** Employer job API — list mine, upload JD file, **parse pasted JD text**, update jobs, applications feed.  
+**Key Elements:** `_parse_job_description_text`, `parse_description`, `upload_description`  
+**Core Logic:** Paste and file upload share same LLM parser path with manual fallback.
+
+---
+
+### backend/gateway/routes/matching.py
+**Language:** python | **Importance:** HIGH | **Indexed:** 2026-05-27  
+**Purpose:** Match endpoints — candidate-to-jobs, job-to-candidates, ensemble, daily-batch; legacy aliases.  
+**Used by:** admin console, portal runMatch, curl smoke tests
+
+---
+
+### backend/gateway/routes/feedback.py
+**Language:** python | **Importance:** MEDIUM | **Indexed:** 2026-05-27  
+**Purpose:** Portal feedback actions (save, apply, not_interested, reject, contact) + legacy pair feedback.  
+**Dependencies:** imports from: `FeedbackStore` | used by: frontend `feedbackState.js`
+
+---
+
+### backend/gateway/routes/similar.py
+**Language:** python | **Importance:** MEDIUM | **Indexed:** 2026-05-27  
+**Purpose:** GET similar jobs (candidate auth) and similar candidates (employer auth).
+
+---
+
+### backend/auth/store.py
+**Language:** python | **Importance:** HIGH | **Indexed:** 2026-05-27  
+**Purpose:** SQLite user store + candidate/job ownership links.  
+**Key Elements:** `UserStore`, `link_candidate`, `get_candidate_id`, `link_job_if_unowned`  
+**Core Logic:** `link_candidate` is idempotent — same id no-ops, different id updates. Ownership link kept on GET 404 so PUT recreates profile at stable id after restart.  
+**Patterns:** OOP, sqlite3
+
+---
+
+### backend/stores/feedback_store.py
+**Language:** python | **Importance:** MEDIUM | **Indexed:** 2026-05-27  
+**Purpose:** SQLite tables `user_feedback` (portal UI state) and `match_feedback` (legacy research).  
+**Core Logic:** Feedback actions do not alter match rankings — UI state only.
+
+---
+
+### backend/demo_seed.py
+**Language:** python | **Importance:** MEDIUM | **Indexed:** 2026-05-27  
+**Purpose:** Idempotent demo account seeding on startup when SEED_DEMO=true.  
+**Key Elements:** `seed_demo_accounts`, DEMO_CANDIDATE_ID=`cv_01` (Rahul Sharma), DEMO_EMPLOYER_JOB_IDS  
+**Used by:** `gateway/app.py` at startup
+
+---
+
+### frontend/src/api/client.js
+**Language:** javascript | **Importance:** HIGH | **Indexed:** 2026-05-27  
+**Purpose:** Axios API client — all portal HTTP calls with session cookies.  
+**Key Elements:** `DEFAULT_CANDIDATE_MATCH`, `upsertCandidateProfile`, `fetchMyProfileOrNull`, `runMatch`, `parseJobDescriptionText`  
+**Core Logic:** Default match strategy is `composite`. `saveCandidateProfile` delegates to PUT upsert. `fetchMyProfileOrNull` swallows 404 for profile gate.  
+**Patterns:** async, module exports
+
+---
+
+### frontend/src/components/MatchDetailsDrawer.jsx
+**Language:** javascript | **Importance:** HIGH | **Indexed:** 2026-05-27  
+**Purpose:** Product match detail panel — score bars, skill gaps, resume coach, similar recs.  
+**Key Elements:** `SCORE_COMPONENTS`, `ScoreBar`, `ResumeImprovementPanel`, `SimilarRecommendations`  
+**Used by:** CandidateJobResults, EmployerCandidateResults
+
+---
+
+### frontend/src/pages/candidate/Matches.jsx
+**Language:** javascript | **Importance:** HIGH | **Indexed:** 2026-05-27  
+**Purpose:** Candidate jobs page — profile gate, find/refresh matches, listens for profile update + tab visibility.  
+**Key Elements:** `loadProfile`, `handleFindJobs`, uses `isCandidateProfileReady`  
+**Dependencies:** imports from: `api/client`, `profileFields`, `profileEvents`
+
+---
+
+### frontend/src/utils/profileFields.js
+**Language:** javascript | **Importance:** MEDIUM | **Indexed:** 2026-05-27  
+**Purpose:** Profile form ↔ API mapping; omits empty id in payload; readiness check for Jobs page unlock.  
+**Key Elements:** `profileToPayload`, `isCandidateProfileReady`, `profileFromApi`
+
+---
+
+### frontend/src/components/BackgroundOrnaments.jsx
+**Language:** javascript | **Importance:** LOW | **Indexed:** 2026-05-27  
+**Purpose:** Subtle animated SVG background variants for candidate, employer, admin portals.  
+**Used by:** PortalBackground, ResultsPanel, EmptyState components
+
+---
+
+### README.md
+**Language:** markdown | **Importance:** HIGH | **Indexed:** 2026-05-27  
+**Purpose:** Primary onboarding doc — architecture, setup, API reference, demo accounts, troubleshooting (602 lines).  
+**Dependencies:** links to HLD, SDD, demo script, session notes
+
+---
+
+### HANDOFF.md
+**Language:** markdown | **Importance:** HIGH | **Indexed:** 2026-05-27  
+**Purpose:** Agent session handoff — current state, decisions, open questions, test counts, demo commands.  
+**Core Logic:** v3 format; tracks main @ bfa27e1, 208+20 tests, composite scoring shipped.
+
+---
+
+### tests/integration/test_feature_reverification.py
+**Language:** python | **Importance:** MEDIUM | **Indexed:** 2026-05-27  
+**Purpose:** Feature checklist tests — composite scoring, JD parse, feedback, CID cleanup, profile upsert endpoints.
+
+---
+
+## Module: research evaluation
+
+> **Offline only.** Does not change production API defaults. Outputs under `backend/reports/research_run_<timestamp>/`. Manuscript: `docs/research/RESEARCH-PAPER.md`.
+
+### backend/scripts/run_research_pipeline.py
+**Language:** python | **Importance:** HIGH | **Indexed:** 2026-05-27  
+**Purpose:** CLI entry for full 9-stage research pipeline (repo-root invocable).  
+**Run:** `python backend/scripts/run_research_pipeline.py`  
+**Flags:** `--skip-cross-encoder`, `--enable-cross-encoder`, `--data-dir`, `--eval-path`, `--run-id`  
+**Dependencies:** imports from: `benchmarks.research_pipeline` | used by: thesis/paper reproducibility  
+**Core Logic:** Builds PipelineConfig, calls `run_research_pipeline`, prints step summary, exits 1 on failure.
+
+---
+
+### backend/benchmarks/research_pipeline.py
+**Language:** python | **Importance:** HIGH | **Indexed:** 2026-05-27  
+**Purpose:** Orchestrates all offline evaluation stages into one timestamped run directory.  
+**Key Elements:** `run_research_pipeline`, `PipelineConfig`, `make_run_dir`, `StepResult`  
+**Dependencies:** imports from: comparison, composite_eval, ablation, significance, fairness_audit, explainability_eval, paper_tables, dataset_validation, cross_encoder_report | used by: `run_research_pipeline.py` CLI  
+**Core Logic:** Sequential steps: (1) validate corpus fail-fast, (2) baseline comparison, (3) production composite eval, (4) ablation, (5) optional CE, (6) bootstrap significance on comparison+ablation per-query, (7) fairness audit, (8) explainability, (9) paper tables. Writes `pipeline_manifest.json`.
+
+#### run_research_pipeline(config)
+**Purpose:** Execute all stages; return PipelineResult with per-step status and paths.  
+**Returns:** PipelineResult; `valid=False` if validation fails or any step fails.
+
+---
+
+### backend/benchmarks/dataset_validation.py
+**Language:** python | **Importance:** MEDIUM | **Indexed:** 2026-05-27  
+**Purpose:** Preflight checks on cvs.json, jobs.json, eval_pairs.json before expensive embedding runs.  
+**Key Elements:** `validate_eval_corpus`, `write_validation_report`, `ValidationReport`  
+**Core Logic:** Validates IDs, relevance scale, requires ≥1 candidate/job/labeled pair; warns on missing fairness profiles.
+
+---
+
+### backend/benchmarks/comparison.py
+**Language:** python | **Importance:** HIGH | **Indexed:** 2026-05-27  
+**Purpose:** Lexical vs embedding baseline comparison with per-query latency.  
+**Run:** `python -m benchmarks.run_comparison`  
+**Outputs:** `comparison_summary.json`, `comparison_table.csv`  
+**Strategies:** BM25, TF-IDF, exact overlap, semantic, skills, soft embed, multimodal, RRF.
+
+---
+
+### backend/benchmarks/composite_eval.py
+**Language:** python | **Importance:** HIGH | **Indexed:** 2026-05-27  
+**Purpose:** Evaluate production `compute_composite` alone on eval_pairs (separate from ablation variants).  
+**Outputs:** `composite_eval_report.json`, `composite_summary.csv`, `composite_per_query.csv`  
+**Dependencies:** imports from: `core.scoring.compute_composite`, eval_data, rank_utils | used by: research_pipeline step 3
+
+---
+
+### backend/benchmarks/ablation.py
+**Language:** python | **Importance:** HIGH | **Indexed:** 2026-05-27  
+**Purpose:** Nine-variant component ablation — singles, partial composites, full composite, RRF over singles.  
+**Run:** `python -m benchmarks.run_ablation`  
+**Outputs:** `ablation_summary.json`, `ablation_summary.md`, `ablation_per_query.csv`  
+**Best on demo corpus:** Full composite nDCG@5 0.942.
+
+---
+
+### backend/benchmarks/ablation_scoring.py
+**Language:** python | **Importance:** MEDIUM | **Indexed:** 2026-05-27  
+**Purpose:** Offline single/partial composite scorers for ablation; `full_composite` delegates to `compute_composite`.  
+**Used by:** ablation.py, not production match path directly.
+
+---
+
+### backend/benchmarks/significance.py
+**Language:** python | **Importance:** HIGH | **Indexed:** 2026-05-27  
+**Purpose:** Paired bootstrap significance on nDCG@K and MRR (5000 resamples, seed 42).  
+**Key Elements:** `run_significance_analysis`, `bootstrap_mean_ci`, `write_significance_report`  
+**p-value:** one-sided fraction of bootstrap mean-diffs ≤ 0.
+
+---
+
+### backend/benchmarks/fairness_audit.py
+**Language:** python | **Importance:** HIGH | **Indexed:** 2026-05-27  
+**Purpose:** Synthetic counterfactual fairness audit — rank stability, score delta, explanation drift.  
+**Input:** `data/fairness_audit_profiles.json` (10 pairs). **Strategy:** composite.  
+**Outputs:** `fairness_audit_report.json`, `fairness_audit_pairs.csv`, flagged cases CSV.
+
+---
+
+### backend/benchmarks/explainability_eval.py
+**Language:** python | **Importance:** HIGH | **Indexed:** 2026-05-27  
+**Purpose:** Automated explanation quality on top-5 composite matches (rules vs template explainers).  
+**Checks:** skill mention, hallucination, component alignment, consistency Jaccard on synthetic pairs.  
+**Outputs:** `explainability_report.json`, flagged/instances CSV.
+
+---
+
+### backend/benchmarks/research_export.py
+**Language:** python | **Importance:** MEDIUM | **Indexed:** 2026-05-27  
+**Purpose:** Export benchmark artifacts to `docs/research/evaluation/` with study write-ups and FINDINGS.md.  
+**Run:** `python -m benchmarks.run_research_suite` or `bash scripts/run_research_suite.sh`
+
+---
+
+### backend/benchmarks/paper_tables/generators.py
+**Language:** python | **Importance:** MEDIUM | **Indexed:** 2026-05-27  
+**Purpose:** Generate copy-paste paper tables (Markdown, CSV, LaTeX booktabs) from report JSON/CSV.  
+**Key Elements:** `generate_all_paper_tables`, six table generators (method, ablation, latency, fairness, explainability, qualitative)  
+**Labels:** `tab:method-comparison`, `tab:ablation`, etc.
+
+---
+
+### backend/benchmarks/synthetic_dataset/generator.py
+**Language:** python | **Importance:** MEDIUM | **Indexed:** 2026-05-27  
+**Purpose:** Generate 100×50 research corpus with graded pairs 0–3 under `data/research/`.  
+**Run:** `python -m benchmarks.run_generate_research_dataset`  
+**Status:** Generated; full pipeline eval **TODO**.
+
+---
+
+### backend/benchmarks/cross_encoder_report.py
+**Language:** python | **Importance:** MEDIUM | **Indexed:** 2026-05-27  
+**Purpose:** Bi-encoder vs two-stage cross-encoder quality/latency report on composite strategy.  
+**Finding (demo):** nDCG Δ −0.108, +141 ms CE overhead; disabled in production by default.
+
+---
+
+### backend/benchmarks/framework.py
+**Language:** python | **Importance:** MEDIUM | **Indexed:** 2026-05-27  
+**Purpose:** Embedding-only strategy suite runner (`run_eval`); builds strategies from strategies.py.  
+**Used by:** legacy significance source=benchmark; superseded by comparison for paper pipeline.
+
+---
+
+### docs/research/RESEARCH-PAPER.md
+**Language:** markdown | **Importance:** HIGH | **Indexed:** 2026-05-27  
+**Purpose:** Manuscript draft — methodology, architecture, algorithms, evaluation, results, fairness/explainability limits, future work.  
+**Rule:** All numbers from `backend/reports/` only; missing studies marked TODO.  
+**Primary source run:** `research_run_smoke_test`; CE from root `cross_encoder_report.json`.
+
+---
+
+## Module: backend (legacy monolith)
+
+> **[LEGACY]** Pre-rewrite monolith. `backend/app.py` **removed** — kept for benchmark/scoring algorithm reference and paper artifact cross-links.
 
 ### Layout
 
@@ -2266,6 +2683,8 @@ backend/
 
 ## Module: frontend
 
+> **[LEGACY partial]** Old App.jsx debug console entries below. Current product portals live under `frontend/src/pages/{candidate,employer,admin}/` — see [Module: rewrite (current)](#module-rewrite-current).
+
 ### frontend/src/main.jsx
 **Language:** javascript | **Importance:** LOW | **Indexed:** 2026-05-27  
 **Purpose:** React 19 entry — mounts `<App />` with StrictMode.
@@ -2466,7 +2885,10 @@ Editor-facing; **must stay metric-consistent** with Table 9/10 and abstract when
 ## Module: root
 
 ### README.md
-**Purpose:** GitHub landing — dual metric tables, reproduce commands, link to technical report PDF, JAAMAS package pointer.
+**Language:** markdown | **Importance:** HIGH | **Indexed:** 2026-05-27  
+**Purpose:** GitHub landing — full onboarding for multi-agent rewrite: architecture diagram, three-agent model, composite scoring, setup, API reference, demo accounts, tests (208+20), troubleshooting.  
+**Dependencies:** links to HLD, SDD, V1-V2 scope, demo script, session notes  
+**Note:** Supersedes legacy dual-metric-table README; no longer points to monolith `app.py` on port 8000.
 
 ### .gitignore
 **Ignores:** `HANDOFF.md`, `.venv311/`, `daily_recommendations_*.json`, local `benchmark_outputs/*` (except phase11 CSVs), `main.pdf`, portal/build aux, latex zips.
@@ -2477,34 +2899,52 @@ Editor-facing; **must stay metric-consistent** with Table 9/10 and abstract when
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│ SCORE IMPROVEMENT LADDER (paper_progression)                    │
-│ TF-IDF/BM25 → semantic → Jaccard@0.7 → soft embed@0.7 (BEST)   │
-│ → RRF(4 lists) → cross-encoder(pool=10)                         │
+│ PRODUCT MATCH (rewrite — current)                               │
+│ Portal → api/client.runMatch(strategy: composite)              │
+│ → gateway/routes/matching → MatchmakingAgent                  │
+│ → score_pair_advanced → compute_composite (40/30/15/10/5)     │
+│ → MatchDetailsDrawer (breakdown + gaps + coach + similar)     │
 └─────────────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────────────┐
-│ PRODUCTION MATCH (app.py)                                       │
-│ Client → ANN pool (optional) → similarity_engine → ranked JSON  │
-│ Ensemble path: multiple lists → rrf_aggregate (k=60)            │
+│ CANDIDATE ONBOARDING                                            │
+│ upload-resume → resume_clean + contact_extract → LlmParser      │
+│ → review form → PUT /candidates/me (upsert) → link ownership    │
+│ → Matches page: fetchMyProfileOrNull → runMatch                 │
 └─────────────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────────────┐
-│ DAILY AGENT                                                     │
-│ POST /agent/run-daily-recommendations                           │
-│ → optional sync → per-resume ANN(120) → score → top-K + why     │
-│ → data/daily_recommendations_YYYY-MM-DD.json                    │
+│ EMPLOYER JD INGEST                                              │
+│ paste text → POST /jobs/parse-description (shared LLM path)     │
+│ OR upload file → POST /jobs/upload-description                  │
+│ → review JobPostingForm → employer agent register → vector upsert│
 └─────────────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────────────┐
-│ DOCS PIPELINE                                                   │
-│ DOCUMENTATION.md → build_from_md.py → body.tex → main.pdf         │
-│ manuscript/sections → Overleaf zip → Agentic Job Matching.pdf     │
-│ portal/*.tex → build_portal_tex.sh → *.pdf                      │
+│ STARTUP                                                         │
+│ main.create_app → bootstrap.create_system                       │
+│ → load data/cvs.json + jobs.json → CorpusBootstrapped event     │
+│ → seed_demo_accounts (demo.candidate → cv_01 Rahul Sharma)      │
+└─────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────┐
+│ RESEARCH PIPELINE (offline)                                     │
+│ run_research_pipeline.py → validate → comparison → composite  │
+│ → ablation → [CE] → significance → fairness → explainability  │
+│ → paper_tables → backend/reports/research_run_<ts>/             │
+│ Manuscript: docs/research/RESEARCH-PAPER.md                     │
+└─────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────┐
+│ LEGACY BENCHMARK (preserved)                                    │
+│ paper_progression / phase11 → eval_pairs.json → Table 9/10    │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
 ## Staleness
 
-**Last full code refresh:** 2026-05-27 v5 — expanded Module: backend/frontend with function-level entries for all HIGH-importance files; fixed localStorage key names; corrected app.py LLM claim.  
-**Known drift:** Manuscript §5.2 frontend bullets (skills mode, LLM rerank) ahead of `App.jsx`. API lacks `skills_mode` on `ResumeRequest`. RRF in `paper_progression.py` differs from §4 text.  
-**Migration note:** Architecture rewrite must update §3/§5, Figs 1–7, and re-validate Tables 9–10 or cascade doc updates.
+**Last refresh:** 2026-05-27 v7 — added Module: research evaluation (16 entries); updated handoff, benchmark results table, key flows, relationships.  
+**Legacy drift:** Module: backend (legacy monolith) still documents removed `app.py` — use for algorithm/benchmark reference only.  
+**Uncommitted:** entire research stack + RESEARCH-PAPER.md not yet committed since `bfa27e1`.  
+**Known open items (from HANDOFF):** 100×50 pipeline eval TODO; CE in unified run TODO; commit research stack; AdminConsole ResultsPanel props; demo.admin 401 in smoke.  
+**Refresh command:** `/knowledge refresh backend/benchmarks/` or `/knowledge learn backend/scripts/`

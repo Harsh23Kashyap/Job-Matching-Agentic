@@ -24,6 +24,38 @@ def get_cross_encoder():
     return _cross_encoder
 
 
+def rerank_candidates(
+    job: dict,
+    candidates: list[dict],
+    *,
+    rich: bool = False,
+    blend_alpha: float = 0.4,
+    prior_scores: dict[str, float] | None = None,
+) -> list[tuple[str, float]]:
+    """Cross-encoder rerank for job → candidates direction."""
+    if not candidates:
+        return []
+    pairs = [
+        (resume_document_text(candidate, rich=rich), job_document_text(job, rich=rich))
+        for candidate in candidates
+    ]
+    ce = get_cross_encoder()
+    raw = ce.predict(pairs)
+    lo, hi = float(min(raw)), float(max(raw))
+    span = hi - lo if hi > lo else 1.0
+    ranked = []
+    for candidate, score in zip(candidates, raw):
+        ce_norm = (float(score) - lo) / span
+        cid = candidate["id"]
+        if prior_scores and cid in prior_scores:
+            blended = blend_alpha * prior_scores[cid] + (1.0 - blend_alpha) * ce_norm
+        else:
+            blended = ce_norm
+        ranked.append((cid, blended))
+    ranked.sort(key=lambda x: x[1], reverse=True)
+    return ranked
+
+
 def rerank_jobs(
     resume: dict,
     jobs: list[dict],

@@ -1,0 +1,23 @@
+\begin{table}[htbp]
+\centering
+\caption{Quality–latency trade-off across retrieval methods.}
+\label{tab:latency}
+\begin{tabular}{lrrl}
+\toprule
+Method & nDCG@5 & Latency (ms/query) & Notes \\
+\midrule
+Exact overlap & 0.748 & 0.03 & Lexical baseline \\
+Skills Jaccard & 0.748 & 0.03 & Embedding \\
+TF-IDF & 0.898 & 0.07 & Lexical baseline \\
+BM25 & 0.894 & 0.11 & Lexical baseline \\
+Semantic (L2) & 0.878 & 0.21 & Embedding \\
+Semantic (cosine) & 0.878 & 0.23 & Embedding \\
+Multimodal & 0.924 & 0.26 & Embedding \\
+RRF & 0.913 & 0.95 & Embedding \\
+Soft skill embed & 0.869 & 15.53 & Embedding \\
+Composite + cross-encoder & 0.834 & 141.7 & Pool=20; ΔnDCG=-0.108 \\
+Composite (bi-encoder only) & 0.942 & 0.41 & Production composite baseline \\
+\bottomrule
+\end{tabular}
+\footnotesize{Latency is mean wall-clock ms per query on exhaustive evaluation (single machine).}
+\end{table}
