@@ -5,12 +5,18 @@ import PortalBackground from "../components/PortalBackground.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useTheme } from "../hooks/useTheme.js";
 
-export default function PortalShell({ subtitle, navItems = [] }) {
+const PORTAL_LABELS = {
+  candidate: "Candidate workspace",
+  employer: "Employer workspace",
+  admin: "Admin console",
+};
+
+export default function PortalShell({ portal = "candidate", subtitle, navItems = [] }) {
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
 
   return (
-    <div className="app">
+    <div className="app" data-portal={portal}>
       <header className="top-nav">
         <div className="top-nav-inner">
           <NavLink to="/" className="brand-mark">
@@ -35,6 +41,7 @@ export default function PortalShell({ subtitle, navItems = [] }) {
           </nav>
 
           <div className="top-nav-actions">
+            <span className="portal-pill">{PORTAL_LABELS[portal] || subtitle}</span>
             <button type="button" className="icon-btn" onClick={toggleTheme} aria-label="Toggle theme">
               {theme === "light" ? <IconMoon /> : <IconSun />}
             </button>
@@ -49,6 +56,21 @@ export default function PortalShell({ subtitle, navItems = [] }) {
           <Outlet />
         </div>
       </main>
+
+      {navItems.length > 0 && (
+        <nav className="mobile-tab-bar" aria-label="Mobile navigation">
+          {navItems.map((item) => (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              className={({ isActive }) => `mobile-tab${isActive ? " mobile-tab--active" : ""}`}
+            >
+              {item.icon}
+              <span>{item.label}</span>
+            </NavLink>
+          ))}
+        </nav>
+      )}
     </div>
   );
 }

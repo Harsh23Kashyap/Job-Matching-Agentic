@@ -24,6 +24,7 @@ class JsonParser:
             id=raw["id"],
             title=raw["title"],
             required_skills=list(raw.get("required_skills", [])),
+            preferred_skills=list(raw.get("preferred_skills", [])),
             required_experience=int(raw.get("required_experience", 0)),
             budget=raw.get("budget"),
             remote_policy=bool(raw.get("remote_policy", False)),

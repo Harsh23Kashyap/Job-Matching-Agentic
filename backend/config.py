@@ -22,6 +22,8 @@ class Settings(BaseSettings):
     data_dir: Path = repo_root / "data"
     embedding_model: str = "all-MiniLM-L6-v2"
     chroma_persist_dir: Path = Path(__file__).resolve().parent / "chroma_db"
+    vector_store: str = "chroma"
+    qdrant_persist_dir: Path = Path(__file__).resolve().parent / "qdrant_db"
     sqlite_path: Path = Path(__file__).resolve().parent / "app.db"
     session_secret: str = "dev-change-me"
     parser_backend: str = "json"
@@ -41,3 +43,15 @@ class Settings(BaseSettings):
     @property
     def jobs_path(self) -> Path:
         return self.data_dir / "jobs.json"
+
+    @property
+    def models_dir(self) -> Path:
+        return self.data_dir / "models"
+
+    @property
+    def fusion_model_path(self) -> Path:
+        return self.models_dir / "fusion.json"
+
+    @property
+    def calibration_model_path(self) -> Path:
+        return self.models_dir / "calibration.json"

@@ -23,10 +23,14 @@ from contracts.matching import (
     ScoreBreakdown,
 )
 from contracts.snapshots import CandidateSnapshot, JobSnapshot
+from core.calibration import PlattCalibrator
+from core.cross_encoder_rerank import rerank_jobs
+from core.fusion import LearnedFusionModel
+from core.matchmaking_scoring import resolve_routing, score_pair_advanced
 from core.rrf import rrf_fuse
-from core.scoring import compute_multimodal_weighted, compute_semantic
 from core.skills import skill_overlap_details
 from hooks.explainer import RuleExplainer
+from stores.feedback_store import FeedbackStore
 
 
 @dataclass
@@ -53,6 +57,10 @@ class MatchmakingAgent(BaseAgent):
         employer_agent: EmployerAgent,
         explainer: RuleExplainer,
         settings: Settings,
+        *,
+        fusion_model: LearnedFusionModel | None = None,
+        calibrator: PlattCalibrator | None = None,
+        feedback_store: FeedbackStore | None = None,
     ) -> None:
         super().__init__()
         self.bus = bus
@@ -60,6 +68,9 @@ class MatchmakingAgent(BaseAgent):
         self.employer_agent = employer_agent
         self.explainer = explainer
         self.settings = settings
+        self.fusion_model = fusion_model
+        self.calibrator = calibrator
+        self.feedback_store = feedback_store
         self.state = MatchmakerAgentState()
 
     def register_handlers(self, bus: AgentEventBus) -> None:
@@ -74,21 +85,33 @@ class MatchmakingAgent(BaseAgent):
         self,
         candidate: CandidateSnapshot,
         job: JobSnapshot,
-        strategy: str,
-        metric: str,
-        skills_mode: str,
-        semantic_weight: float,
-    ) -> ScoreBreakdown:
-        if strategy == "semantic":
-            return compute_semantic(candidate, job, metric)
-        return compute_multimodal_weighted(
+        request: MatchRequest,
+        routing_reason: str | None = None,
+    ) -> tuple[ScoreBreakdown, list[str]]:
+        breakdown, constraint_notes, _ = score_pair_advanced(
             candidate,
             job,
-            metric=metric,
-            semantic_weight=semantic_weight,
-            skills_mode=skills_mode,
+            request,
             model_name=self.settings.embedding_model,
+            fusion_model=self.fusion_model,
+            calibrator=self.calibrator,
+            feedback_store=self.feedback_store,
+            routing_reason=routing_reason,
         )
+        return breakdown, constraint_notes
+
+    def _explain(
+        self,
+        candidate: CandidateSnapshot,
+        job: JobSnapshot,
+        breakdown: ScoreBreakdown,
+        explain_mode: str,
+    ) -> list[str]:
+        if explain_mode == "llm":
+            from hooks.grounded_explainer import GroundedLlmExplainer
+
+            return GroundedLlmExplainer().explain(candidate, job, breakdown)
+        return self.explainer.explain(candidate, job, breakdown)
 
     def _build_match_result(
         self,
@@ -99,9 +122,22 @@ class MatchmakingAgent(BaseAgent):
         breakdown: ScoreBreakdown,
         candidate: CandidateSnapshot,
         job: JobSnapshot,
+        explain_mode: str = "rules",
+        constraint_notes: list[str] | None = None,
         sources: list[EnsembleSource] | None = None,
+        include_contact: bool = False,
     ) -> MatchResult:
         matched, missing = skill_overlap_details(candidate.skills, job.required_skills)
+        contact: dict[str, str | None] = {}
+        if include_contact:
+            profile = self.candidate_agent.get_by_id(candidate.id)
+            if profile is not None:
+                contact = {
+                    "contact_email": profile.email or None,
+                    "contact_phone": profile.phone or None,
+                    "contact_linkedin": profile.linkedin or None,
+                    "contact_portfolio": profile.portfolio or None,
+                }
         return MatchResult(
             target_id=target_id,
             target_label=target_label,
@@ -111,30 +147,68 @@ class MatchmakingAgent(BaseAgent):
             skills_score=breakdown.skills_score,
             matched_skills=matched,
             missing_skills=missing,
-            why_ranked=self.explainer.explain(candidate, job, breakdown),
+            why_ranked=self._explain(candidate, job, breakdown, explain_mode),
             sources=sources,
+            calibrated_similarity=breakdown.calibrated_score,
+            constraint_notes=constraint_notes or [],
+            routing_reason=breakdown.routing_reason,
+            **contact,
         )
+
+    def _apply_ce_rerank_jobs(
+        self,
+        candidate: CandidateSnapshot,
+        scored: list[tuple[JobSnapshot, ScoreBreakdown, list[str]]],
+        rerank_pool: int,
+    ) -> list[tuple[JobSnapshot, ScoreBreakdown, list[str]]]:
+        profile = self.candidate_agent.get_by_id(candidate.id)
+        if profile is None or not scored:
+            return scored
+        pool = min(rerank_pool, len(scored))
+        shortlist = scored[:pool]
+        jobs_raw = []
+        for job, _, _ in shortlist:
+            job_profile = self.employer_agent.get_by_id(job.id)
+            if job_profile is not None:
+                jobs_raw.append(job_profile.model_dump())
+        if not jobs_raw:
+            return scored
+        priors = {job.id: breakdown.final_score for job, breakdown, _ in shortlist}
+        reranked = rerank_jobs(profile.model_dump(), jobs_raw, prior_scores=priors)
+        reordered: list[tuple[JobSnapshot, ScoreBreakdown, list[str]]] = []
+        seen: set[str] = set()
+        for jid, ce_score in reranked:
+            for job, breakdown, notes in shortlist:
+                if job.id == jid:
+                    reordered.append(
+                        (job, breakdown.model_copy(update={"final_score": ce_score}), notes)
+                    )
+                    seen.add(jid)
+                    break
+        for job, breakdown, notes in scored:
+            if job.id not in seen:
+                reordered.append((job, breakdown, notes))
+        return reordered
 
     def _rank_jobs_for_candidate(
         self,
         candidate: CandidateSnapshot,
         jobs: list[JobSnapshot],
-        strategy: str,
-        metric: str,
-        skills_mode: str,
-        semantic_weight: float,
-        top_k: int,
+        request: MatchRequest,
+        routing_reason: str | None = None,
     ) -> list[MatchResult]:
-        scored: list[tuple[JobSnapshot, ScoreBreakdown]] = []
+        scored: list[tuple[JobSnapshot, ScoreBreakdown, list[str]]] = []
         for job in jobs:
-            breakdown = self._score_pair(
-                candidate, job, strategy, metric, skills_mode, semantic_weight
+            breakdown, constraint_notes = self._score_pair(
+                candidate, job, request, routing_reason=routing_reason
             )
-            scored.append((job, breakdown))
+            scored.append((job, breakdown, constraint_notes))
 
         scored.sort(key=lambda x: x[1].final_score, reverse=True)
+        if request.use_cross_encoder:
+            scored = self._apply_ce_rerank_jobs(candidate, scored, request.rerank_pool)
         results: list[MatchResult] = []
-        for rank, (job, breakdown) in enumerate(scored[:top_k], start=1):
+        for rank, (job, breakdown, constraint_notes) in enumerate(scored[: request.top_k], start=1):
             results.append(
                 self._build_match_result(
                     target_id=job.id,
@@ -143,6 +217,8 @@ class MatchmakingAgent(BaseAgent):
                     breakdown=breakdown,
                     candidate=candidate,
                     job=job,
+                    explain_mode=request.explain_mode,
+                    constraint_notes=constraint_notes,
                 )
             )
         return results
@@ -151,22 +227,21 @@ class MatchmakingAgent(BaseAgent):
         self,
         job: JobSnapshot,
         candidates: list[CandidateSnapshot],
-        strategy: str,
-        metric: str,
-        skills_mode: str,
-        semantic_weight: float,
-        top_k: int,
+        request: MatchRequest,
     ) -> list[MatchResult]:
-        scored: list[tuple[CandidateSnapshot, ScoreBreakdown]] = []
+        scored: list[tuple[CandidateSnapshot, ScoreBreakdown, list[str]]] = []
         for candidate in candidates:
-            breakdown = self._score_pair(
-                candidate, job, strategy, metric, skills_mode, semantic_weight
+            req, reason = resolve_routing(candidate, request)
+            breakdown, constraint_notes = self._score_pair(
+                candidate, job, req, routing_reason=reason
             )
-            scored.append((candidate, breakdown))
+            scored.append((candidate, breakdown, constraint_notes))
 
         scored.sort(key=lambda x: x[1].final_score, reverse=True)
         results: list[MatchResult] = []
-        for rank, (candidate, breakdown) in enumerate(scored[:top_k], start=1):
+        for rank, (candidate, breakdown, constraint_notes) in enumerate(
+            scored[: request.top_k], start=1
+        ):
             results.append(
                 self._build_match_result(
                     target_id=candidate.id,
@@ -175,6 +250,9 @@ class MatchmakingAgent(BaseAgent):
                     breakdown=breakdown,
                     candidate=candidate,
                     job=job,
+                    explain_mode=request.explain_mode,
+                    constraint_notes=constraint_notes,
+                    include_contact=True,
                 )
             )
         return results
@@ -211,17 +289,15 @@ class MatchmakingAgent(BaseAgent):
             raise LookupError(f"Candidate not found: {request.query_key}")
 
         cand_snap = self.candidate_agent.snapshot(candidate.id)
+        request, routing_reason = resolve_routing(cand_snap, request)
         jobs = self._get_jobs_for_retrieval(request, cand_snap)
         session_id = str(uuid.uuid4())
 
         results = self._rank_jobs_for_candidate(
             cand_snap,
             jobs,
-            request.strategy,
-            request.metric,
-            request.skills_mode,
-            request.semantic_weight,
-            request.top_k,
+            request,
+            routing_reason=routing_reason,
         )
 
         event = self.bus.make_event(
@@ -246,6 +322,8 @@ class MatchmakingAgent(BaseAgent):
             corpus_size=len(self.employer_agent.list_jobs()),
             evaluated_count=len(jobs),
             agent_versions=self._agent_versions(),
+            routing_reason=routing_reason,
+            fusion_mode=request.fusion_mode,
         )
 
     def match_job_to_candidates(self, request: MatchRequest) -> MatchResponse:
@@ -257,15 +335,7 @@ class MatchmakingAgent(BaseAgent):
         candidates = self._get_candidates_for_retrieval(request, job_snap)
         session_id = str(uuid.uuid4())
 
-        results = self._rank_candidates_for_job(
-            job_snap,
-            candidates,
-            request.strategy,
-            request.metric,
-            request.skills_mode,
-            request.semantic_weight,
-            request.top_k,
-        )
+        results = self._rank_candidates_for_job(job_snap, candidates, request)
 
         event = self.bus.make_event(
             EventType.MATCH_COMPLETED,
@@ -284,6 +354,7 @@ class MatchmakingAgent(BaseAgent):
             corpus_size=len(self.candidate_agent.list_profiles()),
             evaluated_count=len(candidates),
             agent_versions=self._agent_versions(),
+            fusion_mode=request.fusion_mode,
         )
 
     def match_ensemble(self, request: EnsembleRequest) -> MatchResponse:
@@ -301,15 +372,15 @@ class MatchmakingAgent(BaseAgent):
 
         runs: list[list[dict]] = []
         for search in request.searches:
-            ranked = self._rank_jobs_for_candidate(
-                cand_snap,
-                jobs,
-                search.strategy,
-                search.metric,
-                search.skills_mode,
-                search.semantic_weight,
-                len(jobs),
+            sub_req = MatchRequest(
+                query_key=request.query_key,
+                top_k=len(jobs),
+                strategy=search.strategy,
+                metric=search.metric,
+                skills_mode=search.skills_mode,
+                semantic_weight=search.semantic_weight,
             )
+            ranked = self._rank_jobs_for_candidate(cand_snap, jobs, sub_req)
             run_items = [
                 {
                     "target_id": r.target_id,
@@ -329,16 +400,17 @@ class MatchmakingAgent(BaseAgent):
 
         results: list[MatchResult] = []
         job_by_id = {j.id: j for j in jobs}
+        base_req = MatchRequest(
+            query_key=request.query_key,
+            top_k=request.top_k,
+            strategy=request.searches[0].strategy,
+            metric=request.searches[0].metric,
+            skills_mode=request.searches[0].skills_mode,
+            semantic_weight=request.searches[0].semantic_weight,
+        )
         for rank, (target_id, _score, source_items) in enumerate(fused[: request.top_k], start=1):
             job = job_by_id[target_id]
-            breakdown = self._score_pair(
-                cand_snap,
-                job,
-                request.searches[0].strategy,
-                request.searches[0].metric,
-                request.searches[0].skills_mode,
-                request.searches[0].semantic_weight,
-            )
+            breakdown, constraint_notes = self._score_pair(cand_snap, job, base_req)
             sources = [
                 EnsembleSource(
                     strategy=s["strategy"],
@@ -358,6 +430,7 @@ class MatchmakingAgent(BaseAgent):
                     breakdown=breakdown.model_copy(update={"final_score": _score}),
                     candidate=cand_snap,
                     job=job,
+                    constraint_notes=constraint_notes,
                     sources=sources,
                 )
             )

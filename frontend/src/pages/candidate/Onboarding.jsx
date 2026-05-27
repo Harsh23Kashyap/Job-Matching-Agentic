@@ -88,6 +88,7 @@ export default function Onboarding() {
   return (
     <>
       <PageHeader
+        eyebrow="Candidate"
         title="Build your profile"
         subtitle="Upload your resume or enter details manually — we'll match you to the right jobs."
       />

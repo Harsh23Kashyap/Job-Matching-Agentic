@@ -73,6 +73,31 @@ def test_parse_retries_on_bad_json(parser):
     assert result["name"] == "Retry User"
 
 
+def test_parse_job_from_text_ollama(parser):
+    payload = {
+        "title": "Backend Engineer",
+        "required_skills": ["Python", "FastAPI"],
+        "required_experience": 3,
+        "description": "Build APIs",
+        "company": "Acme",
+        "location": "Remote",
+        "remote_policy": True,
+        "link": "https://example.com/jobs/1",
+    }
+    mock_resp = MagicMock()
+    mock_resp.json.return_value = {"message": {"content": json.dumps(payload)}}
+    mock_resp.raise_for_status = MagicMock()
+
+    with patch("hooks.llm_parser.httpx.Client") as mock_client:
+        mock_client.return_value.__enter__.return_value.post.return_value = mock_resp
+        result = parser.parse_job_from_text("Backend engineer job description")
+
+    assert result["title"] == "Backend Engineer"
+    assert "Python" in result["required_skills"]
+    assert result["required_experience"] == 3
+    assert result["remote_policy"] is True
+
+
 def test_llm_unavailable(parser):
     with patch("hooks.llm_parser.httpx.Client") as mock_client:
         mock_client.return_value.__enter__.return_value.post.side_effect = OSError("connection refused")

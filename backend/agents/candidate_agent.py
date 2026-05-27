@@ -107,6 +107,7 @@ class CandidateAgent(BaseAgent):
             skills=profile.skills,
             experience_years=profile.experience_years,
             remote_preference=profile.remote_preference,
+            preferred_salary=profile.preferred_salary,
             summary=profile.summary,
             version=profile.version,
             document_text_hash=profile.document_text_hash,
@@ -128,4 +129,8 @@ class CandidateAgent(BaseAgent):
         return len(raw_list)
 
     def status(self) -> AgentStatus:
-        return self._base_status(len(self.state.profiles), self.state.store_version)
+        return self._base_status(
+            len(self.state.profiles),
+            self.state.store_version,
+            vector_store_backend=self.settings.vector_store,
+        )

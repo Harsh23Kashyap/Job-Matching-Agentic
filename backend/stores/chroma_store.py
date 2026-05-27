@@ -15,10 +15,13 @@ def _flatten_metadata(metadata: dict) -> dict:
 
 
 class ChromaVectorStore:
-    def __init__(self, persist_dir: str, collection_name: str) -> None:
+    def __init__(self, persist_dir: str, collection_name: str, space: str = "cosine") -> None:
         self.collection_name = collection_name
         self._client = chromadb.PersistentClient(path=persist_dir)
-        self._collection = self._client.get_or_create_collection(name=collection_name)
+        self._collection = self._client.get_or_create_collection(
+            name=collection_name,
+            metadata={"hnsw:space": space},
+        )
 
     def upsert(self, entity_id: str, vector: np.ndarray, metadata: dict) -> None:
         self._collection.upsert(

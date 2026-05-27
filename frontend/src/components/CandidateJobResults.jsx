@@ -1,9 +1,20 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { deriveWhyMatch, matchPercent, matchSkills, matchTier, pluralGoodMatches } from "../utils/format.js";
+import { recordFeedback } from "../api/client.js";
 import { IconAlert } from "./icons.jsx";
 import { JobsResultsDecor } from "./PortalBackground.jsx";
 import MatchDetailsDrawer from "./MatchDetailsDrawer.jsx";
 import { useToast } from "./Toast.jsx";
+
+const SAVED_JOBS_KEY = "jm_saved_jobs";
+
+function loadSavedJobIds() {
+  try {
+    return new Set(JSON.parse(localStorage.getItem(SAVED_JOBS_KEY) || "[]"));
+  } catch {
+    return new Set();
+  }
+}
 
 function formatRefreshedAt(iso) {
   if (!iso) return "Just now";
@@ -57,16 +68,20 @@ function MatchSkeletonRows() {
   );
 }
 
-function JobMatchCard({ row, onViewDetails }) {
-  const [saved, setSaved] = useState(false);
+function JobMatchCard({ row, onViewDetails, saved, onSave, onApply }) {
   const { showToast } = useToast();
   const tier = matchTier(row.similarity);
   const { matched } = matchSkills(row);
   const whyLine = deriveWhyMatch(row);
 
   const handleSave = () => {
-    setSaved(true);
-    showToast(`Saved ${row.target_label} to your list.`);
+    onSave(row);
+    showToast(saved ? `Removed ${row.target_label} from saved.` : `Saved ${row.target_label} to your list.`);
+  };
+
+  const handleApply = () => {
+    onApply(row);
+    showToast(`Applied to ${row.target_label} — recorded for ranking feedback.`);
   };
 
   return (
@@ -101,22 +116,48 @@ function JobMatchCard({ row, onViewDetails }) {
           <button type="button" className="row-action-btn" onClick={() => onViewDetails(row, whyLine)}>
             View details
           </button>
-          <button type="button" className="row-action-btn" onClick={handleSave} disabled={saved}>
-            {saved ? "Saved" : "Save"}
+          <button type="button" className="row-action-btn" onClick={handleSave}>
+            {saved ? "Unsave" : "Save"}
           </button>
-          <span className="row-action-muted">Apply unavailable</span>
+          <button type="button" className="row-action-btn row-action-btn--muted" onClick={handleApply}>
+            Apply
+          </button>
         </div>
       </div>
     </article>
   );
 }
 
-export default function CandidateJobResults({ response, error, onRefresh, loading, updatedAt }) {
+export default function CandidateJobResults({ response, error, onRefresh, loading, updatedAt, candidateId }) {
   const [search, setSearch] = useState("");
   const [minMatch, setMinMatch] = useState("0");
   const [remoteOnly, setRemoteOnly] = useState(false);
   const [sort, setSort] = useState("best");
   const [drawer, setDrawer] = useState(null);
+  const [savedIds, setSavedIds] = useState(loadSavedJobIds);
+
+  useEffect(() => {
+    localStorage.setItem(SAVED_JOBS_KEY, JSON.stringify([...savedIds]));
+  }, [savedIds]);
+
+  const toggleSave = (row) => {
+    const saving = !savedIds.has(row.target_id);
+    setSavedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(row.target_id)) next.delete(row.target_id);
+      else next.add(row.target_id);
+      return next;
+    });
+    if (candidateId && saving) {
+      recordFeedback(candidateId, row.target_id, "save").catch(() => {});
+    }
+  };
+
+  const handleApply = (row) => {
+    if (candidateId) {
+      recordFeedback(candidateId, row.target_id, "apply").catch(() => {});
+    }
+  };
 
   const filtered = useMemo(() => {
     if (!response?.results) return [];
@@ -197,6 +238,9 @@ export default function CandidateJobResults({ response, error, onRefresh, loadin
               <JobMatchCard
                 key={row.target_id}
                 row={row}
+                saved={savedIds.has(row.target_id)}
+                onSave={toggleSave}
+                onApply={handleApply}
                 onViewDetails={(r, why) => setDrawer({ row: r, whyLine: why })}
               />
             ))

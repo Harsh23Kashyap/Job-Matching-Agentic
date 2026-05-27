@@ -7,5 +7,5 @@ const NAV = [
 ];
 
 export default function EmployerLayout() {
-  return <PortalShell subtitle="For employers" navItems={NAV} />;
+  return <PortalShell portal="employer" subtitle="For employers" navItems={NAV} />;
 }

@@ -25,6 +25,7 @@ class JobProfile(BaseModel):
     id: str
     title: str
     required_skills: list[str]
+    preferred_skills: list[str] = Field(default_factory=list)
     required_experience: int
     budget: int | None = None
     remote_policy: bool = False

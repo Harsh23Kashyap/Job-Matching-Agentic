@@ -9,6 +9,10 @@ const DEFAULT_ENSEMBLE = [
   { strategy: "multimodal", metric: "cosine", weight: 1.0, skills_mode: "embedding", semantic_weight: 0.7 },
 ];
 
+function defaultEnsembleWeights() {
+  return DEFAULT_ENSEMBLE.map((s) => s.weight);
+}
+
 const STORAGE_KEY = "jm_match_config";
 
 function loadSavedConfig() {
@@ -31,6 +35,14 @@ export default function MatchControls({ onRun, onDailyBatch, loading }) {
   const [topK, setTopK] = useState(saved?.topK ?? 5);
   const [ensemble, setEnsemble] = useState(saved?.ensemble ?? false);
   const [ensembleChecks, setEnsembleChecks] = useState(saved?.ensembleChecks ?? [true, true, true, true]);
+  const [ensembleWeights, setEnsembleWeights] = useState(saved?.ensembleWeights ?? defaultEnsembleWeights());
+  const [fusionMode, setFusionMode] = useState(saved?.fusionMode || "fixed");
+  const [applyConstraints, setApplyConstraints] = useState(saved?.applyConstraints ?? false);
+  const [autoStrategy, setAutoStrategy] = useState(saved?.autoStrategy ?? false);
+  const [useCalibration, setUseCalibration] = useState(saved?.useCalibration ?? false);
+  const [useFeedbackBoost, setUseFeedbackBoost] = useState(saved?.useFeedbackBoost ?? false);
+  const [explainMode, setExplainMode] = useState(saved?.explainMode || "rules");
+  const [useCrossEncoder, setUseCrossEncoder] = useState(saved?.useCrossEncoder ?? false);
   const [names, setNames] = useState([]);
   const [titles, setTitles] = useState([]);
 
@@ -47,9 +59,45 @@ export default function MatchControls({ onRun, onDailyBatch, loading }) {
   useEffect(() => {
     localStorage.setItem(
       STORAGE_KEY,
-      JSON.stringify({ mode, queryKey, strategy, metric, skillsMode, semanticWeight, topK, ensemble, ensembleChecks })
+      JSON.stringify({
+        mode,
+        queryKey,
+        strategy,
+        metric,
+        skillsMode,
+        semanticWeight,
+        topK,
+        ensemble,
+        ensembleChecks,
+        ensembleWeights,
+        fusionMode,
+        applyConstraints,
+        autoStrategy,
+        useCalibration,
+        useFeedbackBoost,
+        explainMode,
+        useCrossEncoder,
+      })
     );
-  }, [mode, queryKey, strategy, metric, skillsMode, semanticWeight, topK, ensemble, ensembleChecks]);
+  }, [
+    mode,
+    queryKey,
+    strategy,
+    metric,
+    skillsMode,
+    semanticWeight,
+    topK,
+    ensemble,
+    ensembleChecks,
+    ensembleWeights,
+    fusionMode,
+    applyConstraints,
+    autoStrategy,
+    useCalibration,
+    useFeedbackBoost,
+    explainMode,
+    useCrossEncoder,
+  ]);
 
   const handleModeChange = (next) => {
     setMode(next);
@@ -65,7 +113,14 @@ export default function MatchControls({ onRun, onDailyBatch, loading }) {
     semanticWeight,
     topK,
     ensemble: ensemble && mode === "candidate_to_jobs",
-    searches: DEFAULT_ENSEMBLE.filter((_, i) => ensembleChecks[i]),
+    searches: DEFAULT_ENSEMBLE.map((s, i) => ({ ...s, weight: ensembleWeights[i] ?? s.weight })).filter((_, i) => ensembleChecks[i]),
+    fusionMode,
+    applyConstraints,
+    autoStrategy,
+    useCalibration,
+    useFeedbackBoost,
+    explainMode,
+    useCrossEncoder,
   });
 
   return (
@@ -163,7 +218,7 @@ export default function MatchControls({ onRun, onDailyBatch, loading }) {
         <div className="ensemble-box">
           <p>Ensemble searches</p>
           {DEFAULT_ENSEMBLE.map((s, i) => (
-            <label key={i} className="checkbox-row">
+            <label key={i} className="checkbox-row ensemble-row">
               <input
                 type="checkbox"
                 checked={ensembleChecks[i]}
@@ -173,10 +228,74 @@ export default function MatchControls({ onRun, onDailyBatch, loading }) {
                   setEnsembleChecks(next);
                 }}
               />
-              {s.strategy} / {s.metric}
-              {s.skills_mode !== "jaccard" ? ` / ${s.skills_mode}` : ""}
+              <span>
+                {s.strategy} / {s.metric}
+                {s.skills_mode !== "jaccard" ? ` / ${s.skills_mode}` : ""}
+              </span>
+              <input
+                type="number"
+                min="0.1"
+                max="5"
+                step="0.1"
+                className="ensemble-weight-input"
+                value={ensembleWeights[i] ?? 1}
+                disabled={!ensembleChecks[i]}
+                onChange={(e) => {
+                  const next = [...ensembleWeights];
+                  next[i] = Number(e.target.value);
+                  setEnsembleWeights(next);
+                }}
+                aria-label={`Weight for ${s.strategy} ${s.metric}`}
+              />
             </label>
           ))}
+        </div>
+      )}
+
+      {!ensemble && (
+        <div className="control-section">
+          <p className="control-section-title">Advanced ML</p>
+          <div className="controls-grid">
+            <div className="field">
+              <label htmlFor="fusion">Fusion mode</label>
+              <select id="fusion" value={fusionMode} onChange={(e) => setFusionMode(e.target.value)}>
+                <option value="fixed">Fixed weights</option>
+                <option value="learned">Learned LR fusion</option>
+                <option value="hierarchical">Hierarchical skills</option>
+              </select>
+            </div>
+            <div className="field">
+              <label htmlFor="explain">Explain mode</label>
+              <select id="explain" value={explainMode} onChange={(e) => setExplainMode(e.target.value)}>
+                <option value="rules">Rule-based</option>
+                <option value="llm">Grounded LLM</option>
+              </select>
+            </div>
+          </div>
+          <div className="ensemble-box" style={{ marginTop: 12 }}>
+            <label className="checkbox-row">
+              <input type="checkbox" checked={applyConstraints} onChange={(e) => setApplyConstraints(e.target.checked)} />
+              Apply constraints (exp / remote / salary)
+            </label>
+            <label className="checkbox-row">
+              <input type="checkbox" checked={autoStrategy} onChange={(e) => setAutoStrategy(e.target.checked)} />
+              Auto strategy routing
+            </label>
+            <label className="checkbox-row">
+              <input type="checkbox" checked={useCalibration} onChange={(e) => setUseCalibration(e.target.checked)} />
+              Platt calibration
+            </label>
+            <label className="checkbox-row">
+              <input type="checkbox" checked={useFeedbackBoost} onChange={(e) => setUseFeedbackBoost(e.target.checked)} />
+              Feedback boost
+            </label>
+            {mode === "candidate_to_jobs" && (
+              <label className="checkbox-row">
+                <input type="checkbox" checked={useCrossEncoder} onChange={(e) => setUseCrossEncoder(e.target.checked)} />
+                Cross-encoder rerank
+              </label>
+            )}
+          </div>
         </div>
       )}
 

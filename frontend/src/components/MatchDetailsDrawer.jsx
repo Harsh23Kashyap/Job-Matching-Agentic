@@ -72,6 +72,26 @@ export default function MatchDetailsDrawer({ row, whyLine, onClose, subtitle = "
           )}
         </section>
 
+        {(row.contact_email || row.contact_phone || row.contact_linkedin || row.contact_portfolio) && (
+          <section className="match-drawer-section">
+            <h3>Contact</h3>
+            <ul className="match-drawer-contact">
+              {row.contact_email && (
+                <li><span>Email</span><a href={`mailto:${row.contact_email}`}>{row.contact_email}</a></li>
+              )}
+              {row.contact_phone && (
+                <li><span>Phone</span><a href={`tel:${row.contact_phone}`}>{row.contact_phone}</a></li>
+              )}
+              {row.contact_linkedin && (
+                <li><span>LinkedIn</span><a href={row.contact_linkedin} target="_blank" rel="noreferrer">Profile</a></li>
+              )}
+              {row.contact_portfolio && (
+                <li><span>Portfolio</span><a href={row.contact_portfolio} target="_blank" rel="noreferrer">Site</a></li>
+              )}
+            </ul>
+          </section>
+        )}
+
         <section className="match-drawer-section">
           <h3>Match score explanation</h3>
           <p className="match-drawer-note match-drawer-note--lead">{explainMatchScore(row)}</p>

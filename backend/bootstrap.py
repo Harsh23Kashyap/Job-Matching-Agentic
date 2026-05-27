@@ -6,9 +6,12 @@ from agents.matchmaking_agent import MatchmakingAgent
 from bus.event_bus import AgentEventBus
 from bus.events import EventType
 from config import Settings
+from core.calibration import PlattCalibrator
+from core.fusion import LearnedFusionModel
 from hooks.explainer import RuleExplainer
 from hooks.parser import JsonParser
 from stores.factory import create_store
+from stores.feedback_store import FeedbackStore
 
 
 @dataclass
@@ -18,6 +21,7 @@ class SystemContainer:
     candidate: CandidateAgent
     employer: EmployerAgent
     matchmaker: MatchmakingAgent
+    feedback_store: FeedbackStore
 
 
 def create_system(settings: Settings | None = None) -> SystemContainer:
@@ -28,6 +32,10 @@ def create_system(settings: Settings | None = None) -> SystemContainer:
 
     candidate_store = create_store(settings, "candidates_collection")
     job_store = create_store(settings, "jobs_collection")
+    feedback_store = FeedbackStore(settings.sqlite_path)
+
+    fusion_model = LearnedFusionModel.load(settings.fusion_model_path)
+    calibrator = PlattCalibrator.load(settings.calibration_model_path)
 
     candidate_agent = CandidateAgent(
         bus=bus,
@@ -47,6 +55,9 @@ def create_system(settings: Settings | None = None) -> SystemContainer:
         employer_agent=employer_agent,
         explainer=explainer,
         settings=settings,
+        fusion_model=fusion_model,
+        calibrator=calibrator,
+        feedback_store=feedback_store,
     )
     matchmaker.register_handlers(bus)
 
@@ -67,4 +78,5 @@ def create_system(settings: Settings | None = None) -> SystemContainer:
         candidate=candidate_agent,
         employer=employer_agent,
         matchmaker=matchmaker,
+        feedback_store=feedback_store,
     )

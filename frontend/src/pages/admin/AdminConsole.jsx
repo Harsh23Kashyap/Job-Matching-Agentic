@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import PageHeader from "../../components/PageHeader.jsx";
+import SystemConfigPanel from "../../components/SystemConfigPanel.jsx";
+import AgentEventStrip from "../../components/AgentEventStrip.jsx";
 import AgentStatusPanel from "../../components/AgentStatusPanel.jsx";
 import MatchControls from "../../components/MatchControls.jsx";
 import ResultsPanel from "../../components/ResultsPanel.jsx";
@@ -73,14 +75,27 @@ export default function AdminConsole() {
   };
 
   return (
-    <>
+    <div className="admin-workspace">
       <PageHeader
+        eyebrow="Admin"
         title="Match console"
-        subtitle="Monitor agent health, configure matching strategies, and review ranked results."
+        subtitle="Monitor agents, tune strategies, and inspect ranked results."
       />
-      <AgentStatusPanel onConnectionChange={() => {}} />
-      <MatchControls onRun={handleRun} onDailyBatch={handleDailyBatch} loading={loading} />
-      <ResultsPanel response={response} error={error} recentRuns={recentRuns} />
-    </>
+
+      <section className="admin-workspace-block">
+        <p className="admin-workspace-label">System health</p>
+        <AgentStatusPanel onConnectionChange={() => {}} />
+        <SystemConfigPanel />
+        <AgentEventStrip />
+      </section>
+
+      <section className="admin-workspace-block admin-workspace-block--controls">
+        <p className="admin-workspace-label">Matching</p>
+        <div className="admin-console-grid">
+          <MatchControls onRun={handleRun} onDailyBatch={handleDailyBatch} loading={loading} />
+          <ResultsPanel response={response} error={error} recentRuns={recentRuns} />
+        </div>
+      </section>
+    </div>
   );
 }

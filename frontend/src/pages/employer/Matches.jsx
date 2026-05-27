@@ -1,9 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import PageHeader from "../../components/PageHeader.jsx";
+import PortalSection from "../../components/PortalSection.jsx";
 import EmployerCandidateResults, { EmployerNoJobsEmpty } from "../../components/EmployerCandidateResults.jsx";
 import Button from "../../components/Button.jsx";
 import { fetchMyJobs, runMatch } from "../../api/client.js";
+import { matchPercent } from "../../utils/format.js";
 
 export default function EmployerMatches() {
   const [jobs, setJobs] = useState([]);
@@ -15,6 +17,10 @@ export default function EmployerMatches() {
   useEffect(() => {
     fetchMyJobs().then(setJobs).catch(() => setJobs([]));
   }, []);
+
+  useEffect(() => {
+    if (jobs.length && !selected) setSelected(jobs[0].title);
+  }, [jobs, selected]);
 
   const handleFind = async () => {
     if (!selected) return;
@@ -40,10 +46,29 @@ export default function EmployerMatches() {
     }
   };
 
+  const heroStats = useMemo(() => {
+    if (!response?.results?.length) return [];
+    const top = response.results[0]?.similarity ?? 0;
+    return [
+      { label: "Profiles reviewed", value: response.evaluated_count ?? response.results.length },
+      { label: "Shortlist", value: response.results.length },
+      { label: "Top match", value: matchPercent(top) },
+    ];
+  }, [response]);
+
   if (jobs.length === 0) {
     return (
       <>
-        <PageHeader title="Find candidates" subtitle="Post a job first, then we'll rank matching profiles." />
+        <PageHeader
+          eyebrow="Employer"
+          title="Find candidates"
+          subtitle="Post a job first, then we'll rank matching profiles."
+          inlineAction={
+            <Link to="/employer/jobs" className="btn-primary">
+              Create a job
+            </Link>
+          }
+        />
         <EmployerNoJobsEmpty />
       </>
     );
@@ -54,28 +79,28 @@ export default function EmployerMatches() {
   return (
     <>
       <PageHeader
+        eyebrow="Employer"
         title="Find candidates"
-        subtitle="Select a role and discover top-matching profiles."
+        subtitle={selected ? `Ranking profiles against ${selected}.` : "Select a role to discover top-matching profiles."}
+        stats={heroStats}
         inlineAction={
-          <Button loading={loading} loadingLabel="Searching…" onClick={handleFind} disabled={!selected}>
-            Find matching candidates
-          </Button>
+          <div className="hero-toolbar">
+            <label className="hero-toolbar-field">
+              <span className="field-label">Job</span>
+              <select value={selected} onChange={(e) => setSelected(e.target.value)}>
+                {jobs.map((j) => (
+                  <option key={j.id} value={j.title}>
+                    {j.title}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <Button loading={loading} loadingLabel="Searching…" onClick={handleFind} disabled={!selected}>
+              Find matches
+            </Button>
+          </div>
         }
       />
-      <section className="portal-panel">
-        <h2>Search by job</h2>
-        <label className="form-field">
-          <span className="field-label">Select job</span>
-          <select value={selected} onChange={(e) => setSelected(e.target.value)}>
-            <option value="">Choose a job…</option>
-            {jobs.map((j) => (
-              <option key={j.id} value={j.title}>
-                {j.title}
-              </option>
-            ))}
-          </select>
-        </label>
-      </section>
       <EmployerCandidateResults response={response} error={error} jobTitle={jobTitle} />
     </>
   );

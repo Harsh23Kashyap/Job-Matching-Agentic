@@ -42,8 +42,23 @@ export async function logout() {
   await api.post("/auth/logout");
 }
 
+export async function fetchSystemConfig() {
+  const { data } = await api.get("/system/config");
+  return data;
+}
+
+export async function setVectorStore(vectorStore) {
+  const { data } = await api.post("/system/vector-store", { vector_store: vectorStore });
+  return data;
+}
+
 export async function fetchAgentStatus() {
   const { data } = await api.get("/agents/status");
+  return data;
+}
+
+export async function fetchAgentEvents() {
+  const { data } = await api.get("/agents/events/recent");
   return data;
 }
 
@@ -99,6 +114,15 @@ export async function upsertCandidateProfile(profile) {
   return saveCandidateProfile(profile);
 }
 
+export async function uploadJobDescription(file) {
+  const form = new FormData();
+  form.append("file", file);
+  const { data } = await api.post("/jobs/upload-description", form, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return data;
+}
+
 export async function saveJobPosting(job) {
   const { data } = await api.post("/jobs", job);
   return data;
@@ -111,6 +135,16 @@ export async function runMatch(config) {
         ? "/match/ensemble"
         : "/match/candidate-to-jobs"
       : "/match/job-to-candidates";
+
+  const mlFlags = {
+    fusion_mode: config.fusionMode || "fixed",
+    apply_constraints: Boolean(config.applyConstraints),
+    auto_strategy: Boolean(config.autoStrategy),
+    use_calibration: Boolean(config.useCalibration),
+    use_feedback_boost: Boolean(config.useFeedbackBoost),
+    explain_mode: config.explainMode || "rules",
+    use_cross_encoder: Boolean(config.useCrossEncoder),
+  };
 
   const body = config.ensemble
     ? {
@@ -127,9 +161,19 @@ export async function runMatch(config) {
         skills_mode: config.skillsMode,
         semantic_weight: config.semanticWeight,
         retrieval: "exhaustive",
+        ...mlFlags,
       };
 
   const { data } = await api.post(path, body);
+  return data;
+}
+
+export async function recordFeedback(candidateId, jobId, action) {
+  const { data } = await api.post("/feedback", {
+    candidate_id: candidateId,
+    job_id: jobId,
+    action,
+  });
   return data;
 }
 

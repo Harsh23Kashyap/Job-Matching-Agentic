@@ -1,11 +1,17 @@
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, File, HTTPException, Request, UploadFile
 
 from auth.deps import get_optional_user, require_role
 from auth.store import User
 from contracts.profiles import JobProfile
-from hooks.parser_factory import make_candidate_id, make_entity_id
+from core.resume_text import extract_text_from_upload
+from hooks.llm_parser import LlmParseError, LlmParser, LlmUnavailableError
+from hooks.parser_factory import create_llm_parser, make_candidate_id, make_entity_id
 
 router = APIRouter(prefix="/jobs", tags=["jobs"])
+
+
+def _get_llm_parser(request: Request) -> LlmParser:
+    return create_llm_parser(request.app.state.container.settings)
 
 
 def _public_profile(profile: JobProfile) -> dict:
@@ -40,6 +46,47 @@ def list_my_jobs(
         if profile is not None:
             profiles.append(_public_profile(profile))
     return profiles
+
+
+@router.post("/upload-description")
+async def upload_job_description(
+    file: UploadFile = File(...),
+    user: User = Depends(require_role("employer")),
+    llm: LlmParser = Depends(_get_llm_parser),
+):
+    text = extract_text_from_upload(file)
+    preview = text[:500] + ("…" if len(text) > 500 else "")
+    empty_fields = {
+        "title": "",
+        "required_skills": [],
+        "required_experience": 0,
+        "description": "",
+        "company": "",
+        "location": "",
+        "remote_policy": False,
+        "link": "",
+    }
+    try:
+        extracted = llm.parse_job_from_text(text)
+    except LlmUnavailableError:
+        return {
+            "extracted_fields": empty_fields,
+            "raw_text_preview": preview,
+            "llm_status": "unavailable",
+            "message": "AI extraction unavailable. Review the text preview and fill in job details manually.",
+        }
+    except LlmParseError as exc:
+        return {
+            "extracted_fields": empty_fields,
+            "raw_text_preview": preview,
+            "llm_status": "parse_failed",
+            "message": f"Could not parse job description automatically ({exc}). Fill in details manually.",
+        }
+    return {
+        "extracted_fields": extracted,
+        "raw_text_preview": preview,
+        "llm_status": "ok",
+    }
 
 
 @router.get("/{title}")

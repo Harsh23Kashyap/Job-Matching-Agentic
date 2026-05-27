@@ -1,12 +1,12 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import PageHeader from "../../components/PageHeader.jsx";
 import ProfileForm from "../../components/ProfileForm.jsx";
 import ProfileStrength from "../../components/ProfileStrength.jsx";
 import Button from "../../components/Button.jsx";
 import { useToast } from "../../components/Toast.jsx";
-import { fetchMyProfile, upsertCandidateProfile } from "../../api/client.js";
-import { EMPTY_PROFILE_FIELDS, profileFromApi, profileToPayload } from "../../utils/profileFields.js";
+import { fetchMyProfile, uploadResume, upsertCandidateProfile } from "../../api/client.js";
+import { EMPTY_PROFILE_FIELDS, fieldsFromExtracted, profileFromApi, profileToPayload } from "../../utils/profileFields.js";
 import { profileStrength, validateProfileFields } from "../../utils/validation.js";
 
 export default function Profile() {
@@ -17,6 +17,8 @@ export default function Profile() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [hasProfile, setHasProfile] = useState(false);
+  const [reuploading, setReuploading] = useState(false);
+  const fileRef = useRef(null);
 
   const strength = useMemo(() => profileStrength(fields), [fields]);
 
@@ -29,6 +31,22 @@ export default function Profile() {
       .catch(() => setError("No profile yet."))
       .finally(() => setLoading(false));
   }, []);
+
+  const handleReupload = async (file) => {
+    if (!file) return;
+    setReuploading(true);
+    setError("");
+    try {
+      const data = await uploadResume(file);
+      setFields((prev) => ({ ...prev, ...fieldsFromExtracted(data.extracted_fields || {}) }));
+      showToast("Resume parsed — review updated fields and save.");
+    } catch (err) {
+      setError(err.response?.data?.detail?.error || err.message || "Upload failed");
+    } finally {
+      setReuploading(false);
+      if (fileRef.current) fileRef.current.value = "";
+    }
+  };
 
   const handleSave = async () => {
     const errors = validateProfileFields(fields);
@@ -58,7 +76,7 @@ export default function Profile() {
   if (loading) {
     return (
       <>
-        <PageHeader title="Your profile" />
+        <PageHeader eyebrow="Candidate" title="Your profile" />
         <section className="portal-panel portal-panel--form"><p>Loading…</p></section>
       </>
     );
@@ -67,7 +85,7 @@ export default function Profile() {
   if (error && !fields.name) {
     return (
       <>
-        <PageHeader title="Your profile" subtitle="Create your candidate profile to start matching." />
+        <PageHeader eyebrow="Candidate" title="Your profile" subtitle="Create your candidate profile to start matching." />
         <section className="portal-panel portal-panel--form">
           <p>{error}</p>
           <Link to="/candidate/onboarding" className="btn-primary">Upload resume</Link>
@@ -78,8 +96,29 @@ export default function Profile() {
 
   return (
     <>
-      <PageHeader title="Your profile" subtitle="Keep your skills and preferences up to date for better matches." />
+      <PageHeader
+        eyebrow="Candidate"
+        title="Your profile"
+        subtitle="Keep your skills and preferences up to date for better matches."
+      />
       <section className="portal-panel portal-panel--form">
+        <div className="profile-reupload-bar">
+          <div>
+            <h3 className="profile-form-section-title">Update from resume</h3>
+            <p className="profile-form-section-helper">Upload a new PDF, DOCX, or TXT to refresh skills and contact fields.</p>
+          </div>
+          <input
+            ref={fileRef}
+            type="file"
+            accept=".pdf,.docx,.txt"
+            className="visually-hidden"
+            id="profile-reupload"
+            onChange={(e) => handleReupload(e.target.files?.[0])}
+          />
+          <Button loading={reuploading} loadingLabel="Parsing…" onClick={() => fileRef.current?.click()}>
+            Re-upload resume
+          </Button>
+        </div>
         <ProfileStrength percent={strength.percent} hint={strength.hint} />
         <ProfileForm
           fields={fields}

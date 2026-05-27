@@ -14,3 +14,6 @@ python-dotenv==1.0.1
 pdfplumber==0.11.4
 email-validator==2.2.0
 itsdangerous==2.2.0
+# Optional: lexical tokenization and Qdrant vector store (install when using those backends)
+tiktoken==0.8.0
+qdrant-client==1.12.1

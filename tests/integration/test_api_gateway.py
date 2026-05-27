@@ -68,4 +68,30 @@ def test_system_config(client):
     assert resp.status_code == 200
     data = resp.json()
     assert data["vector_store"] == "chroma"
+    assert data["read_only"] is False
+    assert "read_only_note" in data
     assert "semantic" in data["strategies"]
+
+
+def test_recent_agent_events(client):
+    resp = client.get("/agents/events/recent")
+    assert resp.status_code == 200
+    assert "events" in resp.json()
+
+
+def test_vector_store_switch_chroma(client):
+    resp = client.post("/system/vector-store", json={"vector_store": "chroma"})
+    assert resp.status_code == 200
+    assert resp.json()["vector_store"] == "chroma"
+    assert resp.json()["candidates_reindexed"] == 30
+
+
+def test_job_match_contact_fields_optional(client):
+    resp = client.post(
+        "/match/job-to-candidates",
+        json={"query_key": "Machine Learning Engineer", "top_k": 1},
+    )
+    assert resp.status_code == 200
+    row = resp.json()["results"][0]
+    assert "contact_email" in row
+    assert "contact_phone" in row

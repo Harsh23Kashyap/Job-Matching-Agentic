@@ -42,6 +42,8 @@ cp .env.example .env   # first time only — .env is gitignored
 |----------|---------|
 | `OPENAI_API_KEY` | Resume AI extraction (uses OpenAI instead of Ollama when set) |
 | `SESSION_SECRET` | Signs auth cookies — **must** change in production |
+| `VECTOR_STORE` | `chroma` (default) or `qdrant` |
+| `READ_ONLY` | `true` blocks mutating API except auth login/register |
 | `OLLAMA_BASE_URL` / `OLLAMA_MODEL` | Local LLM fallback when no OpenAI key |
 
 **Production:** set secrets in your host’s environment / secret manager (Render, Railway, Fly, AWS, etc.). Use `backend/.env.example` as documentation only — do not deploy a `.env` file with real keys.
@@ -57,13 +59,13 @@ ollama serve   # if not already running
 
 Optional: set `OPENAI_API_KEY` in `backend/.env` (see `backend/.env.example`) to use OpenAI instead of Ollama.
 
-## Portals (v1.1)
+## Portals (v1.1 + v2)
 
 | Role | Routes | Purpose |
 |------|--------|---------|
-| **Candidate** | `/candidate/onboarding`, `/profile`, `/matches` | Upload resume → AI extract → find jobs |
-| **Employer** | `/employer/jobs`, `/matches` | Create jobs → find candidates |
-| **Admin** | `/admin/console` | Full Match Console (eval, ensemble, daily batch) |
+| **Candidate** | `/candidate/onboarding`, `/profile`, `/matches` | Upload resume → AI extract → find jobs; save roles; re-upload from profile |
+| **Employer** | `/employer/jobs`, `/matches` | Create/upload JD → find candidates; view contact in match drawer |
+| **Admin** | `/admin/console` | Match Console, agent events, Chroma/Qdrant switch, ensemble weights |
 
 Register at `/register` and pick a role. Sign in at `/login`.
 
@@ -80,14 +82,17 @@ Follow the scripted walkthrough for supervisors and stakeholders:
 |-------|-------------|
 | `POST /auth/register`, `/auth/login`, `/auth/logout`, `GET /auth/me` | Session auth (HTTP-only cookie) |
 | `GET /agents/status` | Candidate, Employer, Matchmaking agent health |
+| `GET /agents/events/recent` | Last 50 bus events (admin strip) |
 | `GET /candidates`, `GET /jobs` | List names / titles |
 | `GET /candidates/me`, `GET /jobs/mine` | Owned profile / jobs (authenticated) |
 | `POST /candidates/upload-resume` | PDF/DOCX/TXT → LLM field extraction (candidate) |
-| `POST /match/candidate-to-jobs` | Resume → jobs (default semantic cosine) |
-| `POST /match/job-to-candidates` | Job → candidates |
+| `POST /jobs/upload-description` | PDF/DOCX/TXT → LLM JD extraction (employer) |
+| `POST /match/candidate-to-jobs` | Resume → jobs (`use_cross_encoder` optional) |
+| `POST /match/job-to-candidates` | Job → candidates (includes contact fields when set) |
 | `POST /match/ensemble` | RRF over multiple strategy/metric combos |
 | `POST /match/daily-batch` | ANN daily recommendations JSON artifact |
-| `GET /system/config` | Supported strategies, metrics, skills modes |
+| `GET /system/config` | Supported strategies, metrics, vector store, read-only flag |
+| `POST /system/vector-store` | Switch Chroma ↔ Qdrant and reindex |
 
 Legacy aliases: `/match-resume`, `/match-job`, `/match-resume-ensemble`, `/agent/run-daily-recommendations`.
 
@@ -106,4 +111,16 @@ cd backend && source .venv/bin/activate
 pytest ../tests -v
 ```
 
-Expected: **69 tests** pass, including Rahul Sharma → Machine Learning Engineer rank 1 smoke test.
+Expected: **88 tests** pass, including Rahul Sharma → Machine Learning Engineer rank 1 smoke test and Table 9 regression gate.
+
+### Benchmarks (v2)
+
+From `backend/` with venv active:
+
+```bash
+python -m benchmarks.smoke_eval
+python -m benchmarks.paper_progression --skip-cross-encoder
+python -m benchmarks.phase11 --stores chroma
+```
+
+Outputs land in `backend/benchmark_outputs/`.

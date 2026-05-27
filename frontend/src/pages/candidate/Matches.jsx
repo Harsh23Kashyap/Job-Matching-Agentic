@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import PageHeader from "../../components/PageHeader.jsx";
 import CandidateJobResults from "../../components/CandidateJobResults.jsx";
 import { ProfileNeededEmpty, JobsReadyEmpty } from "../../components/EmptyState.jsx";
 import Button from "../../components/Button.jsx";
 import { fetchMyProfile, runMatch } from "../../api/client.js";
+import { matchPercent } from "../../utils/format.js";
 
 export default function CandidateMatches() {
   const [profile, setProfile] = useState(null);
@@ -46,11 +47,27 @@ export default function CandidateMatches() {
     }
   };
 
+  const heroStats = useMemo(() => {
+    if (!response?.results?.length) return [];
+    const good = response.results.filter((r) => r.similarity >= 0.6).length;
+    const top = response.results[0]?.similarity ?? 0;
+    return [
+      { label: "Roles reviewed", value: response.evaluated_count ?? response.results.length },
+      { label: "Strong fits", value: good },
+      { label: "Top match", value: matchPercent(top) },
+    ];
+  }, [response]);
+
   if (profileLoading) {
     return (
       <>
-        <PageHeader title="Jobs for you" />
-        <section className="portal-panel portal-panel--form"><p>Loading…</p></section>
+        <PageHeader eyebrow="Candidate" title="Jobs for you" />
+        <section className="portal-panel portal-panel--form">
+          <div className="loading-shimmer" aria-hidden="true">
+            <span className="skeleton-block skeleton-block--lg" />
+            <span className="skeleton-block skeleton-block--md" />
+          </div>
+        </section>
       </>
     );
   }
@@ -59,6 +76,7 @@ export default function CandidateMatches() {
     return (
       <>
         <PageHeader
+          eyebrow="Candidate"
           title="Jobs for you"
           subtitle="Complete your profile to unlock personalized matches."
           inlineAction={
@@ -82,8 +100,10 @@ export default function CandidateMatches() {
   return (
     <>
       <PageHeader
+        eyebrow="Candidate"
         title="Jobs for you"
         subtitle={subtitle}
+        stats={heroStats}
         inlineAction={
           <Button loading={loading} loadingLabel="Searching…" onClick={handleFindJobs}>
             {response ? "Refresh matches" : "Find jobs"}
@@ -107,6 +127,7 @@ export default function CandidateMatches() {
           onRefresh={handleFindJobs}
           loading={loading}
           updatedAt={lastUpdated}
+          candidateId={profile.id}
         />
       )}
     </>

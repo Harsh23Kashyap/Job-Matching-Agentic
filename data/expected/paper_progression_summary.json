@@ -1,0 +1,58 @@
+[
+  {
+    "method": "TF-IDF (lexical)",
+    "avg_precision_at_k": 0.3066666666666667,
+    "avg_recall_at_k": 0.9833333333333333,
+    "avg_ndcg_at_k": 0.9052232158336745,
+    "queries": 30
+  },
+  {
+    "method": "BM25 (lexical)",
+    "avg_precision_at_k": 0.3066666666666667,
+    "avg_recall_at_k": 0.9833333333333333,
+    "avg_ndcg_at_k": 0.9005019260696712,
+    "queries": 30
+  },
+  {
+    "method": "Semantic cosine",
+    "avg_precision_at_k": 0.28,
+    "avg_recall_at_k": 0.9,
+    "avg_ndcg_at_k": 0.9110935769938718,
+    "queries": 30
+  },
+  {
+    "method": "Multimodal Jaccard w=0.7",
+    "avg_precision_at_k": 0.29333333333333333,
+    "avg_recall_at_k": 0.95,
+    "avg_ndcg_at_k": 0.9330800418067133,
+    "queries": 30
+  },
+  {
+    "method": "Multimodal soft embed w=0.7",
+    "avg_precision_at_k": 0.31333333333333335,
+    "avg_recall_at_k": 1.0,
+    "avg_ndcg_at_k": 0.9685150450344648,
+    "queries": 30
+  },
+  {
+    "method": "RRF ensemble (4 lists)",
+    "avg_precision_at_k": 0.29333333333333333,
+    "avg_recall_at_k": 0.95,
+    "avg_ndcg_at_k": 0.9353908232042669,
+    "queries": 30
+  },
+  {
+    "method": "Semantic cosine (rich templates)",
+    "avg_precision_at_k": 0.30000000000000004,
+    "avg_recall_at_k": 0.95,
+    "avg_ndcg_at_k": 0.9220910450535126,
+    "queries": 30
+  },
+  {
+    "method": "Soft embed + cross-encoder (pool=10)",
+    "avg_precision_at_k": 0.3066666666666667,
+    "avg_recall_at_k": 0.9833333333333333,
+    "avg_ndcg_at_k": 0.9392861547735796,
+    "queries": 30
+  }
+]

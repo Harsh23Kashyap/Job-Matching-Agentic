@@ -8,5 +8,5 @@ const NAV = [
 ];
 
 export default function CandidateLayout() {
-  return <PortalShell subtitle="For candidates" navItems={NAV} />;
+  return <PortalShell portal="candidate" subtitle="For candidates" navItems={NAV} />;
 }

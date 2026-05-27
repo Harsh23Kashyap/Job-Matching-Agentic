@@ -25,6 +25,29 @@ def soft_overlap(resume_skills: list[str], job_skills: list[str], model_name: st
     return sum(bests) / len(bests)
 
 
+def hierarchical_skills_score(
+    resume_skills: list[str],
+    required_skills: list[str],
+    preferred_skills: list[str],
+    *,
+    skills_mode: str,
+    model_name: str,
+    must_weight: float = 0.7,
+) -> float:
+    """Must-have vs preferred skill coverage with configurable blend."""
+    must = skills_score(resume_skills, required_skills, skills_mode, model_name)
+    if not preferred_skills:
+        return must
+    pref = skills_score(resume_skills, preferred_skills, skills_mode, model_name)
+    return must_weight * must + (1.0 - must_weight) * pref
+
+
+def taxonomy_skills_score(resume_skills: list[str], job_skills: list[str]) -> float:
+    from core.skill_taxonomy import taxonomy_overlap
+
+    return taxonomy_overlap(resume_skills, job_skills)
+
+
 def skills_score(
     resume_skills: list[str],
     job_skills: list[str],
