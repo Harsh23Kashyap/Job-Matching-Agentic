@@ -1,14 +1,77 @@
-sequenceDiagram
-  participant C as Candidate
-  participant P as Parser
-  participant CA as Candidate Agent
-  participant MA as Matchmaking Agent
-  participant MC as Matching Core
-  participant UI as Portal
-  C->>P: Upload / edit resume
-  P->>CA: Extracted fields
-  CA->>MA: Profile snapshot
-  MA->>MC: Retrieve jobs
-  MC->>MA: Scores + explanations
-  MA->>UI: Ranked matches
-  UI->>C: Save / apply
+%%{init: {'flowchart': {'rankSpacing': 28, 'nodeSpacing': 18, 'diagramPadding': 16}}}%%
+flowchart TB
+  subgraph ROW1[" "]
+    direction LR
+    subgraph IN[" "]
+      direction TB
+      H_IN["Inputs"]
+      INP("Resume upload / form")
+      H_IN --> INP
+    end
+    subgraph ST[" "]
+      direction TB
+      H_STATE["Owned state"]
+      PROF("Profile editable") --> SNAP("Snapshot match-ready")
+      MEM[("In-memory profiles<br/>bootstrap cvs.json")]
+      COACH("Resume coach read-only")
+      H_STATE --> PROF
+      SNAP --> MEM
+      SNAP -.-> COACH
+    end
+  end
+
+  subgraph ROW2[" "]
+    direction TB
+    H_PARSE["Ingestion pipeline"]
+    subgraph PAR[" "]
+      direction LR
+      CLEAN("Text clean") --> RULES("Rule + contact extract") --> NORM("Normalize + skill taxonomy") --> QC("Profile quality check")
+    end
+    LLM("Optional LLM merge")
+    H_PARSE --> CLEAN
+    LLM -.-> NORM
+  end
+
+  subgraph ROW3[" "]
+    direction LR
+    subgraph VEC[" "]
+      direction TB
+      H_VEC["Representation"]
+      TMPL("Document text template") --> EMB("Embedder MiniLM") --> VS[("Candidate vector index")]
+      H_VEC --> TMPL
+    end
+    subgraph OUT[" "]
+      direction TB
+      H_OUT["Outputs"]
+      EVT("profile-updated event") --> UI("Confirmed fields to portal") --> ACT[("Saved jobs + applications")]
+      H_OUT --> EVT
+    end
+  end
+
+  INP --> CLEAN
+  INP --> NORM
+  QC --> PROF
+  QC --> SNAP
+  SNAP --> TMPL
+  MEM --> H_VEC
+  VS --> H_OUT
+  SNAP --> EVT
+  PROF --> UI
+
+  classDef header fill:#f1f5f9,stroke:#334155,color:#0f172a,stroke-width:2.5px,font-weight:bold
+  classDef input fill:#eef2ff,stroke:#4338ca,color:#1e1b4b,stroke-width:2.5px
+  classDef parse fill:#ecfdf5,stroke:#047857,color:#064e3b,stroke-width:2.5px
+  classDef state fill:#d1fae5,stroke:#059669,color:#065f46,stroke-width:2.5px
+  classDef store fill:#f0fdf4,stroke:#166534,color:#14532d,stroke-width:2.5px
+  classDef vec fill:#eff6ff,stroke:#2563eb,color:#1e3a8a,stroke-width:2.5px
+  classDef out fill:#faf5ff,stroke:#7c3aed,color:#4c1d95,stroke-width:2.5px
+  classDef opt fill:#fffbeb,stroke:#d97706,color:#92400e,stroke-width:2.5px
+
+  class H_IN,H_PARSE,H_STATE,H_VEC,H_OUT header
+  class INP input
+  class CLEAN,RULES,NORM,QC parse
+  class PROF,SNAP state
+  class MEM,VS,ACT store
+  class TMPL,EMB vec
+  class EVT,UI out
+  class LLM,COACH opt

@@ -5,12 +5,13 @@ import {
 } from "../utils/extractedSections.js";
 
 export default function ExtractedSectionsPanel({ extracted = {} }) {
-  if (!hasExtractedSections(extracted)) return null;
+  const data = extracted ?? {};
+  if (!hasExtractedSections(data)) return null;
 
-  const education = (extracted.education || []).map(formatEducationEntry).filter(Boolean);
-  const projects = (extracted.projects || []).map(formatProjectEntry).filter(Boolean);
-  const responsibilities = (extracted.responsibilities || []).filter(Boolean);
-  const educationRequirements = (extracted.education_requirements || []).filter(Boolean);
+  const education = (data.education || []).map(formatEducationEntry).filter(Boolean);
+  const projects = (data.projects || []).map(formatProjectEntry).filter(Boolean);
+  const responsibilities = (data.responsibilities || []).filter(Boolean);
+  const educationRequirements = (data.education_requirements || []).filter(Boolean);
 
   return (
     <section className="extracted-sections-panel portal-panel portal-panel--elevated">

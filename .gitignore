@@ -21,7 +21,16 @@ data/jobs_live.json
 backend/reports/*
 !backend/reports/README.md
 frontend/node_modules/
+docs/submission/jaamas/figures/scripts/node_modules/
 frontend/dist/
+# LaTeX build artifacts (manuscript)
+docs/submission/jaamas/manuscript/*.aux
+docs/submission/jaamas/manuscript/*.log
+docs/submission/jaamas/manuscript/*.out
+docs/submission/jaamas/manuscript/*.bbl
+docs/submission/jaamas/manuscript/*.blg
+docs/submission/jaamas/manuscript/*.fdb_latexmk
+docs/submission/jaamas/manuscript/*.fls
 .pytest_cache/
 .coverage
 htmlcov/

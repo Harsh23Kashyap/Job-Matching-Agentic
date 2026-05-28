@@ -1,10 +1,11 @@
 \section{Implementation}\label{sec:4}
 
-This section records how the architecture in \S\ref{sec:3} is realized in the repository: gateway routes, agent modules, stores, portal surfaces, typed contracts, parameter defaults, and offline evaluation assets.
+This section describes how the architecture in \S\ref{sec:3} is realized in the repository: gateway routes, agent modules, stores, portal surfaces, typed contracts, parameter defaults, and offline evaluation assets.
+Figure~\ref{fig:8} details the matching pipeline from snapshot inputs through retrieval, composite scoring, constraints, optional branches, and portal-facing explanations.
 Score definitions appear in \S\ref{sec:5}; measured outcomes in \S\ref{sec:6}.
 
-\begin{JFigure}{../figures/Fig4.pdf}
-\figcap{4}{Implementation of the matching pipeline: retrieval backends, composite scoring modules, optional fusion and calibration, and structured explanation generation consumed by portals.}
+\begin{JFigure}{../figures/Fig8.pdf}
+\figcap{8}{Implementation of the matching pipeline: retrieval (exhaustive or ANN primary; lexical benchmark-only), composite scoring with six weighted components, feasibility constraints, optional fusion/calibration/feedback boost/auto-strategy, and structured explanation fork (rule default, LLM optional) consumed by portal cards and drawer.}
 \end{JFigure}
 
 \subsection{Backend implementation}\label{sec:4-backend}
@@ -81,6 +82,7 @@ Table~\ref{tab:workflows} summarizes end-to-end flows; representative endpoint g
 \texttt{POST /feedback}, \texttt{POST /feedback/actions}, \texttt{GET /feedback/me}, \texttt{GET /feedback/counts};
 \texttt{GET /similar/jobs/\{job\_id\}}, \texttt{GET /similar/candidates/\{candidate\_id\}};
 \texttt{GET /system/config}, \texttt{GET /system/fairness}, \texttt{POST /system/vector-store}, \texttt{POST /system/demo/reset} (when demo mode enabled).
+Table~\ref{tab:workflows} summarizes authenticated portal routes, user goals, and the gateway paths that implement them.
 
 \begin{JTable}
 \input{tables/tab-workflows.tex}
@@ -110,6 +112,30 @@ Live job sync is invoked via API or CLI (\S\ref{sec:4}); a dedicated admin UI co
 \leadpara{Shared layout and error handling.}
 All portals render inside \texttt{PortalShell} (\texttt{layouts/PortalShell.jsx}) with role-aware navigation.
 Dedicated error routes (\texttt{pages/errors/ErrorPage.jsx}) present full-screen, centered recovery pages for HTTP 404/502 and unknown failures, with copy that distinguishes client-side routing errors from upstream outages.
+
+Figure~\ref{fig:10} shows representative portal surfaces across candidate onboarding, profile editing, bidirectional matching, employer job management, and the admin research console that invokes the matching pipeline in Figure~\ref{fig:8}.
+Screenshots use the demo corpus and default composite strategy where applicable (\S\ref{sec:4-params}); they illustrate the research prototype UI rather than usability study outcomes.
+
+\begin{figure}[!htbp]
+\centering
+\JFigShot[width=0.92\linewidth]{../figures/screenshots/ui-candidate-onboarding.png}\\[6pt]
+{\small (a) Candidate resume onboarding}\\[12pt]
+\JFigShot[width=0.92\linewidth]{../figures/screenshots/ui-candidate-profile.png}\\[6pt]
+{\small (b) Candidate profile editor}\\[12pt]
+\JFigShot[width=0.92\linewidth]{../figures/screenshots/ui-candidate-matches.png}\\[6pt]
+{\small (c) Candidate job matches}\\[12pt]
+\JFigShot[width=0.72\linewidth]{../figures/screenshots/ui-score-breakdown.png}\\[6pt]
+{\small (d) Composite score breakdown}\\[12pt]
+\JFigShot[width=0.92\linewidth]{../figures/screenshots/ui-employer-jobs.png}\\[6pt]
+{\small (e) Employer job postings}\\[12pt]
+\JFigShot[width=0.92\linewidth]{../figures/screenshots/ui-employer-matches.png}\\[6pt]
+{\small (f) Employer reverse search}\\[12pt]
+\JFigShot[width=0.92\linewidth]{../figures/screenshots/ui-admin-console.png}\\[6pt]
+{\small (g) Admin agent dashboard}\\[12pt]
+\JFigShot[width=0.92\linewidth]{../figures/screenshots/ui-admin-match-run.png}\\[6pt]
+{\small (h) Admin semantic match run}
+\figcap{10}{Portal implementation backing the workflows in Figures~\ref{fig:6}--\ref{fig:7} and the matching pipeline in Figure~\ref{fig:8}: (a)--(b) candidate ingestion and profile maintenance; (c)--(d) ranked job matches with explanation drawer; (e)--(f) employer posting management and reverse candidate search; (g)--(h) admin agent telemetry and manual match run on the demo corpus (portals use composite at top-$K{=}10$; console defaults to semantic at $K{=}5$).}
+\end{figure}
 
 \subsection{Data structures}\label{sec:4-data}
 

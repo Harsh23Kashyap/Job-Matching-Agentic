@@ -604,6 +604,24 @@ Job-Matching-Agentic/
 | [V1 vs V2 scope](docs/design/V1-V2-SCOPE.md) | What shipped in v1/v1.1 vs planned v2 ML |
 | [V1.1 role portals + auth](docs/design/v1.1-role-portals-auth.md) | Auth model, portal routes, ownership |
 | [Session summary 2026-05-27](docs/session/SESSION-2026-05-27.md) | Recent feature work and decisions |
+| [JAAMAS submission](docs/submission/jaamas/build/README.md) | Manuscript PDF, Overleaf zip, figure pipeline |
+
+---
+
+## JAAMAS submission (thesis paper)
+
+**Authors:** Harsh Kashyap, Taranumpreet Kaur Wasu (Thapar Institute of Engineering and Technology)  
+**Supervisor:** Dr Parteek Bhatia (Washington State University)
+
+| Artifact | Path |
+|----------|------|
+| Compiled PDF | `docs/submission/jaamas/manuscript/main.pdf` |
+| Overleaf zip | `docs/submission/jaamas/build/jaamas-overleaf-upload.zip` |
+| Figure sources | `docs/submission/jaamas/figures/` (Fig 1 draw.io; Figs 2–9 Mermaid; Fig 10 screenshots) |
+| Rebuild all | `bash docs/submission/jaamas/build_all.sh` |
+| Screenshot capture | `cd docs/submission/jaamas/figures/scripts && node capture_portal_screenshots.mjs` |
+
+Figure 10 includes eight portal screenshots (candidate onboarding through admin match run). See [figures/README.md](docs/submission/jaamas/figures/README.md).
 
 ---
 
@@ -634,4 +652,4 @@ Job-Matching-Agentic/
 
 ## License and attribution
 
-Thesis research project by **Harsh Kashyap** and **Taranumpreet Kaur Wasu**. See design docs for academic context and evaluation methodology.
+Thesis research project by **Harsh Kashyap** and **Taranumpreet Kaur Wasu** (Thapar Institute of Engineering and Technology), supervised by **Dr Parteek Bhatia** (Washington State University). JAAMAS manuscript and figures: `docs/submission/jaamas/`.

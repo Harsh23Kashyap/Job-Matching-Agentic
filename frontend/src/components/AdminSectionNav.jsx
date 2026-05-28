@@ -1,6 +1,7 @@
 const SECTIONS = [
   { id: "admin-section-health", label: "Health" },
   { id: "admin-section-system", label: "System" },
+  { id: "admin-section-live-jobs", label: "Live jobs" },
   { id: "admin-section-activity", label: "Activity" },
   { id: "admin-section-fairness", label: "Fairness" },
   { id: "admin-section-matching", label: "Matching" },

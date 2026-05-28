@@ -1,10 +1,11 @@
 \section{Quality Metrics}\label{sec:5}
 
 This section defines the scores computed inside the Matchmaking agent and the ranking, explanation, and fairness criteria used in offline evaluation.
+Figure~\ref{fig:9} summarizes the evaluation pipeline from the frozen demo corpus through benchmark drivers, metrics, audits, and regression gates.
 Implementation modules appear in \S\ref{sec:4}; numeric outcomes appear in \S\ref{sec:6}.
 
-\begin{JFigure}{../figures/Fig5.pdf}
-\figcap{5}{Quality evaluation pipeline: labeled corpus, ranking drivers, metric aggregation, fairness audits, and regression gates against committed expected values.}
+\begin{JFigure}{../figures/Fig9.pdf}
+\figcap{9}{Quality evaluation pipeline: frozen demo corpus, benchmark drivers (baselines, progression, ablations, significance, explainability, cross-encoder report, negative mining), metric aggregation, fairness audits, optional ML training of fusion/calibration artifacts, regression gates, and paper tables. Evaluation runs via CLI/pytest only.}
 \end{JFigure}
 
 \subsection{Evaluation corpus and protocol}\label{sec:5-corpus}

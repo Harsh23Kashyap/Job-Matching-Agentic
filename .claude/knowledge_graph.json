@@ -1,161 +1,91 @@
 {
   "version": "2.0",
   "last_updated": "2026-05-28",
-  "graph_version": "v14",
+  "graph_version": "v15",
   "project": "Job-Matching-Agentic",
   "branch": "main",
-  "commit_pushed": "9db6abc",
+  "commit_pushed": "03dc791",
   "local_uncommitted": [
-    "portal UI polish (page-shell, applicants feed, match dedupe, drawer scroll)",
-    "external live jobs API",
-    "test reorg unit/backend + unit/frontend",
-    "error page UX",
-    "HANDOFF.md"
+    "JAAMAS manuscript authors + Figs 1-10",
+    "eight portal screenshots + Playwright capture",
+    "Overleaf zip + figure border pipeline",
+    "table in-flow layout + profile null-guard",
+    "HANDOFF + knowledge graph v15"
   ],
   "architecture": "multi-agent rewrite (Candidate, Employer, Matchmaking)",
-  "entry_count": 48,
-  "ui_polish_v14": {
-    "shell": "frontend/src/theme/page-shell.css",
-    "max_width": "1120px",
-    "pages": [
-      "candidate/matches",
-      "candidate/profile",
-      "employer/jobs",
-      "employer/matches",
-      "employer/applications"
-    ],
-    "patterns": [
-      "hero stats/refresh deduped on match pages",
-      "flat applicant feed with search/filter",
-      "match drawer 400px 100dvh 96px bottom pad",
-      "post-role panel scroll-safe"
-    ]
+  "authors": {
+    "authors": ["Harsh Kashyap", "Taranumpreet Kaur Wasu"],
+    "affiliation": "Thapar Institute of Engineering and Technology",
+    "supervisor": "Dr Parteek Bhatia (Washington State University)"
   },
+  "jaamas": {
+    "manuscript_pdf": "docs/submission/jaamas/manuscript/main.pdf",
+    "overleaf_zip": "docs/submission/jaamas/build/jaamas-overleaf-upload.zip",
+    "figure_count": 10,
+    "screenshot_panels": 8,
+    "capture_script": "docs/submission/jaamas/figures/scripts/capture_portal_screenshots.mjs"
+  },
+  "entry_count": 52,
   "entries": [
     {
-      "path": "frontend/src/theme/page-shell.css",
-      "language": "css",
-      "purpose": "Shared portal layout: 1120px shell, form footer, scroll padding, post-role panel",
+      "path": "docs/submission/jaamas/manuscript/main.tex",
+      "language": "latex",
+      "purpose": "JAAMAS manuscript front matter, authors, abstract",
       "importance": "HIGH",
       "indexed": "2026-05-28"
     },
     {
-      "path": "frontend/src/pages/employer/Applications.jsx",
+      "path": "docs/submission/jaamas/manuscript/sections/section-4-implementation.tex",
+      "language": "latex",
+      "purpose": "Implementation section; Figure 8 pipeline + Figure 10 eight screenshots",
+      "importance": "HIGH",
+      "indexed": "2026-05-28"
+    },
+    {
+      "path": "docs/submission/jaamas/figures/scripts/capture_portal_screenshots.mjs",
       "language": "javascript",
-      "purpose": "Flat applicant feed with search, role filter, sort, interactive rows",
+      "purpose": "Playwright capture of all portal screenshots for Figure 10",
       "importance": "HIGH",
       "indexed": "2026-05-28"
     },
     {
-      "path": "frontend/src/pages/employer/Matches.jsx",
+      "path": "docs/submission/jaamas/figures/crop_figures.py",
+      "language": "python",
+      "purpose": "Crop, square-pad, and bake #94a3b8 borders on figure PNG/PDF",
+      "importance": "HIGH",
+      "indexed": "2026-05-28"
+    },
+    {
+      "path": "archive/dev-scripts/make_overleaf_zip.sh",
+      "language": "shell",
+      "purpose": "Package manuscript + figures + screenshots for Overleaf upload",
+      "importance": "HIGH",
+      "indexed": "2026-05-28"
+    },
+    {
+      "path": "frontend/src/utils/extractedSections.js",
       "language": "javascript",
-      "purpose": "Employer matches: hero role dropdown only; stats/refresh in results card",
-      "importance": "HIGH",
-      "indexed": "2026-05-28"
-    },
-    {
-      "path": "frontend/src/pages/candidate/Matches.jsx",
-      "language": "javascript",
-      "purpose": "Candidate matches: hero title/subtitle only; stats/refresh in results card",
-      "importance": "HIGH",
-      "indexed": "2026-05-28"
-    },
-    {
-      "path": "frontend/src/components/CandidateJobResults.jsx",
-      "language": "javascript",
-      "purpose": "Candidate results panel with MatchSummaryCards and toolbar refresh",
-      "importance": "HIGH",
-      "indexed": "2026-05-28"
-    },
-    {
-      "path": "frontend/src/components/EmployerCandidateResults.jsx",
-      "language": "javascript",
-      "purpose": "Employer results panel with inner stats and toolbar refresh",
-      "importance": "HIGH",
-      "indexed": "2026-05-28"
-    },
-    {
-      "path": "frontend/src/components/MatchDetailsDrawer.jsx",
-      "language": "javascript",
-      "purpose": "Match side drawer 400px, 100dvh scroll, explainability + coach",
-      "importance": "HIGH",
-      "indexed": "2026-05-28"
-    },
-    {
-      "path": "frontend/src/pages/employer/Jobs.jsx",
-      "language": "javascript",
-      "purpose": "My jobs list + post-role panel with scroll-safe sticky footer",
-      "importance": "HIGH",
-      "indexed": "2026-05-28"
-    },
-    {
-      "path": "frontend/src/layouts/PortalShell.jsx",
-      "language": "javascript",
-      "purpose": "Portal shell with unified 1120px container routes",
-      "importance": "HIGH",
-      "indexed": "2026-05-28"
-    },
-    {
-      "path": "frontend/src/App.css",
-      "language": "css",
-      "purpose": "Design system imports theme layers; drawer, applicant rows, match cards",
+      "purpose": "Resume section helpers; null-safe hasExtractedSections for profile page",
       "importance": "MEDIUM",
-      "indexed": "2026-05-28"
-    },
-    {
-      "path": "backend/core/real_jobs_sync.py",
-      "language": "python",
-      "purpose": "Fetch, normalize, paginate external jobs; write/load jobs_live.json snapshot",
-      "importance": "HIGH",
-      "indexed": "2026-05-28"
-    },
-    {
-      "path": "backend/services/real_jobs_service.py",
-      "language": "python",
-      "purpose": "Sync orchestration: replace employer corpus, reindex, boot from snapshot",
-      "importance": "HIGH",
-      "indexed": "2026-05-28"
-    },
-    {
-      "path": "backend/gateway/routes/real_jobs.py",
-      "language": "python",
-      "purpose": "GET /real-jobs/status, POST /real-jobs/sync",
-      "importance": "HIGH",
       "indexed": "2026-05-28"
     },
     {
       "path": "HANDOFF.md",
       "language": "markdown",
-      "purpose": "Session continuation: next steps, blockers, env snapshot",
+      "purpose": "Session continuation: JAAMAS status, next steps, commands",
       "importance": "HIGH",
       "indexed": "2026-05-28"
     }
   ],
   "relationships": [
-    { "from": "frontend/src/layouts/PortalShell.jsx", "to": "frontend/src/theme/page-shell.css", "type": "wraps pages in unified shell" },
-    { "from": "frontend/src/pages/employer/Applications.jsx", "to": "frontend/src/pages/employer/Matches.jsx", "type": "View links with ?job=" },
-    { "from": "frontend/src/pages/employer/Matches.jsx", "to": "frontend/src/components/EmployerCandidateResults.jsx", "type": "delegates stats + refresh" },
-    { "from": "frontend/src/pages/candidate/Matches.jsx", "to": "frontend/src/components/CandidateJobResults.jsx", "type": "delegates stats + refresh" },
-    { "from": "frontend/src/components/MatchDetailsDrawer.jsx", "to": "frontend/src/App.css", "type": "drawer layout styles" },
-    { "from": "backend/gateway/routes/real_jobs.py", "to": "backend/services/real_jobs_service.py", "type": "HTTP → sync" }
-  ],
-  "key_flows": [
-    "PortalShell → page-container 1120px → page hero → results card (stats + toolbar + list)",
-    "Applications search/filter → flat applicant-row → /employer/matches?job=",
-    "Match row View details → MatchDetailsDrawer (400px, scroll-safe bottom)"
-  ],
-  "remaining_stale": [
-    "frontend/src/pages/candidate/Profile.jsx",
-    "frontend/src/pages/candidate/Onboarding.jsx",
-    "frontend/src/components/MatchExplainability.jsx",
-    "frontend/src/components/SystemConfigPanel.jsx",
-    "backend/gateway/app.py",
-    "README.md"
+    { "from": "capture_portal_screenshots.mjs", "to": "section-4-implementation.tex", "type": "PNG assets for Figure 10" },
+    { "from": "make_overleaf_zip.sh", "to": "jaamas-overleaf-upload.zip", "type": "packages upload artifact" },
+    { "from": "extractedSections.js", "to": "Profile.jsx", "type": "null-safe extracted sections guard" }
   ],
   "next_steps": [
-    "Commit portal UI polish + prior product work",
-    "Refresh remaining stale graph entries on next /knowledge refresh",
-    "Set REAL_JOBS_BASE_URL and smoke-test sync",
-    "Resolve manuscript todos and citations"
+    "Add corresponding-author email in main.tex",
+    "Resolve manuscript citation TODOs in section 2",
+    "Optional: redraw Figs 2-9 in draw.io style",
+    "Run full test suite after push"
   ]
 }

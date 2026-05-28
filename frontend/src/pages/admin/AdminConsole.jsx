@@ -9,6 +9,7 @@ import AgentStatusPanel from "../../components/AgentStatusPanel.jsx";
 import MatchControls from "../../components/MatchControls.jsx";
 import AdminMatchResults from "../../components/AdminMatchResults.jsx";
 import AdminFairnessPanel from "../../components/AdminFairnessPanel.jsx";
+import AdminLiveJobsPanel from "../../components/AdminLiveJobsPanel.jsx";
 import AdminSystemFlowPanel from "../../components/AdminSystemFlowPanel.jsx";
 import { runDailyBatch, runMatch, fetchFairnessReport } from "../../api/client.js";
 import { useAgentStatus } from "../../hooks/useAgentStatus.js";
@@ -140,6 +141,7 @@ export default function AdminConsole() {
 
           <section className="admin-workspace-block">
             <SystemConfigPanel />
+            <AdminLiveJobsPanel onSynced={refresh} />
             <AgentEventStrip />
             <AdminFairnessPanel fairness={fairness} />
           </section>

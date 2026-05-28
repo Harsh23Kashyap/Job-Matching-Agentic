@@ -18,3 +18,5 @@ Research and benchmarking console · not shown to product users.
 Demo: `demo.admin@test.com` / `demo1234`
 
 For thesis narrative see [../../../docs/demo/DEMO-SCRIPT.md](../../../docs/demo/DEMO-SCRIPT.md) Part 1.
+
+**Paper (Figure 10):** Admin console and manual match run in `ui-admin-console.png`, `ui-admin-match-run.png`.

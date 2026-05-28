@@ -36,3 +36,7 @@ All application code is under [src/](src/README.md).
 ## Environment
 
 Optional: `VITE_API_BASE_URL` · leave empty to use Vite proxy (default local setup).
+
+## JAAMAS Figure 10 screenshots
+
+Playwright capture (backend + frontend must be running): `docs/submission/jaamas/figures/scripts/capture_portal_screenshots.mjs`

@@ -1,9 +1,9 @@
 \section{Results and Discussion}\label{sec:6}
 
-This section reports what we measured, what we compared it against, and what the numbers mean for people who would use JobMatch---not only for retrieval researchers.
-All figures come from committed benchmark artifacts on the demo corpus described in \S\ref{sec:5}; they do not predict real hiring outcomes at scale.
+This section reports benchmark results on the demo corpus defined in \S\ref{sec:5}, compares ranking methods, interprets outcomes for platform stakeholders, and discusses architectural implications together with measurement limits.
+All figures come from committed benchmark artifacts; they do not predict hiring outcomes at production scale.
 
-\subsection{What was evaluated}\label{sec:6-evaluated}
+\subsection{Evaluation scope and protocol}\label{sec:6-evaluated}
 
 We evaluated \emph{resume-to-jobs matching}: for each of 30 sample resumes, the system ranks 15 job postings and we ask how often the right jobs appear near the top.
 Human annotators supplied 47 graded pairs---each pair links one resume to one job with a relevance score of none (0), partial (1), or strong (2).
@@ -17,9 +17,9 @@ Fourth, \textbf{speed}: how long does each ranking take on this small pool?
 Metrics are averaged across all 30 resumes so that no single profile dominates the score.
 Formal definitions appear in \S\ref{sec:5}; the same scoring code powers both these offline tests and the live portals (\S\ref{sec:4}).
 
-\subsection{Baselines compared}\label{sec:6-baselines}\label{sec:6-comparison}
+\subsection{Baseline methods}\label{sec:6-baselines}\label{sec:6-comparison}
 
-We compared methods that recruitment tools often use, alone or in combination.
+We compared methods commonly used in recruitment pipelines, alone and in combination.
 
 \leadpara{Keyword-style methods.}
 TF--IDF and BM25 treat resumes and jobs as word lists; they reward shared terms and run very quickly.
@@ -36,15 +36,15 @@ Composite scoring---the portal default---adds title fit, experience, compensatio
 We also tested optional cross-encoder reranking (a slower second-pass scorer) and post-hoc constraint filtering.
 
 Table~\ref{tab:method-comparison} summarizes the head-to-head comparison on the same labeled set.
-Multimodal weighted scoring achieves the highest ranking quality (nDCG@5 $= 0.924$) among the methods listed, while BM25 and TF--IDF stay surprisingly close (nDCG@5 $\approx 0.89$--$0.90$).
-That pattern matters: on a small job pool, simple keyword methods are hard to beat, so gains from AI-based matching are real but not dramatic.
+Multimodal weighted scoring achieves the highest ranking quality (nDCG@5 $= 0.924$) among the methods listed, while BM25 and TF--IDF remain close (nDCG@5 $\approx 0.89$--$0.90$).
+On this small job pool, lexical baselines remain competitive, so gains from dense and hybrid matching are measurable but modest.
 Semantic similarity alone (nDCG@5 $= 0.878$) underperforms both keyword baselines and multimodal blends, which supports combining \emph{what the text means} with \emph{which skills are named}.
 
 \begin{JTable}
 \input{tables/tab-methods.tex}
 \end{JTable}
 
-\subsection{What the main results mean}\label{sec:6-main-result}\label{sec:6-progression}\label{sec:6-fusion}
+\subsection{Main results}\label{sec:6-main-result}\label{sec:6-progression}\label{sec:6-fusion}
 
 The progression study (Table~\ref{tab:progression}) ranks every job for every resume and tracks how design choices accumulate.
 The best single configuration---multimodal scoring with soft skill embeddings---reaches nDCG@5 $= 0.969$ and recall@5 $= 1.00$, meaning every resume retrieves all of its labeled relevant jobs within the top five.
@@ -72,25 +72,25 @@ These models are available in the codebase but turned off in default portal sett
 \input{tables/tab-model-params.tex}
 \end{JTable}
 
-\leadpara{Plain-language takeaway.}
-The main result is modest but consistent: matching improves when the system considers both language meaning and explicit skills, and the best scores come from combining those signals rather than relying on either alone.
-No method achieves perfect precision---at best, roughly three in ten top-five slots are relevant (P@5 $\approx 0.31$)---because the corpus is small, labels are sparse, and several jobs can look plausible for the same resume.
-We therefore describe JobMatch as \emph{assistive} ranking with explainable reasons, not as an automated hiring decision engine.
+\leadpara{Summary.}
+The main finding is modest but consistent: matching improves when the system combines language semantics with explicit skills, and the highest scores arise from hybrid signals rather than either channel alone.
+No method achieves high precision---at best, roughly three in ten top-five slots are relevant (P@5 $\approx 0.31$)---because the corpus is small, labels are sparse, and several jobs can appear plausible for the same résumé.
+We therefore characterize JobMatch as \emph{assistive} ranking with explainable reasons, not as an automated hiring decision system.
 
 \subsection{Multi-agent state sharing and usability}\label{sec:6-agent-sharing}\label{sec:6-agentic}
 
 The offline tables above test the Matchmaking agent's \emph{scoring} logic.
-They do not directly score portal usability or measure whether event-driven coordination feels faster to a user.
+They do not directly score portal usability or quantify latency perceived by end users.
 We separate what the benchmarks show from what the architecture is designed to improve.
 
 When a candidate edits a resume or an employer revises a job description, the owning agent rebuilds a versioned snapshot and shared embedding, then notifies the Matchmaking layer through the event bus (\S\ref{sec:3}--\S\ref{sec:4}).
-That pattern targets a usability problem seen in monolithic ATS tools: rankings that stay stale after a profile change, or that change without a visible cause.
+The event-driven path addresses a usability problem seen in monolithic ATS tools: rankings that stay stale after a profile change, or that change without a visible cause.
 Role-separated agents also keep each side's data under its owner's control, which supports trust and auditability even when two users see the same match score from the neutral Matchmaking agent.
 
 State sharing therefore improves \textbf{system usability and traceability}---fresh rankings after edits, clear ownership, structured explanations---more than it maximizes a single offline metric on a frozen corpus.
 The benchmarks validate that the shared scoring core ranks sensibly under manual labels; they do not yet prove that multi-agent coordination reduces time-to-hire or increases applicant satisfaction in the field.
 
-\subsection{Where the system performs well}\label{sec:6-strengths}\label{sec:6-ablation-latency}
+\subsection{Strengths}\label{sec:6-strengths}\label{sec:6-ablation-latency}
 
 Several patterns repeat across tables.
 
@@ -122,9 +122,9 @@ This does not prove those jobs are truly bad fits, but it shows the label file i
 The live portal defaults to composite scoring precisely because each channel maps to a human-readable explanation (skills matched, experience gap, remote fit).
 Research drivers achieve slightly higher nDCG with soft-embed multimodal or learned fusion, but those variants expose fewer interpretable components to end users (\S\ref{sec:4-params}).
 
-\subsection{Where the system falls short}\label{sec:6-limitations}\label{sec:6-fairness}\label{sec:6-hard-negs}\label{sec:6-latency}
+\subsection{Limitations}\label{sec:6-limitations}\label{sec:6-fairness}\label{sec:6-hard-negs}\label{sec:6-latency}
 
-Honest limits follow from the corpus, the methods, and what we did not measure.
+The following limits follow from the corpus size, method choices, and scope of measurement.
 
 \leadpara{Small, controlled dataset.}
 Thirty resumes and fifteen jobs make recall@5 easy to saturate---many methods reach ${\ge}0.93$---so differences in nDCG are informative but narrow.
@@ -155,20 +155,20 @@ This is an engineering sanity check, not demographic fairness certification; pro
 We did not measure interview rates, time-to-fill, applicant satisfaction, or recruiter workload.
 Explainability quality is defined offline (\S\ref{sec:5-explainability}) but not yet summarized in a results table here \todo{Add explainability evaluation summary table to this section.}.
 
-\subsection{Implications for job seekers and employers}\label{sec:6-implications}
+\subsection{Implications for users}\label{sec:6-implications}
 
-\leadpara{For job seekers.}
-JobMatch is designed to act as an assistive representative: keep a structured profile, see \emph{why} a job ranked highly or poorly, and choose whether to save or apply.
-The evaluation suggests that suggestions are most trustworthy when the system weighs both résumé wording and listed skills---matching how a person might skim a posting for fit.
-Candidates should not treat top-five lists as exhaustive or authoritative; with P@5 near 0.31, several shown jobs may be weak fits, and relevant openings can still be missed when the job pool grows beyond fifteen roles.
+\leadpara{Job seekers.}
+JobMatch is designed as an assistive representative: maintain a structured profile, inspect why a job ranked highly or poorly, and decide whether to save or apply.
+The evaluation indicates that suggestions are most reliable when the system weights both résumé text and listed skills---consistent with how applicants skim postings for fit.
+Top-five lists are neither exhaustive nor authoritative; with P@5 near 0.31, several shown jobs may be weak fits, and relevant openings can be missed when the job pool exceeds fifteen roles.
 
-\leadpara{For employers.}
-Employers get symmetric reverse matching: ranked candidates with component-level reasons instead of a black-box score.
-Hybrid ranking supports the recruiter who cares about keywords \emph{and} the hiring manager who reads career narrative.
+\leadpara{Employers.}
+Employers receive symmetric reverse matching: ranked candidates with component-level reasons instead of an opaque score.
+Hybrid ranking supports recruiters who weight keywords and hiring managers who read career narrative.
 Hard post-filters can remove partially suitable candidates from the graded top five, so the portal keeps constraints optional and off by default.
-When a job description changes, the employer agent's update path is meant to refresh rankings without manual re-upload to a separate scoring service.
+When a job description changes, the Employer Agent update path refreshes rankings without re-upload to a separate scoring service.
 
 \leadpara{Shared implication.}
-Both sides benefit when software explains its suggestions and leaves hire, reject, and apply decisions with people.
-The benchmarks support that product stance on a demo corpus: combined signals rank better than single-signal search, explanations align with composite channels, and the multi-agent layout keeps profile edits on the owning side while a neutral Matchmaking agent serves both portals.
-They do not yet show that this architecture wins on hiring outcomes in production---that remains future work with larger labeled datasets, portal-default ablations, and field studies.
+Both sides benefit when software explains its suggestions and leaves hire, reject, and apply decisions with users.
+The benchmarks support that design on a demo corpus: combined signals rank better than single-signal search, explanations align with composite channels, and the multi-agent layout keeps profile edits on the owning side while a neutral Matchmaking Agent serves both portals.
+They do not establish production gains on hiring outcomes; that requires larger labeled datasets, portal-default ablations, and field studies.

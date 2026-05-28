@@ -6935,6 +6935,161 @@ button:focus-visible {
   background: color-mix(in srgb, var(--warning, #d97706) 4%, var(--bg-card));
 }
 
+.admin-live-jobs-panel {
+  margin-top: 16px;
+}
+
+.admin-live-jobs-panel__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.admin-live-jobs-panel__head h2 {
+  margin: 0 0 4px;
+}
+
+.admin-live-jobs-panel__intro {
+  margin: 0;
+  max-width: 52ch;
+  font-size: calc(12px * var(--font-scale));
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.admin-live-jobs-panel__intro code {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: calc(11px * var(--font-scale));
+}
+
+.admin-live-jobs-panel__loading {
+  margin: 0;
+  font-size: calc(13px * var(--font-scale));
+  color: var(--text-secondary);
+}
+
+.admin-live-jobs-panel__badges {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin: 12px 0 8px;
+}
+
+.admin-live-jobs-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: calc(11px * var(--font-scale));
+  font-weight: 650;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.admin-live-jobs-badge--on {
+  background: var(--status-pass-bg);
+  color: var(--status-pass-fg);
+  border: 1px solid color-mix(in srgb, var(--status-pass-fg) 25%, transparent);
+}
+
+.admin-live-jobs-badge--warn {
+  background: var(--status-warn-bg);
+  color: var(--status-warn-fg);
+  border: 1px solid color-mix(in srgb, var(--status-warn-fg) 25%, transparent);
+}
+
+.admin-live-jobs-badge--off {
+  background: var(--muted);
+  color: var(--muted-foreground);
+  border: 1px solid var(--border-subtle);
+}
+
+.admin-live-jobs-source {
+  font-size: calc(12px * var(--font-scale));
+  color: var(--text-secondary);
+}
+
+.admin-live-jobs-kv {
+  margin-top: 8px;
+}
+
+.admin-live-jobs-path {
+  word-break: break-all;
+  font-size: calc(11px * var(--font-scale));
+}
+
+.admin-live-jobs-hint {
+  margin: 12px 0 0;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--muted) 55%, var(--card));
+  border: 1px solid var(--border-subtle);
+  font-size: calc(12px * var(--font-scale));
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.admin-live-jobs-hint code {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: calc(11px * var(--font-scale));
+}
+
+.admin-live-jobs-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.admin-live-jobs-reindex {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: calc(13px * var(--font-scale));
+  color: var(--text-secondary);
+  cursor: pointer;
+  min-height: 44px;
+}
+
+.admin-live-jobs-reindex input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--primary);
+}
+
+.admin-live-jobs-success {
+  margin: 12px 0 0;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  background: var(--status-pass-bg);
+  border: 1px solid color-mix(in srgb, var(--status-pass-fg) 22%, transparent);
+  color: var(--status-pass-fg);
+  font-size: calc(13px * var(--font-scale));
+  line-height: 1.45;
+}
+
+.admin-live-jobs-error {
+  margin-top: 12px;
+}
+
+@media (max-width: 640px) {
+  .admin-live-jobs-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .admin-live-jobs-actions .btn-primary {
+    width: 100%;
+  }
+}
+
 .admin-demo-access-card h3 {
   margin: 0 0 6px;
   font-size: calc(14px * var(--font-scale));

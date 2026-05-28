@@ -1,4 +1,15 @@
-## JAAMAS Manuscript Design Polish - 2026-05-17
+## JAAMAS portal screenshots (Figure 10) — 2026-05-28
+
+**Decisions:**
+- Purpose: prove prototype exists (back Figs 6–8, §4 frontend).
+- Placement: §4 after frontend subsection; Figure 10 with three sub-panels.
+- Set: (a) candidate matches+drawer, (b) employer matches+drawer, (c) composite breakdown crop.
+- Capture via Playwright script against demo accounts; not usability study claims.
+
+**Approach chosen:** Approach A — two-sided matches + breakdown detail panel.
+**Outcome:** Implemented (screenshots + LaTeX + capture script).
+**Files affected:** `figures/screenshots/*.png`, `figures/scripts/capture_portal_screenshots.mjs`, `manuscript/sections/section-4-implementation.tex`, `manuscript/jaamas-macros.tex`, `figures/README.md`.
+
 
 **Decisions:**
 - Keep the active manuscript visually Springer/JAAMAS-safe: no colored headings, figure borders, shaded rows, or layout packages.
@@ -30,7 +41,7 @@
 
 **Approach chosen:** Event-driven monolith with agent state ownership and pub-sub events.
 **Outcome:** HLD drafted; SDD drafted; V1-V2 scope doc added; no code yet.
-**Files affected:** `docs/design/HLD-multi-agent-system.md`, `docs/design/SDD-multi-agent-system.md`, `docs/design/V1-V2-SCOPE.md`, `.claude/knowledge_graph.md` (rewrite roadmap).
+**Files affected:** `docs/design/HLD-multi-agent-system.md`, `docs/design/SDD-multi-agent-system.md`, `docs/design/V1-V2-SCOPE.md`, local knowledge graph (rewrite roadmap).
 
 ## Role portals + auth (v1.1) — 2026-05-27
 

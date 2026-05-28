@@ -1,8 +1,74 @@
-flowchart LR
-  A[Text normalization] --> B[Skill extraction]
-  B --> C[Lexical retrieval]
-  C --> D[Embedding retrieval]
-  D --> E[Constraint scoring]
-  E --> F[Fusion RRF]
-  F --> G[Calibration]
-  G --> H[Explanation]
+flowchart TB
+  H_IN["Read-only inputs"]
+  CS("Candidate snapshot ID")
+  JS("Job snapshot set")
+  EVT("Invalidation events")
+  H_IN --> CS --> JS --> EVT
+
+  H_RET["Retrieval"]
+  EXH("Exhaustive demo default")
+  ANN("Vector ANN search")
+  LEX("Lexical BM25 eval only")
+  H_RET --> EXH --> ANN
+  ANN -.-> LEX
+
+  ROUTE("Auto strategy router")
+
+  H_SCORE["Composite scoring"]
+  SEM("Semantic 28%")
+  SKL("Skills 27%")
+  TIT("Title fit 10%")
+  EXP("Experience 15%")
+  PAY("Compensation 10%")
+  REM("Remote 10%")
+  COMP("Weighted final score")
+  H_SCORE --> SEM --> SKL --> TIT --> EXP --> PAY --> REM --> COMP
+
+  CON("Feasibility constraints")
+  RRF("RRF fusion")
+  XENC("Cross-encoder rerank")
+  CAL("Calibration")
+  FDB("Feedback boost")
+  CON --> RRF --> XENC --> CAL
+
+  H_EXPL["Explanation"]
+  JSON("Structured JSON")
+  RULE("Rule explainer default")
+  GLLM("Grounded LLM explainer")
+  H_EXPL --> JSON --> RULE
+  GLLM -.-> JSON
+
+  RANK("Ranked list")
+  SESS("Invalidation + session log")
+  SIM("Similar jobs / candidates")
+  RANK --> SESS
+  RANK -.-> SIM
+
+  JS --> EXH
+  CS --> EXH
+  EXH --> H_SCORE
+  EVT --> SESS
+  LEX -.-> COMP
+  ROUTE -.-> COMP
+  COMP --> CON
+  CAL --> RANK
+  CON --> H_EXPL
+  FDB -.-> CON
+
+  classDef header fill:#f1f5f9,stroke:#334155,color:#0f172a,stroke-width:2.5px,font-weight:bold
+  classDef input fill:#eff6ff,stroke:#2563eb,color:#1e3a8a,stroke-width:2.5px
+  classDef ret fill:#dbeafe,stroke:#1d4ed8,color:#1e3a8a,stroke-width:2.5px
+  classDef score fill:#e0f2fe,stroke:#0284c7,color:#0c4a6e,stroke-width:2.5px
+  classDef post fill:#ecfdf5,stroke:#059669,color:#064e3b,stroke-width:2.5px
+  classDef expl fill:#faf5ff,stroke:#7c3aed,color:#4c1d95,stroke-width:2.5px
+  classDef out fill:#f1f5f9,stroke:#475569,color:#0f172a,stroke-width:2.5px
+  classDef opt fill:#fffbeb,stroke:#d97706,color:#92400e,stroke-width:2.5px
+
+  class H_IN,H_RET,H_SCORE,H_EXPL header
+  class CS,JS,EVT input
+  class EXH,ANN ret
+  class SEM,SKL,TIT,EXP,PAY,REM,COMP score
+  class CON,RRF,XENC,CAL post
+  class JSON,RULE expl
+  class RANK,SESS out
+  class LEX,ROUTE,FDB,GLLM,SIM opt

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { ROLE_HOME } from "../context/AuthContext.jsx";
 
 function userInitials(email) {
@@ -22,7 +22,6 @@ const SETTINGS_PATH = {
 export default function UserMenu({ user, onLogout }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const close = (e) => {
@@ -70,7 +69,6 @@ export default function UserMenu({ user, onLogout }) {
             onClick={async () => {
               setOpen(false);
               await onLogout();
-              navigate("/login");
             }}
           >
             Sign out

@@ -17,10 +17,11 @@ export function formatProjectEntry(entry) {
   return `${name}${tech}`;
 }
 
-export function enrichSummaryFromExtracted(summary, extractedRaw = {}) {
+export function enrichSummaryFromExtracted(summary, extractedRaw) {
+  const raw = extractedRaw ?? {};
   const base = String(summary || "").trim();
-  const education = (extractedRaw.education || []).map(formatEducationEntry).filter(Boolean);
-  const projects = (extractedRaw.projects || []).map(formatProjectEntry).filter(Boolean);
+  const education = (raw.education || []).map(formatEducationEntry).filter(Boolean);
+  const projects = (raw.projects || []).map(formatProjectEntry).filter(Boolean);
 
   if (base.length >= 40 || (!education.length && !projects.length)) {
     return base;
@@ -37,11 +38,12 @@ export function enrichSummaryFromExtracted(summary, extractedRaw = {}) {
   return parts.join(" ").trim().slice(0, 1200);
 }
 
-export function hasExtractedSections(extractedRaw = {}) {
+export function hasExtractedSections(extractedRaw) {
+  const raw = extractedRaw ?? {};
   return Boolean(
-    (extractedRaw.education || []).length ||
-      (extractedRaw.projects || []).length ||
-      (extractedRaw.responsibilities || []).length ||
-      (extractedRaw.education_requirements || []).length,
+    (raw.education || []).length ||
+      (raw.projects || []).length ||
+      (raw.responsibilities || []).length ||
+      (raw.education_requirements || []).length,
   );
 }

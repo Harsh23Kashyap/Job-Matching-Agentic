@@ -1,6 +1,6 @@
 # Documentation
 
-Design docs, demo scripts, session notes, and research inventory.
+Design docs, demo scripts, session notes, research inventory, and **JAAMAS submission** assets.
 
 ## Folders
 
@@ -10,6 +10,7 @@ Design docs, demo scripts, session notes, and research inventory.
 | [demo/](demo/README.md) | Demo | 15-min script, pre-flight checklist |
 | [session/](session/README.md) | Dev notes | Session summaries |
 | [research/](research/) | · | `PAPER-FEATURES-INVENTORY.md` |
+| [submission/jaamas/](submission/jaamas/build/README.md) | JAAMAS | Manuscript, figures, Overleaf zip |
 
 ## Start here
 
@@ -17,6 +18,7 @@ Design docs, demo scripts, session notes, and research inventory.
 |----------|----------|
 | New developer | [../README.md](../README.md) → [design/HLD-multi-agent-system.md](design/HLD-multi-agent-system.md) |
 | Thesis demo | [demo/DEMO-SCRIPT.md](demo/DEMO-SCRIPT.md) |
+| Paper / Overleaf | [submission/jaamas/build/README.md](submission/jaamas/build/README.md) |
 | Agent handoff | [../HANDOFF.md](../HANDOFF.md) |
 
 ## Folder READMEs elsewhere

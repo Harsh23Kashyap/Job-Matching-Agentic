@@ -1,0 +1,51 @@
+flowchart TB
+  subgraph P1["Phase 1 · Ingestion"]
+    S1("1 Candidate: upload / edit resume")
+    S2("2 Portal: forward raw document")
+    S3("3 Candidate agent: parse and normalize")
+    S4("4 Candidate agent: quality check")
+    S5("5 Portal: show extracted fields")
+    S6("6 Candidate: confirm profile")
+    S1 --> S2 --> S3 --> S4 --> S5 --> S6
+  end
+
+  subgraph P2["Phase 2 · Snapshot and index"]
+    S7("7 Portal: commit profile + snapshot")
+    S8("8 Candidate agent: ownership link + validate")
+    S9("9 Vector store: upsert embeddings")
+    S10("10 Candidate agent: snapshot / invalidation event")
+    S7 --> S8 --> S9 --> S10
+  end
+
+  subgraph P3["Phase 3 · Matchmaking"]
+    S11("11 Matchmaking agent: read jobs + candidate vector")
+    S12("12 Matchmaking agent: score rank explain")
+    S13("13 Portal: ranked job list + breakdown drawer")
+    S11 --> S12 --> S13
+  end
+
+  subgraph P4["Phase 4 · Optional coach"]
+    S14("14 Candidate: open job detail optional")
+    S15("15 Candidate agent: resume suggestions read-only")
+    S16("16 Portal: improvement tips")
+    S14 --> S15 --> S16
+  end
+
+  subgraph P5["Phase 5 · User actions"]
+    S17("17 Candidate: save / apply / dismiss")
+    S18("18 Feedback store: recordFeedbackAction")
+    S17 --> S18
+  end
+
+  S6 --> S7
+  S10 --> S11
+  S13 --> S14
+  S13 --> S17
+  S16 -.-> S17
+
+  classDef phase fill:#f8fafc,stroke:#334155,color:#0f172a,stroke-width:2.5px
+  classDef step fill:#eff6ff,stroke:#2563eb,color:#1e3a8a,stroke-width:2.5px
+  classDef opt fill:#fffbeb,stroke:#d97706,color:#92400e,stroke-width:2.5px
+
+  class S1,S2,S3,S4,S5,S6,S7,S8,S9,S10,S11,S12,S13,S17,S18 step
+  class S14,S15,S16 opt

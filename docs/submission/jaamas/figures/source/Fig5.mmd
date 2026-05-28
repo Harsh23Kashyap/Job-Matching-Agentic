@@ -1,7 +1,88 @@
-flowchart LR
-  A[Dataset] --> B[Labels]
-  B --> C[Negative mining]
-  C --> D[Ranking runs]
-  D --> E[Metrics]
-  E --> F[Fairness audit]
-  F --> G[Regression tests]
+flowchart TB
+  CP("Candidate portal")
+  EP("Employer portal")
+  AD("Admin console")
+
+  AUTH("Auth sessions roles")
+  RO("ReadOnly middleware")
+  API("REST handlers")
+
+  C1("Candidate agent: parse pipeline")
+  C2("Candidate agent: profile + snapshot")
+  CVS[("Candidate vectors")]
+  CACT[("Activity SQLite")]
+
+  E1("Employer agent: parse + live sync")
+  E2("Employer agent: job + snapshot + status")
+  JVS[("Job vectors")]
+  ELIVE("Live jobs sync")
+
+  M1("Matchmaking agent: retrieve + score")
+  M2("Matchmaking agent: explain + rank")
+  MSESS("Invalidation + session log")
+
+  SQL[("SQLite users feedback activity")]
+  BOOT[("Bootstrap JSON cvs jobs")]
+  LIVE[("jobs_live snapshot")]
+
+  CAT[("Skill catalog")]
+  BUS("Event bus")
+  SNAP("Snapshot contracts")
+  ML[("fusion calibration models")]
+
+  ACT("Portal save apply dismiss")
+  FAPI("feedback actions API")
+
+  CH("Chroma")
+  QD("Qdrant")
+
+  CP --> EP --> AD --> AUTH
+  AUTH --> RO --> API
+  API --> C1 --> C2 --> CVS
+  C2 --> CACT
+  API --> E1 --> E2 --> JVS
+  ELIVE -.-> E1
+  LIVE -.-> E1
+  BOOT -.-> C2
+  BOOT -.-> E2
+  API --> SQL
+  API --> M1 --> M2
+  MSESS -.-> M1
+  CP -.-> ACT
+  EP -.-> ACT
+  ACT --> FAPI --> SQL
+  FAPI -.-> M1
+  CVS -.-> M1
+  JVS -.-> M1
+  C2 --> SNAP
+  E2 --> SNAP
+  C2 -.-> BUS
+  E2 -.-> BUS
+  BUS -.-> MSESS
+  M2 --> API
+  CAT --> C1
+  CAT --> E1
+  ML -.-> M1
+  CVS --> CH --> QD
+  JVS --> CH
+
+  classDef ui fill:#dbeafe,stroke:#2563eb,color:#1e3a8a,stroke-width:2.5px
+  classDef gw fill:#f8fafc,stroke:#64748b,color:#334155,stroke-width:2.5px
+  classDef candidate fill:#ecfdf5,stroke:#047857,color:#064e3b,stroke-width:2.5px
+  classDef employer fill:#fffbeb,stroke:#b45309,color:#78350f,stroke-width:2.5px
+  classDef match fill:#eff6ff,stroke:#2563eb,color:#1e3a8a,stroke-width:2.5px
+  classDef persist fill:#f0fdf4,stroke:#166534,color:#14532d,stroke-width:2.5px
+  classDef shared fill:#faf5ff,stroke:#7c3aed,color:#4c1d95,stroke-width:2.5px
+  classDef fb fill:#fce7f3,stroke:#be185d,color:#500724,stroke-width:2.5px
+  classDef vec fill:#e0f2fe,stroke:#0284c7,color:#0c4a6e,stroke-width:2.5px
+  classDef ext fill:#fef3c7,stroke:#d97706,color:#92400e,stroke-width:2.5px
+
+  class CP,EP,AD ui
+  class AUTH,RO,API gw
+  class C1,C2,CVS,CACT candidate
+  class E1,E2,JVS,ELIVE employer
+  class M1,M2,MSESS match
+  class SQL,BOOT,LIVE persist
+  class CAT,BUS,SNAP,ML shared
+  class ACT,FAPI fb
+  class CH,QD vec

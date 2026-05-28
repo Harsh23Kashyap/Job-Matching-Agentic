@@ -14,7 +14,7 @@ export default function ProtectedRoute({ role }) {
   }
 
   if (!user) {
-    return <Navigate to="/error/401" replace state={{ from: location.pathname }} />;
+    return <Navigate to="/login" replace state={{ from: location.pathname }} />;
   }
 
   if (role && user.role !== role) {

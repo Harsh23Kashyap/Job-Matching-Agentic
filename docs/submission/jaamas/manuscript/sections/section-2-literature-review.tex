@@ -78,7 +78,7 @@ JobMatch extends this with a multi-component composite score---semantic, skills,
 
 \leadpara{Fusion methods.}
 When multiple rankers produce different orderings, fusion methods merge lists without retraining the underlying encoders.
-Reciprocal rank fusion (RRF) combines ranked outputs using reciprocal rank weights and is robust when individual retrievers make complementary errors~\cite{Cormack2009}.
+Reciprocal rank fusion (RRF) combines ranked outputs using reciprocal rank weights and remains stable when individual retrievers make complementary errors~\cite{Cormack2009}.
 Learned fusion and hierarchical blending fit scalar weights or classifiers over component scores \todo{Citation needed: learned rank fusion or stacking for multi-signal retrieval}.
 JobMatch implements fixed-weight composite scoring for portal defaults, plus optional RRF, learned logistic fusion, Platt calibration~\cite{Platt1999}, and cross-encoder reranking for offline comparison (\S\ref{sec:4}, \S\ref{sec:6}).
 

@@ -1,0 +1,69 @@
+flowchart TB
+  CAND("Candidate snapshot")
+  JOB("Job snapshot")
+
+  EXH("Exhaustive retrieval")
+  ANN("ANN vector retrieval")
+  LEX("Lexical BM25 eval only")
+
+  ROUTE("Auto strategy")
+
+  SEM("Semantic 28%")
+  SK("Skills 27%")
+  TIT("Title fit 10%")
+  EXP("Experience 15%")
+  PAY("Compensation 10%")
+  REM("Remote 10%")
+  W("Weighted final score")
+
+  CON("Feasibility constraints")
+  RRF("RRF fusion")
+  CE("Cross-encoder rerank")
+  CAL("Calibration")
+  FDB("Feedback boost")
+
+  EXPX("Structured JSON")
+  RULE("Rule bullets")
+  LLM("LLM bullets optional")
+
+  RANK("Ranked list")
+  UI("Portal cards + drawer")
+
+  CAND --> EXH
+  JOB --> EXH
+  CAND --> ANN
+  JOB --> ANN
+  CAND -.-> LEX
+  JOB -.-> LEX
+  EXH --> SEM
+  ANN --> SEM
+  LEX -.-> W
+  ROUTE -.-> W
+  SEM --> SK --> TIT --> EXP --> PAY --> REM --> W
+  W --> CON
+  CON --> RRF
+  RRF --> CE
+  CE --> CAL
+  CAL --> RANK
+  CON --> EXPX
+  FDB -.-> CON
+  EXPX --> RULE
+  LLM -.-> EXPX
+  RANK --> UI
+  EXPX --> UI
+
+  classDef input fill:#eef2ff,stroke:#4338ca,color:#1e1b4b,stroke-width:2.5px
+  classDef ret fill:#eff6ff,stroke:#2563eb,color:#1e3a8a,stroke-width:2.5px
+  classDef score fill:#e0f2fe,stroke:#0284c7,color:#0c4a6e,stroke-width:2.5px
+  classDef post fill:#ecfdf5,stroke:#059669,color:#064e3b,stroke-width:2.5px
+  classDef expl fill:#faf5ff,stroke:#7c3aed,color:#4c1d95,stroke-width:2.5px
+  classDef out fill:#f1f5f9,stroke:#475569,color:#0f172a,stroke-width:2.5px
+  classDef opt fill:#fffbeb,stroke:#d97706,color:#92400e,stroke-width:2.5px
+
+  class CAND,JOB input
+  class EXH,ANN ret
+  class SEM,SK,TIT,EXP,PAY,REM,W score
+  class CON post
+  class EXPX,RULE expl
+  class RANK,UI out
+  class LEX,ROUTE,RRF,CE,CAL,FDB,LLM opt

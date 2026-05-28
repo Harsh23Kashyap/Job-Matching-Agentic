@@ -1,35 +1,48 @@
 flowchart TB
-  subgraph ui [UI / Application Layer]
-    CP[Candidate Portal]
-    EP[Employer Portal]
-    AD[Admin / Evaluation View]
-  end
-  subgraph ca [Candidate Agent]
-    CV[Resume / CV Input] --> RP[Resume Parsing] --> CE[Embedding Generation]
-    CE --> CVS[(Candidate Vector Store)] --> CPS[Candidate Profile / State]
-  end
-  subgraph ea [Employer Agent]
-    JD[Job Description Input] --> JP[JD Parsing] --> JE[Embedding Generation]
-    JE --> JVS[(Job Vector Store)] --> JPS[Job Profile / State]
-  end
-  subgraph ma [Matchmaking Agent]
-    RC[Read Candidate Store] --> RS[Read Job Store] --> SS[Semantic Search]
-    SS --> SC[Similarity / Matching Score] --> RR[Ranked Recommendations]
-  end
-  subgraph shared [Shared Communication and State]
-    EV[Agent Messages / Events]
-    SN[Shared Contracts and Snapshots]
-    NT[State Update Notifications]
-  end
-  CP --> CV
-  EP --> JD
-  AD -.-> NT
-  CVS -. read .-> RC
-  JVS -. read .-> RS
-  RR --> CP
-  RR --> EP
-  CPS --> SN
-  JPS --> SN
-  CPS -.-> EV
-  JPS -.-> EV
-  EV -. refresh .-> SS
+  PAD_TOP([" "])
+  H_CAND["Candidate side"]
+  JS(["Job seeker"])
+  CP("Candidate portal")
+  CA("Candidate agent<br/>owns candidate state")
+
+  H_CORE["Platform core"]
+  MA("Matchmaking agent<br/>read-only broker")
+  AD("Admin / evaluation")
+
+  H_EMP["Employer side"]
+  EM(["Employer / recruiter"])
+  EP("Employer portal")
+  EA("Employer agent<br/>owns job state")
+
+  PAD_TOP --> H_CAND --> JS --> CP --> CA
+  H_CORE --> MA
+  AD -.->|evaluation| MA
+  H_EMP --> EM --> EP --> EA
+
+  CA --> H_CORE
+  H_CORE --> H_EMP
+
+  CA <-->|events and snapshots| MA
+  EA <-->|events and snapshots| MA
+  MA -->|ranked matches| CP
+  MA -->|ranked candidates| EP
+
+  classDef pad fill:#ffffff,stroke:#ffffff,color:#ffffff
+  classDef header fill:#f1f5f9,stroke:#334155,color:#0f172a,stroke-width:2.5px,font-weight:bold
+  classDef actor fill:#eef2ff,stroke:#4338ca,color:#1e1b4b,stroke-width:2.5px
+  classDef portal fill:#f8fafc,stroke:#475569,color:#0f172a,stroke-width:2.5px
+  classDef agentC fill:#ecfdf5,stroke:#047857,color:#064e3b,stroke-width:2.5px
+  classDef agentE fill:#fffbeb,stroke:#b45309,color:#78350f,stroke-width:2.5px
+  classDef broker fill:#eff6ff,stroke:#1d4ed8,color:#1e3a8a,stroke-width:2.5px
+  classDef admin fill:#faf5ff,stroke:#7c3aed,color:#4c1d95,stroke-width:2.5px
+
+  class PAD_TOP pad
+  class H_CAND,H_CORE,H_EMP header
+  class JS,EM actor
+  class CP,EP portal
+  class CA agentC
+  class EA agentE
+  class MA broker
+  class AD admin
+
+  linkStyle 0 stroke:#ffffff,stroke-width:0px

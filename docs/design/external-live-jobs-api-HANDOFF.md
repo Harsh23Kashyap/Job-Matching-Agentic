@@ -423,7 +423,7 @@ Note: API field is `apply_link` in daily output but canonical job uses `link`.
 
 | Decision | Why | Alternatives rejected |
 |----------|-----|----------------------|
-| Offset pagination (`limit`/`skip`) | Matches provider contract comment in code | Cursor-based (not implemented) |
+| Offset pagination (`limit`/`skip`) | Matches provider contract comment in code | Keyset/token-based pagination (not implemented) |
 | Max page size 50 | Hard cap in client regardless of env | Larger pages (provider may not support) |
 | Snapshot to disk | Survive restarts; boot from last good fetch | In-memory only (lost on restart) |
 | Replace entire job corpus on sync | Live feed is source of truth | Merge with static `jobs.json` (not done) |
@@ -520,7 +520,6 @@ pytest backend/tests/test_api.py::test_get_real_jobs_status -v
 | `frontend/src/App.jsx` | `handleSyncRealJobs`, `fetchRealJobsStatus` — client integration reference |
 | `backend/tests/test_api.py` | Status + disabled-sync tests |
 | `data/jobs.json` | Static fallback corpus (15 jobs) |
-| `.claude/knowledge_graph.md` | Broader system encyclopedia including API matrix |
 
 ---
 
@@ -532,14 +531,10 @@ None documented in repo for provider OpenAPI. User-Agent references: `https://ai
 
 ## Memory snapshot
 
-- `.claude/knowledge_graph.md` — full backend/frontend encyclopedia, paper↔code gaps, eval corpus
-- `.claude/knowledge_graph.json` — machine-readable metrics + code_reference
-
----
+(none)
 
 ## Persistent context
 
-- Knowledge graph: `.claude/knowledge_graph.md`, `.claude/knowledge_graph.json`
 - Technical docs: `README.md` (env vars), `docs/report/DOCUMENTATION.md` (API table)
 - Manuscript API table: `docs/submission/jaamas/manuscript/sections/section-5.tex`
 

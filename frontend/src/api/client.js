@@ -58,6 +58,16 @@ export async function resetDemoData() {
   return data;
 }
 
+export async function fetchRealJobsStatus() {
+  const { data } = await api.get("/real-jobs/status");
+  return data;
+}
+
+export async function syncRealJobs({ reindex = true } = {}) {
+  const { data } = await api.post("/real-jobs/sync", { reindex });
+  return data;
+}
+
 export async function fetchAgentStatus() {
   const { data } = await api.get("/agents/status");
   return data;

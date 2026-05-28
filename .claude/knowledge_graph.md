@@ -1,5 +1,5 @@
 # Codebase Knowledge Graph
-> Last updated: 2026-05-28 (v14 · portal UI polish: shared shell, applicants feed, drawer scroll, deduped match stats) | Entries: 495+ | Modules: 15
+> Last updated: 2026-05-28 (v15 · JAAMAS figures, Figure 10 screenshots, authors, Overleaf zip) | Entries: 500+ | Modules: 16
 
 ---
 
@@ -7,10 +7,12 @@
 
 **Project:** Job-Matching-Agentic · greenfield **multi-agent rewrite** of the job matching system. Three agents (Candidate, Employer, Matchmaking), role portals, composite explainable matching, thesis-demo ready.
 
-**Authors:** Harsh Kashyap, Taranumpreet Kaur Wasu (Thapar Institute). Supervisor: Dr Parteek Bhatia (WSU).
+**Authors:** Harsh Kashyap, Taranumpreet Kaur Wasu (Thapar Institute of Engineering and Technology). Supervisor: Dr Parteek Bhatia (Washington State University).
 
 **Repository:** https://github.com/Harsh23Kashyap/Job-Matching-Agentic  
-**Branch:** `main` @ `9db6abc` (pushed) · **Local uncommitted:** portal UI polish (page-shell.css, applicants feed, employer/candidate match dedupe, drawer/post-role scroll), prior live jobs + test reorg + error UX · **Recent commit:** manuscript §2–§7 rewrite @ `9db6abc`
+**Branch:** `main` · **Local uncommitted (2026-05-28):** JAAMAS manuscript (authors, Figs 1–10, 8 portal screenshots, Overleaf zip), figure borders, table layout, profile null-guard · **Recent pushed commit:** `03dc791` responsive layout + frontend tests
+
+**Handoff:** [HANDOFF.md](../HANDOFF.md) · **Overleaf zip:** `docs/submission/jaamas/build/jaamas-overleaf-upload.zip`
 
 **Legacy note:** Entries under [Module: backend (legacy monolith)](#module-backend-legacy-monolith) describe the **pre-rewrite** `app.py` monolith. Current runtime uses `main.py` → `bootstrap.py` → `gateway/app.py`. See [Module: rewrite (current)](#module-rewrite-current) and [Module: research evaluation](#module-research-evaluation).
 
@@ -80,15 +82,26 @@ cd frontend && npm run dev
 
 | Doc | Path |
 |-----|------|
-| Onboarding README | `README.md` (602 lines, full setup + API) |
-| Session handoff | `HANDOFF.md` (2026-05-28 · live jobs + test reorg + error UX) |
-| Live jobs contract | `docs/design/external-live-jobs-api-HANDOFF.md` |
-| Research paper draft | `docs/research/RESEARCH-PAPER.md` |
-| **JAAMAS submission (active)** | `docs/submission/jaamas/manuscript/main.tex` · build: `bash docs/submission/jaamas/build_all.sh` |
-| Evaluation archive | `docs/research/evaluation/` |
-| HLD / SDD | `docs/design/HLD-multi-agent-system.md`, `SDD-multi-agent-system.md` |
+| Handoff | `HANDOFF.md` |
+| JAAMAS figures | `docs/submission/jaamas/figures/README.md` |
+| Overleaf zip | `docs/submission/jaamas/build/jaamas-overleaf-upload.zip` |
+| HLD | `docs/design/HLD-multi-agent-system.md` |
+| SDD | `docs/design/SDD-multi-agent-system.md` |
 | Demo script | `docs/demo/DEMO-SCRIPT.md` |
-| Session notes | `docs/session/SESSION-2026-05-27.md` |
+
+### JAAMAS submission (2026-05-28)
+
+| Item | Detail |
+|------|--------|
+| Manuscript PDF | `docs/submission/jaamas/manuscript/main.pdf` (~41 pp) |
+| Authors | Harsh Kashyap, Taranumpreet Kaur Wasu (Thapar) |
+| Figures 1–9 | PDF in `docs/submission/jaamas/figures/`; Fig 1 draw.io, 2–9 Mermaid |
+| Figure 10 | 8 PNG screenshots in `figures/screenshots/` (all portals) |
+| Capture | `figures/scripts/capture_portal_screenshots.mjs` (Playwright) |
+| Borders | `\JFigFramed` (LaTeX PDFs); `\JFigShot` + `crop_figures.py` (PNG) |
+| Zip | `archive/dev-scripts/make_overleaf_zip.sh` → 54 files |
+
+---
 
 ### Benchmark & research evaluation
 
@@ -1126,7 +1139,7 @@ Agentic-Job-Matching/
 │   ├── latex/         XeLaTeX technical report source
 │   └── submission/jaamas/   Manuscript + portal + supplementary
 ├── README.md
-└── .claude/knowledge_graph.md   ← this file (gitignored)
+└── knowledge_graph.md   ← this file (gitignored)
 ```
 
 ### Backend · every source file

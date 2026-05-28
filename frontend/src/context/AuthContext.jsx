@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { fetchMe, login as apiLogin, logout as apiLogout, register as apiRegister } from "../api/client.js";
 
 const AuthContext = createContext(null);
@@ -10,6 +11,7 @@ const ROLE_HOME = {
 };
 
 export function AuthProvider({ children }) {
+  const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -40,14 +42,19 @@ export function AuthProvider({ children }) {
     return me;
   };
 
-  const logout = async () => {
-    await apiLogout();
+  const logout = useCallback(async () => {
+    try {
+      await apiLogout();
+    } catch {
+      /* Still clear local session if the API call fails. */
+    }
     setUser(null);
-  };
+    navigate("/login", { replace: true });
+  }, [navigate]);
 
   const value = useMemo(
     () => ({ user, loading, login, register, logout, refresh, roleHome: ROLE_HOME }),
-    [user, loading, refresh],
+    [user, loading, logout, refresh],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

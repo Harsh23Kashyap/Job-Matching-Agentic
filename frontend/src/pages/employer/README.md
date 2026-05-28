@@ -18,4 +18,6 @@ Hiring team flows: post jobs, find candidates, review applicants.
 
 Demo: `demo.employer@test.com` has 5 pre-seeded jobs.
 
+**Paper (Figure 10):** Jobs and matches pages appear in JAAMAS §4 screenshots (`ui-employer-jobs.png`, `ui-employer-matches.png`).
+
 Components: [../../components/EmployerJobList.jsx](../../components/EmployerJobList.jsx), [../../components/EmployerCandidateResults.jsx](../../components/EmployerCandidateResults.jsx)

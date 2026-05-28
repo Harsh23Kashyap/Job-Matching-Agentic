@@ -335,8 +335,6 @@ Upload (PDF/DOCX/TXT, max 5MB)
 | Software Design Document | `docs/design/SDD-multi-agent-system.md` | Implementation detail, API contracts |
 | V1 vs V2 scope | `docs/design/V1-V2-SCOPE.md` | Limitations / future work |
 | V1.1 portals | `docs/design/v1.1-role-portals-auth.md` | Product UX + auth + LLM CV |
-| Knowledge graph | `.claude/knowledge_graph.md` | Legacy paper↔code traceability |
-| Brainstorm decisions | `.claude/brainstorm-history.md` | Design decision audit trail |
 | This inventory | `docs/research/PAPER-FEATURES-INVENTORY.md` | Master feature checklist |
 
 ---

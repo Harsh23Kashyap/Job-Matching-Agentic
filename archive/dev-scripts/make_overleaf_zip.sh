@@ -9,7 +9,7 @@ STAGING="${BUILD}/overleaf-staging"
 ZIP="${BUILD}/jaamas-overleaf-upload.zip"
 
 rm -rf "${STAGING}"
-mkdir -p "${STAGING}/manuscript/sections" "${STAGING}/manuscript/tables" "${STAGING}/figures" "${BUILD}"
+mkdir -p "${STAGING}/manuscript/sections" "${STAGING}/manuscript/tables" "${STAGING}/manuscript/algorithms" "${STAGING}/figures/screenshots" "${BUILD}"
 
 # --- Manuscript core ---
 cp "${ROOT}/manuscript/main.tex" \
@@ -29,9 +29,13 @@ done
 
 cp "${ROOT}/manuscript/sections/"*.tex "${STAGING}/manuscript/sections/"
 cp "${ROOT}/manuscript/tables/"*.tex "${STAGING}/manuscript/tables/"
+cp "${ROOT}/manuscript/algorithms/"*.tex "${STAGING}/manuscript/algorithms/"
 
-# --- Figures (submission PDFs only) ---
+# --- Figures (submission PDFs + Figure 10 screenshots) ---
 cp "${ROOT}/figures"/Fig*.pdf "${STAGING}/figures/"
+if compgen -G "${ROOT}/figures/screenshots/*.png" > /dev/null; then
+  cp "${ROOT}/figures/screenshots/"*.png "${STAGING}/figures/screenshots/"
+fi
 
 # --- README for Overleaf ---
 cat > "${STAGING}/README-OVERLEAF.txt" <<'EOF'
@@ -44,7 +48,9 @@ Directory layout:
   manuscript/main.tex
   manuscript/sections/*.tex
   manuscript/tables/*.tex
-  figures/Fig1.pdf ... Fig5.pdf
+  manuscript/algorithms/*.tex
+  figures/Fig1.pdf ... Fig9.pdf
+  figures/screenshots/ui-*.png (Figure 10)
 
 Do NOT add main-preprint.tex or archive/ contents to this project.
 EOF

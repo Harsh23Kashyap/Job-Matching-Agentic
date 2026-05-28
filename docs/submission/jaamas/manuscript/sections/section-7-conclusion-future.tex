@@ -2,12 +2,12 @@
 
 \subsection{Conclusion}\label{sec:7-conclusion}
 
-Job seekers and recruiters still meet through software that ranks quickly but explains little.
-A person updates a résumé or a job description; the other side sees a new list with no clear link to what changed.
-Candidates prepare for interviews that should never have been suggested; recruiters shortlist profiles without seeing which requirements drove the order.
-The human problem is therefore one of \emph{trust and accountability}: both sides need to know who owns each record, what evidence supports each match, and who makes the final call.
+Job seekers and recruiters still interact through software that ranks quickly but explains little.
+When a résumé or job description changes, the other party typically sees a new list without a traceable link to the edit.
+Candidates may prepare for interviews on weak matches; recruiters may shortlist profiles without seeing which requirements drove the order.
+The underlying problem is therefore one of \emph{trust and accountability}: both sides need clear record ownership, evidence for each match, and explicit control over consequential actions.
 
-JobMatch addresses that problem with a multi-agent architecture rather than a monolithic applicant-tracking matcher.
+JobMatch addresses that problem through a multi-agent architecture rather than a monolithic applicant-tracking matcher.
 Three agents divide the work by role.
 The \textbf{Candidate agent} accepts résumes, builds a structured profile and embedding, and refreshes that state when the job seeker edits their materials.
 The \textbf{Employer agent} does the same for job descriptions: parse postings, version requirements, and update vectors when a role changes.
@@ -65,4 +65,4 @@ Future work can evaluate boost policies offline, keep humans authoritative over 
 Interactive matching must stay responsive as job pools grow from dozens to thousands of roles.
 ANN shortlist sweeps (\texttt{phase11.py}) should produce committed latency tables that separate vector retrieval from pairwise scoring on Chroma and Qdrant backends \todo{Commit \texttt{phase11\_summary.csv}.}.
 
-Across these items, the design goal stays constant: agents keep profiles current, the Matchmaking layer shows its work, and people retain the decisions that matter.
+The design goal is unchanged: agents keep profiles current, the Matchmaking layer shows its work, and people retain final hiring decisions.
