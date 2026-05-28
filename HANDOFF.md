@@ -1,5 +1,5 @@
 # Handoff
-> Written: 2026-05-28 15:45 | Branch: main (uncommitted) | Dir: /Users/harshkashyap/Projects/JobMatcher-v1/Job-Matching-Agentic
+> Written: 2026-05-28 15:45 | Branch: main @ `14eaad0` (pushed) | Dir: /Users/harshkashyap/Projects/JobMatcher-v1/Job-Matching-Agentic
 
 ## Goal
 
@@ -7,7 +7,7 @@ Ship a **thesis-ready multi-agent JobMatch platform** and a **JAAMAS submission 
 
 ## Current state
 
-- **Done (local, ready to push):**
+- **Done (committed & pushed @ `14eaad0`):**
   - **JAAMAS manuscript** — authors Harsh Kashyap + Taranumpreet Kaur Wasu (Thapar Institute); supervisor Dr Parteek Bhatia (WSU) in acknowledgments; `main.pdf` ~41 pages
   - **Figures 1–9** — Fig 1 draw.io HLD; Figs 2–9 Mermaid + crop/border pipeline; LaTeX `\JFigFramed` borders on diagram PDFs
   - **Figure 10** — 8 stacked portal screenshots (onboarding, profile, matches, breakdown, employer jobs/matches, admin console + match run); Playwright capture script
@@ -51,9 +51,10 @@ None blocking localhost demo or Overleaf compile.
 
 ## Environment
 
-- **Branch:** `main` (ahead of `origin/main`; large uncommitted JAAMAS + portal batch)
-- **Uncommitted changes:** ~90+ files — manuscript, figures, screenshots, capture scripts, HANDOFF, knowledge graph, profile fix
+- **Branch:** `main` @ `14eaad0` (synced with `origin/main`)
+- **Uncommitted changes:** None (HANDOFF timestamp line only if amended)
 - **Recent commits (on remote):**
+  - `14eaad0` Complete JAAMAS submission package with figures, screenshots, and docs sync
   - `03dc791` Add responsive layout system and sync frontend unit tests
   - `edd7a7c` Polish portal UX, rebuild admin console, fix Qdrant store
   - `a4005e0` Add live jobs API, reorganize tests, sync manuscript
