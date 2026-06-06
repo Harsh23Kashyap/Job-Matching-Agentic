@@ -637,11 +637,12 @@ File: `backend/core/scoring.py` · `compute_composite`
 
 | Signal | Weight |
 |--------|--------|
-| Semantic (embedding cosine) | 40% |
-| Skills overlap | 30% |
+| Semantic (embedding cosine) | 28% |
+| Skills overlap | 27% |
+| Title overlap | 10% |
 | Experience fit | 15% |
 | Compensation alignment | 10% |
-| Location / remote | 5% |
+| Remote preference | 10% |
 
 Matchmaking pipeline (`core/matchmaking_scoring.py`): resolve routing → retrieve (exhaustive/ANN) → `score_pair_advanced` (fusion mode, constraints, feedback boost, calibration) → optional cross-encoder rerank → explain → `MatchCompleted` event.
 

@@ -68,7 +68,7 @@ Two autonomous representatives · one advocating for the candidate, one for the 
 | Layer | Status | Notes |
 |-------|--------|-------|
 | Three agents + event bus | Shipped | `backend/agents/`, `backend/bus/` |
-| Composite matching | Shipped | Default product strategy; semantic 40%, skills 30%, experience 15%, compensation 10%, location 5% |
+| Composite matching | Shipped | Default product strategy; semantic 28%, skills 27%, title 10%, experience 15%, compensation 10%, remote 10% |
 | Auth + ownership | Shipped | Cookie sessions; candidate/job links in SQLite |
 | Candidate portal | Shipped | Onboarding, profile, matches, saved |
 | Employer portal | Shipped | Jobs CRUD, JD import, candidate matches, applications |
@@ -362,7 +362,7 @@ INPUT:  candidate_profile C, job corpus J, strategy S, metric M, top_k K
 
 4. SCORE (matchmaker · `score_pair_advanced`)
    - strategies: semantic | multimodal | **composite** (product default)
-   - composite: semantic 40%, skills 30%, experience 15%, compensation 10%, location 5%
+   - composite: semantic 28%, skills 27%, title 10%, experience 15%, compensation 10%, remote 10%
    - optional: learned fusion, constraints, feedback boost, Platt calibration
    - optional: cross-encoder rerank (top pool)
 

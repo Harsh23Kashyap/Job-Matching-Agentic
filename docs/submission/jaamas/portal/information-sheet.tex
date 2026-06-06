@@ -49,7 +49,7 @@ Result & Source & nDCG@5 \\
 \midrule
 Multimodal soft embed ($\alpha = 0.7$) & \texttt{paper\_progression\_summary.json} & \textbf{0.969} \\
 Learned fusion (logistic regression) & \texttt{table11\_fusion.json} & \textbf{0.968} \\
-Full composite ablation & \texttt{ablation\_summary.json} (40/30/15/10/5) & \textbf{0.942} \\
+Full composite ablation & \texttt{ablation\_summary.json} (portal weights 28/27/10/15/10/10) & \textbf{0.949} \\
 TF--IDF / BM25 lexical baselines & progression benchmark & \textbf{0.905 / 0.901} \\
 \bottomrule
 \end{tabular}
@@ -59,7 +59,7 @@ TF--IDF / BM25 lexical baselines & progression benchmark & \textbf{0.905 / 0.901
 \begin{itemize}[noitemsep]
   \item Cross-encoder reranking (pool = 20): $\Delta$nDCG@5 = \textbf{$-$0.108} vs composite bi-encoder, \textbf{$\sim$141.7 ms/query}; disabled in the default portal configuration.
   \item Hard-negative mining: \textbf{30} queries, \textbf{150} pairs, \textbf{0} label conflicts with declared relevant jobs.
-  \item Synthetic fairness audit (10 fabricated pairs): \textbf{6/10} flagged; engineering sanity check only, not demographic fairness validation in live hiring.
+  \item Synthetic fairness audit (10 fabricated pairs): \textbf{7/10} flagged; engineering sanity check only, not demographic fairness validation in live hiring.
 \end{itemize}
 
 \noindent\textbf{Scope and limits.} We position JobMatch as a traceable research artifact with benchmark drivers and regression tests. We \textbf{do not} claim generalization beyond the demo corpus, validated recruiter outcomes, or operational fairness guarantees.
@@ -108,7 +108,7 @@ Source code for the platform, benchmark drivers, and regression tests is availab
 The demo corpus (\texttt{data/cvs.json}, \texttt{data/jobs.json}, \texttt{data/eval\_pairs.json}) and benchmark outputs under \texttt{backend/benchmark\_outputs/} and \texttt{docs/research/evaluation/} are included in the project repository. Regenerate metrics with \texttt{python backend/scripts/run\_research\_pipeline.py} and \texttt{python -m benchmarks.paper\_progression}.
 
 \paragraph{Repository--paper relationship.}
-Reported numbers (nDCG@5 \textbf{0.969}, \textbf{0.968}, \textbf{0.942}; cross-encoder $\Delta$nDCG@5 = \textbf{$-$0.108}; hard negatives \textbf{150} pairs with \textbf{0} conflicts; fairness audit \textbf{6/10} flagged) are drawn from named artifacts cited in the paper tables.
+Reported numbers (nDCG@5 \textbf{0.969}, \textbf{0.968}, \textbf{0.949}; cross-encoder $\Delta$nDCG@5 = \textbf{$-$0.108}; hard negatives \textbf{150} pairs with \textbf{0} conflicts; fairness audit \textbf{7/10} flagged) are drawn from named artifacts cited in the paper tables.
 
 \vspace{0.5em}
 \noindent\small\textit{Aligned with \texttt{docs/submission/jaamas/manuscript/main.tex} (May 2026). Author metadata pending final submission.}

@@ -192,15 +192,16 @@ Admin is the **research console** · raw decimals, ensemble controls, and fairne
 
 ### Default: composite strategy
 
-Portals send `strategy: "composite"` by default. The final score is a weighted blend of five signals:
+Portals send `strategy: "composite"` by default. The final score is a weighted blend of six signals:
 
 | Component | Weight | What it measures |
 |-----------|--------|------------------|
-| **Semantic** | 40% | Embedding similarity (bi-encoder cosine) between resume and job text |
-| **Skills** | 30% | Overlap between candidate skills and job required skills (Jaccard or soft embed) |
+| **Semantic** | 28% | Embedding similarity (bi-encoder cosine) between resume and job text |
+| **Skills** | 27% | Overlap between candidate skills and job required skills (Jaccard or soft embed) |
+| **Title** | 10% | Token overlap between job title and candidate summary/skills |
 | **Experience** | 15% | Years of experience vs job requirement |
 | **Compensation** | 10% | Salary expectation vs job budget range |
-| **Location** | 5% | Location / remote preference alignment |
+| **Remote** | 10% | Remote-preference alignment |
 
 ### Score bands (UI)
 

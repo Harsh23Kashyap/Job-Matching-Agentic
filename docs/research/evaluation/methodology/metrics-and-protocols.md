@@ -53,7 +53,7 @@ Cross-encoder study splits **bi-encoder ms**, **cross-encoder ms**, and **total 
 
 ### Composite ablation (Study 3)
 
-Production weights: semantic **40%**, skills **30%**, experience **15%**, compensation **10%**, location **5%**.
+Production weights: semantic **28%**, skills **27%**, title **10%**, experience **15%**, compensation **10%**, remote **10%**.
 
 Variants: each single component, partial composites (renormalized weights), full composite, RRF over five single rankers.
 

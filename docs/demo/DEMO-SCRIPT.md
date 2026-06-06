@@ -88,7 +88,7 @@
 |----------|--------|
 | Is this production-ready? | v1.1 demo: auth is session cookie + SQLite; fine for research demo, not public deploy without hardening. |
 | What if OpenAI is down? | Regex still extracts contact info; profile can be filled manually; LLM returns graceful fallback. |
-| How is match score computed? | Portal default: **composite**: 40% semantic cosine, 30% skills overlap, 15% experience fit, 10% compensation alignment, 5% location/remote. Admin console can still run raw semantic-only for research. |
+| How is match score computed? | Portal default: **composite**: 28% semantic cosine, 27% skills overlap, 10% title overlap, 15% experience fit, 10% compensation alignment, 10% remote preference. Admin console can still run raw semantic-only for research. |
 | Bias / fairness? | Acknowledged in docs; no automated fairness metrics in v1: human review required. |
 
 ---

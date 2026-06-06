@@ -24,14 +24,14 @@ This paper presents **JobMatch**, an integrated research prototype for **explain
 |--------|--------|--------|
 | Multimodal soft embed (α = 0.7) | `paper_progression_summary.json` | **0.969** |
 | Learned fusion (logistic regression) | `table11_fusion.json` | **0.968** |
-| Full composite ablation | `ablation_summary.json` (weights 40/30/15/10/5) | **0.942** |
+| Full composite ablation | `ablation_summary.json` (portal weights 28/27/10/15/10/10) | **0.949** |
 | TF–IDF / BM25 lexical baselines | progression benchmark | **0.905 / 0.901** |
 
 **Additional measured findings:**
 
 - **Cross-encoder reranking** (pool = 20): **ΔnDCG@5 = −0.108** vs composite bi-encoder, **~141.7 ms/query**; disabled in the default portal configuration.
 - **Hard-negative mining** (multimodal top-10 pool, 5 negatives/query): **30 queries**, **150 pairs**, **0** label conflicts with declared relevant jobs.
-- **Synthetic fairness audit** (10 fabricated profile pairs, composite ranking): **6/10** pairs flagged for rank or score instability; treated as an engineering sanity check, **not** demographic fairness validation in live hiring.
+- **Synthetic fairness audit** (10 fabricated profile pairs, composite ranking): **7/10** pairs flagged for rank or score instability; treated as an engineering sanity check, **not** demographic fairness validation in live hiring.
 
 **Scope and limits.** We position JobMatch as a traceable research artifact with benchmark drivers and regression tests that map offline metrics to implemented code paths. We **do not** claim generalization beyond the demo corpus, validated recruiter outcomes, or operational fairness guarantees.
 
@@ -79,7 +79,7 @@ JobMatch sits at the intersection of **information retrieval**, **multi-agent sy
 
 **Data availability (per manuscript declarations).** The demo corpus (`data/cvs.json`, `data/jobs.json`, `data/eval_pairs.json`) and benchmark outputs under `backend/benchmark_outputs/` and `docs/research/evaluation/` are included in the project repository. Metrics can be regenerated with `python backend/scripts/run_research_pipeline.py` and `python -m benchmarks.paper_progression`.
 
-**Relationship between repository and paper.** The repository implements the architecture, matching core, portals, and evaluation pipeline described in the manuscript. Reported numbers (e.g., nDCG@5 **0.969**, **0.968**, **0.942**; cross-encoder **ΔnDCG@5 = −0.108**; hard negatives **150** pairs with **0** conflicts; fairness audit **6/10** flagged) are drawn from named artifacts cited in the paper tables, not from unaudited runs.
+**Relationship between repository and paper.** The repository implements the architecture, matching core, portals, and evaluation pipeline described in the manuscript. Reported numbers (e.g., nDCG@5 **0.969**, **0.968**, **0.949**; cross-encoder **ΔnDCG@5 = −0.108**; hard negatives **150** pairs with **0** conflicts; fairness audit **7/10** flagged) are drawn from named artifacts cited in the paper tables, not from unaudited runs.
 
 **Author note.** Author names, affiliations, and CRediT roles in the manuscript remain placeholders pending final submission metadata; this information sheet will be updated accordingly before upload.
 
