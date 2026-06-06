@@ -1,0 +1,34 @@
+\caption{Reproducibility assets and verification paths.}
+\label{tab:implementation-repro}
+\scriptsize
+\begin{tabular}{@{}p{0.24\linewidth}p{0.34\linewidth}p{0.34\linewidth}@{}}
+\toprule
+Category & Files or commands & Purpose \\
+\midrule
+Frozen corpus & \begin{itemize}[leftmargin=*,nosep]
+  \item \path{data/cvs.json}
+  \item \path{data/jobs.json}
+  \item \path{data/eval_pairs.json}
+\end{itemize} & Provides 30 résumés, 15 jobs, and 47 graded query--document relevance pairs. \\
+Auxiliary assets & \begin{itemize}[leftmargin=*,nosep]
+  \item fairness profiles and expected metrics
+  \item fusion and calibration models
+\end{itemize} & Stores fairness probes, expected metrics, learned fusion weights, and Platt calibration parameters. \\
+Research mirror & \path{data/research/*} & Mirrors the corpus and manifest used by paper-facing export scripts. \\
+Benchmark drivers & \begin{itemize}[leftmargin=*,nosep]
+  \item comparison, ablation, paper tables
+  \item significance, explainability, fairness
+\end{itemize} & Recomputes ranking metrics, ablations, paper tables, significance tests, explainability checks, and fairness audit outputs. \\
+Pipeline wrapper & \path{backend/scripts/run_research_pipeline.py} & Runs the orchestrated research pipeline with default \texttt{--top-k 5}. \\
+Test runner & \begin{itemize}[leftmargin=*,nosep]
+  \item \texttt{bash scripts/run\_tests.sh}
+  \item backend: \texttt{pytest ../tests -q}
+\end{itemize} & Runs Python unit/integration/benchmark tests plus frontend utility tests. \\
+Regression gate & \path{tests/benchmarks/test_eval_regression.py} & Recomputes semantic and multimodal rankings and checks nDCG@5 against frozen expected metrics with $\pm 0.04$ tolerance. \\
+Live-job contract tests & \begin{itemize}[leftmargin=*,nosep]
+  \item \path{test_real_jobs_sync.py}
+  \item \path{test_real_jobs_api.py}
+\end{itemize} & Verifies normalization, pagination mock, snapshot I/O, status endpoint, and disabled-sync behavior. \\
+\bottomrule
+\end{tabular}
+\normalsize

@@ -1,18 +1,18 @@
 \caption{Primary user-facing workflows by role ($K{=}10$ composite matching unless noted).}
 \label{tab:workflows}
-\small
-\begin{tabular}{@{}p{0.11\linewidth}p{0.17\linewidth}p{0.22\linewidth}p{0.38\linewidth}@{}}
+\scriptsize
+\begin{tabular}{@{}p{0.13\linewidth}p{0.20\linewidth}p{0.20\linewidth}p{0.35\linewidth}@{}}
 \toprule
 Role & Portal route & User goal & API / agent path \\
 \midrule
-Candidate & \texttt{/candidate/onboarding} & Upload resume, review extraction, create profile & \texttt{POST /candidates/upload-resume} $\rightarrow$ \texttt{PUT /candidates/me} $\rightarrow$ Candidate agent registers snapshot + embedding \\
-Candidate & \texttt{/candidate/profile} & Edit skills, experience, pay, remote prefs & \texttt{GET/PUT /candidates/me}; quality via \texttt{POST /candidates/quality-check} \\
-Candidate & \texttt{/candidate/matches} & View ranked jobs, filter, explain scores & \texttt{POST /match/candidate-to-jobs} (composite); profile readiness gate before search \\
-Candidate & \texttt{/candidate/saved} & Saved jobs and applications & \texttt{GET/PUT /candidates/me/saved-jobs}; \texttt{POST /candidates/me/applications} \\
-Employer & \texttt{/employer/jobs} & Import JD, post/edit/close roles & \texttt{POST /jobs/upload-description} or \texttt{/parse-description} $\rightarrow$ \texttt{POST /jobs} or \texttt{PUT /jobs/mine/\{id\}} $\rightarrow$ Employer agent \\
-Employer & \texttt{/employer/matches} & Rank candidates for a owned job & \texttt{POST /match/job-to-candidates} (composite); job ownership required \\
-Employer & \texttt{/employer/applications} & Review applicants per posting & \texttt{GET /jobs/mine/applications} (SQLite activity store) \\
-Admin & \texttt{/admin/console} & Monitor agents, run matches, inspect fairness & \texttt{GET /agents/status}, \texttt{/agents/events/recent}, \texttt{/system/config}; optional \texttt{/match/*}, \texttt{/system/fairness}, \texttt{POST /real-jobs/sync} when live feed enabled \\
+Candidate & \path{/candidate/onboarding} & Upload résumé, review extraction, create profile & \path{POST /candidates/upload-resume} $\rightarrow$ \path{PUT /candidates/me} $\rightarrow$ Candidate agent registers snapshot + embedding \\
+Candidate & \path{/candidate/profile} & Edit skills, experience, pay, remote prefs & \path{GET/PUT /candidates/me}; quality via \path{POST /candidates/quality-check} \\
+Candidate & \path{/candidate/matches} & View ranked jobs, filter, explain scores & \path{POST /match/candidate-to-jobs} (composite); profile readiness gate before search \\
+Candidate & \path{/candidate/saved} & Saved jobs and applications & \path{GET/PUT /candidates/me/saved-jobs}; \path{POST /candidates/me/applications} \\
+Employer & \path{/employer/jobs} & Import JD, post/edit/close roles & \path{POST /jobs/upload-description} or \path{/parse-description} $\rightarrow$ \path{POST /jobs} or \path{PUT /jobs/mine/{id}} $\rightarrow$ Employer agent \\
+Employer & \path{/employer/matches} & Rank candidates for an owned job & \path{POST /match/job-to-candidates} (composite); job ownership required \\
+Employer & \path{/employer/applications} & Review applicants per posting & \path{GET /jobs/mine/applications} (SQLite activity store) \\
+Admin & \path{/admin/console} & Monitor agents, run matches, inspect fairness & \path{GET /agents/status}, \path{/agents/events/recent}, \path{/system/config}; optional \path{/match/*}, \path{/system/fairness}, \path{POST /real-jobs/sync} when live feed enabled \\
 \bottomrule
 \end{tabular}
 \normalsize

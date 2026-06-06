@@ -1,18 +1,20 @@
 \caption{Fitted calibration and fusion model parameters (offline training).}
 \label{tab:model-params}
-\begin{tabular}{@{}ll@{}}
+\begin{tabular}{@{}p{0.30\linewidth}p{0.62\linewidth}@{}}
 \toprule
 Component & Value \\
 \midrule
-\multicolumn{2}{@{}l@{}}{\textit{Platt calibrator} (\texttt{data/models/calibration.json})} \\
+\multicolumn{2}{@{}l@{}}{\textit{Platt calibrator} (\path{data/models/calibration.json})} \\
 $a$ (scale) & 0.298 \\
 $b$ (shift) & -2.116 \\
 \addlinespace
-\multicolumn{2}{@{}l@{}}{\textit{Learned fusion LR} (\texttt{data/models/fusion.json})} \\
-Top feature weights (logistic) & exp.\ 0.860, remote 0.853, salary 0.849 \\
- & semantic 0.537, taxonomy 0.509, skills 0.204 \\
- & must-have coverage 0.311, bias 1.529 \\
+\multicolumn{2}{@{}l@{}}{\textit{Learned fusion LR} (\path{data/models/fusion.json})} \\
+Top feature weights & \begin{itemize}[leftmargin=*,nosep]
+  \item experience 0.860; remote 0.853; salary 0.849
+  \item semantic 0.537; taxonomy 0.509; skills 0.204
+  \item must-have coverage 0.311; bias 1.529
+\end{itemize} \\
 \bottomrule
 \end{tabular}
 \par\vspace{0.4em}
-\footnotesize{Used only when \texttt{use\_calibration} or \texttt{fusion\_mode=learned} is enabled. The Platt calibrator is fit on 450 composite-scored candidate--job pairs (47 labeled relevant plus 403 implicit negatives from unlabeled pairs); it cuts expected calibration error from 0.40 for raw composite scores to 0.032 under 5-fold cross-validation (Brier 0.093) and, being monotonic, leaves ranking order and nDCG@5 unchanged. The learned-fusion weights are exploratory, trained on the labeled pairs.}
+\footnotesize{Optional paths only: \texttt{use\_calibration} or \texttt{fusion\_mode=learned}. Platt calibration uses 450 composite-scored pairs and reduces ECE from 0.40 to 0.032 under 5-fold cross-validation (Brier 0.093); monotonic calibration leaves ranking order and nDCG@5 unchanged. Learned fusion is exploratory.}

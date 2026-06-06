@@ -9,8 +9,8 @@ The underlying problem is therefore one of \emph{trust and accountability}: both
 
 JobMatch addresses that problem through a multi-agent architecture rather than a monolithic applicant-tracking matcher.
 Three agents divide the work by role.
-The \textbf{Candidate agent} accepts résumes, builds a structured profile and embedding, and refreshes that state when the job seeker edits their materials.
-The \textbf{Employer agent} does the same for job descriptions: parse postings, version requirements, and update vectors when a role changes.
+The \textbf{Candidate agent} accepts résumés, builds a structured profile and embedding, and refreshes that state when the job seeker edits their materials.
+The \textbf{Employer agent} does the same for job descriptions: it parses postings, versions requirements, and updates vectors when a role changes.
 The \textbf{Matchmaking agent} remains read-only with respect to both stores: it reads versioned snapshots from each side, scores candidate--job pairs, and returns ranked lists with structured explanations.
 Candidate, employer, and admin portals sit on top of this layout so that each party manages its own data while sharing only what matching requires.
 
@@ -38,8 +38,8 @@ A cross-encoder second stage exists in the codebase but is off by default: on th
 Future work should retest reranking on larger corpora and tighter shortlists, where gains at rank~1 may justify the extra cost.
 
 \leadpara{Larger real-world datasets.}
-A synthetic scale corpus already lives under \texttt{data/research/} (100 candidates, 50 jobs, 5000 labeled pairs).
-The prototype also ships an optional external job-ingestion path (\texttt{/real-jobs/*}) that can refresh the Employer agent corpus from a provider API while offline benchmarks continue to use the frozen \texttt{jobs.json} demo set (\S\ref{sec:4}).
+A synthetic scale corpus already lives under \path{data/research/} (100 candidates, 50 jobs, 5000 labeled pairs).
+The prototype also ships an optional external job-ingestion path (\path{/real-jobs/*}) that can refresh the Employer agent corpus from a provider API while offline benchmarks continue to use the frozen \path{jobs.json} demo set (\S\ref{sec:4}).
 Composite ablation under the portal-default weights (28/27/10/15/10/10) is now reported in \S\ref{sec:6}; the next step is held-out evaluation on real or expert-labeled résumé--job pairs.
 
 \leadpara{Production hardening for live job feeds.}
@@ -63,6 +63,6 @@ Future work can evaluate boost policies offline, keep humans authoritative over 
 
 \leadpara{Deployment-scale latency evaluation.}
 Interactive matching must stay responsive as job pools grow from dozens to thousands of roles.
-ANN shortlist latency from \texttt{phase11.py} is now committed (\texttt{phase11\_summary.csv}, Table~\ref{tab:latency}); future work should extend the sweep across Chroma and Qdrant at larger corpus sizes.
+ANN shortlist latency from \path{phase11.py} is now committed (\path{phase11_summary.csv}, Table~\ref{tab:latency}); future work should extend the sweep across Chroma and Qdrant at larger corpus sizes.
 
 The design goal is unchanged: agents keep profiles current, the Matchmaking layer shows its work, and people retain final hiring decisions.

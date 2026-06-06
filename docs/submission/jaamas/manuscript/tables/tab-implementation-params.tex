@@ -1,0 +1,54 @@
+\caption{Runtime and evaluation defaults.}
+\label{tab:implementation-params}
+\scriptsize
+\begin{tabular}{@{}p{0.24\linewidth}p{0.30\linewidth}p{0.38\linewidth}@{}}
+\toprule
+Setting group & Default value & Notes \\
+\midrule
+Embedding and vector store & \begin{itemize}[leftmargin=*,nosep]
+  \item model: \texttt{all-MiniLM-L6-v2}
+  \item dimension: 384
+  \item default store: \path{vector_store=chroma}
+\end{itemize} & Qdrant is available through the same store interface; Chroma uses cosine space by default. \\
+Portal match request & \begin{itemize}[leftmargin=*,nosep]
+  \item \texttt{topK=10}; exhaustive retrieval
+  \item composite, cosine, Jaccard skills
+  \item rules explanations
+\end{itemize} & Used by \path{DEFAULT_CANDIDATE_MATCH} and \path{DEFAULT_EMPLOYER_MATCH} on the demo corpus. \\
+API/evaluation request & \begin{itemize}[leftmargin=*,nosep]
+  \item \path{top_k=5}
+  \item \path{candidate_pool=120}
+  \item exhaustive retrieval
+\end{itemize} & Offline evaluation and regression tests use $K{=}5$ unless a driver overrides \texttt{--top-k}. \\
+Composite weights & \begin{itemize}[leftmargin=*,nosep]
+  \item semantic 28\%; skills 27\%
+  \item title 10\%; experience 15\%
+  \item compensation 10\%; remote 10\%
+\end{itemize} & Matches Eq.~\ref{eq:composite} and the portal-default ablation. \\
+Fusion and calibration & \begin{itemize}[leftmargin=*,nosep]
+  \item \path{Settings.rrf_k=60}
+  \item \path{fusion.json}
+  \item \path{calibration.json}: $a{\approx}0.298$, $b{\approx}{-}2.116$
+\end{itemize} & Available for evaluation/experiments; calibration is disabled in portal defaults. \\
+Explanation labels & \begin{itemize}[leftmargin=*,nosep]
+  \item Strong $\geq 0.85$
+  \item Good $\geq 0.65$
+  \item Moderate $\geq 0.45$; else Weak
+\end{itemize} & Rule bullets additionally use title and semantic narrative cutoffs. \\
+Constraint and feedback branches & \begin{itemize}[leftmargin=*,nosep]
+  \item experience-gap penalty: $0.65$
+  \item save $+0.04$; apply $+0.06$
+  \item dismiss $-0.06$
+\end{itemize} & Applied only when constraints or feedback boost are enabled. \\
+Cross-encoder branch & \begin{itemize}[leftmargin=*,nosep]
+  \item rerank pool: 20
+  \item \path{enable_cross_encoder_rerank=false}
+\end{itemize} & Disabled in production settings and portal defaults. \\
+Live-job sync & \begin{itemize}[leftmargin=*,nosep]
+  \item \path{REAL_JOBS_ENABLE=false}
+  \item page limit 100; timeout 30s
+  \item output: \path{data/jobs_live.json}
+\end{itemize} & Daily batch pre-syncs only when live jobs are enabled. \\
+\bottomrule
+\end{tabular}
+\normalsize

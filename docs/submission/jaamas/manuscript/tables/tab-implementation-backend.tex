@@ -1,0 +1,19 @@
+\caption{Backend implementation map.}
+\label{tab:implementation-backend}
+\scriptsize
+\begin{tabular}{@{}p{0.16\linewidth}p{0.34\linewidth}p{0.42\linewidth}@{}}
+\toprule
+Layer & Repository artifact & Responsibility \\
+\midrule
+Gateway & \path{gateway/app.py}, \path{gateway/routes/*} & Builds the FastAPI app and exposes \texttt{/auth}, \texttt{/agents}, \texttt{/candidates}, \texttt{/jobs}, \texttt{/match/*}, \texttt{/similar}, \texttt{/feedback}, \texttt{/system}, and \texttt{/real-jobs}. \\
+Container & \path{bootstrap.py} & Constructs agents, stores, event bus, seeded corpora, and optional live-job snapshot replacement. \\
+Candidate agent & \path{agents/candidate_agent.py}, \path{hooks/parser.py} & Parses résumés, versions candidate snapshots, embeds canonical text, and upserts to \texttt{candidates\_collection}. \\
+Employer agent & \path{agents/employer_agent.py} & Registers job postings, embeds descriptions, upserts to \texttt{jobs\_collection}, and supports \texttt{replace\_corpus} for bulk refresh. \\
+Matchmaking agent & \path{agents/matchmaking_agent.py} & Reads snapshots, runs retrieval/scoring, emits \texttt{MATCH\_COMPLETED}, and never mutates profile stores. \\
+Scoring core & \path{core/scoring.py}, \path{matchmaking_scoring.py}, \path{component_scores.py} & Implements semantic, skill, title, experience, compensation, remote, multimodal, and composite scores. \\
+Optional rankers & \path{core/rrf.py}, \path{fusion.py}, \path{calibration.py}, \path{feedback_boost.py}, \path{cross_encoder_rerank.py} & Adds ensemble fusion, learned fusion, Platt calibration, user-feedback deltas, and cross-encoder reranking when enabled. \\
+Explanations & \path{core/match_explanation.py}, \path{core/explain.py} & Produces structured fit signals, score breakdowns, and rule-based explanation bullets for portal cards and drawers. \\
+Stores & \path{stores/factory.py}, \path{auth/store.py}, \path{feedback_store.py}, \path{candidate_activity_store.py} & Selects Chroma/Qdrant, persists roles and sessions, stores feedback, saved jobs, applications, and activity rows. \\
+\bottomrule
+\end{tabular}
+\normalsize

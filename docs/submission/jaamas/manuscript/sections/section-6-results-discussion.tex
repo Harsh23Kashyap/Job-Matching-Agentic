@@ -5,8 +5,8 @@ All figures come from committed benchmark artifacts; they do not predict hiring 
 
 \subsection{Evaluation scope and protocol}\label{sec:6-evaluated}
 
-We evaluated \emph{resume-to-jobs matching}: for each of 30 sample resumes, the system ranks 15 job postings and we ask how often the right jobs appear near the top.
-Human annotators supplied 47 graded pairs---each pair links one resume to one job with a relevance score of none (0), partial (1), or strong (2).
+We evaluated \emph{résumé-to-job matching}: for each of 30 sample résumés, the system ranks 15 job postings and we ask how often the right jobs appear near the top.
+Human annotators supplied 47 graded pairs---each pair links one résumé to one job with a relevance score of none (0), partial (1), or strong (2).
 We report results at cutoff $K{=}5$, meaning we judge only the top five jobs shown to a user.
 
 Four questions guided the evaluation.
@@ -106,7 +106,7 @@ Table~\ref{tab:ablation} shows that dropping experience, compensation, or locati
 \end{JTable}
 
 \leadpara{Speed on a small pool.}
-Table~\ref{tab:latency} shows that lightweight scorers complete in well under one millisecond per resume on 15 jobs; even the full composite bi-encoder run averages ${\sim}0.4$\,ms per query.
+Table~\ref{tab:latency} shows that lightweight scorers complete in well under one millisecond per résumé on 15 jobs; even the full composite bi-encoder run averages ${\sim}0.4$\,ms per query.
 That headroom matters for interactive portals where a user expects refreshed matches after saving a profile.
 
 \begin{JTable}
@@ -147,7 +147,7 @@ Learned fusion and calibration fit on the same labeled pairs they are judged aga
 \leadpara{Fairness scope is narrow.}
 Table~\ref{tab:fairness} runs a synthetic counterfactual audit on ten fabricated profile pairs (name, summary, or metadata edits).
 Seven pairs trigger flags---all with the top-1 job stable, mostly small rank shifts or score changes when non-qualification text changes---with a maximum score shift of $0.017$.
-A complementary proxy-group check (\texttt{fairness\_eval.py}) reports selection-rate disparate-impact ratios of $0.82$ across experience tiers and $0.75$ across remote preference (1.0 is parity), committed to \texttt{benchmark\_outputs/fairness\_eval.json}.
+A complementary proxy-group check (\path{fairness_eval.py}) reports selection-rate disparate-impact ratios of $0.82$ across experience tiers and $0.75$ across remote preference (1.0 is parity), committed to \path{benchmark_outputs/fairness_eval.json}.
 This is an engineering sanity check, not demographic fairness certification.
 
 \begin{JTable}

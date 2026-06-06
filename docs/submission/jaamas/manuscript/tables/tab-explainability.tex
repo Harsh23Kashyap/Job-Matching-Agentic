@@ -1,12 +1,15 @@
 \caption{Offline explanation-quality audit (top-5 composite matches, $K{=}5$).}
 \label{tab:explainability}
+\scriptsize
+\setlength{\tabcolsep}{3pt}
 \begin{tabular}{@{}lrrrrrr@{}}
 \toprule
-Explainer & Faithful. & Spec. & Skill mention & No halluc. & Comp.\ align & Consistency \\
+Explainer & Faithful & Spec. & Skill & No halluc. & Comp. & Consist. \\
 \midrule
 Rule-based (default) & 0.745 & 0.627 & 25.3\% & 98.0\% & 100\% & 1.00 \\
 Grounded template & 0.747 & 0.633 & 26.7\% & 97.3\% & 100\% & 1.00 \\
 \bottomrule
 \end{tabular}
+\normalsize
 \par\vspace{0.4em}
-\footnotesize{Source: \texttt{benchmarks/explainability\_eval.py}; 300 explanations (30 candidates $\times$ top-5 $\times$ 2 modes). Faithfulness is the fraction of three hard checks passed; consistency is bullet-set Jaccard across synthetic profile variants (10 pairs). Both explainers never violate component-claim alignment and are perfectly consistent across variants, but reference an explicit matched or missing skill in only ${\sim}26\%$ of bullets, which drives the flagged rate (${\sim}77\%$).}
+\footnotesize{Source: \path{benchmarks/explainability_eval.py}; 300 explanations (30 candidates $\times$ top-5 $\times$ 2 modes). Faithfulness is the fraction of three hard checks passed; consistency is bullet-set Jaccard across 10 synthetic profile pairs. Both modes align component claims and are consistent across variants, but explicit matched/missing skills appear in only ${\sim}26\%$ of bullets, driving the flagged rate (${\sim}77\%$).}
