@@ -10,16 +10,16 @@
 \definecolor{JFrameFill}{HTML}{FFFFFF}
 
 \newenvironment{JFigure}[1]{%
-  \begin{figure}[!htbp]
+  \begin{figure}[!t]
   \centering
   \JFigPortrait{#1}%
 }{%
   \end{figure}
 }
 
-% Prefer in-flow placement (sn-jnl wraps table in threeparttable; avoid float [H]).
 \newenvironment{JTable}{%
-  \begin{table}[h!]
+  \begin{table}[!t]
+  \centering
 }{%
   \end{table}
 }

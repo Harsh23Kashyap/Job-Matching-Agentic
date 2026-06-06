@@ -40,7 +40,7 @@ Future work should retest reranking on larger corpora and tighter shortlists, wh
 \leadpara{Larger real-world datasets.}
 A synthetic scale corpus already lives under \texttt{data/research/} (100 candidates, 50 jobs, 5000 labeled pairs).
 The prototype also ships an optional external job-ingestion path (\texttt{/real-jobs/*}) that can refresh the Employer agent corpus from a provider API while offline benchmarks continue to use the frozen \texttt{jobs.json} demo set (\S\ref{sec:4}).
-The next step is held-out evaluation on real or expert-labeled résumé--job pairs, including composite ablation under portal-default weights (28/27/10/15/10/10) \todo{Run composite ablation with portal weights 28/27/10/15/10/10.}.
+Composite ablation under the portal-default weights (28/27/10/15/10/10) is now reported in \S\ref{sec:6}; the next step is held-out evaluation on real or expert-labeled résumé--job pairs.
 
 \leadpara{Production hardening for live job feeds.}
 External sync is implemented as administrator-triggered HTTP endpoints and a CLI script; future work should add authenticated admin UI controls, rate limiting, and provider credential management before exposing sync in untrusted deployments.
@@ -51,7 +51,7 @@ Structured studies with recruiters and job seekers---testing comprehension, trus
 
 \leadpara{Fairness and bias auditing.}
 The current synthetic counterfactual audit detects rank instability under controlled profile edits but is not demographic fairness certification (\S\ref{sec:6}).
-Future work should expand audit suites, commit proxy-group disparate-impact ratios, and publish explanation-quality summaries alongside ranking tables \todo{Commit \texttt{fairness\_eval} JSON exports and explanation-quality tables.}.
+Proxy-group disparate-impact ratios and an explanation-quality summary are now committed and reported (\S\ref{sec:6}); future work should expand the audit suites toward demographic fairness certification on larger, labeled corpora.
 
 \leadpara{Privacy-preserving profile sharing.}
 Separate agent ownership raises consent and minimization questions: which fields cross the Matchmaking boundary, when embeddings suffice instead of raw text, and how updates propagate with auditable permission.
@@ -63,6 +63,6 @@ Future work can evaluate boost policies offline, keep humans authoritative over 
 
 \leadpara{Deployment-scale latency evaluation.}
 Interactive matching must stay responsive as job pools grow from dozens to thousands of roles.
-ANN shortlist sweeps (\texttt{phase11.py}) should produce committed latency tables that separate vector retrieval from pairwise scoring on Chroma and Qdrant backends \todo{Commit \texttt{phase11\_summary.csv}.}.
+ANN shortlist latency from \texttt{phase11.py} is now committed (\texttt{phase11\_summary.csv}, Table~\ref{tab:latency}); future work should extend the sweep across Chroma and Qdrant at larger corpus sizes.
 
 The design goal is unchanged: agents keep profiles current, the Matchmaking layer shows its work, and people retain final hiring decisions.

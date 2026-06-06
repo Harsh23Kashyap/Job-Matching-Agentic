@@ -12,10 +12,12 @@ Semantic euclidean & 0.878 & 0.21 & Embedding \\
 Semantic cosine & 0.878 & 0.23 & Embedding \\
 Multimodal weighted & 0.924 & 0.26 & $\alpha{=}0.7$, Jaccard skills \\
 RRF ensemble & 0.913 & 0.95 & Four ranked lists \\
+Semantic (ANN, pool 10) & 0.878 & 1.9 & Chroma shortlist \\
+Multimodal (ANN, pool 10) & 0.919 & 1.9 & Chroma shortlist, $\alpha{=}0.7$ \\
 Soft skill embed & 0.869 & 15.53 & Per-skill embedding \\
-Composite (bi-encoder) & 0.942 & 0.41 & Ablation full composite \\
+Composite (bi-encoder) & 0.949 & 0.41 & Ablation full composite \\
 Composite + cross-encoder & 0.834 & 141.7 & Pool${=}20$; $\Delta$nDCG${=}{-}0.108$ \\
 \bottomrule
 \end{tabular}
 \par\vspace{0.4em}
-\footnotesize{Latency from \texttt{comparison\_summary.json} and \texttt{cross\_encoder\_report.json}. \todo{Publish \texttt{phase11.py} ANN shortlist latency table (pool${=}10$, Chroma/Qdrant grid).}}
+\footnotesize{Latency from \texttt{comparison\_summary.json}, \texttt{cross\_encoder\_report.json}, and \texttt{phase11\_summary.csv} (ANN, pool${=}10$, Chroma). Exhaustive scoring vs.\ ANN shortlist on the 15-job pool; per-query latencies are small and noisy at this scale.}

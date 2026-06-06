@@ -4,9 +4,9 @@
 \toprule
 Variant & Category & P@5 & R@5 & MRR & nDCG@5 & MAP \\
 \midrule
-Full composite & Full & 0.307 & 0.983 & 0.944 & 0.942 & 0.896 \\
+Full composite & Full & 0.293 & 0.933 & 0.972 & 0.949 & 0.921 \\
 Semantic + skills & Partial & 0.287 & 0.933 & 0.961 & 0.917 & 0.867 \\
-Semantic + skills + exp. & Partial & 0.287 & 0.933 & 0.961 & 0.917 & 0.866 \\
+Semantic + skills + exp. & Partial & 0.287 & 0.933 & 0.961 & 0.916 & 0.865 \\
 Semantic only & Single & 0.267 & 0.867 & 0.931 & 0.878 & 0.810 \\
 Skills only & Single & 0.233 & 0.733 & 0.816 & 0.748 & 0.681 \\
 Compensation only & Single & 0.187 & 0.567 & 0.457 & 0.393 & 0.387 \\
@@ -16,4 +16,4 @@ Component RRF & Ensemble & 0.233 & 0.717 & 0.570 & 0.564 & 0.497 \\
 \bottomrule
 \end{tabular}
 \par\vspace{0.4em}
-\footnotesize{Source: \texttt{2026-05-27T150000Z/ablation/ablation\_summary.json}. Weights for full composite in this run: semantic 40\%, skills 30\%, experience 15\%, compensation 10\%, location 5\% (no title term). \todo{Re-run with portal weights 28/27/10/15/10/10.}}
+\footnotesize{Source: \texttt{benchmarks/ablation.py} (portal-default run). Full-composite weights are the deployed portal defaults: semantic 28\%, skills 27\%, title 10\%, experience 15\%, compensation 10\%, remote 10\%; title overlap enters through the composite scorer. Single-component and partial rows renormalize the listed weights.}

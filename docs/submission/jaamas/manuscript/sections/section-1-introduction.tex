@@ -37,6 +37,27 @@ The system advises; it does not hire or reject on anyone's behalf.
 We evaluate the matching core offline on a labeled demo corpus---30 résumés, 15 jobs, and 47 graded relevance pairs---using standard ranking metrics and reproducible benchmark comparisons (\S\ref{sec:5}--\S\ref{sec:6}).
 Hybrid rankers reach nDCG@5 up to $0.969$ on this corpus; the portal defaults to a fixed composite score whose components map to user-visible explanations.
 
+\subsection{A running example}\label{sec:1-example}
+
+A concrete walkthrough makes the three-agent design tangible before we formalize it.
+Suppose Alex uploads a résumé to the candidate portal.
+The \textbf{Candidate Agent} cleans the document, normalizes skills against a shared vocabulary, and---once Alex confirms the parsed fields---registers a versioned \emph{candidate snapshot} of skills, experience, compensation expectation, and remote preference, together with an embedding.
+Separately, a hiring team posts a ``Machine Learning Engineer'' opening; the \textbf{Employer Agent} performs the parallel work, producing a \emph{job snapshot} with required skills, experience bounds, and a compensation band.
+When Alex opens the matches page, the read-only \textbf{Matchmaking Agent} compares the candidate snapshot against the available job snapshots, scores each pairing, and returns a ranked list.
+For the ML Engineer role Alex sees a match percentage, the skills that matched and the ones still missing, an experience and compensation read-out, and a one-line rationale.
+Alex---not the system---decides whether to save or apply.
+If Alex later edits the résumé and re-saves, the Candidate Agent refreshes its snapshot and signals the Matchmaking Agent to discard the now-stale ranking, so the next view reflects the change with a visible cause.
+The remainder of this paper formalizes these agents, their communication, and the scoring that produces the explained ranking.
+
+\subsection{Why an agentic architecture?}\label{sec:1-why-agents}
+
+A reasonable question is why JobMatch is framed as cooperating \emph{agents} rather than as a handful of conventional services.
+The distinction concerns ownership, memory, and coordination, not deployment topology: JobMatch ships as a single process, and its agents are logical roles that communicate through an in-process event bus rather than network RPC.
+A stateless service typically handles each request in isolation, shares or externalizes record ownership, and keeps no durable model of a user that evolves across visits.
+A JobMatch agent instead (i)~\textbf{owns} one side of the market---candidate records or job records, but never both; (ii)~maintains an \textbf{evolving, versioned memory} (an editable profile and a match-ready snapshot) that persists and updates as the user revises materials; (iii)~\textbf{reacts to events}, invalidating stale rankings when its own state changes; and (iv)~operates under explicit \textbf{ownership boundaries}, so no agent writes another agent's store.
+These properties make accountability and cache invalidation first-class rather than emergent: a reader can always identify which side's edit moved a ranking, and the neutral Matchmaking Agent reads versioned snapshots without ever mutating them.
+This framing motivates the ownership and communication boundaries formalized in Section~\ref{sec:3}.
+
 This paper makes the following contributions:
 \begin{itemize}[noitemsep]
   \item A \textbf{Candidate/Client Agent} that ingests résumés, maintains versioned candidate state, and updates candidate embeddings on confirmed saves.

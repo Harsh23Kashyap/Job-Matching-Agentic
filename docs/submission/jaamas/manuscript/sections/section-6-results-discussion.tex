@@ -66,11 +66,14 @@ Applying hard constraints \emph{after} scoring lowers nDCG@5 to $0.908$: filteri
 \end{JTable}
 
 Table~\ref{tab:model-params} records fitted parameters for optional calibration and learned fusion.
-These models are available in the codebase but turned off in default portal settings; they were trained on the same 47 labeled pairs used for evaluation, so their strong offline scores should be read as an exploratory ceiling, not a proven production upgrade.
+These models are available in the codebase but turned off in default portal settings; the learned fusion model was trained on the labeled pairs used for evaluation, so its strong offline score should be read as an exploratory ceiling, not a proven production upgrade.
 
 \begin{JTable}
 \input{tables/tab-model-params.tex}
 \end{JTable}
+
+\leadpara{Statistical significance.}
+Paired bootstrap tests ($N{=}5000$, seed~42) confirm the hybrid gains are not noise: the full composite significantly improves nDCG@5 over semantic-only ranking ($\Delta{=}{+}0.071$, $p{=}0.048$), and multimodal blending and RRF both significantly beat semantic cosine ($p{=}0.010$ and $p{=}0.009$). Lexical baselines (BM25, TF--IDF) do not differ significantly from semantic cosine ($p{>}0.25$), consistent with their close scores on this small pool.
 
 \leadpara{Summary.}
 The main finding is modest but consistent: matching improves when the system combines language semantics with explicit skills, and the highest scores arise from hybrid signals rather than either channel alone.
@@ -95,8 +98,8 @@ The benchmarks validate that the shared scoring core ranks sensibly under manual
 Several patterns repeat across tables.
 
 \leadpara{Hybrid semantic--skill ranking.}
-Any method that combines text meaning with skills beats semantic-only search (nDCG@5 $0.878$ vs.\ $0.917$--$0.942$ for richer composites).
-Table~\ref{tab:ablation} shows that dropping experience, compensation, or location \emph{alone} as the only signal yields very poor rankings (nDCG@5 $\leq 0.39$), but adding them alongside semantic and skill channels contributes to the full composite score ($0.942$ under the research weight set in that table).
+Any method that combines text meaning with skills beats semantic-only search (nDCG@5 $0.878$ vs.\ $0.917$--$0.949$ for richer composites).
+Table~\ref{tab:ablation} shows that dropping experience, compensation, or location \emph{alone} as the only signal yields very poor rankings (nDCG@5 $\leq 0.39$), but adding them alongside semantic and skill channels contributes to the full composite score ($0.949$ under the portal-default weight set in that table).
 
 \begin{JTable}
 \input{tables/tab-ablation.tex}
@@ -134,18 +137,18 @@ Results may not transfer to employers with thousands of open roles or to domains
 Even the best methods place relevant jobs in only about three of every ten top-five slots (P@5 $\approx 0.31$).
 Users will still see imperfect suggestions and must rely on explanations and their own judgment.
 
-\leadpara{Configuration mismatch.}
-Offline ablations use research composite weights (40/30/15/10/5) while the portal uses 28/27/10/15/10/10 with a title channel.
-We have not yet published ablation numbers under portal-default weights \todo{Publish composite ablation under portal weights for deployment alignment.}.
+\leadpara{Deployment-aligned ablation.}
+Table~\ref{tab:ablation} reports the composite ablation under the portal-default weights (28/27/10/15/10/10, including the title channel), so the offline ablation now matches the deployed scorer; the full composite reaches nDCG@5 $=0.949$, marginally above the earlier research-weight configuration (40/30/15/10/5).
 
 \leadpara{Advanced scorers that disappoint offline.}
-Cross-encoder reranking is ${\sim}340\times$ slower than composite bi-encoder scoring on this setup and \emph{lowers} nDCG@5 from $0.942$ to $0.834$ in the committed report---consistent with leaving it disabled by default.
+Cross-encoder reranking is ${\sim}340\times$ slower than composite bi-encoder scoring on this setup and \emph{lowers} nDCG@5 to $0.834$ (a $0.108$ drop from the bi-encoder baseline) in the committed report---consistent with leaving it disabled by default.
 Learned fusion and calibration fit on the same labeled pairs they are judged against, which risks overfitting.
 
 \leadpara{Fairness scope is narrow.}
 Table~\ref{tab:fairness} runs a synthetic counterfactual audit on ten fabricated profile pairs (name, summary, or metadata edits).
-Six pairs trigger flags---mostly small rank shifts or score changes when non-qualification text changes---with a maximum score shift of $0.024$.
-This is an engineering sanity check, not demographic fairness certification; proxy-group disparate-impact ratios are not yet committed to benchmark artifacts \todo{Export proxy-group disparate-impact ratios from \texttt{fairness\_eval.py}.}.
+Seven pairs trigger flags---all with the top-1 job stable, mostly small rank shifts or score changes when non-qualification text changes---with a maximum score shift of $0.017$.
+A complementary proxy-group check (\texttt{fairness\_eval.py}) reports selection-rate disparate-impact ratios of $0.82$ across experience tiers and $0.75$ across remote preference (1.0 is parity), committed to \texttt{benchmark\_outputs/fairness\_eval.json}.
+This is an engineering sanity check, not demographic fairness certification.
 
 \begin{JTable}
 \input{tables/tab-fairness.tex}
@@ -153,7 +156,11 @@ This is an engineering sanity check, not demographic fairness certification; pro
 
 \leadpara{No real hiring outcomes.}
 We did not measure interview rates, time-to-fill, applicant satisfaction, or recruiter workload.
-Explainability quality is defined offline (\S\ref{sec:5-explainability}) but not yet summarized in a results table here \todo{Add explainability evaluation summary table to this section.}.
+Explainability quality is summarized in Table~\ref{tab:explainability}: both explainers are perfectly consistent across synthetic profile variants and never make unsupported component claims, but they cite an explicit matched or missing skill in only about a quarter of bullets, so most explanations are flagged for low specificity---motivating richer explanation templates.
+
+\begin{JTable}
+\input{tables/tab-explainability.tex}
+\end{JTable}
 
 \subsection{Implications for users}\label{sec:6-implications}
 

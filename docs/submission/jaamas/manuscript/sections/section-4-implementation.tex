@@ -4,7 +4,8 @@ This section describes how the architecture in \S\ref{sec:3} is realized in the 
 Figure~\ref{fig:8} details the matching pipeline from snapshot inputs through retrieval, composite scoring, constraints, optional branches, and portal-facing explanations.
 Score definitions appear in \S\ref{sec:5}; measured outcomes in \S\ref{sec:6}.
 
-\begin{JFigure}{../figures/Fig8.pdf}
+\begin{JFigure}{../figures/Fig8.png}
+\vspace{1\baselineskip}
 \figcap{8}{Implementation of the matching pipeline: retrieval (exhaustive or ANN primary; lexical benchmark-only), composite scoring with six weighted components, feasibility constraints, optional fusion/calibration/feedback boost/auto-strategy, and structured explanation fork (rule default, LLM optional) consumed by portal cards and drawer.}
 \end{JFigure}
 
@@ -82,7 +83,6 @@ Table~\ref{tab:workflows} summarizes end-to-end flows; representative endpoint g
 \texttt{POST /feedback}, \texttt{POST /feedback/actions}, \texttt{GET /feedback/me}, \texttt{GET /feedback/counts};
 \texttt{GET /similar/jobs/\{job\_id\}}, \texttt{GET /similar/candidates/\{candidate\_id\}};
 \texttt{GET /system/config}, \texttt{GET /system/fairness}, \texttt{POST /system/vector-store}, \texttt{POST /system/demo/reset} (when demo mode enabled).
-Table~\ref{tab:workflows} summarizes authenticated portal routes, user goals, and the gateway paths that implement them.
 
 \begin{JTable}
 \input{tables/tab-workflows.tex}
@@ -113,28 +113,27 @@ Live job sync is invoked via API or CLI (\S\ref{sec:4}); a dedicated admin UI co
 All portals render inside \texttt{PortalShell} (\texttt{layouts/PortalShell.jsx}) with role-aware navigation.
 Dedicated error routes (\texttt{pages/errors/ErrorPage.jsx}) present full-screen, centered recovery pages for HTTP 404/502 and unknown failures, with copy that distinguishes client-side routing errors from upstream outages.
 
-Figure~\ref{fig:10} shows representative portal surfaces across candidate onboarding, profile editing, bidirectional matching, employer job management, and the admin research console that invokes the matching pipeline in Figure~\ref{fig:8}.
-Screenshots use the demo corpus and default composite strategy where applicable (\S\ref{sec:4-params}); they illustrate the research prototype UI rather than usability study outcomes.
+Figure~\ref{fig:10} shows the live portal surfaces that invoke the matching pipeline in Figure~\ref{fig:8}.
+Screenshots use the demo corpus and default composite strategy (\S\ref{sec:4-params}); they illustrate the research prototype UI rather than usability study outcomes.
 
-\begin{figure}[!htbp]
+\begin{figure}[!t]
 \centering
-\JFigShot[width=0.92\linewidth]{../figures/screenshots/ui-candidate-onboarding.png}\\[6pt]
-{\small (a) Candidate resume onboarding}\\[12pt]
-\JFigShot[width=0.92\linewidth]{../figures/screenshots/ui-candidate-profile.png}\\[6pt]
-{\small (b) Candidate profile editor}\\[12pt]
-\JFigShot[width=0.92\linewidth]{../figures/screenshots/ui-candidate-matches.png}\\[6pt]
-{\small (c) Candidate job matches}\\[12pt]
-\JFigShot[width=0.72\linewidth]{../figures/screenshots/ui-score-breakdown.png}\\[6pt]
-{\small (d) Composite score breakdown}\\[12pt]
-\JFigShot[width=0.92\linewidth]{../figures/screenshots/ui-employer-jobs.png}\\[6pt]
-{\small (e) Employer job postings}\\[12pt]
-\JFigShot[width=0.92\linewidth]{../figures/screenshots/ui-employer-matches.png}\\[6pt]
-{\small (f) Employer reverse search}\\[12pt]
-\JFigShot[width=0.92\linewidth]{../figures/screenshots/ui-admin-console.png}\\[6pt]
-{\small (g) Admin agent dashboard}\\[12pt]
-\JFigShot[width=0.92\linewidth]{../figures/screenshots/ui-admin-match-run.png}\\[6pt]
-{\small (h) Admin semantic match run}
-\figcap{10}{Portal implementation backing the workflows in Figures~\ref{fig:6}--\ref{fig:7} and the matching pipeline in Figure~\ref{fig:8}: (a)--(b) candidate ingestion and profile maintenance; (c)--(d) ranked job matches with explanation drawer; (e)--(f) employer posting management and reverse candidate search; (g)--(h) admin agent telemetry and manual match run on the demo corpus (portals use composite at top-$K{=}10$; console defaults to semantic at $K{=}5$).}
+\begin{minipage}[t]{0.32\linewidth}
+\centering
+\JFigShot{../figures/screenshots/ui-candidate-matches.png}\\[4pt]
+{\small (a) Candidate job matches}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.32\linewidth}
+\centering
+\JFigShot{../figures/screenshots/ui-employer-matches.png}\\[4pt]
+{\small (b) Employer reverse search}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.32\linewidth}
+\centering
+\JFigShot{../figures/screenshots/ui-score-breakdown.png}\\[4pt]
+{\small (c) Composite score breakdown}
+\end{minipage}
+\figcap{10}{Portal implementation backing the workflows in Figures~\ref{fig:6}--\ref{fig:7} and the matching pipeline in Figure~\ref{fig:8}: (a) candidate job matches with explanation drawer; (b) employer reverse candidate search for an owned posting; (c) composite score breakdown and skill alignment (portal default strategy, top-$K{=}10$).}
 \end{figure}
 
 \subsection{Data structures}\label{sec:4-data}
@@ -189,7 +188,7 @@ When \texttt{retrieval=ann}, shortlists come from the configured vector store be
 Portal requests fix \texttt{strategy=composite}, \texttt{metric=cosine}, \texttt{skillsMode=jaccard}, \texttt{semanticWeight=0.7}, \texttt{fusionMode=fixed}, with \texttt{applyConstraints=false}, \texttt{autoStrategy=false}, \texttt{useCalibration=false}, \texttt{useFeedbackBoost=false}, \texttt{explainMode=rules}.
 Composite component weights in \texttt{COMPOSITE\_WEIGHTS}: semantic 28\%, skills 27\%, title 10\%, experience 15\%, compensation 10\%, remote 10\% (Eq.~\ref{eq:composite}).
 RRF merge constant: \texttt{Settings.rrf\_k=60}.
-Learned fusion weights load from \texttt{data/models/fusion.json}; Platt calibration from \texttt{data/models/calibration.json} ($a{\approx}2.078$, $b{\approx}2.112$).
+Learned fusion weights load from \texttt{data/models/fusion.json}; Platt calibration from \texttt{data/models/calibration.json} ($a{\approx}0.298$, $b{\approx}{-}2.116$).
 
 \leadpara{Thresholds and optional boosts.}
 Explainability fit labels (\texttt{match\_explanation.py}): Strong $\geq 0.85$, Good $\geq 0.65$, Moderate $\geq 0.45$, else Weak.
@@ -227,4 +226,4 @@ Live-jobs contract tests: \texttt{tests/unit/backend/test\_real\_jobs\_sync.py} 
 Additional benchmark tests cover ablations, fusion tables, fairness audit, explainability checks, significance resampling, synthetic dataset validation, and the research export pipeline (\texttt{tests/benchmarks/*.py}).
 Run backend tests from \texttt{backend/} with \texttt{pytest ../tests -q} (310 tests collected as of submission tag; declared in \texttt{requirements-min.txt}).
 
-\todo{Commit \texttt{phase11\_summary.csv} from \texttt{benchmarks/phase11.py} for ANN shortlist latency.}
+ANN shortlist latency is summarized in Table~\ref{tab:latency} from the committed \texttt{phase11\_summary.csv}.
