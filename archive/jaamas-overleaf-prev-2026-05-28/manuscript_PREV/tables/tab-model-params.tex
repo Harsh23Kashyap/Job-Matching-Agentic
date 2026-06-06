@@ -1,0 +1,18 @@
+\caption{Fitted calibration and fusion model parameters (offline training).}
+\label{tab:model-params}
+\begin{tabular}{@{}ll@{}}
+\toprule
+Component & Value \\
+\midrule
+\multicolumn{2}{@{}l@{}}{\textit{Platt calibrator} (\texttt{data/models/calibration.json})} \\
+$a$ (scale) & 2.078 \\
+$b$ (shift) & 2.112 \\
+\addlinespace
+\multicolumn{2}{@{}l@{}}{\textit{Learned fusion LR} (\texttt{data/models/fusion.json})} \\
+Top feature weights (logistic) & exp.\ 0.860, remote 0.853, salary 0.849 \\
+ & semantic 0.537, taxonomy 0.509, skills 0.204 \\
+ & must-have coverage 0.311, bias 1.529 \\
+\bottomrule
+\end{tabular}
+\par\vspace{0.4em}
+\footnotesize{Models trained on labeled eval pairs; used when \texttt{use\_calibration} or \texttt{fusion\_mode=learned} is enabled. \todo{Report calibration impact on nDCG@5 and expected calibration error.}}

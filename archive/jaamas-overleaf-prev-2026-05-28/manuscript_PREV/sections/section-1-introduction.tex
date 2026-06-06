@@ -1,0 +1,56 @@
+\section{Introduction}\label{sec:1}
+
+Online hiring markets route high application volume through platforms that rank candidates and jobs at scale, yet both sides often receive limited feedback on why a match appeared, changed, or disappeared.
+Candidates submit the same résumé to many openings and cannot distinguish rejection, filtering, and queue effects.
+When outcomes arrive---an interview invitation, a rejection, or a role removed from a results page---the rationale seldom returns to the applicant in actionable form.
+
+Recruitment platforms centralize workflow, but they rarely make ranking decisions auditable.
+Candidates see ordered lists without evidence tying each slot to profile fields or job requirements.
+Recruiters and hiring managers see shortlists update after job-text edits without a visible link between requirement changes and rank movement.
+Neither side can reliably answer: \emph{why was this person shown this role, and what would need to change for the ranking to differ?}
+
+These gaps impose measurable cost.
+Misaligned interviews consume calendar time on both sides; qualified candidates who never reach a shortlist extend vacancies or divert talent elsewhere.
+Organizations pay in recruiter hours and manager attention; job seekers pay in repeated preparation for roles that were poor fits from the outset.
+
+Assistive artificial intelligence can address such opacity without automating hire-or-reject decisions.
+Sal Khan~\cite{Khan2024} argues that AI should guide people through complex choices---clarifying trade-offs, supporting preparation, and preserving human judgment.
+In admissions and hiring alike, static snapshots often replace evolving context; software that maintains structured, versioned profiles can instead support informed decisions over time.
+
+We instantiate that principle with a dedicated agent on each market side.
+A \textbf{candidate-side agent}---also referred to as the client-side agent in our implementation---accepts résumés and profile updates, extracts a structured record of skills and experience, and keeps that record current as the user revises materials.
+An \textbf{employer-side agent} performs the parallel work for hiring: it accepts job descriptions and requirements, organizes them into a structured job record, and updates that record when a role changes.
+Each agent owns its side of the market; neither manages the other's data.
+
+Separate ownership only helps if the two sides can still meet on common ground.
+When candidate records and job records never connect, both portals collapse into blind browsing.
+When one large program controls every edit and every score, users cannot see who changed what or why a recommendation moved.
+JobMatch therefore treats \textbf{collaboration among agents} as the core design problem.
+Candidate and employer agents maintain their own state; a neutral \textbf{Matchmaking Agent} reads both, compares them, and returns ranked recommendations with structured explanations.
+When either side updates a résumé or a job description, the owning agent refreshes its record and notifies the Matchmaking layer so stale rankings can be invalidated.
+
+These components form \textbf{JobMatch}, a multi-agent job-matching platform implemented as a research prototype with separate web portals for candidates, employers, and administrators.
+The platform parses résumés and job descriptions into structured states, builds comparable representations of people and roles, and routes matching through the Matchmaking Agent to produce ordered recommendations.
+For deployment scenarios, the Employer agent can optionally refresh its job corpus from an external provider API; offline evaluation in this paper uses a fixed demo corpus (\S\ref{sec:4}).
+Users remain in control throughout: they review extracted fields, read why a pairing ranked as it did, and decide whether to save, apply, or shortlist.
+The system advises; it does not hire or reject on anyone's behalf.
+We evaluate the matching core offline on a labeled demo corpus---30 résumés, 15 jobs, and 47 graded relevance pairs---using standard ranking metrics and reproducible benchmark comparisons (\S\ref{sec:5}--\S\ref{sec:6}).
+Hybrid rankers reach nDCG@5 up to $0.969$ on this corpus; the portal defaults to a fixed composite score whose components map to user-visible explanations.
+
+This paper makes the following contributions:
+\begin{itemize}[noitemsep]
+  \item A \textbf{Candidate/Client Agent} that ingests résumés, maintains versioned candidate state, and updates candidate embeddings on confirmed saves.
+  \item An \textbf{Employer Agent} that ingests job descriptions, maintains versioned job state, and optionally refreshes postings from an external provider API.
+  \item A \textbf{Matchmaking Agent} that scores candidate--job pairs read-only and returns ranked lists with structured explanations.
+  \item An \textbf{event-driven communication model} in which profile updates invalidate stale rankings without cross-agent writes to foreign stores.
+  \item A \textbf{role-separated portal layer} demonstrating end-to-end candidate, employer, and administrator workflows.
+  \item An \textbf{offline evaluation} on a fixed labeled corpus with benchmark comparisons, ablations, and a continuous-integration regression gate.
+\end{itemize}
+
+The remainder of the paper is organized as follows.
+Section~\ref{sec:2} reviews recruitment systems, AI agents in hiring, and related matching approaches.
+Section~\ref{sec:3} presents the multi-agent architecture (Candidate, Employer, and Matchmaking agents; communication; overall workflow).
+Section~\ref{sec:4} describes implementation details (libraries, APIs, data structures, and parameters).
+Section~\ref{sec:5} defines quality metrics, similarity scores, and evaluation criteria.
+Section~\ref{sec:6} reports benchmark results and discussion.
+Section~\ref{sec:7} concludes and outlines future scope.

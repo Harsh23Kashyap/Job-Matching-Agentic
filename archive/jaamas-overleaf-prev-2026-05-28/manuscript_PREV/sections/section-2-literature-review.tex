@@ -1,0 +1,122 @@
+\section{Literature Review}\label{sec:2}
+
+Recruitment technology, agentic software, and information retrieval have each advanced independently, yet deployed hiring tools rarely combine all three in a traceable architecture.
+We organize prior work into five literature themes---recruitment systems, multi-agent coordination, semantic representation, ranking and fusion---then state the gaps those literatures leave open and how JobMatch is positioned relative to them.
+Numeric results from our evaluation appear in \S\ref{sec:6}; metric definitions in \S\ref{sec:5}.
+
+\subsection{Recruitment and job-matching systems}\label{sec:2-recruitment}
+
+Enterprise hiring still depends heavily on manual screening: recruiters read resumes, compare them to written requirements, and decide who advances.
+At scale this workflow is slow, inconsistent across reviewers, and weakly auditable when a candidate asks why they were excluded \todo{Citation needed: empirical studies of manual resume screening throughput and reviewer inconsistency in recruitment}.
+Most production stacks therefore automate the first cut through keyword filters, structured application forms, and applicant tracking systems (ATS).
+
+Keyword-based filtering treats a resume as a bag of terms matched against job requirements.
+Lexical retrieval methods such as TF--IDF weighting and BM25 remain the workhorse for this pattern because they are fast, interpretable at the token level, and easy to deploy over large applicant pools~\cite{Manning2008,Robertson2009}.
+Their limitation is semantic brittleness: synonyms, paraphrases, and transferable skills that are not spelled out literally can be missed, while keyword stuffing can inflate apparent fit.
+Structured skill fields and Boolean search rules reduce noise but still encode fit as a static rule set rather than a graded comparison between two evolving profiles.
+
+ATS platforms extend ingestion with workflow state---application status, interview stages, compliance logging---but they often treat matching as a side feature bolted onto document storage \todo{Citation needed: survey or industry analysis of applicant tracking system capabilities and matching modules}.
+Candidates frequently experience opaque ranking: a profile passes a filter without knowing which requirement mattered, or disappears after a re-rank with no explanation.
+Recruiters face the symmetric problem when shortlists shift without a visible link between job-text edits and ranking changes.
+These workflow limitations motivate systems that separate \emph{profile ownership} from \emph{scoring}, and that return reasons a human can inspect before any hire/no-hire action is taken.
+
+\subsection{AI agents and multi-agent systems}\label{sec:2-agents}
+
+Agent-based software assigns bounded roles---perception, memory, planning, action---to modules that coordinate through messages or shared events rather than through one monolithic controller~\cite{Wooldridge2009}.
+Three agent patterns are relevant to hiring.
+
+\leadpara{Personal agents.}
+Personal or client-side agents maintain a durable model of a user's goals and history, updating that model as new documents arrive \todo{Citation needed: personal software agents or digital assistants for career and document management}.
+In hiring, the natural analogue is a representative that ingests resumes, tracks skill and experience revisions, and speaks for the candidate without exposing raw edits to the employer's datastore.
+
+\leadpara{Task-specific agents.}
+Task-specific agents encapsulate one domain workflow---parsing, validation, or recommendation---with explicit inputs and outputs.
+Employer-side job-ingestion agents fit this pattern: they normalize postings, extract requirements, and version job records when descriptions change.
+Prior agentic hiring proposals often emphasize autonomous interview bots or negotiation agents \todo{Citation needed: autonomous interview or negotiation agents in recruitment}.
+JobMatch instead uses task-specific agents for \emph{profile maintenance}, not for autonomous selection.
+
+\leadpara{Collaborative agents and human-in-the-loop support.}
+Collaborative multi-agent systems decompose a problem so that each agent owns part of the state and a coordinator integrates read-only views for decision support~\cite{Wooldridge2009}.
+Human-in-the-loop designs keep consequential actions---apply, reject, shortlist---with people while software proposes ranked options and explanations \todo{Citation needed: human-in-the-loop decision support for algorithmic hiring recommendations}.
+This differs from fully automated ranking pipelines that update applicant status without an explicit user action on each match.
+
+JobMatch adopts the collaborative pattern: Candidate and Employer agents own their respective profiles and vector stores; a read-only Matchmaking agent scores cross-side pairs and emits structured explanations (\S\ref{sec:3}).
+An in-process event bus synchronizes profile updates and match-cache invalidation without cross-agent mutation of stored records (\S\ref{sec:4}).
+
+\subsection{Semantic search and representation learning}\label{sec:2-semantic}
+
+Job--candidate matching is, at core, a cross-document retrieval problem: given a resume (query), rank jobs (documents), or the reverse for employer-initiated search.
+Semantic search replaces exact term overlap with learned representations that map text into a shared vector space~\cite{Manning2008}.
+
+\leadpara{Embeddings.}
+Dense encoders map resumes and job descriptions to fixed-dimensional vectors so that related texts lie nearby even when they share few tokens.
+Sentence-level models such as Sentence-BERT train siamese encoders for semantic similarity and have become a default building block for short-text matching~\cite{Reimers2019}.
+In JobMatch, snapshot embeddings are computed from canonical resume and job-description text (\S\ref{sec:4-params}).
+
+\leadpara{Dense retrieval and semantic similarity.}
+Dense retrieval ranks candidates or jobs by vector similarity---typically cosine---over the full corpus or over an approximate nearest-neighbor shortlist \todo{Citation needed: dense passage or document retrieval over learned embeddings}.
+Compared with lexical baselines, dense retrieval captures paraphrase and topical relatedness but can underweight explicit skill tokens that recruiters treat as hard requirements.
+Hybrid systems therefore retain both signals rather than replacing keywords entirely~\cite{Manning2008,Reimers2019}.
+
+Much published job-matching research evaluates a single embedding model or similarity function on a static labeled set \todo{Citation needed: job--resume matching studies using neural or embedding-based retrieval}.
+Fewer prototypes expose the same representation path to live profile edits on both market sides while reporting offline retrieval metrics on identical scoring code.
+
+\subsection{Ranking and recommendation}\label{sec:2-ranking}
+
+Once candidates and jobs are represented, the system must \emph{rank} pairs and \emph{evaluate} ranking quality---topics well developed in information retrieval and recommender-systems research.
+
+\leadpara{Ranking metrics.}
+Standard offline metrics include precision and recall at cutoff $K$, mean reciprocal rank (MRR), normalized discounted cumulative gain (nDCG@K), and mean average precision (MAP)~\cite{Manning2008}.
+Precision@K measures shortlist purity; recall@K measures coverage of labeled relevant items; nDCG@K rewards placing higher-grade relevance labels earlier; MRR emphasizes the rank of the first relevant result.
+Graded nDCG is appropriate when relevance is partial (e.g., a job is a plausible but not ideal fit).
+We adopt these metrics at $K{=}5$ on a labeled demo corpus (\S\ref{sec:5}).
+
+\leadpara{Hybrid retrieval.}
+Hybrid rankers combine lexical scores, dense semantic similarity, and structured features such as skill overlap or experience gaps~\cite{Manning2008,Robertson2009,Reimers2019}.
+A common pattern is a weighted sum of semantic and skill channels (multimodal blending) or a post-hoc constraint filter on top of a semantic shortlist.
+JobMatch extends this with a multi-component composite score---semantic, skills, title overlap, experience, compensation, and remote preference---so that each channel remains visible in portal explanations (\S\ref{sec:5}).
+
+\leadpara{Fusion methods.}
+When multiple rankers produce different orderings, fusion methods merge lists without retraining the underlying encoders.
+Reciprocal rank fusion (RRF) combines ranked outputs using reciprocal rank weights and remains stable when individual retrievers make complementary errors~\cite{Cormack2009}.
+Learned fusion and hierarchical blending fit scalar weights or classifiers over component scores \todo{Citation needed: learned rank fusion or stacking for multi-signal retrieval}.
+JobMatch implements fixed-weight composite scoring for portal defaults, plus optional RRF, learned logistic fusion, Platt calibration~\cite{Platt1999}, and cross-encoder reranking for offline comparison (\S\ref{sec:4}, \S\ref{sec:6}).
+
+\subsection{Research gaps}\label{sec:2-gaps}
+
+Across the recruitment, agent, and retrieval literatures, several gaps recur in job-matching demos and prototypes.
+
+\leadpara{Algorithm-only focus.}
+Many systems optimize a matching formula---embedding similarity, skill Jaccard, or a learned re-ranker---while treating ingestion, profile versioning, and user-facing workflow as out of scope \todo{Citation needed: job-matching prototypes that report retrieval metrics without deployable profile or portal layers}.
+Evaluation then proceeds on frozen corpora disconnected from the code path users would actually trigger when they edit a resume or repost a job.
+
+\leadpara{Single-sided or monolithic control.}
+Candidate-side recommender demos are more common than symmetric platforms where \emph{both} sides maintain agents with separate ownership \todo{Citation needed: two-sided or employer--candidate job-matching platforms with separate user roles}.
+Monolithic services that store and score all records in one module obscure accountability: users cannot tell which component changed a rank or which side's edit caused invalidation.
+
+\leadpara{Limited explainability and evaluation depth.}
+Ranking scores alone do not satisfy recruiter or candidate trust; explainable ML methods attribute predictions to input features~\cite{Ribeiro2016}.
+In hiring, explanations should reference skills, experience gaps, and constraint channels that align with the score breakdown.
+Yet many job-matching papers report nDCG or accuracy without explanation-quality audits, calibration checks~\cite{Platt1999}, or fairness sanity tests on controlled profile variants \todo{Citation needed: explainability or fairness evaluation in job-matching or hiring recommender systems}.
+Demo corpora are often small and manually labeled, which is appropriate for reproducible research but rarely accompanied by regression gates tied to production scoring code.
+
+\subsection{Positioning of JobMatch}\label{sec:2-positioning}
+
+JobMatch addresses these gaps as an integrated research prototype rather than as a standalone retrieval formula.
+
+\leadpara{Multi-agent framing.}
+The system decomposes hiring into three bounded agents---Candidate, Employer, and Matchmaking---coordinated by typed events (\S\ref{sec:3}--\S\ref{sec:4}).
+Profile mutation stays with the owning agent; matching reads versioned snapshots only.
+This design makes ownership, cache invalidation, and audit trails first-class, not emergent properties of a single service.
+
+\leadpara{Candidate-side and employer-side portals.}
+Separate React portals enforce role separation: candidates manage resumes, saved jobs, and applications; employers manage postings, reverse candidate search, and applicant lists; administrators inspect agent status, run evaluation hooks, and review fairness summaries (\S\ref{sec:4-frontend}).
+Consequential actions remain explicit user clicks---save, apply, dismiss---consistent with human-in-the-loop decision support.
+
+\leadpara{Matchmaking agent and explainable composite ranking.}
+The Matchmaking agent combines semantic, skill, and constraint channels into a fixed composite score with structured \texttt{MatchExplanation} payloads (\S\ref{sec:5}).
+Rule-based explainers are evaluated offline for faithfulness and specificity (\S\ref{sec:5-explainability}); optional calibration and feedback boosts exist but are disabled in default portal settings.
+
+\leadpara{Empirical evaluation on shared code paths.}
+Offline benchmarks call the same scoring core as the live gateway: lexical and dense baselines, multimodal and composite strategies, RRF and learned fusion, ablations, hard-negative sanity checks, synthetic fairness counterfactuals, and a continuous-integration regression gate on nDCG@5 (\S\ref{sec:5}--\S\ref{sec:6}).
+We do not claim state-of-the-art hiring accuracy on a large production corpus; the contribution is traceable multi-agent architecture, assistive explainable ranking, and reproducible measurement on a controlled labeled set tied to the deployed prototype.
