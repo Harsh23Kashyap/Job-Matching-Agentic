@@ -1,0 +1,580 @@
+{
+  "meta": {
+    "generated_at": "2026-06-06T15:05:13.847894+00:00",
+    "report_type": "production_composite",
+    "task": "resume_to_jobs",
+    "eval_path": "/Users/harshkashyap/project/learning/job-matching/New/Job-Matching-Agentic-main/data/eval_pairs.json",
+    "data_dir": "/Users/harshkashyap/project/learning/job-matching/New/Job-Matching-Agentic-main/data",
+    "corpus": {
+      "candidates": 30,
+      "jobs": 15,
+      "labeled_queries": 30
+    },
+    "top_k": 5,
+    "embedding_model": "all-MiniLM-L6-v2",
+    "skills_mode": "jaccard",
+    "composite_weights": {
+      "semantic": 0.28,
+      "skills": 0.27,
+      "title": 0.1,
+      "experience": 0.15,
+      "compensation": 0.1,
+      "remote": 0.1
+    },
+    "strategy": "composite"
+  },
+  "summary": {
+    "method_key": "composite",
+    "method": "Production composite",
+    "precision_at_k": 0.29333333333333333,
+    "recall_at_k": 0.9333333333333333,
+    "mrr": 0.9722222222222222,
+    "ndcg_at_k": 0.949235633450573,
+    "map": 0.9206878306878307,
+    "latency_ms": 1.006,
+    "top_k": 5,
+    "queries": 30
+  },
+  "per_query": [
+    {
+      "method_key": "composite",
+      "method": "Production composite",
+      "query_id": "cv_01",
+      "precision_at_k": 0.4,
+      "recall_at_k": 1.0,
+      "mrr": 1.0,
+      "ndcg_at_k": 0.9327783893101107,
+      "map": 0.7,
+      "top_k": 5,
+      "predicted_ids": [
+        "job_01",
+        "job_06",
+        "job_04",
+        "job_10",
+        "job_07"
+      ]
+    },
+    {
+      "method_key": "composite",
+      "method": "Production composite",
+      "query_id": "cv_02",
+      "precision_at_k": 0.4,
+      "recall_at_k": 1.0,
+      "mrr": 1.0,
+      "ndcg_at_k": 0.9639404333166532,
+      "map": 0.8333333333333333,
+      "top_k": 5,
+      "predicted_ids": [
+        "job_02",
+        "job_08",
+        "job_13",
+        "job_01",
+        "job_04"
+      ]
+    },
+    {
+      "method_key": "composite",
+      "method": "Production composite",
+      "query_id": "cv_03",
+      "precision_at_k": 0.4,
+      "recall_at_k": 1.0,
+      "mrr": 1.0,
+      "ndcg_at_k": 1.0,
+      "map": 1.0,
+      "top_k": 5,
+      "predicted_ids": [
+        "job_03",
+        "job_14",
+        "job_10",
+        "job_05",
+        "job_12"
+      ]
+    },
+    {
+      "method_key": "composite",
+      "method": "Production composite",
+      "query_id": "cv_04",
+      "precision_at_k": 0.4,
+      "recall_at_k": 1.0,
+      "mrr": 1.0,
+      "ndcg_at_k": 0.9639404333166532,
+      "map": 0.8333333333333333,
+      "top_k": 5,
+      "predicted_ids": [
+        "job_04",
+        "job_01",
+        "job_15",
+        "job_06",
+        "job_02"
+      ]
+    },
+    {
+      "method_key": "composite",
+      "method": "Production composite",
+      "query_id": "cv_05",
+      "precision_at_k": 0.2,
+      "recall_at_k": 0.5,
+      "mrr": 1.0,
+      "ndcg_at_k": 0.8262346571285599,
+      "map": 0.6428571428571428,
+      "top_k": 5,
+      "predicted_ids": [
+        "job_05",
+        "job_10",
+        "job_14",
+        "job_03",
+        "job_06"
+      ]
+    },
+    {
+      "method_key": "composite",
+      "method": "Production composite",
+      "query_id": "cv_06",
+      "precision_at_k": 0.4,
+      "recall_at_k": 1.0,
+      "mrr": 1.0,
+      "ndcg_at_k": 1.0,
+      "map": 1.0,
+      "top_k": 5,
+      "predicted_ids": [
+        "job_01",
+        "job_06",
+        "job_04",
+        "job_10",
+        "job_11"
+      ]
+    },
+    {
+      "method_key": "composite",
+      "method": "Production composite",
+      "query_id": "cv_07",
+      "precision_at_k": 0.0,
+      "recall_at_k": 0.0,
+      "mrr": 0.16666666666666666,
+      "ndcg_at_k": 0.0,
+      "map": 0.16666666666666666,
+      "top_k": 5,
+      "predicted_ids": [
+        "job_08",
+        "job_02",
+        "job_01",
+        "job_13",
+        "job_15"
+      ]
+    },
+    {
+      "method_key": "composite",
+      "method": "Production composite",
+      "query_id": "cv_08",
+      "precision_at_k": 0.2,
+      "recall_at_k": 1.0,
+      "mrr": 1.0,
+      "ndcg_at_k": 1.0,
+      "map": 1.0,
+      "top_k": 5,
+      "predicted_ids": [
+        "job_13",
+        "job_02",
+        "job_08",
+        "job_04",
+        "job_15"
+      ]
+    },
+    {
+      "method_key": "composite",
+      "method": "Production composite",
+      "query_id": "cv_09",
+      "precision_at_k": 0.4,
+      "recall_at_k": 1.0,
+      "mrr": 1.0,
+      "ndcg_at_k": 0.9639404333166532,
+      "map": 0.8333333333333333,
+      "top_k": 5,
+      "predicted_ids": [
+        "job_07",
+        "job_10",
+        "job_05",
+        "job_11",
+        "job_12"
+      ]
+    },
+    {
+      "method_key": "composite",
+      "method": "Production composite",
+      "query_id": "cv_10",
+      "precision_at_k": 0.4,
+      "recall_at_k": 1.0,
+      "mrr": 1.0,
+      "ndcg_at_k": 1.0,
+      "map": 1.0,
+      "top_k": 5,
+      "predicted_ids": [
+        "job_15",
+        "job_04",
+        "job_01",
+        "job_02",
+        "job_13"
+      ]
+    },
+    {
+      "method_key": "composite",
+      "method": "Production composite",
+      "query_id": "cv_11",
+      "precision_at_k": 0.4,
+      "recall_at_k": 1.0,
+      "mrr": 1.0,
+      "ndcg_at_k": 1.0,
+      "map": 1.0,
+      "top_k": 5,
+      "predicted_ids": [
+        "job_14",
+        "job_03",
+        "job_05",
+        "job_10",
+        "job_11"
+      ]
+    },
+    {
+      "method_key": "composite",
+      "method": "Production composite",
+      "query_id": "cv_12",
+      "precision_at_k": 0.4,
+      "recall_at_k": 1.0,
+      "mrr": 1.0,
+      "ndcg_at_k": 1.0,
+      "map": 1.0,
+      "top_k": 5,
+      "predicted_ids": [
+        "job_06",
+        "job_01",
+        "job_04",
+        "job_11",
+        "job_10"
+      ]
+    },
+    {
+      "method_key": "composite",
+      "method": "Production composite",
+      "query_id": "cv_13",
+      "precision_at_k": 0.2,
+      "recall_at_k": 1.0,
+      "mrr": 1.0,
+      "ndcg_at_k": 1.0,
+      "map": 1.0,
+      "top_k": 5,
+      "predicted_ids": [
+        "job_02",
+        "job_06",
+        "job_01",
+        "job_13",
+        "job_04"
+      ]
+    },
+    {
+      "method_key": "composite",
+      "method": "Production composite",
+      "query_id": "cv_14",
+      "precision_at_k": 0.4,
+      "recall_at_k": 1.0,
+      "mrr": 1.0,
+      "ndcg_at_k": 1.0,
+      "map": 1.0,
+      "top_k": 5,
+      "predicted_ids": [
+        "job_01",
+        "job_04",
+        "job_06",
+        "job_15",
+        "job_13"
+      ]
+    },
+    {
+      "method_key": "composite",
+      "method": "Production composite",
+      "query_id": "cv_15",
+      "precision_at_k": 0.2,
+      "recall_at_k": 1.0,
+      "mrr": 1.0,
+      "ndcg_at_k": 1.0,
+      "map": 1.0,
+      "top_k": 5,
+      "predicted_ids": [
+        "job_14",
+        "job_03",
+        "job_10",
+        "job_01",
+        "job_06"
+      ]
+    },
+    {
+      "method_key": "composite",
+      "method": "Production composite",
+      "query_id": "cv_16",
+      "precision_at_k": 0.4,
+      "recall_at_k": 1.0,
+      "mrr": 1.0,
+      "ndcg_at_k": 1.0,
+      "map": 1.0,
+      "top_k": 5,
+      "predicted_ids": [
+        "job_08",
+        "job_02",
+        "job_13",
+        "job_15",
+        "job_06"
+      ]
+    },
+    {
+      "method_key": "composite",
+      "method": "Production composite",
+      "query_id": "cv_17",
+      "precision_at_k": 0.4,
+      "recall_at_k": 1.0,
+      "mrr": 1.0,
+      "ndcg_at_k": 1.0,
+      "map": 1.0,
+      "top_k": 5,
+      "predicted_ids": [
+        "job_05",
+        "job_07",
+        "job_03",
+        "job_10",
+        "job_14"
+      ]
+    },
+    {
+      "method_key": "composite",
+      "method": "Production composite",
+      "query_id": "cv_18",
+      "precision_at_k": 0.4,
+      "recall_at_k": 1.0,
+      "mrr": 1.0,
+      "ndcg_at_k": 1.0,
+      "map": 1.0,
+      "top_k": 5,
+      "predicted_ids": [
+        "job_01",
+        "job_04",
+        "job_06",
+        "job_08",
+        "job_15"
+      ]
+    },
+    {
+      "method_key": "composite",
+      "method": "Production composite",
+      "query_id": "cv_19",
+      "precision_at_k": 0.2,
+      "recall_at_k": 1.0,
+      "mrr": 1.0,
+      "ndcg_at_k": 1.0,
+      "map": 1.0,
+      "top_k": 5,
+      "predicted_ids": [
+        "job_09",
+        "job_12",
+        "job_10",
+        "job_11",
+        "job_05"
+      ]
+    },
+    {
+      "method_key": "composite",
+      "method": "Production composite",
+      "query_id": "cv_20",
+      "precision_at_k": 0.2,
+      "recall_at_k": 1.0,
+      "mrr": 1.0,
+      "ndcg_at_k": 1.0,
+      "map": 1.0,
+      "top_k": 5,
+      "predicted_ids": [
+        "job_11",
+        "job_06",
+        "job_01",
+        "job_12",
+        "job_13"
+      ]
+    },
+    {
+      "method_key": "composite",
+      "method": "Production composite",
+      "query_id": "cv_21",
+      "precision_at_k": 0.2,
+      "recall_at_k": 1.0,
+      "mrr": 1.0,
+      "ndcg_at_k": 1.0,
+      "map": 1.0,
+      "top_k": 5,
+      "predicted_ids": [
+        "job_04",
+        "job_01",
+        "job_02",
+        "job_06",
+        "job_08"
+      ]
+    },
+    {
+      "method_key": "composite",
+      "method": "Production composite",
+      "query_id": "cv_22",
+      "precision_at_k": 0.4,
+      "recall_at_k": 1.0,
+      "mrr": 1.0,
+      "ndcg_at_k": 1.0,
+      "map": 1.0,
+      "top_k": 5,
+      "predicted_ids": [
+        "job_15",
+        "job_04",
+        "job_13",
+        "job_02",
+        "job_06"
+      ]
+    },
+    {
+      "method_key": "composite",
+      "method": "Production composite",
+      "query_id": "cv_23",
+      "precision_at_k": 0.2,
+      "recall_at_k": 1.0,
+      "mrr": 1.0,
+      "ndcg_at_k": 1.0,
+      "map": 1.0,
+      "top_k": 5,
+      "predicted_ids": [
+        "job_08",
+        "job_02",
+        "job_06",
+        "job_11",
+        "job_01"
+      ]
+    },
+    {
+      "method_key": "composite",
+      "method": "Production composite",
+      "query_id": "cv_24",
+      "precision_at_k": 0.4,
+      "recall_at_k": 1.0,
+      "mrr": 1.0,
+      "ndcg_at_k": 1.0,
+      "map": 1.0,
+      "top_k": 5,
+      "predicted_ids": [
+        "job_01",
+        "job_06",
+        "job_10",
+        "job_14",
+        "job_13"
+      ]
+    },
+    {
+      "method_key": "composite",
+      "method": "Production composite",
+      "query_id": "cv_25",
+      "precision_at_k": 0.2,
+      "recall_at_k": 1.0,
+      "mrr": 1.0,
+      "ndcg_at_k": 1.0,
+      "map": 1.0,
+      "top_k": 5,
+      "predicted_ids": [
+        "job_12",
+        "job_05",
+        "job_10",
+        "job_09",
+        "job_03"
+      ]
+    },
+    {
+      "method_key": "composite",
+      "method": "Production composite",
+      "query_id": "cv_26",
+      "precision_at_k": 0.2,
+      "recall_at_k": 1.0,
+      "mrr": 1.0,
+      "ndcg_at_k": 1.0,
+      "map": 1.0,
+      "top_k": 5,
+      "predicted_ids": [
+        "job_15",
+        "job_04",
+        "job_13",
+        "job_02",
+        "job_01"
+      ]
+    },
+    {
+      "method_key": "composite",
+      "method": "Production composite",
+      "query_id": "cv_27",
+      "precision_at_k": 0.2,
+      "recall_at_k": 0.5,
+      "mrr": 1.0,
+      "ndcg_at_k": 0.8262346571285599,
+      "map": 0.6111111111111112,
+      "top_k": 5,
+      "predicted_ids": [
+        "job_10",
+        "job_05",
+        "job_11",
+        "job_06",
+        "job_03"
+      ]
+    },
+    {
+      "method_key": "composite",
+      "method": "Production composite",
+      "query_id": "cv_28",
+      "precision_at_k": 0.2,
+      "recall_at_k": 1.0,
+      "mrr": 1.0,
+      "ndcg_at_k": 1.0,
+      "map": 1.0,
+      "top_k": 5,
+      "predicted_ids": [
+        "job_11",
+        "job_01",
+        "job_08",
+        "job_04",
+        "job_15"
+      ]
+    },
+    {
+      "method_key": "composite",
+      "method": "Production composite",
+      "query_id": "cv_29",
+      "precision_at_k": 0.2,
+      "recall_at_k": 1.0,
+      "mrr": 1.0,
+      "ndcg_at_k": 1.0,
+      "map": 1.0,
+      "top_k": 5,
+      "predicted_ids": [
+        "job_14",
+        "job_03",
+        "job_12",
+        "job_10",
+        "job_01"
+      ]
+    },
+    {
+      "method_key": "composite",
+      "method": "Production composite",
+      "query_id": "cv_30",
+      "precision_at_k": 0.2,
+      "recall_at_k": 1.0,
+      "mrr": 1.0,
+      "ndcg_at_k": 1.0,
+      "map": 1.0,
+      "top_k": 5,
+      "predicted_ids": [
+        "job_13",
+        "job_02",
+        "job_15",
+        "job_01",
+        "job_08"
+      ]
+    }
+  ]
+}

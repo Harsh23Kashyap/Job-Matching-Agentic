@@ -1,0 +1,23 @@
+{
+  "valid": true,
+  "meta": {
+    "generated_at": "2026-06-06T15:05:09.094561+00:00",
+    "data_dir": "/Users/harshkashyap/project/learning/job-matching/New/Job-Matching-Agentic-main/data",
+    "eval_path": "/Users/harshkashyap/project/learning/job-matching/New/Job-Matching-Agentic-main/data/eval_pairs.json",
+    "profiles_path": "/Users/harshkashyap/project/learning/job-matching/New/Job-Matching-Agentic-main/data/fairness_audit_profiles.json",
+    "task": "resume_to_jobs"
+  },
+  "stats": {
+    "candidates": 30,
+    "jobs": 15,
+    "labeled_pairs": 47,
+    "labeled_queries": 30,
+    "relevance_distribution": {
+      "1": 26,
+      "2": 21
+    },
+    "relevance_scale": "0-2",
+    "fairness_profile_pairs": 10
+  },
+  "issues": []
+}

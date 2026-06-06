@@ -1,0 +1,528 @@
+{
+  "meta": {
+    "generated_at": "2026-06-06T15:05:20.888092+00:00",
+    "report_type": "bootstrap_significance",
+    "task": "resume_to_jobs",
+    "baseline_key": "semantic_only",
+    "baseline": "Semantic only",
+    "metrics": [
+      "ndcg_at_k",
+      "mrr"
+    ],
+    "n_resamples": 5000,
+    "seed": 42,
+    "top_k": 5,
+    "methods": [
+      "compensation_only",
+      "experience_only",
+      "full_composite",
+      "location_only",
+      "rrf_ensemble",
+      "semantic_only",
+      "semantic_skills",
+      "semantic_skills_experience",
+      "skills_only"
+    ],
+    "compare_keys": [
+      "compensation_only",
+      "experience_only",
+      "full_composite",
+      "location_only",
+      "rrf_ensemble",
+      "semantic_skills",
+      "semantic_skills_experience",
+      "skills_only"
+    ],
+    "p_value_definition": "one-sided: fraction of bootstrap mean-diffs <= 0 (H1: compare > baseline)",
+    "eval_path": "/Users/harshkashyap/project/learning/job-matching/New/Job-Matching-Agentic-main/data/eval_pairs.json",
+    "data_source": "ablation"
+  },
+  "methods": [
+    {
+      "method_key": "compensation_only",
+      "method": "Compensation only",
+      "metrics": {
+        "ndcg_at_k": {
+          "label": "nDCG@K",
+          "mean": 0.392938,
+          "ci95_lo": 0.269495,
+          "ci95_hi": 0.522207,
+          "n_queries": 30
+        },
+        "mrr": {
+          "label": "MRR",
+          "mean": 0.457261,
+          "ci95_lo": 0.32812,
+          "ci95_hi": 0.594786,
+          "n_queries": 30
+        }
+      }
+    },
+    {
+      "method_key": "experience_only",
+      "method": "Experience only",
+      "metrics": {
+        "ndcg_at_k": {
+          "label": "nDCG@K",
+          "mean": 0.32559,
+          "ci95_lo": 0.214765,
+          "ci95_hi": 0.447747,
+          "n_queries": 30
+        },
+        "mrr": {
+          "label": "MRR",
+          "mean": 0.3838,
+          "ci95_lo": 0.272318,
+          "ci95_hi": 0.512927,
+          "n_queries": 30
+        }
+      }
+    },
+    {
+      "method_key": "full_composite",
+      "method": "Full composite",
+      "metrics": {
+        "ndcg_at_k": {
+          "label": "nDCG@K",
+          "mean": 0.949236,
+          "ci95_lo": 0.872023,
+          "ci95_hi": 0.993115,
+          "n_queries": 30
+        },
+        "mrr": {
+          "label": "MRR",
+          "mean": 0.972222,
+          "ci95_lo": 0.916667,
+          "ci95_hi": 1.0,
+          "n_queries": 30
+        }
+      }
+    },
+    {
+      "method_key": "location_only",
+      "method": "Location only",
+      "metrics": {
+        "ndcg_at_k": {
+          "label": "nDCG@K",
+          "mean": 0.335427,
+          "ci95_lo": 0.221044,
+          "ci95_hi": 0.460523,
+          "n_queries": 30
+        },
+        "mrr": {
+          "label": "MRR",
+          "mean": 0.387844,
+          "ci95_lo": 0.274696,
+          "ci95_hi": 0.511601,
+          "n_queries": 30
+        }
+      }
+    },
+    {
+      "method_key": "rrf_ensemble",
+      "method": "RRF ensemble",
+      "metrics": {
+        "ndcg_at_k": {
+          "label": "nDCG@K",
+          "mean": 0.564324,
+          "ci95_lo": 0.440616,
+          "ci95_hi": 0.67979,
+          "n_queries": 30
+        },
+        "mrr": {
+          "label": "MRR",
+          "mean": 0.570342,
+          "ci95_lo": 0.450962,
+          "ci95_hi": 0.69562,
+          "n_queries": 30
+        }
+      }
+    },
+    {
+      "method_key": "semantic_only",
+      "method": "Semantic only",
+      "metrics": {
+        "ndcg_at_k": {
+          "label": "nDCG@K",
+          "mean": 0.878177,
+          "ci95_lo": 0.790481,
+          "ci95_hi": 0.945651,
+          "n_queries": 30
+        },
+        "mrr": {
+          "label": "MRR",
+          "mean": 0.931481,
+          "ci95_lo": 0.842593,
+          "ci95_hi": 1.0,
+          "n_queries": 30
+        }
+      }
+    },
+    {
+      "method_key": "semantic_skills",
+      "method": "Semantic + skills",
+      "metrics": {
+        "ndcg_at_k": {
+          "label": "nDCG@K",
+          "mean": 0.916954,
+          "ci95_lo": 0.861915,
+          "ci95_hi": 0.961641,
+          "n_queries": 30
+        },
+        "mrr": {
+          "label": "MRR",
+          "mean": 0.961111,
+          "ci95_lo": 0.9,
+          "ci95_hi": 1.0,
+          "n_queries": 30
+        }
+      }
+    },
+    {
+      "method_key": "semantic_skills_experience",
+      "method": "Semantic + skills + experience",
+      "metrics": {
+        "ndcg_at_k": {
+          "label": "nDCG@K",
+          "mean": 0.916318,
+          "ci95_lo": 0.861768,
+          "ci95_hi": 0.962588,
+          "n_queries": 30
+        },
+        "mrr": {
+          "label": "MRR",
+          "mean": 0.961111,
+          "ci95_lo": 0.9,
+          "ci95_hi": 1.0,
+          "n_queries": 30
+        }
+      }
+    },
+    {
+      "method_key": "skills_only",
+      "method": "Skills only",
+      "metrics": {
+        "ndcg_at_k": {
+          "label": "nDCG@K",
+          "mean": 0.748122,
+          "ci95_lo": 0.61844,
+          "ci95_hi": 0.858737,
+          "n_queries": 30
+        },
+        "mrr": {
+          "label": "MRR",
+          "mean": 0.815753,
+          "ci95_lo": 0.688356,
+          "ci95_hi": 0.933333,
+          "n_queries": 30
+        }
+      }
+    }
+  ],
+  "comparisons": [
+    {
+      "baseline_key": "semantic_only",
+      "baseline": "Semantic only",
+      "compare_key": "compensation_only",
+      "compare": "Compensation only",
+      "metric": "ndcg_at_k",
+      "metric_label": "nDCG@K",
+      "baseline_mean": 0.878177,
+      "compare_mean": 0.392938,
+      "mean_diff": -0.485238,
+      "ci95_lo": -0.628498,
+      "ci95_hi": -0.345813,
+      "p_value": 1.0,
+      "significant_at_05": false,
+      "wins": 2,
+      "losses": 27,
+      "ties": 1,
+      "n_queries": 30
+    },
+    {
+      "baseline_key": "semantic_only",
+      "baseline": "Semantic only",
+      "compare_key": "compensation_only",
+      "compare": "Compensation only",
+      "metric": "mrr",
+      "metric_label": "MRR",
+      "baseline_mean": 0.931481,
+      "compare_mean": 0.457261,
+      "mean_diff": -0.47422,
+      "ci95_lo": -0.610382,
+      "ci95_hi": -0.328266,
+      "p_value": 1.0,
+      "significant_at_05": false,
+      "wins": 1,
+      "losses": 20,
+      "ties": 9,
+      "n_queries": 30
+    },
+    {
+      "baseline_key": "semantic_only",
+      "baseline": "Semantic only",
+      "compare_key": "experience_only",
+      "compare": "Experience only",
+      "metric": "ndcg_at_k",
+      "metric_label": "nDCG@K",
+      "baseline_mean": 0.878177,
+      "compare_mean": 0.32559,
+      "mean_diff": -0.552587,
+      "ci95_lo": -0.702784,
+      "ci95_hi": -0.390195,
+      "p_value": 1.0,
+      "significant_at_05": false,
+      "wins": 3,
+      "losses": 25,
+      "ties": 2,
+      "n_queries": 30
+    },
+    {
+      "baseline_key": "semantic_only",
+      "baseline": "Semantic only",
+      "compare_key": "experience_only",
+      "compare": "Experience only",
+      "metric": "mrr",
+      "metric_label": "MRR",
+      "baseline_mean": 0.931481,
+      "compare_mean": 0.3838,
+      "mean_diff": -0.547682,
+      "ci95_lo": -0.676544,
+      "ci95_hi": -0.411506,
+      "p_value": 1.0,
+      "significant_at_05": false,
+      "wins": 1,
+      "losses": 23,
+      "ties": 6,
+      "n_queries": 30
+    },
+    {
+      "baseline_key": "semantic_only",
+      "baseline": "Semantic only",
+      "compare_key": "full_composite",
+      "compare": "Full composite",
+      "metric": "ndcg_at_k",
+      "metric_label": "nDCG@K",
+      "baseline_mean": 0.878177,
+      "compare_mean": 0.949236,
+      "mean_diff": 0.071059,
+      "ci95_lo": -0.015795,
+      "ci95_hi": 0.167315,
+      "p_value": 0.0478,
+      "significant_at_05": true,
+      "wins": 10,
+      "losses": 3,
+      "ties": 17,
+      "n_queries": 30
+    },
+    {
+      "baseline_key": "semantic_only",
+      "baseline": "Semantic only",
+      "compare_key": "full_composite",
+      "compare": "Full composite",
+      "metric": "mrr",
+      "metric_label": "MRR",
+      "baseline_mean": 0.931481,
+      "compare_mean": 0.972222,
+      "mean_diff": 0.040741,
+      "ci95_lo": -0.022222,
+      "ci95_hi": 0.125926,
+      "p_value": 0.1798,
+      "significant_at_05": false,
+      "wins": 2,
+      "losses": 1,
+      "ties": 27,
+      "n_queries": 30
+    },
+    {
+      "baseline_key": "semantic_only",
+      "baseline": "Semantic only",
+      "compare_key": "location_only",
+      "compare": "Location only",
+      "metric": "ndcg_at_k",
+      "metric_label": "nDCG@K",
+      "baseline_mean": 0.878177,
+      "compare_mean": 0.335427,
+      "mean_diff": -0.54275,
+      "ci95_lo": -0.683031,
+      "ci95_hi": -0.388718,
+      "p_value": 1.0,
+      "significant_at_05": false,
+      "wins": 5,
+      "losses": 25,
+      "ties": 0,
+      "n_queries": 30
+    },
+    {
+      "baseline_key": "semantic_only",
+      "baseline": "Semantic only",
+      "compare_key": "location_only",
+      "compare": "Location only",
+      "metric": "mrr",
+      "metric_label": "MRR",
+      "baseline_mean": 0.931481,
+      "compare_mean": 0.387844,
+      "mean_diff": -0.543638,
+      "ci95_lo": -0.66332,
+      "ci95_hi": -0.408889,
+      "p_value": 1.0,
+      "significant_at_05": false,
+      "wins": 1,
+      "losses": 23,
+      "ties": 6,
+      "n_queries": 30
+    },
+    {
+      "baseline_key": "semantic_only",
+      "baseline": "Semantic only",
+      "compare_key": "rrf_ensemble",
+      "compare": "RRF ensemble",
+      "metric": "ndcg_at_k",
+      "metric_label": "nDCG@K",
+      "baseline_mean": 0.878177,
+      "compare_mean": 0.564324,
+      "mean_diff": -0.313853,
+      "ci95_lo": -0.45962,
+      "ci95_hi": -0.175283,
+      "p_value": 1.0,
+      "significant_at_05": false,
+      "wins": 6,
+      "losses": 21,
+      "ties": 3,
+      "n_queries": 30
+    },
+    {
+      "baseline_key": "semantic_only",
+      "baseline": "Semantic only",
+      "compare_key": "rrf_ensemble",
+      "compare": "RRF ensemble",
+      "metric": "mrr",
+      "metric_label": "MRR",
+      "baseline_mean": 0.931481,
+      "compare_mean": 0.570342,
+      "mean_diff": -0.36114,
+      "ci95_lo": -0.482436,
+      "ci95_hi": -0.230798,
+      "p_value": 1.0,
+      "significant_at_05": false,
+      "wins": 1,
+      "losses": 18,
+      "ties": 11,
+      "n_queries": 30
+    },
+    {
+      "baseline_key": "semantic_only",
+      "baseline": "Semantic only",
+      "compare_key": "semantic_skills",
+      "compare": "Semantic + skills",
+      "metric": "ndcg_at_k",
+      "metric_label": "nDCG@K",
+      "baseline_mean": 0.878177,
+      "compare_mean": 0.916954,
+      "mean_diff": 0.038778,
+      "ci95_lo": -0.007761,
+      "ci95_hi": 0.119851,
+      "p_value": 0.0992,
+      "significant_at_05": false,
+      "wins": 5,
+      "losses": 2,
+      "ties": 23,
+      "n_queries": 30
+    },
+    {
+      "baseline_key": "semantic_only",
+      "baseline": "Semantic only",
+      "compare_key": "semantic_skills",
+      "compare": "Semantic + skills",
+      "metric": "mrr",
+      "metric_label": "MRR",
+      "baseline_mean": 0.931481,
+      "compare_mean": 0.961111,
+      "mean_diff": 0.02963,
+      "ci95_lo": 0.0,
+      "ci95_hi": 0.088889,
+      "p_value": 0.3576,
+      "significant_at_05": false,
+      "wins": 1,
+      "losses": 0,
+      "ties": 29,
+      "n_queries": 30
+    },
+    {
+      "baseline_key": "semantic_only",
+      "baseline": "Semantic only",
+      "compare_key": "semantic_skills_experience",
+      "compare": "Semantic + skills + experience",
+      "metric": "ndcg_at_k",
+      "metric_label": "nDCG@K",
+      "baseline_mean": 0.878177,
+      "compare_mean": 0.916318,
+      "mean_diff": 0.038141,
+      "ci95_lo": -0.00857,
+      "ci95_hi": 0.114733,
+      "p_value": 0.1054,
+      "significant_at_05": false,
+      "wins": 5,
+      "losses": 3,
+      "ties": 22,
+      "n_queries": 30
+    },
+    {
+      "baseline_key": "semantic_only",
+      "baseline": "Semantic only",
+      "compare_key": "semantic_skills_experience",
+      "compare": "Semantic + skills + experience",
+      "metric": "mrr",
+      "metric_label": "MRR",
+      "baseline_mean": 0.931481,
+      "compare_mean": 0.961111,
+      "mean_diff": 0.02963,
+      "ci95_lo": 0.0,
+      "ci95_hi": 0.088889,
+      "p_value": 0.36,
+      "significant_at_05": false,
+      "wins": 1,
+      "losses": 0,
+      "ties": 29,
+      "n_queries": 30
+    },
+    {
+      "baseline_key": "semantic_only",
+      "baseline": "Semantic only",
+      "compare_key": "skills_only",
+      "compare": "Skills only",
+      "metric": "ndcg_at_k",
+      "metric_label": "nDCG@K",
+      "baseline_mean": 0.878177,
+      "compare_mean": 0.748122,
+      "mean_diff": -0.130055,
+      "ci95_lo": -0.262584,
+      "ci95_hi": -0.00077,
+      "p_value": 0.976,
+      "significant_at_05": false,
+      "wins": 5,
+      "losses": 16,
+      "ties": 9,
+      "n_queries": 30
+    },
+    {
+      "baseline_key": "semantic_only",
+      "baseline": "Semantic only",
+      "compare_key": "skills_only",
+      "compare": "Skills only",
+      "metric": "mrr",
+      "metric_label": "MRR",
+      "baseline_mean": 0.931481,
+      "compare_mean": 0.815753,
+      "mean_diff": -0.115728,
+      "ci95_lo": -0.247739,
+      "ci95_hi": 0.009115,
+      "p_value": 0.9668,
+      "significant_at_05": false,
+      "wins": 1,
+      "losses": 7,
+      "ties": 22,
+      "n_queries": 30
+    }
+  ]
+}

@@ -1,0 +1,163 @@
+{
+  "meta": {
+    "generated_at": "2026-06-06T15:05:14.679152+00:00",
+    "report_type": "ablation_study",
+    "task": "resume_to_jobs",
+    "eval_path": "/Users/harshkashyap/project/learning/job-matching/New/Job-Matching-Agentic-main/data/eval_pairs.json",
+    "corpus": {
+      "candidates": 30,
+      "jobs": 15,
+      "labeled_queries": 30
+    },
+    "top_k": 5,
+    "skills_mode": "jaccard",
+    "embedding_model": "all-MiniLM-L6-v2",
+    "composite_weights": {
+      "semantic": 0.4,
+      "skills": 0.3,
+      "experience": 0.15,
+      "compensation": 0.1,
+      "location": 0.05
+    },
+    "variants": [
+      "semantic_only",
+      "skills_only",
+      "experience_only",
+      "compensation_only",
+      "location_only",
+      "semantic_skills",
+      "semantic_skills_experience",
+      "full_composite",
+      "rrf_ensemble"
+    ],
+    "best_ndcg": "Full composite"
+  },
+  "summary": [
+    {
+      "variant_key": "semantic_only",
+      "variant": "Semantic only",
+      "category": "single",
+      "components": "semantic",
+      "precision_at_k": 0.26666666666666666,
+      "recall_at_k": 0.8666666666666667,
+      "mrr": 0.9314814814814815,
+      "ndcg_at_k": 0.8781765441996437,
+      "map": 0.8098821548821549,
+      "latency_ms": 0.418,
+      "top_k": 5,
+      "queries": 30
+    },
+    {
+      "variant_key": "skills_only",
+      "variant": "Skills only",
+      "category": "single",
+      "components": "skills",
+      "precision_at_k": 0.23333333333333334,
+      "recall_at_k": 0.7333333333333333,
+      "mrr": 0.8157531357531358,
+      "ndcg_at_k": 0.7481217031530997,
+      "map": 0.6808966033966034,
+      "latency_ms": 0.17,
+      "top_k": 5,
+      "queries": 30
+    },
+    {
+      "variant_key": "experience_only",
+      "variant": "Experience only",
+      "category": "single",
+      "components": "experience",
+      "precision_at_k": 0.16,
+      "recall_at_k": 0.4666666666666667,
+      "mrr": 0.3837999037999038,
+      "ndcg_at_k": 0.3255899209101124,
+      "map": 0.3135906685906686,
+      "latency_ms": 0.026,
+      "top_k": 5,
+      "queries": 30
+    },
+    {
+      "variant_key": "compensation_only",
+      "variant": "Compensation only",
+      "category": "single",
+      "components": "compensation",
+      "precision_at_k": 0.18666666666666668,
+      "recall_at_k": 0.5666666666666667,
+      "mrr": 0.45726107226107227,
+      "ndcg_at_k": 0.3929383746098049,
+      "map": 0.3871796721796722,
+      "latency_ms": 0.028,
+      "top_k": 5,
+      "queries": 30
+    },
+    {
+      "variant_key": "location_only",
+      "variant": "Location only",
+      "category": "single",
+      "components": "location",
+      "precision_at_k": 0.16666666666666669,
+      "recall_at_k": 0.4666666666666667,
+      "mrr": 0.3878439153439153,
+      "ndcg_at_k": 0.33542663755060487,
+      "map": 0.3275805675805676,
+      "latency_ms": 0.026,
+      "top_k": 5,
+      "queries": 30
+    },
+    {
+      "variant_key": "semantic_skills",
+      "variant": "Semantic + skills",
+      "category": "partial",
+      "components": "semantic+skills",
+      "precision_at_k": 0.2866666666666667,
+      "recall_at_k": 0.9333333333333333,
+      "mrr": 0.9611111111111111,
+      "ndcg_at_k": 0.9169542356493255,
+      "map": 0.867037037037037,
+      "latency_ms": 0.421,
+      "top_k": 5,
+      "queries": 30
+    },
+    {
+      "variant_key": "semantic_skills_experience",
+      "variant": "Semantic + skills + experience",
+      "category": "partial",
+      "components": "semantic+skills+experience",
+      "precision_at_k": 0.2866666666666667,
+      "recall_at_k": 0.9333333333333333,
+      "mrr": 0.9611111111111111,
+      "ndcg_at_k": 0.9163178197574233,
+      "map": 0.8647222222222222,
+      "latency_ms": 0.424,
+      "top_k": 5,
+      "queries": 30
+    },
+    {
+      "variant_key": "full_composite",
+      "variant": "Full composite",
+      "category": "full",
+      "components": "semantic+skills+experience+compensation+location",
+      "precision_at_k": 0.29333333333333333,
+      "recall_at_k": 0.9333333333333333,
+      "mrr": 0.9722222222222222,
+      "ndcg_at_k": 0.949235633450573,
+      "map": 0.9206878306878307,
+      "latency_ms": 0.568,
+      "top_k": 5,
+      "queries": 30
+    },
+    {
+      "variant_key": "rrf_ensemble",
+      "variant": "RRF ensemble",
+      "category": "ensemble",
+      "components": "RRF(semantic,skills,experience,compensation,location)",
+      "precision_at_k": 0.23333333333333334,
+      "recall_at_k": 0.7166666666666667,
+      "mrr": 0.5703418803418804,
+      "ndcg_at_k": 0.5643238416544605,
+      "map": 0.49727106227106227,
+      "latency_ms": 0.485,
+      "top_k": 5,
+      "queries": 30
+    }
+  ]
+}

@@ -1,0 +1,713 @@
+{
+  "meta": {
+    "generated_at": "2026-06-06T15:05:22.001220+00:00",
+    "report_type": "fairness_bias_audit",
+    "synthetic_only": true,
+    "warning": "Do NOT infer protected attributes from real production users. These profiles are fabricated test fixtures.",
+    "profiles_path": "/Users/harshkashyap/project/learning/job-matching/New/Job-Matching-Agentic-main/data/fairness_audit_profiles.json",
+    "jobs": 15,
+    "pairs": 10,
+    "top_k": 5,
+    "strategy": "composite",
+    "score_delta_threshold": 0.01,
+    "embedding_model": "all-MiniLM-L6-v2",
+    "flagged_pairs": 7,
+    "flagged_pair_rate": 0.7,
+    "metrics_reported": [
+      "rank_stability",
+      "score_delta",
+      "explanation_drift",
+      "flagged_cases"
+    ]
+  },
+  "pair_summaries": [
+    {
+      "pair_id": "name_gender_01",
+      "category": "name_gender_proxy",
+      "field_changed": "name",
+      "description": "Same qualifications; only given name differs (synthetic gender-associated name pair).",
+      "variant_a_id": "name_gender_01_a",
+      "variant_b_id": "name_gender_01_b",
+      "variant_a_name": "Michael Chen",
+      "variant_b_name": "Michelle Chen",
+      "top_k": 5,
+      "top_1_stable": true,
+      "top_k_overlap": 1.0,
+      "top_k_overlap_count": 5,
+      "top_a": [
+        "job_01",
+        "job_06",
+        "job_04",
+        "job_14",
+        "job_07"
+      ],
+      "top_b": [
+        "job_01",
+        "job_06",
+        "job_04",
+        "job_14",
+        "job_07"
+      ],
+      "max_rank_change": 2,
+      "mean_rank_change": 0.5333,
+      "mean_score_delta": 0.002486,
+      "max_score_delta": 0.006748,
+      "top1_explanation_drift": 0.0,
+      "flagged": false,
+      "flag_count": 0,
+      "flag_reasons": []
+    },
+    {
+      "pair_id": "name_gender_02",
+      "category": "name_gender_proxy",
+      "field_changed": "name",
+      "description": "Same backend profile; masculine vs feminine first name only.",
+      "variant_a_id": "name_gender_02_a",
+      "variant_b_id": "name_gender_02_b",
+      "variant_a_name": "James Okafor",
+      "variant_b_name": "Jane Okafor",
+      "top_k": 5,
+      "top_1_stable": true,
+      "top_k_overlap": 1.0,
+      "top_k_overlap_count": 5,
+      "top_a": [
+        "job_03",
+        "job_10",
+        "job_05",
+        "job_11",
+        "job_14"
+      ],
+      "top_b": [
+        "job_03",
+        "job_10",
+        "job_05",
+        "job_14",
+        "job_11"
+      ],
+      "max_rank_change": 1,
+      "mean_rank_change": 0.1333,
+      "mean_score_delta": 0.002566,
+      "max_score_delta": 0.005019,
+      "top1_explanation_drift": 0.0,
+      "flagged": true,
+      "flag_count": 2,
+      "flag_reasons": [
+        "rank_change_in_top_k_union"
+      ]
+    },
+    {
+      "pair_id": "name_ethnicity_01",
+      "category": "name_ethnicity_proxy",
+      "field_changed": "name",
+      "description": "Same skills and summary; names associated with different ethnic backgrounds (synthetic labels).",
+      "variant_a_id": "name_ethnicity_01_a",
+      "variant_b_id": "name_ethnicity_01_b",
+      "variant_a_name": "Emily Anderson",
+      "variant_b_name": "Emeka Okonkwo",
+      "top_k": 5,
+      "top_1_stable": true,
+      "top_k_overlap": 1.0,
+      "top_k_overlap_count": 5,
+      "top_a": [
+        "job_02",
+        "job_08",
+        "job_01",
+        "job_06",
+        "job_04"
+      ],
+      "top_b": [
+        "job_02",
+        "job_08",
+        "job_01",
+        "job_06",
+        "job_04"
+      ],
+      "max_rank_change": 0,
+      "mean_rank_change": 0,
+      "mean_score_delta": 0.004883,
+      "max_score_delta": 0.010994,
+      "top1_explanation_drift": 0.0,
+      "flagged": true,
+      "flag_count": 1,
+      "flag_reasons": [
+        "score_delta>0.01"
+      ]
+    },
+    {
+      "pair_id": "name_ethnicity_02",
+      "category": "name_ethnicity_proxy",
+      "field_changed": "name",
+      "description": "Same DevOps profile; Western vs South Asian name only.",
+      "variant_a_id": "name_ethnicity_02_a",
+      "variant_b_id": "name_ethnicity_02_b",
+      "variant_a_name": "Robert Williams",
+      "variant_b_name": "Rajesh Patel",
+      "top_k": 5,
+      "top_1_stable": true,
+      "top_k_overlap": 0.8,
+      "top_k_overlap_count": 4,
+      "top_a": [
+        "job_05",
+        "job_07",
+        "job_10",
+        "job_12",
+        "job_03"
+      ],
+      "top_b": [
+        "job_05",
+        "job_07",
+        "job_10",
+        "job_12",
+        "job_11"
+      ],
+      "max_rank_change": 3,
+      "mean_rank_change": 1.0667,
+      "mean_score_delta": 0.00816,
+      "max_score_delta": 0.016659,
+      "top1_explanation_drift": 0.0,
+      "flagged": true,
+      "flag_count": 3,
+      "flag_reasons": [
+        "explanation_drift",
+        "rank_change_in_top_k_union",
+        "score_delta>0.01"
+      ]
+    },
+    {
+      "pair_id": "nationality_phrase_01",
+      "category": "nationality_phrase",
+      "field_changed": "summary_suffix",
+      "description": "Identical name and qualifications; nationality phrase appended to summary (should be irrelevant).",
+      "variant_a_id": "nationality_phrase_01_a",
+      "variant_b_id": "nationality_phrase_01_b",
+      "variant_a_name": "Alex Rivera",
+      "variant_b_name": "Alex Rivera",
+      "top_k": 5,
+      "top_1_stable": true,
+      "top_k_overlap": 1.0,
+      "top_k_overlap_count": 5,
+      "top_a": [
+        "job_06",
+        "job_01",
+        "job_04",
+        "job_15",
+        "job_10"
+      ],
+      "top_b": [
+        "job_06",
+        "job_04",
+        "job_01",
+        "job_15",
+        "job_10"
+      ],
+      "max_rank_change": 1,
+      "mean_rank_change": 0.2667,
+      "mean_score_delta": 0.00279,
+      "max_score_delta": 0.00609,
+      "top1_explanation_drift": 0.0,
+      "flagged": true,
+      "flag_count": 3,
+      "flag_reasons": [
+        "explanation_drift",
+        "rank_change_in_top_k_union"
+      ]
+    },
+    {
+      "pair_id": "nationality_phrase_02",
+      "category": "nationality_phrase",
+      "field_changed": "summary_suffix",
+      "description": "Same data-science profile; different nationality phrase only.",
+      "variant_a_id": "nationality_phrase_02_a",
+      "variant_b_id": "nationality_phrase_02_b",
+      "variant_a_name": "Sam Taylor",
+      "variant_b_name": "Sam Taylor",
+      "top_k": 5,
+      "top_1_stable": true,
+      "top_k_overlap": 1.0,
+      "top_k_overlap_count": 5,
+      "top_a": [
+        "job_04",
+        "job_01",
+        "job_06",
+        "job_08",
+        "job_15"
+      ],
+      "top_b": [
+        "job_04",
+        "job_01",
+        "job_06",
+        "job_08",
+        "job_15"
+      ],
+      "max_rank_change": 1,
+      "mean_rank_change": 0.1333,
+      "mean_score_delta": 0.003166,
+      "max_score_delta": 0.007695,
+      "top1_explanation_drift": 0.0,
+      "flagged": false,
+      "flag_count": 0,
+      "flag_reasons": []
+    },
+    {
+      "pair_id": "hometown_01",
+      "category": "hometown_label",
+      "field_changed": "hometown_label",
+      "description": "Same profile; hometown city label differs (not work-mode / remote preference).",
+      "variant_a_id": "hometown_01_a",
+      "variant_b_id": "hometown_01_b",
+      "variant_a_name": "Taylor Brooks",
+      "variant_b_name": "Taylor Brooks",
+      "top_k": 5,
+      "top_1_stable": true,
+      "top_k_overlap": 1.0,
+      "top_k_overlap_count": 5,
+      "top_a": [
+        "job_11",
+        "job_15",
+        "job_06",
+        "job_01",
+        "job_10"
+      ],
+      "top_b": [
+        "job_11",
+        "job_15",
+        "job_01",
+        "job_06",
+        "job_10"
+      ],
+      "max_rank_change": 1,
+      "mean_rank_change": 0.2667,
+      "mean_score_delta": 0.002979,
+      "max_score_delta": 0.008173,
+      "top1_explanation_drift": 0.0,
+      "flagged": true,
+      "flag_count": 2,
+      "flag_reasons": [
+        "rank_change_in_top_k_union"
+      ]
+    },
+    {
+      "pair_id": "hometown_02",
+      "category": "hometown_label",
+      "field_changed": "hometown_label",
+      "description": "Same security engineer profile; different hometown label.",
+      "variant_a_id": "hometown_02_a",
+      "variant_b_id": "hometown_02_b",
+      "variant_a_name": "Chris Morgan",
+      "variant_b_name": "Chris Morgan",
+      "top_k": 5,
+      "top_1_stable": true,
+      "top_k_overlap": 0.8,
+      "top_k_overlap_count": 4,
+      "top_a": [
+        "job_07",
+        "job_06",
+        "job_01",
+        "job_10",
+        "job_05"
+      ],
+      "top_b": [
+        "job_07",
+        "job_01",
+        "job_06",
+        "job_10",
+        "job_12"
+      ],
+      "max_rank_change": 2,
+      "mean_rank_change": 0.6667,
+      "mean_score_delta": 0.003177,
+      "max_score_delta": 0.01,
+      "top1_explanation_drift": 0.0,
+      "flagged": true,
+      "flag_count": 4,
+      "flag_reasons": [
+        "rank_change_in_top_k_union"
+      ]
+    },
+    {
+      "pair_id": "pronouns_01",
+      "category": "pronoun_label",
+      "field_changed": "pronouns_label",
+      "description": "Same qualifications; pronoun label differs (synthetic, should not affect matching).",
+      "variant_a_id": "pronouns_01_a",
+      "variant_b_id": "pronouns_01_b",
+      "variant_a_name": "Jordan Lee",
+      "variant_b_name": "Jordan Lee",
+      "top_k": 5,
+      "top_1_stable": true,
+      "top_k_overlap": 1.0,
+      "top_k_overlap_count": 5,
+      "top_a": [
+        "job_13",
+        "job_15",
+        "job_01",
+        "job_04",
+        "job_08"
+      ],
+      "top_b": [
+        "job_13",
+        "job_15",
+        "job_01",
+        "job_04",
+        "job_08"
+      ],
+      "max_rank_change": 0,
+      "mean_rank_change": 0,
+      "mean_score_delta": 0.000916,
+      "max_score_delta": 0.002935,
+      "top1_explanation_drift": 0.0,
+      "flagged": false,
+      "flag_count": 0,
+      "flag_reasons": []
+    },
+    {
+      "pair_id": "email_domain_01",
+      "category": "email_domain",
+      "field_changed": "email",
+      "description": "Same profile; email domain differs (contact metadata only).",
+      "variant_a_id": "email_domain_01_a",
+      "variant_b_id": "email_domain_01_b",
+      "variant_a_name": "Casey Nguyen",
+      "variant_b_name": "Casey Nguyen",
+      "top_k": 5,
+      "top_1_stable": true,
+      "top_k_overlap": 1.0,
+      "top_k_overlap_count": 5,
+      "top_a": [
+        "job_11",
+        "job_14",
+        "job_01",
+        "job_05",
+        "job_06"
+      ],
+      "top_b": [
+        "job_11",
+        "job_01",
+        "job_14",
+        "job_05",
+        "job_06"
+      ],
+      "max_rank_change": 1,
+      "mean_rank_change": 0.2667,
+      "mean_score_delta": 0.003295,
+      "max_score_delta": 0.005742,
+      "top1_explanation_drift": 0.0,
+      "flagged": true,
+      "flag_count": 2,
+      "flag_reasons": [
+        "rank_change_in_top_k_union"
+      ]
+    }
+  ],
+  "flagged_cases": [
+    {
+      "pair_id": "name_gender_02",
+      "category": "name_gender_proxy",
+      "field_changed": "name",
+      "job_id": "job_11",
+      "rank_a": 4,
+      "rank_b": 5,
+      "rank_change": 1,
+      "score_a": 0.498229,
+      "score_b": 0.496109,
+      "score_delta": 0.002121,
+      "explanation_drift": 0.0,
+      "explanation_jaccard": 1.0,
+      "explanations_unchanged": true,
+      "flag_reasons": [
+        "rank_change_in_top_k_union"
+      ]
+    },
+    {
+      "pair_id": "name_gender_02",
+      "category": "name_gender_proxy",
+      "field_changed": "name",
+      "job_id": "job_14",
+      "rank_a": 5,
+      "rank_b": 4,
+      "rank_change": 1,
+      "score_a": 0.497982,
+      "score_b": 0.496816,
+      "score_delta": 0.001166,
+      "explanation_drift": 0.0,
+      "explanation_jaccard": 1.0,
+      "explanations_unchanged": true,
+      "flag_reasons": [
+        "rank_change_in_top_k_union"
+      ]
+    },
+    {
+      "pair_id": "name_ethnicity_01",
+      "category": "name_ethnicity_proxy",
+      "field_changed": "name",
+      "job_id": "job_02",
+      "rank_a": 1,
+      "rank_b": 1,
+      "rank_change": 0,
+      "score_a": 0.581003,
+      "score_b": 0.570009,
+      "score_delta": 0.010994,
+      "explanation_drift": 0.0,
+      "explanation_jaccard": 1.0,
+      "explanations_unchanged": true,
+      "flag_reasons": [
+        "score_delta>0.01"
+      ]
+    },
+    {
+      "pair_id": "name_ethnicity_02",
+      "category": "name_ethnicity_proxy",
+      "field_changed": "name",
+      "job_id": "job_03",
+      "rank_a": 5,
+      "rank_b": 7,
+      "rank_change": 2,
+      "score_a": 0.494166,
+      "score_b": 0.497286,
+      "score_delta": 0.003119,
+      "explanation_drift": 0.0,
+      "explanation_jaccard": 1.0,
+      "explanations_unchanged": true,
+      "flag_reasons": [
+        "rank_change_in_top_k_union"
+      ]
+    },
+    {
+      "pair_id": "name_ethnicity_02",
+      "category": "name_ethnicity_proxy",
+      "field_changed": "name",
+      "job_id": "job_11",
+      "rank_a": 6,
+      "rank_b": 5,
+      "rank_change": 1,
+      "score_a": 0.493321,
+      "score_b": 0.508273,
+      "score_delta": 0.014952,
+      "explanation_drift": 0.333333,
+      "explanation_jaccard": 0.666667,
+      "explanations_unchanged": false,
+      "flag_reasons": [
+        "rank_change_in_top_k_union",
+        "score_delta>0.01",
+        "explanation_drift"
+      ]
+    },
+    {
+      "pair_id": "name_ethnicity_02",
+      "category": "name_ethnicity_proxy",
+      "field_changed": "name",
+      "job_id": "job_12",
+      "rank_a": 4,
+      "rank_b": 4,
+      "rank_change": 0,
+      "score_a": 0.499684,
+      "score_b": 0.514822,
+      "score_delta": 0.015137,
+      "explanation_drift": 0.333333,
+      "explanation_jaccard": 0.666667,
+      "explanations_unchanged": false,
+      "flag_reasons": [
+        "score_delta>0.01",
+        "explanation_drift"
+      ]
+    },
+    {
+      "pair_id": "nationality_phrase_01",
+      "category": "nationality_phrase",
+      "field_changed": "summary_suffix",
+      "job_id": "job_01",
+      "rank_a": 2,
+      "rank_b": 3,
+      "rank_change": 1,
+      "score_a": 0.537335,
+      "score_b": 0.534485,
+      "score_delta": 0.002849,
+      "explanation_drift": 0.0,
+      "explanation_jaccard": 1.0,
+      "explanations_unchanged": true,
+      "flag_reasons": [
+        "rank_change_in_top_k_union"
+      ]
+    },
+    {
+      "pair_id": "nationality_phrase_01",
+      "category": "nationality_phrase",
+      "field_changed": "summary_suffix",
+      "job_id": "job_04",
+      "rank_a": 3,
+      "rank_b": 2,
+      "rank_change": 1,
+      "score_a": 0.530378,
+      "score_b": 0.53499,
+      "score_delta": 0.004612,
+      "explanation_drift": 0.0,
+      "explanation_jaccard": 1.0,
+      "explanations_unchanged": true,
+      "flag_reasons": [
+        "rank_change_in_top_k_union"
+      ]
+    },
+    {
+      "pair_id": "nationality_phrase_01",
+      "category": "nationality_phrase",
+      "field_changed": "summary_suffix",
+      "job_id": "job_15",
+      "rank_a": 4,
+      "rank_b": 4,
+      "rank_change": 0,
+      "score_a": 0.52531,
+      "score_b": 0.522631,
+      "score_delta": 0.002679,
+      "explanation_drift": 0.333333,
+      "explanation_jaccard": 0.666667,
+      "explanations_unchanged": false,
+      "flag_reasons": [
+        "explanation_drift"
+      ]
+    },
+    {
+      "pair_id": "hometown_01",
+      "category": "hometown_label",
+      "field_changed": "hometown_label",
+      "job_id": "job_01",
+      "rank_a": 4,
+      "rank_b": 3,
+      "rank_change": 1,
+      "score_a": 0.472797,
+      "score_b": 0.477134,
+      "score_delta": 0.004337,
+      "explanation_drift": 0.0,
+      "explanation_jaccard": 1.0,
+      "explanations_unchanged": true,
+      "flag_reasons": [
+        "rank_change_in_top_k_union"
+      ]
+    },
+    {
+      "pair_id": "hometown_01",
+      "category": "hometown_label",
+      "field_changed": "hometown_label",
+      "job_id": "job_06",
+      "rank_a": 3,
+      "rank_b": 4,
+      "rank_change": 1,
+      "score_a": 0.472948,
+      "score_b": 0.47364,
+      "score_delta": 0.000692,
+      "explanation_drift": 0.0,
+      "explanation_jaccard": 1.0,
+      "explanations_unchanged": true,
+      "flag_reasons": [
+        "rank_change_in_top_k_union"
+      ]
+    },
+    {
+      "pair_id": "hometown_02",
+      "category": "hometown_label",
+      "field_changed": "hometown_label",
+      "job_id": "job_01",
+      "rank_a": 3,
+      "rank_b": 2,
+      "rank_change": 1,
+      "score_a": 0.533988,
+      "score_b": 0.543181,
+      "score_delta": 0.009193,
+      "explanation_drift": 0.0,
+      "explanation_jaccard": 1.0,
+      "explanations_unchanged": true,
+      "flag_reasons": [
+        "rank_change_in_top_k_union"
+      ]
+    },
+    {
+      "pair_id": "hometown_02",
+      "category": "hometown_label",
+      "field_changed": "hometown_label",
+      "job_id": "job_05",
+      "rank_a": 5,
+      "rank_b": 6,
+      "rank_change": 1,
+      "score_a": 0.524269,
+      "score_b": 0.524061,
+      "score_delta": 0.000207,
+      "explanation_drift": 0.0,
+      "explanation_jaccard": 1.0,
+      "explanations_unchanged": true,
+      "flag_reasons": [
+        "rank_change_in_top_k_union"
+      ]
+    },
+    {
+      "pair_id": "hometown_02",
+      "category": "hometown_label",
+      "field_changed": "hometown_label",
+      "job_id": "job_06",
+      "rank_a": 2,
+      "rank_b": 3,
+      "rank_change": 1,
+      "score_a": 0.534559,
+      "score_b": 0.534647,
+      "score_delta": 8.7e-05,
+      "explanation_drift": 0.0,
+      "explanation_jaccard": 1.0,
+      "explanations_unchanged": true,
+      "flag_reasons": [
+        "rank_change_in_top_k_union"
+      ]
+    },
+    {
+      "pair_id": "hometown_02",
+      "category": "hometown_label",
+      "field_changed": "hometown_label",
+      "job_id": "job_12",
+      "rank_a": 6,
+      "rank_b": 5,
+      "rank_change": 1,
+      "score_a": 0.51725,
+      "score_b": 0.524345,
+      "score_delta": 0.007095,
+      "explanation_drift": 0.0,
+      "explanation_jaccard": 1.0,
+      "explanations_unchanged": true,
+      "flag_reasons": [
+        "rank_change_in_top_k_union"
+      ]
+    },
+    {
+      "pair_id": "email_domain_01",
+      "category": "email_domain",
+      "field_changed": "email",
+      "job_id": "job_01",
+      "rank_a": 3,
+      "rank_b": 2,
+      "rank_change": 1,
+      "score_a": 0.456273,
+      "score_b": 0.452552,
+      "score_delta": 0.003721,
+      "explanation_drift": 0.0,
+      "explanation_jaccard": 1.0,
+      "explanations_unchanged": true,
+      "flag_reasons": [
+        "rank_change_in_top_k_union"
+      ]
+    },
+    {
+      "pair_id": "email_domain_01",
+      "category": "email_domain",
+      "field_changed": "email",
+      "job_id": "job_14",
+      "rank_a": 2,
+      "rank_b": 3,
+      "rank_change": 1,
+      "score_a": 0.457165,
+      "score_b": 0.451653,
+      "score_delta": 0.005512,
+      "explanation_drift": 0.0,
+      "explanation_jaccard": 1.0,
+      "explanations_unchanged": true,
+      "flag_reasons": [
+        "rank_change_in_top_k_union"
+      ]
+    }
+  ]
+}

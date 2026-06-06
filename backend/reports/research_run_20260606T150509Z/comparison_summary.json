@@ -1,0 +1,163 @@
+{
+  "meta": {
+    "generated_at": "2026-06-06T15:05:13.113807+00:00",
+    "report_type": "lexical_vs_embedding_comparison",
+    "task": "resume_to_jobs",
+    "eval_path": "/Users/harshkashyap/project/learning/job-matching/New/Job-Matching-Agentic-main/data/eval_pairs.json",
+    "corpus": {
+      "candidates": 30,
+      "jobs": 15,
+      "labeled_queries": 30
+    },
+    "top_k": 5,
+    "embedding_model": "all-MiniLM-L6-v2",
+    "include_lexical_baselines": true,
+    "strategies": [
+      "bm25",
+      "tfidf_cosine",
+      "exact_skill_overlap",
+      "semantic_cosine",
+      "semantic_euclidean",
+      "skills_jaccard",
+      "soft_skill_embed",
+      "multimodal_weighted",
+      "rrf_ensemble"
+    ],
+    "table_columns": [
+      "method",
+      "metric",
+      "top_k",
+      "score",
+      "latency_ms"
+    ],
+    "note": "Offline research only; production APIs unchanged unless BENCHMARK_LEXICAL_API is enabled."
+  },
+  "summary": [
+    {
+      "method_key": "bm25",
+      "method": "BM25 (lexical)",
+      "family": "lexical",
+      "top_k": 5,
+      "latency_ms": 0.093,
+      "latency_total_ms": 2.794,
+      "queries": 30,
+      "precision_at_k": 0.3066666666666667,
+      "recall_at_k": 0.9833333333333333,
+      "mrr": 0.9177777777777778,
+      "ndcg_at_k": 0.9023403275176849,
+      "map": 0.8594444444444445
+    },
+    {
+      "method_key": "tfidf_cosine",
+      "method": "TF-IDF cosine (lexical)",
+      "family": "lexical",
+      "top_k": 5,
+      "latency_ms": 0.053,
+      "latency_total_ms": 1.597,
+      "queries": 30,
+      "precision_at_k": 0.3066666666666667,
+      "recall_at_k": 0.9833333333333333,
+      "mrr": 0.9177777777777778,
+      "ndcg_at_k": 0.9052232158336745,
+      "map": 0.8461111111111111
+    },
+    {
+      "method_key": "exact_skill_overlap",
+      "method": "Exact skill overlap",
+      "family": "lexical",
+      "top_k": 5,
+      "latency_ms": 0.165,
+      "latency_total_ms": 4.964,
+      "queries": 30,
+      "precision_at_k": 0.23333333333333334,
+      "recall_at_k": 0.7333333333333333,
+      "mrr": 0.8157531357531358,
+      "ndcg_at_k": 0.7481217031530997,
+      "map": 0.6808966033966034
+    },
+    {
+      "method_key": "semantic_cosine",
+      "method": "Semantic cosine",
+      "family": "embedding",
+      "top_k": 5,
+      "latency_ms": 0.231,
+      "latency_total_ms": 6.918,
+      "queries": 30,
+      "precision_at_k": 0.26666666666666666,
+      "recall_at_k": 0.8666666666666667,
+      "mrr": 0.9314814814814815,
+      "ndcg_at_k": 0.8781765441996437,
+      "map": 0.8098821548821549
+    },
+    {
+      "method_key": "semantic_euclidean",
+      "method": "Semantic euclidean-derived",
+      "family": "embedding",
+      "top_k": 5,
+      "latency_ms": 0.214,
+      "latency_total_ms": 6.432,
+      "queries": 30,
+      "precision_at_k": 0.26666666666666666,
+      "recall_at_k": 0.8666666666666667,
+      "mrr": 0.9314814814814815,
+      "ndcg_at_k": 0.8781765441996437,
+      "map": 0.8098821548821549
+    },
+    {
+      "method_key": "skills_jaccard",
+      "method": "Skills Jaccard",
+      "family": "embedding",
+      "top_k": 5,
+      "latency_ms": 0.165,
+      "latency_total_ms": 4.952,
+      "queries": 30,
+      "precision_at_k": 0.23333333333333334,
+      "recall_at_k": 0.7333333333333333,
+      "mrr": 0.8157531357531358,
+      "ndcg_at_k": 0.7481217031530997,
+      "map": 0.6808966033966034
+    },
+    {
+      "method_key": "soft_skill_embed",
+      "method": "Soft skill embedding",
+      "family": "embedding",
+      "top_k": 5,
+      "latency_ms": 51.814,
+      "latency_total_ms": 1554.419,
+      "queries": 30,
+      "precision_at_k": 0.28,
+      "recall_at_k": 0.9,
+      "mrr": 0.9107142857142857,
+      "ndcg_at_k": 0.8688853265261552,
+      "map": 0.8292328042328042
+    },
+    {
+      "method_key": "multimodal_weighted",
+      "method": "Multimodal weighted blend",
+      "family": "embedding",
+      "top_k": 5,
+      "latency_ms": 0.507,
+      "latency_total_ms": 15.224,
+      "queries": 30,
+      "precision_at_k": 0.2866666666666667,
+      "recall_at_k": 0.9333333333333333,
+      "mrr": 0.9611111111111111,
+      "ndcg_at_k": 0.9237306496163087,
+      "map": 0.867037037037037
+    },
+    {
+      "method_key": "rrf_ensemble",
+      "method": "RRF ensemble",
+      "family": "embedding",
+      "top_k": 5,
+      "latency_ms": 1.351,
+      "latency_total_ms": 40.519,
+      "queries": 30,
+      "precision_at_k": 0.29333333333333333,
+      "recall_at_k": 0.95,
+      "mrr": 0.9444444444444444,
+      "ndcg_at_k": 0.9131413643600619,
+      "map": 0.8451322751322751
+    }
+  ]
+}

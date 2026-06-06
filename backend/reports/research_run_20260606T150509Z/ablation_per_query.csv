@@ -1,0 +1,271 @@
+variant_key,variant,query_id,precision_at_k,recall_at_k,mrr,ndcg_at_k,map,predicted_ids
+semantic_only,Semantic only,cv_01,0.4,1.0,1.0,0.944847956559586,0.75,job_01|job_10|job_04|job_07|job_15
+semantic_only,Semantic only,cv_02,0.4,1.0,1.0,0.9639404333166532,0.8333333333333333,job_02|job_08|job_13|job_03|job_11
+semantic_only,Semantic only,cv_03,0.4,1.0,1.0,0.9327783893101107,0.7,job_03|job_02|job_11|job_12|job_14
+semantic_only,Semantic only,cv_04,0.4,1.0,1.0,1.0,1.0,job_04|job_15|job_11|job_10|job_01
+semantic_only,Semantic only,cv_05,0.2,0.5,1.0,0.8262346571285599,0.6666666666666666,job_05|job_03|job_14|job_10|job_12
+semantic_only,Semantic only,cv_06,0.2,0.5,1.0,0.8262346571285599,0.5909090909090909,job_01|job_10|job_12|job_13|job_03
+semantic_only,Semantic only,cv_07,0.2,1.0,0.5,0.6309297535714575,0.5,job_02|job_03|job_13|job_12|job_11
+semantic_only,Semantic only,cv_08,0.2,1.0,1.0,1.0,1.0,job_13|job_02|job_11|job_12|job_03
+semantic_only,Semantic only,cv_09,0.4,1.0,1.0,0.9327783893101107,0.7,job_07|job_10|job_11|job_03|job_05
+semantic_only,Semantic only,cv_10,0.4,1.0,1.0,1.0,1.0,job_15|job_04|job_11|job_10|job_01
+semantic_only,Semantic only,cv_11,0.2,0.5,1.0,0.6131471927654584,0.625,job_03|job_13|job_11|job_12|job_02
+semantic_only,Semantic only,cv_12,0.4,1.0,1.0,1.0,1.0,job_06|job_01|job_11|job_13|job_03
+semantic_only,Semantic only,cv_13,0.2,1.0,1.0,1.0,1.0,job_02|job_11|job_13|job_12|job_03
+semantic_only,Semantic only,cv_14,0.2,0.5,1.0,0.8262346571285599,0.6666666666666666,job_01|job_03|job_13|job_10|job_11
+semantic_only,Semantic only,cv_15,0.2,1.0,1.0,1.0,1.0,job_14|job_03|job_13|job_11|job_12
+semantic_only,Semantic only,cv_16,0.4,1.0,1.0,1.0,1.0,job_08|job_02|job_13|job_11|job_03
+semantic_only,Semantic only,cv_17,0.4,1.0,1.0,0.9639404333166532,0.8333333333333333,job_05|job_03|job_07|job_12|job_10
+semantic_only,Semantic only,cv_18,0.4,1.0,1.0,0.944847956559586,0.75,job_01|job_10|job_13|job_04|job_11
+semantic_only,Semantic only,cv_19,0.2,1.0,1.0,1.0,1.0,job_09|job_12|job_15|job_11|job_04
+semantic_only,Semantic only,cv_20,0.2,1.0,1.0,1.0,1.0,job_11|job_12|job_13|job_07|job_03
+semantic_only,Semantic only,cv_21,0.0,0.0,0.1111111111111111,0.0,0.1111111111111111,job_03|job_02|job_13|job_11|job_10
+semantic_only,Semantic only,cv_22,0.4,1.0,1.0,1.0,1.0,job_15|job_04|job_10|job_13|job_11
+semantic_only,Semantic only,cv_23,0.2,1.0,1.0,1.0,1.0,job_08|job_13|job_02|job_03|job_12
+semantic_only,Semantic only,cv_24,0.2,0.5,1.0,0.6131471927654584,0.6111111111111112,job_01|job_10|job_11|job_03|job_13
+semantic_only,Semantic only,cv_25,0.2,1.0,1.0,1.0,1.0,job_12|job_13|job_03|job_02|job_11
+semantic_only,Semantic only,cv_26,0.2,1.0,1.0,1.0,1.0,job_15|job_04|job_10|job_11|job_13
+semantic_only,Semantic only,cv_27,0.2,0.5,1.0,0.8262346571285599,0.625,job_10|job_03|job_11|job_01|job_13
+semantic_only,Semantic only,cv_28,0.2,1.0,1.0,1.0,1.0,job_11|job_13|job_15|job_03|job_02
+semantic_only,Semantic only,cv_29,0.2,1.0,0.3333333333333333,0.5,0.3333333333333333,job_03|job_02|job_14|job_12|job_11
+semantic_only,Semantic only,cv_30,0.2,1.0,1.0,1.0,1.0,job_13|job_12|job_11|job_02|job_03
+skills_only,Skills only,cv_01,0.4,1.0,1.0,0.9639404333166532,0.8333333333333333,job_01|job_04|job_07|job_06|job_02
+skills_only,Skills only,cv_02,0.2,0.5,1.0,0.8262346571285599,0.5769230769230769,job_02|job_01|job_03|job_04|job_05
+skills_only,Skills only,cv_03,0.2,0.5,1.0,0.8262346571285599,0.5714285714285714,job_03|job_01|job_02|job_04|job_05
+skills_only,Skills only,cv_04,0.2,0.5,1.0,0.8262346571285599,0.5666666666666667,job_04|job_01|job_06|job_02|job_03
+skills_only,Skills only,cv_05,0.2,0.5,1.0,0.8262346571285599,0.6428571428571428,job_05|job_01|job_02|job_03|job_04
+skills_only,Skills only,cv_06,0.4,1.0,1.0,0.9639404333166532,0.8333333333333333,job_01|job_04|job_06|job_02|job_03
+skills_only,Skills only,cv_07,0.2,1.0,0.3333333333333333,0.5,0.3333333333333333,job_01|job_02|job_03|job_04|job_05
+skills_only,Skills only,cv_08,0.2,1.0,1.0,1.0,1.0,job_13|job_01|job_02|job_03|job_04
+skills_only,Skills only,cv_09,0.2,0.5,1.0,0.8262346571285599,0.6666666666666666,job_07|job_01|job_02|job_03|job_04
+skills_only,Skills only,cv_10,0.4,1.0,1.0,0.9327783893101107,0.7,job_15|job_01|job_02|job_03|job_04
+skills_only,Skills only,cv_11,0.2,0.5,0.3333333333333333,0.3065735963827292,0.23809523809523808,job_01|job_02|job_03|job_04|job_05
+skills_only,Skills only,cv_12,0.4,1.0,1.0,0.9639404333166532,0.8333333333333333,job_06|job_04|job_01|job_02|job_03
+skills_only,Skills only,cv_13,0.2,1.0,0.5,0.6309297535714574,0.5,job_01|job_02|job_03|job_04|job_05
+skills_only,Skills only,cv_14,0.4,1.0,1.0,1.0,1.0,job_01|job_04|job_06|job_02|job_03
+skills_only,Skills only,cv_15,0.2,1.0,1.0,1.0,1.0,job_14|job_01|job_02|job_03|job_04
+skills_only,Skills only,cv_16,0.4,1.0,1.0,0.9639404333166532,0.8333333333333333,job_08|job_01|job_02|job_03|job_04
+skills_only,Skills only,cv_17,0.4,1.0,1.0,1.0,1.0,job_05|job_07|job_01|job_02|job_03
+skills_only,Skills only,cv_18,0.4,1.0,1.0,0.7967075809905066,1.0,job_04|job_01|job_06|job_02|job_03
+skills_only,Skills only,cv_19,0.2,1.0,1.0,1.0,1.0,job_09|job_01|job_02|job_03|job_04
+skills_only,Skills only,cv_20,0.2,1.0,1.0,1.0,1.0,job_11|job_01|job_02|job_03|job_04
+skills_only,Skills only,cv_21,0.2,1.0,1.0,1.0,1.0,job_04|job_01|job_06|job_02|job_03
+skills_only,Skills only,cv_22,0.4,1.0,1.0,0.8503449055347546,0.7,job_15|job_01|job_02|job_03|job_04
+skills_only,Skills only,cv_23,0.2,1.0,1.0,1.0,1.0,job_08|job_01|job_02|job_03|job_04
+skills_only,Skills only,cv_24,0.2,0.5,1.0,0.6131471927654584,0.6666666666666666,job_01|job_02|job_03|job_04|job_05
+skills_only,Skills only,cv_25,0.2,1.0,1.0,1.0,1.0,job_12|job_01|job_02|job_03|job_04
+skills_only,Skills only,cv_26,0.0,0.0,0.06666666666666667,0.0,0.06666666666666667,job_01|job_02|job_03|job_04|job_05
+skills_only,Skills only,cv_27,0.2,0.5,1.0,0.8262346571285599,0.625,job_10|job_01|job_02|job_03|job_04
+skills_only,Skills only,cv_28,0.0,0.0,0.09090909090909091,0.0,0.09090909090909091,job_01|job_02|job_03|job_04|job_05
+skills_only,Skills only,cv_29,0.0,0.0,0.07142857142857142,0.0,0.07142857142857142,job_01|job_02|job_03|job_04|job_05
+skills_only,Skills only,cv_30,0.0,0.0,0.07692307692307693,0.0,0.07692307692307693,job_01|job_02|job_03|job_04|job_05
+experience_only,Experience only,cv_01,0.2,0.5,1.0,0.8262346571285599,0.5714285714285714,job_01|job_02|job_03|job_04|job_06
+experience_only,Experience only,cv_02,0.4,1.0,0.5,0.6278397607958708,0.45,job_01|job_02|job_04|job_08|job_13
+experience_only,Experience only,cv_03,0.2,0.5,0.3333333333333333,0.41311732856427996,0.25,job_01|job_02|job_03|job_04|job_05
+experience_only,Experience only,cv_04,0.2,0.5,0.3333333333333333,0.41311732856427996,0.3333333333333333,job_01|job_02|job_04|job_08|job_13
+experience_only,Experience only,cv_05,0.2,0.5,0.2,0.3196311965446524,0.24285714285714285,job_01|job_02|job_03|job_04|job_05
+experience_only,Experience only,cv_06,0.2,0.5,1.0,0.8262346571285599,0.6666666666666666,job_01|job_02|job_03|job_04|job_05
+experience_only,Experience only,cv_07,0.2,1.0,0.3333333333333333,0.5,0.3333333333333333,job_01|job_02|job_03|job_04|job_06
+experience_only,Experience only,cv_08,0.2,1.0,0.2,0.38685280723454163,0.2,job_01|job_02|job_04|job_08|job_13
+experience_only,Experience only,cv_09,0.2,0.5,0.2,0.10654373218155079,0.24285714285714285,job_01|job_02|job_03|job_04|job_05
+experience_only,Experience only,cv_10,0.2,0.5,0.25,0.11861329943102608,0.2159090909090909,job_01|job_02|job_03|job_04|job_06
+experience_only,Experience only,cv_11,0.2,0.5,0.3333333333333333,0.3065735963827292,0.23809523809523808,job_01|job_02|job_03|job_04|job_05
+experience_only,Experience only,cv_12,0.2,0.5,1.0,0.27541155237618664,0.6666666666666666,job_01|job_02|job_03|job_04|job_05
+experience_only,Experience only,cv_13,0.2,1.0,0.5,0.6309297535714574,0.5,job_01|job_02|job_03|job_04|job_06
+experience_only,Experience only,cv_14,0.4,1.0,1.0,0.9639404333166532,0.8333333333333333,job_01|job_02|job_04|job_08|job_13
+experience_only,Experience only,cv_15,0.0,0.0,0.08333333333333333,0.0,0.08333333333333333,job_01|job_02|job_03|job_04|job_05
+experience_only,Experience only,cv_16,0.2,0.5,0.5,0.17376534287144002,0.41666666666666663,job_01|job_02|job_03|job_04|job_06
+experience_only,Experience only,cv_17,0.2,0.5,0.2,0.3196311965446524,0.17142857142857143,job_01|job_02|job_03|job_04|job_05
+experience_only,Experience only,cv_18,0.4,1.0,1.0,0.944847956559586,0.75,job_01|job_02|job_03|job_04|job_06
+experience_only,Experience only,cv_19,0.0,0.0,0.1111111111111111,0.0,0.1111111111111111,job_01|job_02|job_03|job_04|job_05
+experience_only,Experience only,cv_20,0.0,0.0,0.09090909090909091,0.0,0.09090909090909091,job_01|job_02|job_03|job_04|job_05
+experience_only,Experience only,cv_21,0.2,1.0,0.3333333333333333,0.5,0.3333333333333333,job_01|job_02|job_04|job_08|job_13
+experience_only,Experience only,cv_22,0.2,0.5,0.25,0.2640681225725909,0.2159090909090909,job_01|job_02|job_03|job_04|job_06
+experience_only,Experience only,cv_23,0.0,0.0,0.14285714285714285,0.0,0.14285714285714285,job_01|job_02|job_03|job_04|job_05
+experience_only,Experience only,cv_24,0.4,1.0,1.0,0.8503449055347546,0.7,job_01|job_02|job_03|job_04|job_06
+experience_only,Experience only,cv_25,0.0,0.0,0.1,0.0,0.1,job_01|job_02|job_03|job_04|job_05
+experience_only,Experience only,cv_26,0.0,0.0,0.09090909090909091,0.0,0.09090909090909091,job_01|job_02|job_03|job_04|job_06
+experience_only,Experience only,cv_27,0.0,0.0,0.14285714285714285,0.0,0.17142857142857143,job_01|job_02|job_03|job_04|job_05
+experience_only,Experience only,cv_28,0.0,0.0,0.09090909090909091,0.0,0.09090909090909091,job_01|job_02|job_03|job_04|job_05
+experience_only,Experience only,cv_29,0.0,0.0,0.08333333333333333,0.0,0.08333333333333333,job_01|job_02|job_03|job_04|job_05
+experience_only,Experience only,cv_30,0.0,0.0,0.1111111111111111,0.0,0.1111111111111111,job_01|job_02|job_03|job_04|job_06
+compensation_only,Compensation only,cv_01,0.4,1.0,1.0,0.9327783893101107,0.7,job_01|job_03|job_05|job_06|job_07
+compensation_only,Compensation only,cv_02,0.4,1.0,1.0,0.6885288809404666,0.8333333333333333,job_13|job_01|job_02|job_03|job_04
+compensation_only,Compensation only,cv_03,0.0,0.0,0.1111111111111111,0.0,0.15555555555555556,job_01|job_05|job_06|job_07|job_09
+compensation_only,Compensation only,cv_04,0.4,1.0,1.0,0.631251450669265,0.75,job_15|job_01|job_03|job_04|job_05
+compensation_only,Compensation only,cv_05,0.4,1.0,1.0,0.9639404333166532,0.8333333333333333,job_05|job_06|job_07|job_09|job_10
+compensation_only,Compensation only,cv_06,0.2,0.5,0.3333333333333333,0.13770577618809332,0.2777777777777778,job_14|job_05|job_06|job_07|job_09
+compensation_only,Compensation only,cv_07,0.2,1.0,0.3333333333333333,0.5,0.3333333333333333,job_08|job_01|job_03|job_05|job_06
+compensation_only,Compensation only,cv_08,0.0,0.0,0.07692307692307693,0.0,0.07692307692307693,job_01|job_02|job_03|job_04|job_05
+compensation_only,Compensation only,cv_09,0.4,1.0,1.0,0.6885288809404666,0.8333333333333333,job_05|job_09|job_07|job_11|job_12
+compensation_only,Compensation only,cv_10,0.2,0.5,0.25,0.11861329943102608,0.19642857142857142,job_02|job_01|job_03|job_04|job_05
+compensation_only,Compensation only,cv_11,0.0,0.0,0.125,0.0,0.1625,job_05|job_06|job_07|job_09|job_10
+compensation_only,Compensation only,cv_12,0.2,0.5,1.0,0.8262346571285599,0.6111111111111112,job_06|job_10|job_05|job_07|job_09
+compensation_only,Compensation only,cv_13,0.2,1.0,1.0,1.0,1.0,job_02|job_01|job_03|job_04|job_05
+compensation_only,Compensation only,cv_14,0.4,1.0,1.0,0.7967075809905066,1.0,job_04|job_01|job_03|job_05|job_06
+compensation_only,Compensation only,cv_15,0.0,0.0,0.1,0.0,0.1,job_03|job_01|job_05|job_06|job_07
+compensation_only,Compensation only,cv_16,0.0,0.0,0.125,0.0,0.13392857142857142,job_15|job_01|job_03|job_04|job_05
+compensation_only,Compensation only,cv_17,0.4,1.0,0.5,0.639909328045346,0.5,job_14|job_05|job_06|job_07|job_09
+compensation_only,Compensation only,cv_18,0.2,0.5,1.0,0.8262346571285599,0.5833333333333334,job_01|job_03|job_05|job_06|job_07
+compensation_only,Compensation only,cv_19,0.2,1.0,0.2,0.38685280723454163,0.2,job_06|job_10|job_05|job_07|job_09
+compensation_only,Compensation only,cv_20,0.2,1.0,0.3333333333333333,0.5,0.3333333333333333,job_12|job_07|job_11|job_05|job_09
+compensation_only,Compensation only,cv_21,0.2,1.0,0.25,0.43067655807339306,0.25,job_02|job_01|job_03|job_04|job_05
+compensation_only,Compensation only,cv_22,0.2,0.5,0.3333333333333333,0.3065735963827292,0.24358974358974358,job_01|job_03|job_04|job_05|job_06
+compensation_only,Compensation only,cv_23,0.0,0.0,0.09090909090909091,0.0,0.09090909090909091,job_01|job_03|job_05|job_06|job_07
+compensation_only,Compensation only,cv_24,0.2,0.5,0.5,0.38685280723454163,0.3611111111111111,job_05|job_06|job_07|job_09|job_10
+compensation_only,Compensation only,cv_25,0.2,1.0,0.2,0.38685280723454163,0.2,job_05|job_09|job_07|job_11|job_12
+compensation_only,Compensation only,cv_26,0.0,0.0,0.06666666666666667,0.0,0.06666666666666667,job_13|job_01|job_02|job_03|job_04
+compensation_only,Compensation only,cv_27,0.4,1.0,0.5,0.639909328045346,0.5,job_06|job_10|job_05|job_07|job_09
+compensation_only,Compensation only,cv_28,0.0,0.0,0.1111111111111111,0.0,0.1111111111111111,job_08|job_01|job_03|job_05|job_06
+compensation_only,Compensation only,cv_29,0.0,0.0,0.1111111111111111,0.0,0.1111111111111111,job_01|job_05|job_06|job_07|job_09
+compensation_only,Compensation only,cv_30,0.0,0.0,0.06666666666666667,0.0,0.06666666666666667,job_02|job_01|job_03|job_04|job_05
+location_only,Location only,cv_01,0.2,0.5,1.0,0.8262346571285599,0.5909090909090909,job_01|job_02|job_04|job_06|job_08
+location_only,Location only,cv_02,0.2,0.5,0.5,0.52129602861432,0.39285714285714285,job_01|job_02|job_04|job_06|job_08
+location_only,Location only,cv_03,0.2,0.5,0.3333333333333333,0.41311732856427996,0.23809523809523808,job_01|job_02|job_03|job_04|job_05
+location_only,Location only,cv_04,0.2,0.5,0.3333333333333333,0.41311732856427996,0.29166666666666663,job_01|job_02|job_04|job_06|job_08
+location_only,Location only,cv_05,0.2,0.5,0.2,0.3196311965446524,0.24285714285714285,job_01|job_02|job_03|job_04|job_05
+location_only,Location only,cv_06,0.4,1.0,1.0,0.944847956559586,0.75,job_01|job_02|job_04|job_06|job_08
+location_only,Location only,cv_07,0.0,0.0,0.1111111111111111,0.0,0.1111111111111111,job_01|job_02|job_04|job_06|job_08
+location_only,Location only,cv_08,0.0,0.0,0.14285714285714285,0.0,0.14285714285714285,job_01|job_02|job_04|job_06|job_08
+location_only,Location only,cv_09,0.2,0.5,0.2,0.10654373218155079,0.24285714285714285,job_01|job_02|job_03|job_04|job_05
+location_only,Location only,cv_10,0.2,0.5,0.3333333333333333,0.13770577618809332,0.29166666666666663,job_01|job_02|job_04|job_06|job_08
+location_only,Location only,cv_11,0.2,0.5,0.3333333333333333,0.3065735963827292,0.23809523809523808,job_01|job_02|job_03|job_04|job_05
+location_only,Location only,cv_12,0.4,1.0,1.0,0.631251450669265,0.75,job_01|job_02|job_04|job_06|job_08
+location_only,Location only,cv_13,0.2,1.0,0.5,0.6309297535714574,0.5,job_01|job_02|job_04|job_06|job_08
+location_only,Location only,cv_14,0.4,1.0,1.0,0.9639404333166532,0.8333333333333333,job_01|job_02|job_04|job_06|job_08
+location_only,Location only,cv_15,0.0,0.0,0.07142857142857142,0.0,0.07142857142857142,job_01|job_02|job_03|job_04|job_05
+location_only,Location only,cv_16,0.4,1.0,0.5,0.4933965394160924,0.45,job_01|job_02|job_04|job_06|job_08
+location_only,Location only,cv_17,0.2,0.5,0.2,0.3196311965446524,0.24285714285714285,job_01|job_02|job_03|job_04|job_05
+location_only,Location only,cv_18,0.4,1.0,1.0,0.9639404333166532,0.8333333333333333,job_01|job_02|job_04|job_06|job_08
+location_only,Location only,cv_19,0.0,0.0,0.1111111111111111,0.0,0.1111111111111111,job_01|job_02|job_03|job_04|job_05
+location_only,Location only,cv_20,0.0,0.0,0.16666666666666666,0.0,0.16666666666666666,job_01|job_02|job_04|job_06|job_08
+location_only,Location only,cv_21,0.2,1.0,0.3333333333333333,0.5,0.3333333333333333,job_01|job_02|job_04|job_06|job_08
+location_only,Location only,cv_22,0.2,0.5,0.3333333333333333,0.3065735963827292,0.29166666666666663,job_01|job_02|job_04|job_06|job_08
+location_only,Location only,cv_23,0.2,1.0,0.2,0.38685280723454163,0.2,job_01|job_02|job_04|job_06|job_08
+location_only,Location only,cv_24,0.4,1.0,1.0,0.8772153153380493,0.75,job_01|job_02|job_04|job_06|job_08
+location_only,Location only,cv_25,0.0,0.0,0.08333333333333333,0.0,0.08333333333333333,job_01|job_02|job_03|job_04|job_05
+location_only,Location only,cv_26,0.0,0.0,0.125,0.0,0.125,job_01|job_02|job_04|job_06|job_08
+location_only,Location only,cv_27,0.0,0.0,0.14285714285714285,0.0,0.17142857142857143,job_01|job_02|job_03|job_04|job_05
+location_only,Location only,cv_28,0.0,0.0,0.16666666666666666,0.0,0.16666666666666666,job_01|job_02|job_04|job_06|job_08
+location_only,Location only,cv_29,0.0,0.0,0.07142857142857142,0.0,0.07142857142857142,job_01|job_02|job_03|job_04|job_05
+location_only,Location only,cv_30,0.0,0.0,0.14285714285714285,0.0,0.14285714285714285,job_01|job_02|job_04|job_06|job_08
+semantic_skills,Semantic + skills,cv_01,0.4,1.0,1.0,0.9639404333166532,0.8333333333333333,job_01|job_04|job_07|job_06|job_10
+semantic_skills,Semantic + skills,cv_02,0.4,1.0,1.0,0.9639404333166532,0.8333333333333333,job_02|job_08|job_13|job_03|job_11
+semantic_skills,Semantic + skills,cv_03,0.4,1.0,1.0,0.9327783893101107,0.7,job_03|job_02|job_11|job_12|job_14
+semantic_skills,Semantic + skills,cv_04,0.4,1.0,1.0,0.944847956559586,0.75,job_04|job_01|job_06|job_15|job_11
+semantic_skills,Semantic + skills,cv_05,0.2,0.5,1.0,0.8262346571285599,0.6666666666666666,job_05|job_03|job_14|job_10|job_12
+semantic_skills,Semantic + skills,cv_06,0.4,1.0,1.0,0.9639404333166532,0.8333333333333333,job_01|job_04|job_06|job_10|job_12
+semantic_skills,Semantic + skills,cv_07,0.2,1.0,0.5,0.6309297535714575,0.5,job_02|job_03|job_13|job_12|job_11
+semantic_skills,Semantic + skills,cv_08,0.2,1.0,1.0,1.0,1.0,job_13|job_02|job_11|job_12|job_03
+semantic_skills,Semantic + skills,cv_09,0.4,1.0,1.0,0.9327783893101107,0.7,job_07|job_10|job_11|job_03|job_05
+semantic_skills,Semantic + skills,cv_10,0.4,1.0,1.0,1.0,1.0,job_15|job_04|job_11|job_10|job_01
+semantic_skills,Semantic + skills,cv_11,0.2,0.5,1.0,0.6131471927654584,0.625,job_03|job_13|job_11|job_12|job_02
+semantic_skills,Semantic + skills,cv_12,0.4,1.0,1.0,1.0,1.0,job_06|job_01|job_04|job_11|job_13
+semantic_skills,Semantic + skills,cv_13,0.2,1.0,1.0,1.0,1.0,job_02|job_11|job_13|job_12|job_03
+semantic_skills,Semantic + skills,cv_14,0.4,1.0,1.0,1.0,1.0,job_01|job_04|job_06|job_03|job_13
+semantic_skills,Semantic + skills,cv_15,0.2,1.0,1.0,1.0,1.0,job_14|job_03|job_13|job_11|job_12
+semantic_skills,Semantic + skills,cv_16,0.4,1.0,1.0,1.0,1.0,job_08|job_02|job_13|job_11|job_03
+semantic_skills,Semantic + skills,cv_17,0.4,1.0,1.0,1.0,1.0,job_05|job_07|job_03|job_12|job_10
+semantic_skills,Semantic + skills,cv_18,0.4,1.0,1.0,0.7967075809905066,1.0,job_04|job_01|job_06|job_10|job_13
+semantic_skills,Semantic + skills,cv_19,0.2,1.0,1.0,1.0,1.0,job_09|job_12|job_15|job_11|job_04
+semantic_skills,Semantic + skills,cv_20,0.2,1.0,1.0,1.0,1.0,job_11|job_12|job_13|job_07|job_03
+semantic_skills,Semantic + skills,cv_21,0.2,1.0,1.0,1.0,1.0,job_04|job_01|job_06|job_03|job_02
+semantic_skills,Semantic + skills,cv_22,0.4,1.0,1.0,1.0,1.0,job_15|job_04|job_10|job_13|job_11
+semantic_skills,Semantic + skills,cv_23,0.2,1.0,1.0,1.0,1.0,job_08|job_13|job_02|job_03|job_12
+semantic_skills,Semantic + skills,cv_24,0.2,0.5,1.0,0.6131471927654584,0.6111111111111112,job_01|job_10|job_11|job_03|job_13
+semantic_skills,Semantic + skills,cv_25,0.2,1.0,1.0,1.0,1.0,job_12|job_13|job_03|job_02|job_11
+semantic_skills,Semantic + skills,cv_26,0.2,1.0,1.0,1.0,1.0,job_15|job_04|job_10|job_11|job_13
+semantic_skills,Semantic + skills,cv_27,0.2,0.5,1.0,0.8262346571285599,0.625,job_10|job_03|job_11|job_01|job_13
+semantic_skills,Semantic + skills,cv_28,0.2,1.0,1.0,1.0,1.0,job_11|job_13|job_15|job_03|job_02
+semantic_skills,Semantic + skills,cv_29,0.2,1.0,0.3333333333333333,0.5,0.3333333333333333,job_03|job_02|job_14|job_12|job_11
+semantic_skills,Semantic + skills,cv_30,0.2,1.0,1.0,1.0,1.0,job_13|job_12|job_11|job_02|job_03
+semantic_skills_experience,Semantic + skills + experience,cv_01,0.4,1.0,1.0,0.9327783893101107,0.7,job_01|job_04|job_06|job_10|job_07
+semantic_skills_experience,Semantic + skills + experience,cv_02,0.4,1.0,1.0,0.9639404333166532,0.8333333333333333,job_02|job_08|job_13|job_01|job_03
+semantic_skills_experience,Semantic + skills + experience,cv_03,0.4,1.0,1.0,0.944847956559586,0.75,job_03|job_02|job_12|job_14|job_13
+semantic_skills_experience,Semantic + skills + experience,cv_04,0.4,1.0,1.0,0.944847956559586,0.75,job_04|job_01|job_06|job_15|job_13
+semantic_skills_experience,Semantic + skills + experience,cv_05,0.2,0.5,1.0,0.8262346571285599,0.6666666666666666,job_05|job_03|job_14|job_10|job_12
+semantic_skills_experience,Semantic + skills + experience,cv_06,0.4,1.0,1.0,0.9639404333166532,0.8333333333333333,job_01|job_04|job_06|job_10|job_12
+semantic_skills_experience,Semantic + skills + experience,cv_07,0.2,1.0,0.5,0.6309297535714575,0.5,job_02|job_03|job_13|job_12|job_10
+semantic_skills_experience,Semantic + skills + experience,cv_08,0.2,1.0,1.0,1.0,1.0,job_13|job_02|job_08|job_04|job_15
+semantic_skills_experience,Semantic + skills + experience,cv_09,0.4,1.0,1.0,0.9327783893101107,0.7,job_07|job_10|job_11|job_03|job_05
+semantic_skills_experience,Semantic + skills + experience,cv_10,0.4,1.0,1.0,1.0,1.0,job_15|job_04|job_10|job_01|job_12
+semantic_skills_experience,Semantic + skills + experience,cv_11,0.2,0.5,1.0,0.6131471927654584,0.625,job_03|job_13|job_11|job_12|job_02
+semantic_skills_experience,Semantic + skills + experience,cv_12,0.4,1.0,1.0,1.0,1.0,job_06|job_01|job_04|job_13|job_03
+semantic_skills_experience,Semantic + skills + experience,cv_13,0.2,1.0,1.0,1.0,1.0,job_02|job_13|job_12|job_03|job_04
+semantic_skills_experience,Semantic + skills + experience,cv_14,0.4,1.0,1.0,1.0,1.0,job_01|job_04|job_06|job_13|job_02
+semantic_skills_experience,Semantic + skills + experience,cv_15,0.2,1.0,1.0,1.0,1.0,job_14|job_03|job_13|job_12|job_02
+semantic_skills_experience,Semantic + skills + experience,cv_16,0.4,1.0,1.0,1.0,1.0,job_08|job_02|job_13|job_03|job_12
+semantic_skills_experience,Semantic + skills + experience,cv_17,0.4,1.0,1.0,1.0,1.0,job_05|job_07|job_03|job_12|job_10
+semantic_skills_experience,Semantic + skills + experience,cv_18,0.4,1.0,1.0,0.7967075809905066,1.0,job_04|job_01|job_06|job_10|job_13
+semantic_skills_experience,Semantic + skills + experience,cv_19,0.2,1.0,1.0,1.0,1.0,job_09|job_12|job_15|job_11|job_04
+semantic_skills_experience,Semantic + skills + experience,cv_20,0.2,1.0,1.0,1.0,1.0,job_11|job_12|job_13|job_07|job_03
+semantic_skills_experience,Semantic + skills + experience,cv_21,0.2,1.0,1.0,1.0,1.0,job_04|job_01|job_06|job_02|job_13
+semantic_skills_experience,Semantic + skills + experience,cv_22,0.4,1.0,1.0,1.0,1.0,job_15|job_04|job_10|job_13|job_03
+semantic_skills_experience,Semantic + skills + experience,cv_23,0.2,1.0,1.0,1.0,1.0,job_08|job_13|job_02|job_03|job_12
+semantic_skills_experience,Semantic + skills + experience,cv_24,0.2,0.5,1.0,0.6131471927654584,0.625,job_01|job_10|job_03|job_13|job_12
+semantic_skills_experience,Semantic + skills + experience,cv_25,0.2,1.0,1.0,1.0,1.0,job_12|job_13|job_03|job_02|job_05
+semantic_skills_experience,Semantic + skills + experience,cv_26,0.2,1.0,1.0,1.0,1.0,job_15|job_04|job_10|job_13|job_03
+semantic_skills_experience,Semantic + skills + experience,cv_27,0.2,0.5,1.0,0.8262346571285599,0.625,job_10|job_03|job_11|job_01|job_13
+semantic_skills_experience,Semantic + skills + experience,cv_28,0.2,1.0,1.0,1.0,1.0,job_11|job_13|job_15|job_03|job_02
+semantic_skills_experience,Semantic + skills + experience,cv_29,0.2,1.0,0.3333333333333333,0.5,0.3333333333333333,job_03|job_02|job_14|job_12|job_13
+semantic_skills_experience,Semantic + skills + experience,cv_30,0.2,1.0,1.0,1.0,1.0,job_13|job_12|job_02|job_03|job_15
+full_composite,Full composite,cv_01,0.4,1.0,1.0,0.9327783893101107,0.7,job_01|job_06|job_04|job_10|job_07
+full_composite,Full composite,cv_02,0.4,1.0,1.0,0.9639404333166532,0.8333333333333333,job_02|job_08|job_13|job_01|job_04
+full_composite,Full composite,cv_03,0.4,1.0,1.0,1.0,1.0,job_03|job_14|job_10|job_05|job_12
+full_composite,Full composite,cv_04,0.4,1.0,1.0,0.9639404333166532,0.8333333333333333,job_04|job_01|job_15|job_06|job_02
+full_composite,Full composite,cv_05,0.2,0.5,1.0,0.8262346571285599,0.6428571428571428,job_05|job_10|job_14|job_03|job_06
+full_composite,Full composite,cv_06,0.4,1.0,1.0,1.0,1.0,job_01|job_06|job_04|job_10|job_11
+full_composite,Full composite,cv_07,0.0,0.0,0.16666666666666666,0.0,0.16666666666666666,job_08|job_02|job_01|job_13|job_15
+full_composite,Full composite,cv_08,0.2,1.0,1.0,1.0,1.0,job_13|job_02|job_08|job_04|job_15
+full_composite,Full composite,cv_09,0.4,1.0,1.0,0.9639404333166532,0.8333333333333333,job_07|job_10|job_05|job_11|job_12
+full_composite,Full composite,cv_10,0.4,1.0,1.0,1.0,1.0,job_15|job_04|job_01|job_02|job_13
+full_composite,Full composite,cv_11,0.4,1.0,1.0,1.0,1.0,job_14|job_03|job_05|job_10|job_11
+full_composite,Full composite,cv_12,0.4,1.0,1.0,1.0,1.0,job_06|job_01|job_04|job_11|job_10
+full_composite,Full composite,cv_13,0.2,1.0,1.0,1.0,1.0,job_02|job_06|job_01|job_13|job_04
+full_composite,Full composite,cv_14,0.4,1.0,1.0,1.0,1.0,job_01|job_04|job_06|job_15|job_13
+full_composite,Full composite,cv_15,0.2,1.0,1.0,1.0,1.0,job_14|job_03|job_10|job_01|job_06
+full_composite,Full composite,cv_16,0.4,1.0,1.0,1.0,1.0,job_08|job_02|job_13|job_15|job_06
+full_composite,Full composite,cv_17,0.4,1.0,1.0,1.0,1.0,job_05|job_07|job_03|job_10|job_14
+full_composite,Full composite,cv_18,0.4,1.0,1.0,1.0,1.0,job_01|job_04|job_06|job_08|job_15
+full_composite,Full composite,cv_19,0.2,1.0,1.0,1.0,1.0,job_09|job_12|job_10|job_11|job_05
+full_composite,Full composite,cv_20,0.2,1.0,1.0,1.0,1.0,job_11|job_06|job_01|job_12|job_13
+full_composite,Full composite,cv_21,0.2,1.0,1.0,1.0,1.0,job_04|job_01|job_02|job_06|job_08
+full_composite,Full composite,cv_22,0.4,1.0,1.0,1.0,1.0,job_15|job_04|job_13|job_02|job_06
+full_composite,Full composite,cv_23,0.2,1.0,1.0,1.0,1.0,job_08|job_02|job_06|job_11|job_01
+full_composite,Full composite,cv_24,0.4,1.0,1.0,1.0,1.0,job_01|job_06|job_10|job_14|job_13
+full_composite,Full composite,cv_25,0.2,1.0,1.0,1.0,1.0,job_12|job_05|job_10|job_09|job_03
+full_composite,Full composite,cv_26,0.2,1.0,1.0,1.0,1.0,job_15|job_04|job_13|job_02|job_01
+full_composite,Full composite,cv_27,0.2,0.5,1.0,0.8262346571285599,0.6111111111111112,job_10|job_05|job_11|job_06|job_03
+full_composite,Full composite,cv_28,0.2,1.0,1.0,1.0,1.0,job_11|job_01|job_08|job_04|job_15
+full_composite,Full composite,cv_29,0.2,1.0,1.0,1.0,1.0,job_14|job_03|job_12|job_10|job_01
+full_composite,Full composite,cv_30,0.2,1.0,1.0,1.0,1.0,job_13|job_02|job_15|job_01|job_08
+rrf_ensemble,RRF ensemble,cv_01,0.2,0.5,1.0,0.8262346571285599,0.6666666666666666,job_01|job_04|job_06|job_03|job_02
+rrf_ensemble,RRF ensemble,cv_02,0.2,0.5,1.0,0.8262346571285599,0.6666666666666666,job_02|job_01|job_04|job_03|job_08
+rrf_ensemble,RRF ensemble,cv_03,0.2,0.5,0.5,0.52129602861432,0.3269230769230769,job_01|job_03|job_02|job_05|job_06
+rrf_ensemble,RRF ensemble,cv_04,0.4,1.0,0.5,0.6278397607958708,0.45,job_01|job_04|job_06|job_02|job_15
+rrf_ensemble,RRF ensemble,cv_05,0.4,1.0,1.0,0.9327783893101107,0.7,job_05|job_03|job_01|job_02|job_07
+rrf_ensemble,RRF ensemble,cv_06,0.4,1.0,1.0,0.9639404333166532,0.8333333333333333,job_01|job_02|job_06|job_04|job_03
+rrf_ensemble,RRF ensemble,cv_07,0.2,1.0,0.3333333333333333,0.5,0.3333333333333333,job_01|job_02|job_03|job_08|job_06
+rrf_ensemble,RRF ensemble,cv_08,0.2,1.0,0.25,0.4306765580733931,0.25,job_02|job_01|job_04|job_13|job_03
+rrf_ensemble,RRF ensemble,cv_09,0.4,1.0,0.5,0.6590018048024133,0.5833333333333333,job_01|job_07|job_05|job_03|job_02
+rrf_ensemble,RRF ensemble,cv_10,0.2,0.5,0.3333333333333333,0.13770577618809332,0.3333333333333333,job_01|job_02|job_04|job_03|job_06
+rrf_ensemble,RRF ensemble,cv_11,0.2,0.5,1.0,0.6131471927654584,0.5714285714285714,job_03|job_02|job_05|job_01|job_07
+rrf_ensemble,RRF ensemble,cv_12,0.4,1.0,1.0,1.0,1.0,job_06|job_01|job_02|job_04|job_03
+rrf_ensemble,RRF ensemble,cv_13,0.2,1.0,1.0,1.0,1.0,job_02|job_01|job_04|job_03|job_06
+rrf_ensemble,RRF ensemble,cv_14,0.4,1.0,1.0,1.0,1.0,job_01|job_04|job_03|job_02|job_06
+rrf_ensemble,RRF ensemble,cv_15,0.0,0.0,0.16666666666666666,0.0,0.16666666666666666,job_01|job_03|job_02|job_05|job_06
+rrf_ensemble,RRF ensemble,cv_16,0.4,1.0,0.5,0.6590018048024133,0.5833333333333333,job_01|job_08|job_02|job_03|job_04
+rrf_ensemble,RRF ensemble,cv_17,0.4,1.0,1.0,0.9327783893101107,0.7,job_05|job_01|job_03|job_02|job_07
+rrf_ensemble,RRF ensemble,cv_18,0.4,1.0,1.0,1.0,1.0,job_01|job_04|job_03|job_06|job_02
+rrf_ensemble,RRF ensemble,cv_19,0.2,1.0,0.5,0.6309297535714574,0.5,job_01|job_09|job_02|job_03|job_04
+rrf_ensemble,RRF ensemble,cv_20,0.2,1.0,0.5,0.6309297535714574,0.5,job_01|job_11|job_02|job_03|job_07
+rrf_ensemble,RRF ensemble,cv_21,0.2,1.0,0.3333333333333333,0.5,0.3333333333333333,job_02|job_01|job_04|job_03|job_06
+rrf_ensemble,RRF ensemble,cv_22,0.2,0.5,0.5,0.38685280723454163,0.41666666666666663,job_01|job_04|job_03|job_02|job_06
+rrf_ensemble,RRF ensemble,cv_23,0.2,1.0,0.25,0.43067655807339306,0.25,job_01|job_03|job_02|job_08|job_06
+rrf_ensemble,RRF ensemble,cv_24,0.4,1.0,1.0,0.9197207891481876,0.8333333333333333,job_01|job_02|job_06|job_03|job_04
+rrf_ensemble,RRF ensemble,cv_25,0.2,1.0,0.2,0.38685280723454163,0.2,job_02|job_03|job_05|job_01|job_12
+rrf_ensemble,RRF ensemble,cv_26,0.0,0.0,0.08333333333333333,0.0,0.08333333333333333,job_01|job_02|job_04|job_03|job_13
+rrf_ensemble,RRF ensemble,cv_27,0.2,0.5,0.3333333333333333,0.41311732856427996,0.30952380952380953,job_01|job_03|job_10|job_05|job_02
+rrf_ensemble,RRF ensemble,cv_28,0.0,0.0,0.125,0.0,0.125,job_01|job_03|job_02|job_04|job_08
+rrf_ensemble,RRF ensemble,cv_29,0.0,0.0,0.07692307692307693,0.0,0.07692307692307693,job_01|job_03|job_02|job_05|job_06
+rrf_ensemble,RRF ensemble,cv_30,0.0,0.0,0.125,0.0,0.125,job_02|job_01|job_03|job_04|job_06

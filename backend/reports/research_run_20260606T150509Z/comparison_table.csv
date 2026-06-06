@@ -1,0 +1,46 @@
+method,metric,top_k,score,latency_ms
+BM25 (lexical),Precision@K,5,0.306667,0.093
+BM25 (lexical),Recall@K,5,0.983333,0.093
+BM25 (lexical),MRR,5,0.917778,0.093
+BM25 (lexical),nDCG@K,5,0.90234,0.093
+BM25 (lexical),MAP,5,0.859444,0.093
+TF-IDF cosine (lexical),Precision@K,5,0.306667,0.053
+TF-IDF cosine (lexical),Recall@K,5,0.983333,0.053
+TF-IDF cosine (lexical),MRR,5,0.917778,0.053
+TF-IDF cosine (lexical),nDCG@K,5,0.905223,0.053
+TF-IDF cosine (lexical),MAP,5,0.846111,0.053
+Exact skill overlap,Precision@K,5,0.233333,0.165
+Exact skill overlap,Recall@K,5,0.733333,0.165
+Exact skill overlap,MRR,5,0.815753,0.165
+Exact skill overlap,nDCG@K,5,0.748122,0.165
+Exact skill overlap,MAP,5,0.680897,0.165
+Semantic cosine,Precision@K,5,0.266667,0.231
+Semantic cosine,Recall@K,5,0.866667,0.231
+Semantic cosine,MRR,5,0.931481,0.231
+Semantic cosine,nDCG@K,5,0.878177,0.231
+Semantic cosine,MAP,5,0.809882,0.231
+Semantic euclidean-derived,Precision@K,5,0.266667,0.214
+Semantic euclidean-derived,Recall@K,5,0.866667,0.214
+Semantic euclidean-derived,MRR,5,0.931481,0.214
+Semantic euclidean-derived,nDCG@K,5,0.878177,0.214
+Semantic euclidean-derived,MAP,5,0.809882,0.214
+Skills Jaccard,Precision@K,5,0.233333,0.165
+Skills Jaccard,Recall@K,5,0.733333,0.165
+Skills Jaccard,MRR,5,0.815753,0.165
+Skills Jaccard,nDCG@K,5,0.748122,0.165
+Skills Jaccard,MAP,5,0.680897,0.165
+Soft skill embedding,Precision@K,5,0.28,51.814
+Soft skill embedding,Recall@K,5,0.9,51.814
+Soft skill embedding,MRR,5,0.910714,51.814
+Soft skill embedding,nDCG@K,5,0.868885,51.814
+Soft skill embedding,MAP,5,0.829233,51.814
+Multimodal weighted blend,Precision@K,5,0.286667,0.507
+Multimodal weighted blend,Recall@K,5,0.933333,0.507
+Multimodal weighted blend,MRR,5,0.961111,0.507
+Multimodal weighted blend,nDCG@K,5,0.923731,0.507
+Multimodal weighted blend,MAP,5,0.867037,0.507
+RRF ensemble,Precision@K,5,0.293333,1.351
+RRF ensemble,Recall@K,5,0.95,1.351
+RRF ensemble,MRR,5,0.944444,1.351
+RRF ensemble,nDCG@K,5,0.913141,1.351
+RRF ensemble,MAP,5,0.845132,1.351

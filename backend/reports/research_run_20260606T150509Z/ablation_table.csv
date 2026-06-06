@@ -1,0 +1,46 @@
+variant,metric,top_k,score,latency_ms
+Semantic only,Precision@K,5,0.266667,0.418
+Semantic only,Recall@K,5,0.866667,0.418
+Semantic only,MRR,5,0.931481,0.418
+Semantic only,nDCG@K,5,0.878177,0.418
+Semantic only,MAP,5,0.809882,0.418
+Skills only,Precision@K,5,0.233333,0.17
+Skills only,Recall@K,5,0.733333,0.17
+Skills only,MRR,5,0.815753,0.17
+Skills only,nDCG@K,5,0.748122,0.17
+Skills only,MAP,5,0.680897,0.17
+Experience only,Precision@K,5,0.16,0.026
+Experience only,Recall@K,5,0.466667,0.026
+Experience only,MRR,5,0.3838,0.026
+Experience only,nDCG@K,5,0.32559,0.026
+Experience only,MAP,5,0.313591,0.026
+Compensation only,Precision@K,5,0.186667,0.028
+Compensation only,Recall@K,5,0.566667,0.028
+Compensation only,MRR,5,0.457261,0.028
+Compensation only,nDCG@K,5,0.392938,0.028
+Compensation only,MAP,5,0.38718,0.028
+Location only,Precision@K,5,0.166667,0.026
+Location only,Recall@K,5,0.466667,0.026
+Location only,MRR,5,0.387844,0.026
+Location only,nDCG@K,5,0.335427,0.026
+Location only,MAP,5,0.327581,0.026
+Semantic + skills,Precision@K,5,0.286667,0.421
+Semantic + skills,Recall@K,5,0.933333,0.421
+Semantic + skills,MRR,5,0.961111,0.421
+Semantic + skills,nDCG@K,5,0.916954,0.421
+Semantic + skills,MAP,5,0.867037,0.421
+Semantic + skills + experience,Precision@K,5,0.286667,0.424
+Semantic + skills + experience,Recall@K,5,0.933333,0.424
+Semantic + skills + experience,MRR,5,0.961111,0.424
+Semantic + skills + experience,nDCG@K,5,0.916318,0.424
+Semantic + skills + experience,MAP,5,0.864722,0.424
+Full composite,Precision@K,5,0.293333,0.568
+Full composite,Recall@K,5,0.933333,0.568
+Full composite,MRR,5,0.972222,0.568
+Full composite,nDCG@K,5,0.949236,0.568
+Full composite,MAP,5,0.920688,0.568
+RRF ensemble,Precision@K,5,0.233333,0.485
+RRF ensemble,Recall@K,5,0.716667,0.485
+RRF ensemble,MRR,5,0.570342,0.485
+RRF ensemble,nDCG@K,5,0.564324,0.485
+RRF ensemble,MAP,5,0.497271,0.485

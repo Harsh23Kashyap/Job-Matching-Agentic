@@ -1,0 +1,121 @@
+{
+  "run_id": "research_run_20260606T150509Z",
+  "generated_at": "2026-06-06T15:05:23.225037+00:00",
+  "valid": true,
+  "config": {
+    "data_dir": "/Users/harshkashyap/project/learning/job-matching/New/Job-Matching-Agentic-main/data",
+    "eval_path": "/Users/harshkashyap/project/learning/job-matching/New/Job-Matching-Agentic-main/data/eval_pairs.json",
+    "profiles_path": "/Users/harshkashyap/project/learning/job-matching/New/Job-Matching-Agentic-main/data/fairness_audit_profiles.json",
+    "top_k": 5,
+    "n_resamples": 5000,
+    "seed": 42,
+    "cross_encoder_enabled": false
+  },
+  "steps": [
+    {
+      "name": "dataset_validation",
+      "status": "ok",
+      "duration_sec": 0.0,
+      "outputs": {
+        "json": "/Users/harshkashyap/project/learning/job-matching/New/Job-Matching-Agentic-main/backend/reports/research_run_20260606T150509Z/dataset_validation.json",
+        "markdown": "/Users/harshkashyap/project/learning/job-matching/New/Job-Matching-Agentic-main/backend/reports/research_run_20260606T150509Z/dataset_validation.md"
+      },
+      "error": null
+    },
+    {
+      "name": "baseline_evaluation",
+      "status": "ok",
+      "duration_sec": 4.019,
+      "outputs": {
+        "table_csv": "/Users/harshkashyap/project/learning/job-matching/New/Job-Matching-Agentic-main/backend/reports/research_run_20260606T150509Z/comparison_table.csv",
+        "table_json": "/Users/harshkashyap/project/learning/job-matching/New/Job-Matching-Agentic-main/backend/reports/research_run_20260606T150509Z/comparison_table.json",
+        "summary_json": "/Users/harshkashyap/project/learning/job-matching/New/Job-Matching-Agentic-main/backend/reports/research_run_20260606T150509Z/comparison_summary.json"
+      },
+      "error": null
+    },
+    {
+      "name": "composite_scoring",
+      "status": "ok",
+      "duration_sec": 0.735,
+      "outputs": {
+        "json": "/Users/harshkashyap/project/learning/job-matching/New/Job-Matching-Agentic-main/backend/reports/research_run_20260606T150509Z/composite_eval_report.json",
+        "summary_csv": "/Users/harshkashyap/project/learning/job-matching/New/Job-Matching-Agentic-main/backend/reports/research_run_20260606T150509Z/composite_summary.csv",
+        "per_query_csv": "/Users/harshkashyap/project/learning/job-matching/New/Job-Matching-Agentic-main/backend/reports/research_run_20260606T150509Z/composite_per_query.csv"
+      },
+      "error": null
+    },
+    {
+      "name": "ablation_study",
+      "status": "ok",
+      "duration_sec": 0.833,
+      "outputs": {
+        "summary_json": "/Users/harshkashyap/project/learning/job-matching/New/Job-Matching-Agentic-main/backend/reports/research_run_20260606T150509Z/ablation_summary.json",
+        "table_csv": "/Users/harshkashyap/project/learning/job-matching/New/Job-Matching-Agentic-main/backend/reports/research_run_20260606T150509Z/ablation_table.csv",
+        "summary_csv": "/Users/harshkashyap/project/learning/job-matching/New/Job-Matching-Agentic-main/backend/reports/research_run_20260606T150509Z/ablation_summary.csv",
+        "per_query_csv": "/Users/harshkashyap/project/learning/job-matching/New/Job-Matching-Agentic-main/backend/reports/research_run_20260606T150509Z/ablation_per_query.csv",
+        "report_json": "/Users/harshkashyap/project/learning/job-matching/New/Job-Matching-Agentic-main/backend/reports/research_run_20260606T150509Z/ablation_report.json",
+        "markdown": "/Users/harshkashyap/project/learning/job-matching/New/Job-Matching-Agentic-main/backend/reports/research_run_20260606T150509Z/ablation_summary.md"
+      },
+      "error": null
+    },
+    {
+      "name": "cross_encoder_reranking",
+      "status": "skipped",
+      "duration_sec": 0.0,
+      "outputs": {},
+      "error": null
+    },
+    {
+      "name": "statistical_significance",
+      "status": "ok",
+      "duration_sec": 6.206,
+      "outputs": {
+        "comparison_json": "/Users/harshkashyap/project/learning/job-matching/New/Job-Matching-Agentic-main/backend/reports/research_run_20260606T150509Z/significance_report.json",
+        "comparison_markdown": "/Users/harshkashyap/project/learning/job-matching/New/Job-Matching-Agentic-main/backend/reports/research_run_20260606T150509Z/significance_summary.md",
+        "comparison_comparisons_csv": "/Users/harshkashyap/project/learning/job-matching/New/Job-Matching-Agentic-main/backend/reports/research_run_20260606T150509Z/significance_comparisons.csv",
+        "comparison_methods_csv": "/Users/harshkashyap/project/learning/job-matching/New/Job-Matching-Agentic-main/backend/reports/research_run_20260606T150509Z/significance_methods.csv",
+        "ablation_json": "/Users/harshkashyap/project/learning/job-matching/New/Job-Matching-Agentic-main/backend/reports/research_run_20260606T150509Z/significance_ablation_report.json",
+        "ablation_markdown": "/Users/harshkashyap/project/learning/job-matching/New/Job-Matching-Agentic-main/backend/reports/research_run_20260606T150509Z/significance_ablation_summary.md",
+        "ablation_comparisons_csv": "/Users/harshkashyap/project/learning/job-matching/New/Job-Matching-Agentic-main/backend/reports/research_run_20260606T150509Z/significance_ablation_comparisons.csv",
+        "ablation_methods_csv": "/Users/harshkashyap/project/learning/job-matching/New/Job-Matching-Agentic-main/backend/reports/research_run_20260606T150509Z/significance_ablation_methods.csv"
+      },
+      "error": null
+    },
+    {
+      "name": "fairness_audit",
+      "status": "ok",
+      "duration_sec": 1.114,
+      "outputs": {
+        "json": "/Users/harshkashyap/project/learning/job-matching/New/Job-Matching-Agentic-main/backend/reports/research_run_20260606T150509Z/fairness_audit_report.json",
+        "markdown": "/Users/harshkashyap/project/learning/job-matching/New/Job-Matching-Agentic-main/backend/reports/research_run_20260606T150509Z/fairness_audit_summary.md",
+        "pairs_csv": "/Users/harshkashyap/project/learning/job-matching/New/Job-Matching-Agentic-main/backend/reports/research_run_20260606T150509Z/fairness_audit_pairs.csv",
+        "flagged_csv": "/Users/harshkashyap/project/learning/job-matching/New/Job-Matching-Agentic-main/backend/reports/research_run_20260606T150509Z/fairness_audit_flagged.csv"
+      },
+      "error": null
+    },
+    {
+      "name": "explanation_evaluation",
+      "status": "ok",
+      "duration_sec": 1.196,
+      "outputs": {
+        "json": "/Users/harshkashyap/project/learning/job-matching/New/Job-Matching-Agentic-main/backend/reports/research_run_20260606T150509Z/explainability_report.json",
+        "markdown": "/Users/harshkashyap/project/learning/job-matching/New/Job-Matching-Agentic-main/backend/reports/research_run_20260606T150509Z/explainability_summary.md",
+        "instances_csv": "/Users/harshkashyap/project/learning/job-matching/New/Job-Matching-Agentic-main/backend/reports/research_run_20260606T150509Z/explainability_instances.csv",
+        "flagged_csv": "/Users/harshkashyap/project/learning/job-matching/New/Job-Matching-Agentic-main/backend/reports/research_run_20260606T150509Z/explainability_flagged.csv",
+        "consistency_csv": "/Users/harshkashyap/project/learning/job-matching/New/Job-Matching-Agentic-main/backend/reports/research_run_20260606T150509Z/explainability_consistency.csv"
+      },
+      "error": null
+    },
+    {
+      "name": "paper_table_generation",
+      "status": "ok",
+      "duration_sec": 0.025,
+      "outputs": {
+        "out_dir": "/Users/harshkashyap/project/learning/job-matching/New/Job-Matching-Agentic-main/backend/reports/research_run_20260606T150509Z/paper_tables",
+        "manifest": "/Users/harshkashyap/project/learning/job-matching/New/Job-Matching-Agentic-main/backend/reports/research_run_20260606T150509Z/paper_tables/manifest.json",
+        "readme": "/Users/harshkashyap/project/learning/job-matching/New/Job-Matching-Agentic-main/backend/reports/research_run_20260606T150509Z/paper_tables/README.md"
+      },
+      "error": null
+    }
+  ]
+}
