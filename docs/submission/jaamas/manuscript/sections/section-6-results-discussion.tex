@@ -14,7 +14,7 @@ First, \textbf{precision}: among the five jobs shown, how many are actually rele
 Second, \textbf{recall}: of all relevant jobs for that person, how many appear in the top five?
 Third, \textbf{ranking quality (nDCG@5)}: do \emph{strongly} relevant jobs appear above merely partial ones?
 Fourth, \textbf{speed}: how long does each ranking take on this small pool?
-Metrics are averaged across all 30 resumes so that no single profile dominates the score.
+Metrics are averaged across all 30 résumés so that no single profile dominates the score.
 Formal definitions appear in \S\ref{sec:5}; the same scoring code powers both these offline tests and the live portals (\S\ref{sec:4}).
 
 \subsection{Baseline methods}\label{sec:6-baselines}\label{sec:6-comparison}
@@ -22,11 +22,11 @@ Formal definitions appear in \S\ref{sec:5}; the same scoring code powers both th
 We compared methods commonly used in recruitment pipelines, alone and in combination.
 
 \leadpara{Keyword-style methods.}
-TF--IDF and BM25 treat resumes and jobs as word lists; they reward shared terms and run very quickly.
+TF--IDF and BM25 treat résumés and jobs as word lists; they reward shared terms and run very quickly.
 Exact skill overlap and Jaccard skill matching reward listed skills without understanding paraphrases.
 
 \leadpara{Meaning-based methods.}
-Semantic cosine scoring compares embedding vectors of resume and job text so that related wording can match even when keywords differ.
+Semantic cosine scoring compares embedding vectors of résumé and job text so that related wording can match even when keywords differ.
 Multimodal methods blend semantic similarity with skill overlap (default blend: 70\% semantic, 30\% skills).
 
 \leadpara{Combined and advanced methods.}
@@ -46,8 +46,8 @@ Semantic similarity alone (nDCG@5 $= 0.878$) underperforms both keyword baseline
 
 \subsection{Main results}\label{sec:6-main-result}\label{sec:6-progression}\label{sec:6-fusion}
 
-The progression study (Table~\ref{tab:progression}) ranks every job for every resume and tracks how design choices accumulate.
-The best single configuration---multimodal scoring with soft skill embeddings---reaches nDCG@5 $= 0.969$ and recall@5 $= 1.00$, meaning every resume retrieves all of its labeled relevant jobs within the top five.
+The progression study (Table~\ref{tab:progression}) ranks every job for every résumé and tracks how design choices accumulate.
+The best single configuration---multimodal scoring with soft skill embeddings---reaches nDCG@5 $= 0.969$ and recall@5 $= 1.00$, meaning every résumé retrieves all of its labeled relevant jobs within the top five.
 Plain semantic cosine reaches nDCG@5 $= 0.911$; adding richer text templates nudges it to $0.922$ but still trails the best hybrid.
 Merging four lists with RRF ($0.935$) helps diversity but does not beat the strongest single hybrid on this corpus.
 Cross-encoder reranking improves over bare semantic search ($0.939$) yet still falls short of soft-embed multimodal ($0.969$) while adding far more compute (Table~\ref{tab:latency}).
@@ -86,7 +86,7 @@ The offline tables above test the Matchmaking agent's \emph{scoring} logic.
 They do not directly score portal usability or quantify latency perceived by end users.
 We separate what the benchmarks show from what the architecture is designed to improve.
 
-When a candidate edits a resume or an employer revises a job description, the owning agent rebuilds a versioned snapshot and shared embedding, then notifies the Matchmaking layer through the event bus (\S\ref{sec:3}--\S\ref{sec:4}).
+When a candidate edits a résumé or an employer revises a job description, the owning agent rebuilds a versioned snapshot and shared embedding, then notifies the Matchmaking layer through the event bus (\S\ref{sec:3}--\S\ref{sec:4}).
 The event-driven path addresses a usability problem seen in monolithic ATS tools: rankings that stay stale after a profile change, or that change without a visible cause.
 Role-separated agents also keep each side's data under its owner's control, which supports trust and auditability even when two users see the same match score from the neutral Matchmaking agent.
 
@@ -127,10 +127,11 @@ Research drivers achieve slightly higher nDCG with soft-embed multimodal or lear
 
 \subsection{Limitations}\label{sec:6-limitations}\label{sec:6-fairness}\label{sec:6-hard-negs}\label{sec:6-latency}
 
-The following limits follow from the corpus size, method choices, and scope of measurement.
+The evaluation has four main limits: the labeled corpus is small, the fairness audit is synthetic, no live-user study was run, and JobMatch remains a research prototype rather than a validated deployment.
+The following points make those boundaries explicit.
 
 \leadpara{Small, controlled dataset.}
-Thirty resumes and fifteen jobs make recall@5 easy to saturate---many methods reach ${\ge}0.93$---so differences in nDCG are informative but narrow.
+Thirty résumés and fifteen jobs make recall@5 easy to saturate---many methods reach ${\ge}0.93$---so differences in nDCG are informative but narrow.
 Results may not transfer to employers with thousands of open roles or to domains unlike our demo profiles.
 
 \leadpara{Precision still modest.}
@@ -148,14 +149,15 @@ Learned fusion and calibration fit on the same labeled pairs they are judged aga
 Table~\ref{tab:fairness} runs a synthetic counterfactual audit on ten fabricated profile pairs (name, summary, or metadata edits).
 Seven pairs trigger flags---all with the top-1 job stable, mostly small rank shifts or score changes when non-qualification text changes---with a maximum score shift of $0.017$.
 A complementary proxy-group check (\path{fairness_eval.py}) reports selection-rate disparate-impact ratios of $0.82$ across experience tiers and $0.75$ across remote preference (1.0 is parity), committed to \path{benchmark_outputs/fairness_eval.json}.
-This is an engineering sanity check, not demographic fairness certification.
+These checks are useful engineering probes, but they do not certify demographic fairness or substitute for audits on larger labeled populations.
 
 \begin{JTable}
 \input{tables/tab-fairness.tex}
 \end{JTable}
 
-\leadpara{No real hiring outcomes.}
-We did not measure interview rates, time-to-fill, applicant satisfaction, or recruiter workload.
+\leadpara{No real hiring outcomes or live-user testing.}
+We did not measure interview rates, time-to-fill, applicant satisfaction, recruiter workload, or live-user behavior in the portals.
+The implementation should therefore be read as a research prototype with reproducible offline evidence, not as a validated deployment study or production hiring system.
 Explainability quality is summarized in Table~\ref{tab:explainability}: both explainers are perfectly consistent across synthetic profile variants and never make unsupported component claims, but they cite an explicit matched or missing skill in only about a quarter of bullets, so most explanations are flagged for low specificity---motivating richer explanation templates.
 
 \begin{JTable}

@@ -12,10 +12,15 @@ Implementation modules appear in \S\ref{sec:4}; numeric outcomes appear in \S\re
 \subsection{Evaluation corpus and protocol}\label{sec:5-corpus}
 
 Offline evaluation treats each résumé as a query and each job posting as a candidate document.
-The labeled set comprises 30 resumes, 15 jobs, and 47 graded query--document pairs in \texttt{data/eval\_pairs.json}.
+The labeled set comprises 30 résumés, 15 jobs, and 47 graded query--document pairs in \texttt{data/eval\_pairs.json}.
 Relevance grades are $r \in \{0,1,2\}$ (none, partial, strong); queries with $r>0$ form the relevant set for binary metrics, while nDCG uses the full graded scale.
 Table~\ref{tab:dataset} summarizes corpus statistics.
 Snapshots are built with the same embedding path used in production (\S\ref{sec:4}).
+
+The relevance labels were assigned manually by the project authors during demo-corpus construction; they are not inferred from portal clicks or hiring outcomes.
+Each candidate--job pair was judged against the structured snapshot fields used by the matcher: résumé skills, experience level, job title, required skills, compensation constraints, and remote-policy fit.
+A strong label indicates that the candidate satisfies the core role requirements; a partial label indicates plausible fit with missing or weaker requirements; and a none label indicates no clear role fit.
+Final labels were chosen conservatively: when a pair was borderline, it was kept at partial or none rather than promoted to strong.
 
 Unless a driver overrides \texttt{top\_k}, we report macro-averaged metrics at $K{=}5$ over all 30 queries.
 Each benchmark driver calls the shared \texttt{eval\_rankings()} routine (\path{benchmarks/metrics.py}) so that method comparisons differ only in the ranking function, not in metric code.
@@ -31,7 +36,7 @@ All component scores are normalized to $[0,1]$.
 Let $\mathbf{e}_c, \mathbf{e}_j \in \mathbb{R}^{d}$ denote candidate and job snapshot embeddings ($d{=}384$), and let $A$ and $B$ be canonical skill sets on the résumé and required job skills, respectively.
 
 \leadpara{Semantic similarity.}
-The semantic score measures how closely resume and job-description embeddings align.
+The semantic score measures how closely résumé and job-description embeddings align.
 Cosine mode (portal default):
 \begin{equation}
   s_{\mathrm{sem}}^{\mathrm{cos}} =
@@ -45,7 +50,7 @@ Euclidean mode maps distance to similarity:
 \end{equation}
 
 \leadpara{Skill overlap.}
-The skill score measures overlap between resume skills and job requirements.
+The skill score measures overlap between résumé skills and job requirements.
 Jaccard mode (portal default):
 \begin{equation}
   s_{\mathrm{skl}}^{\mathrm{jac}} =
@@ -55,7 +60,7 @@ Jaccard mode (portal default):
     \end{cases}
   \label{eq:jaccard}
 \end{equation}
-Embedding mode averages, for each required skill $b \in B$, the maximum cosine between $b$'s skill phrase embedding and any resume skill embedding:
+Embedding mode averages, for each required skill $b \in B$, the maximum cosine between $b$'s skill phrase embedding and any résumé skill embedding:
 \begin{equation}
   s_{\mathrm{skl}}^{\mathrm{emb}} =
     \frac{1}{|B|} \sum_{b \in B}

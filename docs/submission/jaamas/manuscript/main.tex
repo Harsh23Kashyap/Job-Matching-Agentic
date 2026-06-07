@@ -29,7 +29,7 @@ Separate candidate, employer, and admin portals keep save, apply, and shortlist 
 For deployment, the Employer Agent can optionally refresh job postings from an external provider API; all offline metrics in this paper use the frozen demo corpus.
 
 The Matchmaking agent combines semantic similarity, skill overlap, and experience, compensation, and remote compatibility into a fixed composite score with structured explanations---assistive ranking, not autonomous hiring.
-We evaluate offline on 30 resumes, 15 job postings, and 47 graded relevance pairs using macro-averaged P@5, R@5, and nDCG@5 at $K{=}5$.
+We evaluate offline on 30 résumés, 15 job postings, and 47 graded relevance pairs using macro-averaged P@5, R@5, and nDCG@5 at $K{=}5$.
 Compared methods include TF--IDF and BM25 baselines, dense retrieval, reciprocal rank fusion, learned fusion, and cross-encoder reranking.
 Multimodal soft-embed and learned fusion reach nDCG@5 of 0.969 and 0.968 in committed artifacts; composite ablation reaches 0.949 under the portal-default weight vector.
 Cross-encoder reranking reduces nDCG@5 by 0.108 at ${\sim}141.7$ ms/query and remains disabled in the default portal.

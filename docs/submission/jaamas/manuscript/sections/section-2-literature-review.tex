@@ -51,7 +51,7 @@ Semantic search replaces exact term overlap with learned representations that ma
 \leadpara{Embeddings.}
 Dense encoders map résumés and job descriptions to fixed-dimensional vectors so that related texts lie nearby even when they share few tokens.
 Sentence-level models such as Sentence-BERT train siamese encoders for semantic similarity and have become a default building block for short-text matching~\cite{Reimers2019}.
-In JobMatch, snapshot embeddings are computed from canonical resume and job-description text (\S\ref{sec:4-params}).
+In JobMatch, snapshot embeddings are computed from canonical résumé and job-description text (\S\ref{sec:4-params}).
 
 \leadpara{Dense retrieval and semantic similarity.}
 Dense retrieval ranks candidates or jobs by vector similarity---typically cosine---over the full corpus or over an approximate nearest-neighbor shortlist~\cite{Reimers2019,Manning2008}.
@@ -88,7 +88,7 @@ Across the recruitment, agent, and retrieval literatures, several gaps recur in 
 
 \leadpara{Algorithm-only focus.}
 Many systems optimize a matching formula---embedding similarity, skill Jaccard, or a learned re-ranker---while treating ingestion, profile versioning, and user-facing workflow as out of scope.
-Evaluation then proceeds on frozen corpora disconnected from the code path users would actually trigger when they edit a resume or repost a job.
+Evaluation then proceeds on frozen corpora disconnected from the code path users would actually trigger when they edit a résumé or repost a job.
 
 \leadpara{Single-sided or monolithic control.}
 Candidate-side recommender demos are more common than symmetric platforms where \emph{both} sides maintain agents with separate ownership.

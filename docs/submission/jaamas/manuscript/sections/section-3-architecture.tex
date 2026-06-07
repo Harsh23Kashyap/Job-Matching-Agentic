@@ -13,7 +13,7 @@ Concrete libraries, APIs, and parameters appear in \S\ref{sec:4}; score formulas
 \subsection{Candidate/Client Agent}\label{sec:3-candidate}
 
 The \textbf{candidate-side agent} (also referred to as the client-side agent in our implementation) represents the job seeker.
-Its responsibility is to turn resumes and profile edits into a maintained \emph{candidate state} that the rest of the system can trust.
+Its responsibility is to turn résumés and profile edits into a maintained \emph{candidate state} that the rest of the system can trust.
 
 When a user uploads or revises a résumé, this agent assists with parsing, normalizes skills into a shared vocabulary, and registers a versioned snapshot of the person's skills, experience, compensation expectations, and remote preferences.
 It also maintains the editable portal profile the user sees in forms.
@@ -87,7 +87,7 @@ The three design principles of \S\ref{sec:3}---separation of ownership, read-onl
 Each owning agent maintains two layers: a \textbf{profile}, the editable portal record the user can revise at any time, and a \textbf{snapshot}, a versioned match-ready view frozen when the user confirms a save (normalized skills, constraint values, document identity, and a comparable text representation with its embedding).
 Only snapshots enter ranking, so people can edit without immediately rewriting history.
 The Candidate Agent owns résumé-derived profiles, preferences, normalized skills, and candidate state; the Employer Agent owns the parallel job objects.
-The Matchmaking Agent owns neither store: it owns the retrieval-and-ranking workflow and the transient, session-scoped output (cached lists, last-computed scores, and explanation payloads), and keeps no third copy of full resumes or job descriptions.
+The Matchmaking Agent owns neither store: it owns the retrieval-and-ranking workflow and the transient, session-scoped output (cached lists, last-computed scores, and explanation payloads), and keeps no third copy of full résumés or job descriptions.
 
 \subsubsection{Shared state}\label{sec:3-shared}
 Agents share only what fair comparison and timely refresh require.

@@ -42,7 +42,7 @@ The API surface is \texttt{GET} \path{/real-jobs/status} and \texttt{POST} \path
 The roles are \texttt{candidate}, \texttt{employer}, and \texttt{admin}.
 Gateway dependencies enforce ownership for profile-scoped routes:
 \begin{itemize}[leftmargin=*]
-  \item \textbf{Candidate:} \texttt{/candidates/me/*}, resume upload, saved jobs, applications, and \texttt{/similar/jobs/*}.
+  \item \textbf{Candidate:} \texttt{/candidates/me/*}, résumé upload, saved jobs, applications, and \texttt{/similar/jobs/*}.
   \item \textbf{Employer:} \texttt{/jobs/mine/*}, description upload/parse, applications for owned jobs, and \texttt{/similar/candidates/*}.
   \item \textbf{Admin:} demo reset and system-level inspection routes.
 \end{itemize}
