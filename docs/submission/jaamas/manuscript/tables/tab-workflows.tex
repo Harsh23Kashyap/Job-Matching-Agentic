@@ -5,7 +5,7 @@
 \toprule
 Role & Portal route & User goal & API / agent path \\
 \midrule
-Candidate & \path{/candidate/onboarding} & Upload résumé, review extraction, create profile & \path{POST /candidates/upload-resume} $\rightarrow$ \path{PUT /candidates/me} $\rightarrow$ Candidate agent registers snapshot + embedding \\
+Candidate & \path{/candidate/onboarding} & Upload resume, review extraction, create profile & \path{POST /candidates/upload-resume} $\rightarrow$ \path{PUT /candidates/me} $\rightarrow$ Candidate agent registers snapshot + embedding \\
 Candidate & \path{/candidate/profile} & Edit skills, experience, pay, remote prefs & \path{GET/PUT /candidates/me}; quality via \path{POST /candidates/quality-check} \\
 Candidate & \path{/candidate/matches} & View ranked jobs, filter, explain scores & \path{POST /match/candidate-to-jobs} (composite); profile readiness gate before search \\
 Candidate & \path{/candidate/saved} & Saved jobs and applications & \path{GET/PUT /candidates/me/saved-jobs}; \path{POST /candidates/me/applications} \\

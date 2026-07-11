@@ -3,10 +3,10 @@
 \subsection{Conclusion}\label{sec:7-conclusion}
 
 Job seekers and recruiters still interact through software that ranks quickly but often explains little.
-JobMatch addresses this trust problem with a role-separated multi-agent architecture: the Candidate Agent owns résumés and candidate snapshots, the Employer Agent owns job descriptions and job snapshots, and the read-only Matchmaking Agent scores pairs and returns ranked lists with structured explanations.
+JobMatch addresses this trust problem with a role-separated multi-agent architecture: the Candidate Agent owns resumes and candidate snapshots, the Employer Agent owns job descriptions and job snapshots, and the read-only Matchmaking Agent scores pairs and returns ranked lists with structured explanations.
 Candidate, employer, and administrator portals sit on top of this layout so each party manages its own data while sharing only what matching requires.
 
-We evaluated the Matchmaking agent offline on a labeled demo corpus---30 résumés, 15 jobs, and 47 graded relevance pairs---using the metrics defined in Section~\ref{sec:5} and reported in Section~\ref{sec:6}.
+We evaluated the Matchmaking agent offline on a labeled demo corpus---30 resumes, 15 jobs, and 47 graded relevance pairs---using the metrics defined in Section~\ref{sec:5} and reported in Section~\ref{sec:6}.
 Hybrid rankers that combine semantic text similarity with explicit skill overlap beat semantic search alone, while keyword methods such as BM25 remain competitive on this small pool.
 The best research configurations reach nDCG@5 $\approx 0.97$ and recall@5 $= 1.00$, but precision@5 stays near $0.31$.
 The live portal therefore defaults to a fixed composite score whose channels map directly to user-visible explanations, rather than to the single highest offline nDCG variant.
@@ -20,10 +20,10 @@ Whether this design improves real-world trust, time-to-shortlist, or fairness is
 \subsection{Future scope}\label{sec:7-future}
 
 Future work should first expand evaluation beyond the small demo corpus.
-Useful next steps include expert-labeled résumé--job pairs, larger held-out corpora, deployment-scale latency sweeps across Chroma and Qdrant, and field studies with recruiters and job seekers to measure comprehension, trust, and decision behavior after viewing match explanations.
+Useful next steps include expert-labeled resume--job pairs, larger held-out corpora, deployment-scale latency sweeps across Chroma and Qdrant, and field studies with recruiters and job seekers to measure comprehension, trust, and decision behavior after viewing match explanations.
 
 The implementation also leaves several engineering directions open.
-Large language models could improve extraction from noisy résumés and informal job descriptions, provided users confirm fields before snapshots enter the vector store.
+Large language models could improve extraction from noisy resumes and informal job descriptions, provided users confirm fields before snapshots enter the vector store.
 Cross-encoder reranking should be retested on larger corpora and tighter shortlists, since it reduced nDCG@5 and added substantial latency on the current demo corpus.
 The optional live-job sync path needs authenticated admin controls, rate limiting, and provider credential management before untrusted deployment.
 

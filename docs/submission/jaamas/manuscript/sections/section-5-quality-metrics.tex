@@ -5,12 +5,12 @@ Implementation modules appear in Section~\ref{sec:4}; numeric outcomes appear in
 
 \subsection{Evaluation corpus and protocol}\label{sec:5-corpus}
 
-Offline evaluation treats each résumé as a query and each job posting as a candidate document.
-The labeled set comprises 30 résumés, 15 jobs, and 47 graded query--document pairs in \texttt{data/eval\_pairs.json}.
+Offline evaluation treats each resume as a query and each job posting as a candidate document.
+The labeled set comprises 30 resumes, 15 jobs, and 47 graded query--document pairs in \texttt{data/eval\_pairs.json}.
 Relevance grades are $r \in \{0,1,2\}$ (none, partial, strong); queries with $r>0$ form the relevant set for binary metrics, while nDCG uses the full graded scale.
 
 The relevance labels were assigned manually by the project authors during demo-corpus construction; they are not inferred from portal clicks or hiring outcomes.
-Each candidate--job pair was judged against the structured snapshot fields used by the matcher: résumé skills, experience level, job title, required skills, compensation constraints, and remote-policy fit.
+Each candidate--job pair was judged against the structured snapshot fields used by the matcher: resume skills, experience level, job title, required skills, compensation constraints, and remote-policy fit.
 A strong label indicates that the candidate satisfies the core role requirements; a partial label indicates plausible fit with missing or weaker requirements; and a none label indicates no clear role fit.
 Final labels were chosen conservatively: when a pair was borderline, it was kept at partial or none rather than promoted to strong.
 
@@ -45,11 +45,11 @@ Label source & \path{data/eval_pairs.json} v1.0 \\
 
 \subsection{Matching scores}\label{sec:5-matching-scores}
 
-A résumé and a job snapshot pass through embedding similarity, skill overlap, and the experience, compensation, and remote signals, which combine into a weighted composite score and a structured explanation that drives the ranked recommendation.
+A resume and a job snapshot pass through embedding similarity, skill overlap, and the experience, compensation, and remote signals, which combine into a weighted composite score and a structured explanation that drives the ranked recommendation.
 All component scores are normalized to $[0,1]$.
-Let $\mathbf{e}_c, \mathbf{e}_j \in \mathbb{R}^{d}$ denote candidate and job snapshot embeddings ($d{=}384$), and let $A$ and $B$ be canonical skill sets on the résumé and required job skills, respectively.
+Let $\mathbf{e}_c, \mathbf{e}_j \in \mathbb{R}^{d}$ denote candidate and job snapshot embeddings ($d{=}384$), and let $A$ and $B$ be canonical skill sets on the resume and required job skills, respectively.
 
-The semantic score compares résumé and job-description embeddings.
+The semantic score compares resume and job-description embeddings.
 Cosine mode is the portal default:
 \begin{equation}
   s_{\mathrm{sem}}^{\mathrm{cos}} =
@@ -62,7 +62,7 @@ Euclidean mode maps distance to similarity:
   \label{eq:semantic-euclidean}
 \end{equation}
 
-The skill score compares résumé skills against job requirements.
+The skill score compares resume skills against job requirements.
 Jaccard mode is the portal default:
 \begin{equation}
   s_{\mathrm{skl}}^{\mathrm{jac}} =
@@ -72,7 +72,7 @@ Jaccard mode is the portal default:
     \end{cases}
   \label{eq:jaccard}
 \end{equation}
-Embedding mode averages, for each required skill $b \in B$, the maximum cosine between $b$'s skill phrase embedding and any résumé skill embedding:
+Embedding mode averages, for each required skill $b \in B$, the maximum cosine between $b$'s skill phrase embedding and any resume skill embedding:
 \begin{equation}
   s_{\mathrm{skl}}^{\mathrm{emb}} =
     \frac{1}{|B|} \sum_{b \in B}

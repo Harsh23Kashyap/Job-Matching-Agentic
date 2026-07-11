@@ -11,7 +11,7 @@ Logical agents share a process and communicate through an in-process event bus r
 Candidate and employer routes mutate only their owned records; the Matchmaking Agent consumes immutable snapshots and returns ranked lists with explanation payloads.
 Authentication uses role-scoped sessions for candidate, employer, and administrator portals, while benchmark and telemetry endpoints remain available to the admin console and tests.
 
-At runtime, an owning agent parses an uploaded résumé or job description, normalizes fields, embeds the resulting snapshot, and emits a profile-update event.
+At runtime, an owning agent parses an uploaded resume or job description, normalizes fields, embeds the resulting snapshot, and emits a profile-update event.
 The Matchmaking Agent then retrieves an exhaustive or ANN-filtered candidate set, rescales requested component scores, applies the configured ranking strategy, and attaches explanation fields for the portal.
 Lexical BM25/TF--IDF retrieval is retained for offline baselines rather than as the portal default.
 An optional live-job refresh path can replace the employer corpus from an external provider API, but all reported experiments use the frozen offline corpus.

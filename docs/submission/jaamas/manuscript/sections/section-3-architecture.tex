@@ -13,9 +13,9 @@ Concrete libraries, APIs, and parameters appear in Section~\ref{sec:4}; score fo
 \subsection{Candidate/Client Agent}\label{sec:3-candidate}
 
 The \textbf{candidate-side agent} (also referred to as the client-side agent in our implementation) represents the job seeker.
-Its responsibility is to turn résumés and profile edits into a maintained \emph{candidate state} that the rest of the system can trust.
+Its responsibility is to turn resumes and profile edits into a maintained \emph{candidate state} that the rest of the system can trust.
 
-When a user uploads or revises a résumé, this agent assists with parsing, normalizes skills into a shared vocabulary, and registers a versioned snapshot of the person's skills, experience, compensation expectations, and remote preferences.
+When a user uploads or revises a resume, this agent assists with parsing, normalizes skills into a shared vocabulary, and registers a versioned snapshot of the person's skills, experience, compensation expectations, and remote preferences.
 It also maintains the editable portal profile the user sees in forms.
 The agent publishes a profile-updated signal whenever a new snapshot is ready so that stale match lists can be refreshed.
 
@@ -23,7 +23,7 @@ The candidate agent does \emph{not} own job postings, write into employer record
 
 \begin{JFigure}{../figures/Fig2.png}
 \vspace{1\baselineskip}
-\figcap{2}{Internal structure of the Candidate/Client agent: document ingestion (clean, rule extract, optional LLM merge), skill normalization, profile quality check, editable profile versus match-ready snapshot, embedding, and side outputs (events, activity store, résumé coach).}
+\figcap{2}{Internal structure of the Candidate/Client agent: document ingestion (clean, rule extract, optional LLM merge), skill normalization, profile quality check, editable profile versus match-ready snapshot, embedding, and side outputs (events, activity store, resume coach).}
 \end{JFigure}
 
 \subsection{Employer Agent}\label{sec:3-employer}
@@ -50,7 +50,7 @@ The Matchmaking agent consumes the refreshed snapshots read-only; it does not ca
 
 \begin{JFigure}{../figures/Fig6.png}
 \vspace{1\baselineskip}
-\figcap{6}{Candidate workflow: résumé upload, assisted parsing, quality check and form prefill, profile confirmation with ownership link, snapshot registration, vector upsert, ranked job discovery with explanation drawer, and explicit save/apply/dismiss actions recorded to the feedback store.}
+\figcap{6}{Candidate workflow: resume upload, assisted parsing, quality check and form prefill, profile confirmation with ownership link, snapshot registration, vector upsert, ranked job discovery with explanation drawer, and explicit save/apply/dismiss actions recorded to the feedback store.}
 \end{JFigure}
 
 \begin{JFigure}{../figures/Fig7.png}
@@ -89,8 +89,8 @@ The three design principles of Section~\ref{sec:3}---separation of ownership, re
 \subsubsection{Ownership and state}\label{sec:3-ownership}
 Each owning agent maintains two layers: a \textbf{profile}, the editable portal record the user can revise at any time, and a \textbf{snapshot}, a versioned match-ready view frozen when the user confirms a save (normalized skills, constraint values, document identity, and a comparable text representation with its embedding).
 Only snapshots enter ranking, so people can edit without immediately rewriting history.
-The Candidate Agent owns résumé-derived profiles, preferences, normalized skills, and candidate state; the Employer Agent owns the parallel job objects.
-The Matchmaking Agent owns neither store: it owns the retrieval-and-ranking workflow and the transient, session-scoped output (cached lists, last-computed scores, and explanation payloads), and keeps no third copy of full résumés or job descriptions.
+The Candidate Agent owns resume-derived profiles, preferences, normalized skills, and candidate state; the Employer Agent owns the parallel job objects.
+The Matchmaking Agent owns neither store: it owns the retrieval-and-ranking workflow and the transient, session-scoped output (cached lists, last-computed scores, and explanation payloads), and keeps no third copy of full resumes or job descriptions.
 
 \subsubsection{Shared state}\label{sec:3-shared}
 Agents share only what fair comparison and timely refresh require.
@@ -105,7 +105,7 @@ Update events let the Matchmaking layer drop stale cached rankings for the affec
 
 \subsubsection{Human control}\label{sec:3-human}
 Consequential outcomes stay with people.
-Confirming a résumé or job edit triggers the owning agent's snapshot refresh and event; opening the matches page---or an employer's reverse search---invokes the Matchmaking Agent on the current snapshots, so nothing ranks on half-edited forms.
+Confirming a resume or job edit triggers the owning agent's snapshot refresh and event; opening the matches page---or an employer's reverse search---invokes the Matchmaking Agent on the current snapshots, so nothing ranks on half-edited forms.
 Secondary actions (save, apply, shortlist, dismiss) are recorded as activity and do not alter embeddings unless the user later re-saves.
 Because snapshots change only after confirmation, a person can review parsed fields and understand what will be compared before any recommendation is computed; administrators may inspect events for debugging but cannot override ownership through the UI.
 

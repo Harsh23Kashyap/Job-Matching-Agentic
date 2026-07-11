@@ -6,11 +6,11 @@ Numeric results from our evaluation appear in Section~\ref{sec:6}; metric defini
 
 \subsection{Recruitment and job-matching systems}\label{sec:2-recruitment}
 
-Enterprise hiring still depends heavily on manual screening: recruiters read résumés, compare them to written requirements, and decide who advances.
+Enterprise hiring still depends heavily on manual screening: recruiters read resumes, compare them to written requirements, and decide who advances.
 At scale this workflow is slow, inconsistent across reviewers, and weakly auditable when a candidate asks why they were excluded.
 Most production stacks therefore automate the first cut through keyword filters, structured application forms, and applicant tracking systems (ATS).
 
-Keyword-based filtering treats a résumé as a bag of terms matched against job requirements.
+Keyword-based filtering treats a resume as a bag of terms matched against job requirements.
 Lexical retrieval methods such as TF--IDF weighting and BM25 remain the workhorse for this pattern because they are fast, interpretable at the token level, and easy to deploy over large applicant pools~\cite{Manning2008,Robertson2009}.
 Their limitation is semantic brittleness: synonyms, paraphrases, and transferable skills that are not spelled out literally can be missed, while keyword stuffing can inflate apparent fit.
 Structured skill fields and Boolean search rules reduce noise but still encode fit as a static rule set rather than a graded comparison between two evolving profiles.
@@ -30,7 +30,7 @@ Three agent patterns are relevant to hiring.
 
 \leadpara{Personal agents}
 Personal or client-side agents maintain a durable model of a user's goals and history, updating that model as new documents arrive~\cite{Wooldridge2009}.
-In hiring, the natural analogue is a representative that ingests résumés, tracks skill and experience revisions, and speaks for the candidate without exposing raw edits to the employer's datastore.
+In hiring, the natural analogue is a representative that ingests resumes, tracks skill and experience revisions, and speaks for the candidate without exposing raw edits to the employer's datastore.
 
 \leadpara{Task-specific agents}
 Task-specific agents encapsulate one domain workflow---parsing, validation, or recommendation---with explicit inputs and outputs.
@@ -49,13 +49,13 @@ An in-process event bus synchronizes profile updates and match-cache invalidatio
 
 \subsection{Semantic search and representation learning}\label{sec:2-semantic}
 
-Job--candidate matching is, at core, a cross-document retrieval problem: given a résumé (query), rank jobs (documents), or the reverse for employer-initiated search.
+Job--candidate matching is, at core, a cross-document retrieval problem: given a resume (query), rank jobs (documents), or the reverse for employer-initiated search.
 Semantic search replaces exact term overlap with learned representations that map text into a shared vector space~\cite{Manning2008}.
 
 \leadpara{Embeddings}
-Dense encoders map résumés and job descriptions to fixed-dimensional vectors so that related texts lie nearby even when they share few tokens.
+Dense encoders map resumes and job descriptions to fixed-dimensional vectors so that related texts lie nearby even when they share few tokens.
 Sentence-level models such as Sentence-BERT train siamese encoders for semantic similarity and have become a default building block for short-text matching~\cite{Reimers2019}.
-In JobMatch, snapshot embeddings are computed from canonical résumé and job-description text (Section~\ref{sec:4-params}).
+In JobMatch, snapshot embeddings are computed from canonical resume and job-description text (Section~\ref{sec:4-params}).
 
 \leadpara{Dense retrieval and semantic similarity}
 Dense retrieval ranks candidates or jobs by vector similarity---typically cosine---over the full corpus or over an approximate nearest-neighbor shortlist~\cite{Reimers2019,Manning2008}.
@@ -93,7 +93,7 @@ Across the recruitment, agent, and retrieval literatures, several gaps recur in 
 
 \leadpara{Algorithm-only focus}
 Many systems optimize a matching formula---embedding similarity, skill Jaccard, or a learned re-ranker---while treating ingestion, profile versioning, and user-facing workflow as out of scope.
-Evaluation then proceeds on frozen corpora disconnected from the code path users would actually trigger when they edit a résumé or repost a job.
+Evaluation then proceeds on frozen corpora disconnected from the code path users would actually trigger when they edit a resume or repost a job.
 
 \leadpara{Single-sided or monolithic control}
 Candidate-side recommender demos are more common than symmetric platforms where \emph{both} sides maintain agents with separate ownership.
@@ -116,7 +116,7 @@ Profile mutation stays with the owning agent; matching reads versioned snapshots
 This design makes ownership, cache invalidation, and audit trails first-class, not emergent properties of a single service.
 
 \leadpara{Candidate-side and employer-side portals}
-Separate React portals enforce role separation: candidates manage résumés, saved jobs, and applications; employers manage postings, reverse candidate search, and applicant lists; administrators inspect agent status, run evaluation hooks, and review fairness summaries (Section~\ref{sec:4-frontend}).
+Separate React portals enforce role separation: candidates manage resumes, saved jobs, and applications; employers manage postings, reverse candidate search, and applicant lists; administrators inspect agent status, run evaluation hooks, and review fairness summaries (Section~\ref{sec:4-frontend}).
 Consequential actions remain explicit user clicks---save, apply, dismiss---consistent with human-in-the-loop decision support.
 
 \leadpara{Matchmaking agent and explainable composite ranking}
@@ -130,7 +130,7 @@ We do not claim state-of-the-art hiring accuracy on a large production corpus; t
 \leadpara{From gaps to design}
 Four recurring gaps map directly onto JobMatch components:
 \begin{itemize}[noitemsep]
-  \item \emph{No candidate-side profile ownership} $\rightarrow$ the Candidate/Client Agent, which owns résumé-derived state and embeddings.
+  \item \emph{No candidate-side profile ownership} $\rightarrow$ the Candidate/Client Agent, which owns resume-derived state and embeddings.
   \item \emph{No employer-side ownership} $\rightarrow$ the Employer Agent, which owns job postings and requirement snapshots.
   \item \emph{No explainable, multi-signal matching} $\rightarrow$ the read-only Matchmaking Agent and its structured composite explanations.
   \item \emph{No real-time invalidation when profiles change} $\rightarrow$ the in-process event bus that refreshes stale rankings without cross-agent writes.

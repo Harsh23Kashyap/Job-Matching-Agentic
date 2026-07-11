@@ -1,29 +1,29 @@
 \section{Introduction}\label{sec:1}
 
 Online hiring markets increasingly depend on ranking systems that match candidates to jobs at scale, yet the reasons behind those rankings are often opaque.
-Candidates see ordered lists without a clear link to résumé fields or job requirements, while employers see shortlists change after role edits without a visible account of which requirement moved the ranking.
+Candidates see ordered lists without a clear link to resume fields or job requirements, while employers see shortlists change after role edits without a visible account of which requirement moved the ranking.
 This opacity makes it difficult for either side to answer a practical question: \emph{why was this person shown this role, and what would need to change for the ranking to differ?}
 
 We address this problem through \textbf{JobMatch}, a research prototype for explainable job--candidate matching.
 The system separates the market into three logical agents.
-A \textbf{Candidate Agent} owns résumés, profile updates, and candidate snapshots.
+A \textbf{Candidate Agent} owns resumes, profile updates, and candidate snapshots.
 An \textbf{Employer Agent} owns job descriptions, requirement updates, and job snapshots.
 A neutral \textbf{Matchmaking Agent} reads those snapshots, scores candidate--job pairs, and returns ranked recommendations with structured explanations.
 When either side edits its data, the owning agent refreshes its snapshot and notifies the matching layer so stale rankings can be invalidated without cross-agent writes.
 
 This architecture follows human--agent systems research that positions agents as decision support with calibrated trust, not autonomous hiring authority~\cite{Rosenfeld2019HAS}.
 JobMatch does not automate hiring decisions.
-It parses résumés and job descriptions into structured states, exposes component-level reasons for each match, and leaves save, apply, shortlist, and reject decisions to users.
+It parses resumes and job descriptions into structured states, exposes component-level reasons for each match, and leaves save, apply, shortlist, and reject decisions to users.
 The prototype includes separate candidate, employer, and administrator portals, but the core research question is narrower: whether role-separated agents can support auditable, reproducible, and explainable ranking.
 
-The system is evaluated offline on a fixed demo corpus of 30 résumés, 15 jobs, and 47 graded relevance pairs.
+The system is evaluated offline on a fixed demo corpus of 30 resumes, 15 jobs, and 47 graded relevance pairs.
 We compare lexical baselines, dense embedding methods, hybrid semantic--skill rankers, fusion variants, ablations, latency, and fairness/explainability sanity checks.
 Hybrid rankers reach nDCG@5 up to $0.969$ on this corpus; the portal defaults to a fixed composite score whose six components map directly to user-visible explanations.
 The results should be read as evidence for an assistive ranking prototype, not as evidence of production hiring impact.
 
 This paper makes the following contributions:
 \begin{itemize}[noitemsep]
-  \item A \textbf{Candidate/Client Agent} that ingests résumés, maintains versioned candidate state, and updates candidate embeddings on confirmed saves.
+  \item A \textbf{Candidate/Client Agent} that ingests resumes, maintains versioned candidate state, and updates candidate embeddings on confirmed saves.
   \item An \textbf{Employer Agent} that ingests job descriptions, maintains versioned job state, and optionally refreshes postings from an external provider API.
   \item A \textbf{Matchmaking Agent} that scores candidate--job pairs read-only and returns ranked lists with structured explanations.
   \item An \textbf{event-driven communication model} in which profile updates invalidate stale rankings without cross-agent writes to foreign stores.

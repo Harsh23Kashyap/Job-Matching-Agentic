@@ -5,9 +5,9 @@ All figures come from committed benchmark artifacts; they do not predict hiring 
 
 \subsection{Evaluation scope and protocol}\label{sec:6-evaluated}
 
-We evaluated \emph{résumé-to-job matching}: for each of 30 sample résumés, the system ranks 15 job postings and is judged at cutoff $K{=}5$.
+We evaluated \emph{resume-to-job matching}: for each of 30 sample resumes, the system ranks 15 job postings and is judged at cutoff $K{=}5$.
 The 47 manually labeled pairs use the relevance scale defined in Section~\ref{sec:5-corpus}.
-Metrics are macro-averaged across all 30 résumés so that no single profile dominates the score.
+Metrics are macro-averaged across all 30 resumes so that no single profile dominates the score.
 
 \subsection{Baseline methods}\label{sec:6-baselines}\label{sec:6-comparison}
 
@@ -19,8 +19,8 @@ The full method-comparison table is provided in the supplementary information.
 
 \subsection{Main results}\label{sec:6-main-result}\label{sec:6-progression}\label{sec:6-fusion}
 
-The progression study (Table~\ref{tab:progression}) ranks every job for every résumé and tracks how design choices accumulate.
-The best single configuration---multimodal scoring with soft skill embeddings---reaches nDCG@5 $= 0.969$ and recall@5 $= 1.00$, meaning every résumé retrieves all of its labeled relevant jobs within the top five.
+The progression study (Table~\ref{tab:progression}) ranks every job for every resume and tracks how design choices accumulate.
+The best single configuration---multimodal scoring with soft skill embeddings---reaches nDCG@5 $= 0.969$ and recall@5 $= 1.00$, meaning every resume retrieves all of its labeled relevant jobs within the top five.
 Plain semantic cosine reaches nDCG@5 $= 0.911$; adding richer text templates nudges it to $0.922$ but still trails the best hybrid.
 Merging four lists with RRF ($0.935$) helps diversity but does not beat the strongest single hybrid on this corpus.
 Cross-encoder reranking improves over bare semantic search ($0.939$) yet still falls short of soft-embed multimodal ($0.969$) while adding far more compute.
@@ -55,12 +55,12 @@ Full fusion and model-parameter tables are provided in the supplementary informa
 Paired bootstrap tests ($N{=}5000$, seed~42) confirm the hybrid gains are not noise: the full composite significantly improves nDCG@5 over semantic-only ranking ($\Delta{=}{+}0.071$, $p{=}0.048$), and multimodal blending and RRF both significantly beat semantic cosine ($p{=}0.010$ and $p{=}0.009$). Lexical baselines (BM25, TF--IDF) do not differ significantly from semantic cosine ($p{>}0.25$), consistent with their close scores on this small pool.
 
 The main finding is modest but consistent: matching improves when the system combines language semantics with explicit skills, and the highest scores arise from hybrid signals rather than either channel alone.
-No method achieves high precision---at best, roughly three in ten top-five slots are relevant (P@5 $\approx 0.31$)---because the corpus is small, labels are sparse, and several jobs can appear plausible for the same résumé.
+No method achieves high precision---at best, roughly three in ten top-five slots are relevant (P@5 $\approx 0.31$)---because the corpus is small, labels are sparse, and several jobs can appear plausible for the same resume.
 We therefore characterize JobMatch as \emph{assistive} ranking with explainable reasons, not as an automated hiring decision system.
 
 \subsection{Multi-agent state sharing and usability}\label{sec:6-agent-sharing}\label{sec:6-agentic}
 
-When a candidate edits a résumé or an employer revises a job description, the owning agent rebuilds a versioned snapshot and shared embedding, then notifies the Matchmaking layer through the event bus (Section~\ref{sec:3}--Section~\ref{sec:4}).
+When a candidate edits a resume or an employer revises a job description, the owning agent rebuilds a versioned snapshot and shared embedding, then notifies the Matchmaking layer through the event bus (Section~\ref{sec:3}--Section~\ref{sec:4}).
 The event-driven path addresses a usability problem seen in monolithic ATS tools: rankings that stay stale after a profile change, or that change without a visible cause.
 Role-separated agents also keep each side's data under its owner's control, which supports trust and auditability even when two users see the same match score from the neutral Matchmaking agent.
 The benchmarks validate that the shared scoring core ranks sensibly under manual labels; they do not yet prove that multi-agent coordination reduces time-to-hire or increases applicant satisfaction in the field.
@@ -71,7 +71,7 @@ Any method that combines text meaning with skills beats semantic-only search (nD
 The portal-default composite reaches nDCG@5 $=0.949$; semantic+skills alone reaches $0.917$, while using experience, compensation, or location alone yields poor rankings (nDCG@5 $\leq 0.39$).
 Detailed ablation rows are provided in the supplementary information.
 
-Lightweight scorers complete in well under one millisecond per résumé on 15 jobs; the full composite bi-encoder run averages ${\sim}0.4$\,ms per query.
+Lightweight scorers complete in well under one millisecond per resume on 15 jobs; the full composite bi-encoder run averages ${\sim}0.4$\,ms per query.
 That headroom matters for interactive portals where a user expects refreshed matches after saving a profile.
 Cross-encoder reranking is much slower (${\sim}141.7$\,ms/query) and lowers nDCG@5 in the committed report, so it remains disabled by default.
 The full latency table is provided in the supplementary information.
@@ -82,7 +82,7 @@ The live portal defaults to composite scoring because each channel maps to a hum
 \subsection{Limitations}\label{sec:6-limitations}\label{sec:6-fairness}\label{sec:6-hard-negs}\label{sec:6-latency}
 
 The evaluation has four main limits: the labeled corpus is small, the fairness audit is synthetic, no live-user study was run, and JobMatch remains a research prototype rather than a validated deployment.
-Thirty résumés and fifteen jobs make recall@5 easy to saturate---many methods reach ${\ge}0.93$---so differences in nDCG are informative but narrow.
+Thirty resumes and fifteen jobs make recall@5 easy to saturate---many methods reach ${\ge}0.93$---so differences in nDCG are informative but narrow.
 Results may not transfer to employers with thousands of open roles or to domains unlike our demo profiles.
 Even the best methods place relevant jobs in only about three of every ten top-five slots (P@5 $\approx 0.31$).
 Users will still see imperfect suggestions and must rely on explanations and their own judgment.
@@ -103,7 +103,7 @@ Detailed fairness and explainability audit tables are provided in the supplement
 \subsection{Implications for users}\label{sec:6-implications}
 
 JobMatch is designed as an assistive representative: maintain a structured profile, inspect why a job ranked highly or poorly, and decide whether to save or apply.
-The evaluation indicates that suggestions are most reliable when the system weights both résumé text and listed skills---consistent with how applicants skim postings for fit.
+The evaluation indicates that suggestions are most reliable when the system weights both resume text and listed skills---consistent with how applicants skim postings for fit.
 Top-five lists are neither exhaustive nor authoritative; with P@5 near 0.31, several shown jobs may be weak fits, and relevant openings can be missed when the job pool exceeds fifteen roles.
 
 \leadpara{Employers}
