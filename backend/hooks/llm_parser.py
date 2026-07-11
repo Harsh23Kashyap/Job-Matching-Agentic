@@ -66,7 +66,7 @@ Return ONLY valid JSON with these keys:
 - linkedin (string URL)
 - portfolio (string URL: personal site, GitHub profile, or portfolio)
 - other_links (array of string URLs: e.g. GitLab, Medium, project links)
-- education (array of objects with keys: text, degree, institution, year — use empty strings when unknown)
+- education (array of objects with keys: text, degree, institution, year, use empty strings when unknown)
 - projects (array of objects with keys: name, description, technologies (array of strings))
 
 Use empty string or empty array when unknown. Do not include markdown."""

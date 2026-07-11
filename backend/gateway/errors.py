@@ -1,4 +1,4 @@
-"""Shared API error helpers — consistent {error, code} envelope via HTTPException."""
+"""Shared API error helpers, consistent {error, code} envelope via HTTPException."""
 
 from __future__ import annotations
 

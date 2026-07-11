@@ -70,7 +70,7 @@ python -m benchmarks.run_comparison --embedding-only   # skip BM25/TF-IDF/exact 
 
 ## Metrics
 
-Precision@K, Recall@K, MRR, nDCG@K, MAP — plus **latency_ms** (average per query).
+Precision@K, Recall@K, MRR, nDCG@K, MAP, plus **latency_ms** (average per query).
 
 Labels: `data/eval_pairs.json` (graded 0–2; binary relevant = relevance > 0 for P/R/MRR/MAP).
 
@@ -112,7 +112,7 @@ python -m benchmarks.run_fairness_audit
 # → fairness_audit_summary.md, fairness_audit_report.json, fairness_audit_flagged.csv
 ```
 
-Uses `data/fairness_audit_profiles.json` — **fabricated counterfactuals only**; never infers protected attributes from real users.
+Uses `data/fairness_audit_profiles.json`, **fabricated counterfactuals only**; never infers protected attributes from real users.
 
 ### Explainability evaluation
 

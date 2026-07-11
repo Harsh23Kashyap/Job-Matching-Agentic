@@ -32,7 +32,7 @@ DATE_RANGE_RE = re.compile(
     r")"
     r"[\s./-]*"
     r"(?:\d{2,4}|present|current|now)"
-    r"\s*[-–—to]+\s*"
+    r"\s*[-–: to]+\s*"
     r"(?:"
     r"(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\.?"
     r"|\d{1,2}"
@@ -257,7 +257,7 @@ def extract_projects(sections: dict[str, str]) -> list[dict[str, str]]:
     results: list[dict[str, str]] = []
     for entry in entries:
         tech = _parse_skill_tokens(entry)
-        title = entry.split("—")[0].split(" - ")[0].strip()
+        title = entry.split(": ")[0].split(" - ")[0].strip()
         if len(title) > 96:
             title = title[:96].rstrip() + "…"
         results.append(

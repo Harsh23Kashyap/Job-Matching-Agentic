@@ -12,7 +12,7 @@ REPO = Path(__file__).resolve().parent.parent
 FIG_DIR = REPO / "docs/submission/jaamas/figures"
 SRC_DIR = FIG_DIR / "source"
 
-# Academic palette — readable in grayscale
+# Academic palette, readable in grayscale
 FILL = "#f5f5f5"
 FILL_DARK = "#e8e8e8"
 FILL_STORE = "#ededed"

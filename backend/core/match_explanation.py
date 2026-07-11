@@ -36,7 +36,7 @@ def _experience_reason(candidate: CandidateSnapshot, job: JobSnapshot, score: fl
         gap = max(0.0, float(required) - cand)
         if gap <= 0:
             return f"{cand:g} years experience meets the {required}+ year requirement"
-        return f"{cand:g} years experience — about {gap:g} year(s) below the {required}+ year ask"
+        return f"{cand:g} years experience, about {gap:g} year(s) below the {required}+ year ask"
     if score >= 0.55:
         gap = max(0.0, float(required) - cand)
         return f"Role targets ~{required} years; you have {cand:g} ({gap:g} year gap)"
@@ -65,7 +65,7 @@ def _compensation_reason(candidate: CandidateSnapshot, job: JobSnapshot, score: 
     currency = "INR"
 
     if expected is None and budget_min is None and budget_max is None:
-        return "No salary expectation or budget listed — compensation not penalized"
+        return "No salary expectation or budget listed, compensation not penalized"
     if expected is None:
         if budget_min is not None and budget_max is not None:
             return f"Role budget {_format_amount(budget_min, currency)}–{_format_amount(budget_max, currency)}; add your expectation to filter pay mismatches"
@@ -92,7 +92,7 @@ def _compensation_reason(candidate: CandidateSnapshot, job: JobSnapshot, score: 
 
 def _remote_reason(candidate: CandidateSnapshot, job: JobSnapshot, score: float) -> str:
     if not candidate.remote_preference:
-        return "On-site preference — remote policy has limited impact"
+        return "On-site preference, remote policy has limited impact"
     if job.remote_policy:
         return "Remote-friendly role matches your remote preference"
     if score <= 0.5:

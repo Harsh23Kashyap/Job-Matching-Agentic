@@ -144,7 +144,7 @@ def _completeness(raw: dict) -> tuple[int, list[dict[str, str]]]:
         missing.append(
             _issue(
                 "missing_skills",
-                "Add skills — matching relies on them.",
+                "Add skills, matching relies on them.",
                 severity="error",
                 field="skills",
             )
@@ -285,7 +285,7 @@ def _summary_warnings(raw: dict) -> list[dict[str, str]]:
         issues.append(
             _issue(
                 "summary_too_short",
-                "Summary is very short — add role focus and one accomplishment.",
+                "Summary is very short, add role focus and one accomplishment.",
                 field="summary",
             )
         )
@@ -354,7 +354,7 @@ def _salary_guidance(raw: dict) -> list[dict[str, str]]:
         issues.append(
             _issue(
                 "salary_below_market",
-                f"Expected pay looks low for {experience:g} years in {currency} — you may match below-market roles only.",
+                f"Expected pay looks low for {experience:g} years in {currency}, you may match below-market roles only.",
                 field="preferred_salary",
             )
         )
@@ -362,7 +362,7 @@ def _salary_guidance(raw: dict) -> list[dict[str, str]]:
         issues.append(
             _issue(
                 "salary_above_market",
-                f"Expected pay looks high for {experience:g} years — fewer roles may pass compensation filters.",
+                f"Expected pay looks high for {experience:g} years, fewer roles may pass compensation filters.",
                 field="preferred_salary",
             )
         )
@@ -388,7 +388,7 @@ def _parsing_confidence(
         return {
             "level": "manual",
             "score": None,
-            "message": "Profile edited manually — no resume parse confidence available.",
+            "message": "Profile edited manually, no resume parse confidence available.",
         }
 
     base_scores = {"ok": 82, "unavailable": 52, "parse_failed": 28}
@@ -421,9 +421,9 @@ def _parsing_confidence(
         level = "low"
 
     messages = {
-        "ok": "LLM-assisted parse succeeded — still verify contact details and skills.",
-        "unavailable": "Rule-based parse only — double-check fields against your resume.",
-        "parse_failed": "Automatic parse failed — treat extracted fields as unreliable.",
+        "ok": "LLM-assisted parse succeeded, still verify contact details and skills.",
+        "unavailable": "Rule-based parse only, double-check fields against your resume.",
+        "parse_failed": "Automatic parse failed, treat extracted fields as unreliable.",
     }
     return {
         "level": level,
@@ -525,7 +525,7 @@ def _match_suggestions(
         suggestions.append(
             _issue(
                 "match_ready",
-                "Profile looks match-ready — save and run a job search.",
+                "Profile looks match-ready, save and run a job search.",
                 severity="info",
             )
         )
@@ -573,7 +573,7 @@ def _grade(score: int) -> str:
 
 def _summary_text(score: int, completeness: int, missing: list[dict], parsing: dict) -> str:
     if score >= 80:
-        return f"Profile quality {score}/100 — strong for matching."
+        return f"Profile quality {score}/100, strong for matching."
     hints: list[str] = []
     if any(item.get("field") == "skills" for item in missing):
         hints.append("add skills")
@@ -584,8 +584,8 @@ def _summary_text(score: int, completeness: int, missing: list[dict], parsing: d
     if parsing.get("level") == "low":
         hints.append("verify parsed fields")
     if hints:
-        return f"Profile {completeness}% complete — {', '.join(hints[:3])} to improve matches."
-    return f"Profile quality {score}/100 — review suggestions below."
+        return f"Profile {completeness}% complete, {', '.join(hints[:3])} to improve matches."
+    return f"Profile quality {score}/100, review suggestions below."
 
 
 def analyze_profile_quality(

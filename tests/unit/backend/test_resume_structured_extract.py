@@ -14,7 +14,7 @@ SKILLS
 Python, FastAPI, React, Machine Learning, Docker
 
 EXPERIENCE
-Senior ML Engineer — Acme Corp
+Senior ML Engineer, Acme Corp
 Jan 2020 - Present
 Built ranking models and APIs.
 
@@ -22,7 +22,7 @@ EDUCATION
 B.Tech Computer Science, IIT Delhi, 2019
 
 PROJECTS
-Job Matcher — Python, FastAPI, React
+Job Matcher, Python, FastAPI, React
 Built a composite scoring job search demo.
 """
 

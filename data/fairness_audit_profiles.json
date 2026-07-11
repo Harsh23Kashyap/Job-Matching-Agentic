@@ -1,7 +1,7 @@
 {
   "meta": {
     "synthetic": true,
-    "purpose": "Controlled counterfactual fairness audit — offline research only",
+    "purpose": "Controlled counterfactual fairness audit, offline research only",
     "warning": "Do NOT infer protected attributes from real production users. These profiles are fabricated test fixtures.",
     "match_relevant_fields": [
       "skills",

@@ -1,6 +1,6 @@
 # Backend unit tests
 
-Fast, isolated Python tests — no live server required (except where noted).
+Fast, isolated Python tests, no live server required (except where noted).
 
 | Area | Examples |
 |------|----------|

@@ -24,7 +24,7 @@ YEARS_IN_TEXT_RE = re.compile(
     re.I,
 )
 VAGUE_PHRASES: tuple[tuple[str, str], ...] = (
-    (r"\betc\.?\b", "Avoid vague catch-alls like “etc.” — list concrete requirements."),
+    (r"\betc\.?\b", "Avoid vague catch-alls like “etc.”, list concrete requirements."),
     (r"\band more\b", "Replace “and more” with specific skills or responsibilities."),
     (r"\bgood communication\b", "Specify communication expectations (stakeholders, docs, presentations)."),
     (r"\bteam player\b", "Describe collaboration context instead of generic “team player”."),
@@ -145,7 +145,7 @@ def _missing_fields(raw: dict) -> list[dict[str, str]]:
         issues.append(
             _issue(
                 "missing_skills",
-                "Add required skills — matching depends on them.",
+                "Add required skills, matching depends on them.",
                 severity="error",
                 field="required_skills",
             )
@@ -203,7 +203,7 @@ def _unclear_requirements(raw: dict) -> list[dict[str, str]]:
         issues.append(
             _issue(
                 "no_action_verbs",
-                "Description reads vague — add action verbs (build, design, own, deliver).",
+                "Description reads vague, add action verbs (build, design, own, deliver).",
                 field="description",
             )
         )
@@ -217,7 +217,7 @@ def _unclear_requirements(raw: dict) -> list[dict[str, str]]:
         issues.append(
             _issue(
                 "remote_conflict",
-                "Remote-friendly is checked but the description mentions on-site work — clarify hybrid vs remote.",
+                "Remote-friendly is checked but the description mentions on-site work, clarify hybrid vs remote.",
                 field="remote_policy",
             )
         )
@@ -226,7 +226,7 @@ def _unclear_requirements(raw: dict) -> list[dict[str, str]]:
         issues.append(
             _issue(
                 "skills_too_narrow",
-                "Only one required skill listed for a detailed role — split stack skills explicitly.",
+                "Only one required skill listed for a detailed role, split stack skills explicitly.",
                 field="required_skills",
             )
         )
@@ -235,7 +235,7 @@ def _unclear_requirements(raw: dict) -> list[dict[str, str]]:
         issues.append(
             _issue(
                 "thin_posting",
-                "Title and description are both thin — expand what success looks like in the role.",
+                "Title and description are both thin, expand what success looks like in the role.",
                 field="description",
             )
         )
@@ -263,7 +263,7 @@ def _salary_warnings(raw: dict) -> list[dict[str, str]]:
         issues.append(
             _issue(
                 "budget_inverted",
-                "Minimum budget is higher than maximum — swap or fix the range.",
+                "Minimum budget is higher than maximum, swap or fix the range.",
                 severity="error",
                 field="budget_max",
             )
@@ -278,7 +278,7 @@ def _salary_warnings(raw: dict) -> list[dict[str, str]]:
             issues.append(
                 _issue(
                     "budget_low_for_experience",
-                    f"Budget looks low for {experience:g}+ years in {currency} — may attract underqualified or uninterested candidates.",
+                    f"Budget looks low for {experience:g}+ years in {currency}, may attract underqualified or uninterested candidates.",
                     field="budget_max",
                 )
             )
@@ -286,7 +286,7 @@ def _salary_warnings(raw: dict) -> list[dict[str, str]]:
             issues.append(
                 _issue(
                     "budget_high_for_experience",
-                    f"Budget looks high relative to {experience:g} years required — confirm the range is intentional.",
+                    f"Budget looks high relative to {experience:g} years required, confirm the range is intentional.",
                     field="budget_max",
                 )
             )
@@ -297,7 +297,7 @@ def _salary_warnings(raw: dict) -> list[dict[str, str]]:
             issues.append(
                 _issue(
                     "budget_wide_range",
-                    "Budget range is very wide — a tighter band sets clearer expectations.",
+                    "Budget range is very wide, a tighter band sets clearer expectations.",
                     field="budget_max",
                 )
             )
@@ -354,7 +354,7 @@ def _experience_warnings(raw: dict) -> list[dict[str, str]]:
         issues.append(
             _issue(
                 "senior_title_low_years",
-                f"Title suggests a senior role but required experience is {experience:g} years — align title and years.",
+                f"Title suggests a senior role but required experience is {experience:g} years, align title and years.",
                 field="required_experience",
             )
         )
@@ -362,7 +362,7 @@ def _experience_warnings(raw: dict) -> list[dict[str, str]]:
         issues.append(
             _issue(
                 "junior_title_high_years",
-                f"Title suggests entry-level but {experience:g} years are required — clarify level.",
+                f"Title suggests entry-level but {experience:g} years are required, clarify level.",
                 field="required_experience",
             )
         )
@@ -370,7 +370,7 @@ def _experience_warnings(raw: dict) -> list[dict[str, str]]:
         issues.append(
             _issue(
                 "high_years_plain_title",
-                f"{experience:g}+ years required but the title does not signal seniority — candidates may skip or misread the level.",
+                f"{experience:g}+ years required but the title does not signal seniority, candidates may skip or misread the level.",
                 field="title",
             )
         )
@@ -378,7 +378,7 @@ def _experience_warnings(raw: dict) -> list[dict[str, str]]:
         issues.append(
             _issue(
                 "experience_not_in_description",
-                "Required experience is set but not mentioned in the description — add it for clarity.",
+                "Required experience is set but not mentioned in the description, add it for clarity.",
                 field="description",
             )
         )
@@ -386,7 +386,7 @@ def _experience_warnings(raw: dict) -> list[dict[str, str]]:
         issues.append(
             _issue(
                 "senior_title_no_years",
-                "Senior title with 0 required years — set experience or adjust the title.",
+                "Senior title with 0 required years, set experience or adjust the title.",
                 field="required_experience",
             )
         )
@@ -454,7 +454,7 @@ def _grade(score: int) -> str:
 
 def _summary(score: int, missing: list[dict], unclear: list[dict], salary: list[dict], experience: list[dict]) -> str:
     if score >= 80 and not (missing or unclear or salary or experience):
-        return "Posting looks strong — candidates should understand the role and match well."
+        return "Posting looks strong, candidates should understand the role and match well."
     hints: list[str] = []
     if any(item.get("field") == "required_skills" for item in missing):
         hints.append("add required skills")
@@ -467,8 +467,8 @@ def _summary(score: int, missing: list[dict], unclear: list[dict], salary: list[
     if experience:
         hints.append("align title and experience")
     if hints:
-        return f"Job quality score {score}/100 — {', '.join(hints[:3])} to improve matches."
-    return f"Job quality score {score}/100 — review the suggestions below."
+        return f"Job quality score {score}/100, {', '.join(hints[:3])} to improve matches."
+    return f"Job quality score {score}/100, review the suggestions below."
 
 
 def analyze_job_quality(raw: dict) -> dict[str, Any]:
