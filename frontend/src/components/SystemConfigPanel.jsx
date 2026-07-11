@@ -71,7 +71,7 @@ export default function SystemConfigPanel() {
     try {
       const result = await resetDemoData();
       setResetMessage(
-        `Demo reset complete — ${result.candidates_loaded} candidates, ${result.jobs_loaded} jobs, `
+        `Demo reset complete, ${result.candidates_loaded} candidates, ${result.jobs_loaded} jobs, `
         + `${result.saved_jobs} saved roles, ${result.applications} application(s), `
         + `${result.employer_shortlist} employer shortlist entries.`,
       );

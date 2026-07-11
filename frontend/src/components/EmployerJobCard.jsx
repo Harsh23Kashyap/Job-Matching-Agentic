@@ -28,11 +28,11 @@ export default function EmployerJobCard({ job, onEdit, onClose, closing }) {
       <div className="employer-role-card__meta-grid job-meta-grid">
         <div className="employer-role-card__meta-item">
           <span className="employer-role-card__meta-label">Company</span>
-          <span className="employer-role-card__meta-value">{job.company || "—"}</span>
+          <span className="employer-role-card__meta-value">{job.company || ": "}</span>
         </div>
         <div className="employer-role-card__meta-item">
           <span className="employer-role-card__meta-label">Location</span>
-          <span className="employer-role-card__meta-value">{job.location || "—"}</span>
+          <span className="employer-role-card__meta-value">{job.location || ": "}</span>
         </div>
         <div className="employer-role-card__meta-item">
           <span className="employer-role-card__meta-label">Experience</span>
@@ -40,7 +40,7 @@ export default function EmployerJobCard({ job, onEdit, onClose, closing }) {
         </div>
         <div className="employer-role-card__meta-item">
           <span className="employer-role-card__meta-label">Budget</span>
-          <span className="employer-role-card__meta-value">{formatBudgetRange(job) || "—"}</span>
+          <span className="employer-role-card__meta-value">{formatBudgetRange(job) || ": "}</span>
         </div>
         <div className="employer-role-card__meta-item">
           <span className="employer-role-card__meta-label">Posted</span>

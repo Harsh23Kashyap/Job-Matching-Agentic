@@ -1,4 +1,4 @@
-/** Composite match weights — keep in sync with backend/core/scoring.py COMPOSITE_WEIGHTS */
+/** Composite match weights, keep in sync with backend/core/scoring.py COMPOSITE_WEIGHTS */
 
 export const COMPOSITE_WEIGHTS = {
   semantic: 0.28,

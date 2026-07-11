@@ -11,7 +11,7 @@ export default function ProfileQualityScore({ quality, loading = false, compact 
       <div className="profile-quality-score__head">
         <span className="profile-quality-score__label">
           Profile strength:{" "}
-          <strong>{loading ? "…" : typeof score === "number" ? `${score} / 100` : "—"}</strong>
+          <strong>{loading ? "…" : typeof score === "number" ? `${score} / 100` : ": "}</strong>
         </span>
         {!loading && grade ? <span className="profile-quality-score__grade">{grade}</span> : null}
       </div>

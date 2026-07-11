@@ -24,4 +24,4 @@ Job seeker flows: onboard, profile, find jobs, save and apply.
 
 Demo: sign in as `demo.candidate@test.com` (linked to Rahul Sharma) for instant matches.
 
-**Paper (Figure 10):** Screenshots captured via `docs/submission/jaamas/figures/scripts/capture_portal_screenshots.mjs` — onboarding, profile, matches, score breakdown.
+**Paper (Figure 10):** Screenshots captured via `docs/submission/jaamas/figures/scripts/capture_portal_screenshots.mjs`, onboarding, profile, matches, score breakdown.

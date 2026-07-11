@@ -1,5 +1,5 @@
 /*
- * Shared page shell — one max-width, centered content, form footer rhythm.
+ * Shared page shell, one max-width, centered content, form footer rhythm.
  */
 
 :root {
@@ -47,7 +47,7 @@
   margin-top: 0;
 }
 
-/* Post role panel — scrollable when stacked or sticky footer overlaps */
+/* Post role panel, scrollable when stacked or sticky footer overlaps */
 .post-role-panel.portal-panel {
   max-height: calc(100dvh - 120px);
   overflow-y: auto;
@@ -143,7 +143,7 @@
   flex-wrap: wrap;
 }
 
-/* Employer job cards — compact meta row */
+/* Employer job cards, compact meta row */
 .job-meta-grid,
 .employer-role-card__meta-grid {
   display: grid;

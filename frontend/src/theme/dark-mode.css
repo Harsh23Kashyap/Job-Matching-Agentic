@@ -1,5 +1,5 @@
 /*
- * Dark mode component polish — designed surfaces, not inverted light theme.
+ * Dark mode component polish, designed surfaces, not inverted light theme.
  * Relies on semantic tokens from tokens.css; overrides legacy rgba/light-only rules.
  */
 
@@ -382,7 +382,7 @@
   background: var(--table-row-hover);
 }
 
-/* Job match list — lift contrast for actions, chips, explainability */
+/* Job match list, lift contrast for actions, chips, explainability */
 :root[data-theme="dark"] .job-match-col h3 {
   color: var(--foreground);
 }

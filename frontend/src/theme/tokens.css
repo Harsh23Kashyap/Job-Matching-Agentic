@@ -1,5 +1,5 @@
 /*
- * JobMatch design tokens — semantic theme variables (light + dark).
+ * JobMatch design tokens, semantic theme variables (light + dark).
  * Legacy aliases (--bg-base, --text-primary, --accent-hover, etc.) map here.
  *
  * Naming: --accent / --accent-foreground are highlight surfaces (shadcn-style).
@@ -269,7 +269,7 @@
   line-height: 1.45;
 }
 
-/* Placeholders — visible but muted */
+/* Placeholders, visible but muted */
 input::placeholder,
 textarea::placeholder,
 .skill-chip-input::placeholder,

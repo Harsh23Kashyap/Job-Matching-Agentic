@@ -1,4 +1,4 @@
-/* Candidate onboarding & profile edit — layout, helper panel, upload, accordions */
+/* Candidate onboarding & profile edit, layout, helper panel, upload, accordions */
 
 /* Subtler top nav on candidate flows */
 .top-nav .nav-link {
@@ -570,7 +570,7 @@
   color: #e8c547;
 }
 
-/* Profile quality panel — stronger section hierarchy in dark mode */
+/* Profile quality panel, stronger section hierarchy in dark mode */
 :root[data-theme="dark"] .profile-helper-panel {
   background: color-mix(in srgb, var(--muted) 28%, var(--card));
   border-color: var(--border-input);

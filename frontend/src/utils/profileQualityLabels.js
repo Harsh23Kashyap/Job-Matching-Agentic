@@ -1,7 +1,7 @@
 export const PROFILE_QUALITY_GRADES = {
   strong: "Strong profile",
   good: "Good profile",
-  fair: "Fair — room to improve",
+  fair: "Fair, room to improve",
   needs_work: "Needs work",
 };
 

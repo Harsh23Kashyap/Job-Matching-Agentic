@@ -67,16 +67,16 @@ export function formatBudgetRange(job, currency = "INR") {
 }
 
 export function formatPostedDate(iso) {
-  if (!iso) return "—";
+  if (!iso) return ": ";
   const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) return "—";
+  if (Number.isNaN(date.getTime())) return ": ";
   return date.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
 }
 
 export function formatExperienceYears(years) {
-  if (years == null || years === "") return "—";
+  if (years == null || years === "") return ": ";
   const value = Number(years);
-  if (!Number.isFinite(value)) return "—";
+  if (!Number.isFinite(value)) return ": ";
   if (value === 0) return "No minimum";
   if (value === 1) return "1 yr min";
   return `${value} yrs min`;
@@ -100,7 +100,7 @@ export function parseInr(input) {
 }
 
 export function matchPercent(score) {
-  if (score == null || Number.isNaN(Number(score))) return "—";
+  if (score == null || Number.isNaN(Number(score))) return ": ";
   return `${Math.round(Number(score) * 100)}%`;
 }
 

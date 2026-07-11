@@ -52,7 +52,7 @@ export default function AdminLiveJobsPanel({ onSynced }) {
     try {
       const result = await syncRealJobs({ reindex });
       setSyncMessage(
-        `${result.message} — ${result.job_count} jobs indexed`
+        `${result.message}, ${result.job_count} jobs indexed`
         + (result.reindexed ? " (candidates reindexed)" : ""),
       );
       await load();
@@ -96,7 +96,7 @@ export default function AdminLiveJobsPanel({ onSynced }) {
           <dl className="admin-kv-list admin-live-jobs-kv">
             <div className="admin-kv-row">
               <dt>Jobs in corpus</dt>
-              <dd>{state?.job_count ?? "—"}</dd>
+              <dd>{state?.job_count ?? ": "}</dd>
             </div>
             <div className="admin-kv-row">
               <dt>Last sync</dt>
@@ -110,12 +110,12 @@ export default function AdminLiveJobsPanel({ onSynced }) {
             </div>
             <div className="admin-kv-row">
               <dt>Page limit</dt>
-              <dd>{status.page_limit ?? "—"}</dd>
+              <dd>{status.page_limit ?? ": "}</dd>
             </div>
             <div className="admin-kv-row">
               <dt>Snapshot file</dt>
               <dd>
-                <code className="admin-live-jobs-path">{status.snapshot_path || "—"}</code>
+                <code className="admin-live-jobs-path">{status.snapshot_path || ": "}</code>
               </dd>
             </div>
           </dl>

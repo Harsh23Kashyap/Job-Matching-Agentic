@@ -5,7 +5,7 @@ import PortalSection from "../../components/PortalSection.jsx";
 import { fetchEmployerApplications } from "../../api/client.js";
 
 function formatApplicantDate(value) {
-  if (!value) return "—";
+  if (!value) return ": ";
   return new Date(value).toLocaleDateString(undefined, {
     day: "2-digit",
     month: "2-digit",
@@ -14,7 +14,7 @@ function formatApplicantDate(value) {
 }
 
 function formatMatchScore(score) {
-  if (score == null) return "—";
+  if (score == null) return ": ";
   return `${Math.round(score * 100)}% match`;
 }
 

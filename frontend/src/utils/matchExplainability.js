@@ -45,7 +45,7 @@ function compensationReason(row, score) {
   if (score >= 0.85) return "Compensation expectations align with the role budget";
   if (score >= 0.65) return "Pay expectations are close to the posted range";
   if (score < 0.5) return "Expected pay may exceed or sit outside the role budget";
-  return "Compensation fit is moderate — review the salary band";
+  return "Compensation fit is moderate, review the salary band";
 }
 
 function remoteReason(row, score) {
@@ -53,7 +53,7 @@ function remoteReason(row, score) {
   if (remote == null) return "Remote preference not specified";
   if (remote && score >= 0.85) return "Remote-friendly role matches your preference";
   if (remote && score < 0.55) return "You prefer remote; role may require on-site work";
-  if (!remote) return "On-site preference — remote policy has limited impact";
+  if (!remote) return "On-site preference, remote policy has limited impact";
   return "Remote setup partially aligns";
 }
 
@@ -111,7 +111,7 @@ export function resolveMatchExplanation(row) {
 }
 
 export function formatFitScore(score) {
-  if (score == null || Number.isNaN(Number(score))) return "—";
+  if (score == null || Number.isNaN(Number(score))) return ": ";
   return matchPercent(score);
 }
 

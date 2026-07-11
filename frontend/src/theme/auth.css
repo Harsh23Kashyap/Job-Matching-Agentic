@@ -1,5 +1,5 @@
 /*
- * Auth pages — split layout, illustrations, form card, dark mode.
+ * Auth pages, split layout, illustrations, form card, dark mode.
  * Warm neutral + muted green; intentional left panel, quiet decor.
  */
 
@@ -103,7 +103,7 @@
   background-size: 28px 28px, auto;
 }
 
-/* Blobs — quieter */
+/* Blobs, quieter */
 .auth-blob--sand-lg {
   bottom: -100px;
   right: -80px;
@@ -133,7 +133,7 @@
   opacity: 0.35;
 }
 
-/* Matching scene — lower density */
+/* Matching scene, lower density */
 .auth-matching-scene,
 .left-visual {
   bottom: 72px;

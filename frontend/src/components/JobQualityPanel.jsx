@@ -3,7 +3,7 @@ import Button from "./Button.jsx";
 const GRADE_LABELS = {
   strong: "Strong posting",
   good: "Good posting",
-  fair: "Fair — room to improve",
+  fair: "Fair, room to improve",
   needs_work: "Needs work",
 };
 
@@ -93,7 +93,7 @@ export default function JobQualityPanel({
             && !quality.experience_warnings?.length
             && !quality.skill_suggestions?.length && (
               <p className="form-helper job-quality-panel__all-clear">
-                No issues flagged — posting looks ready for matching.
+                No issues flagged, posting looks ready for matching.
               </p>
           )}
         </>

@@ -42,7 +42,7 @@ export default function AdminSystemFlowPanel({ status }) {
       <ol className="admin-system-flow__steps">
         {STEPS.map((step, index) => {
           const agent = step.key ? status?.[step.key] : null;
-          const metric = agent ? agent.entity_count : step.id === "results" ? "Top-K" : "—";
+          const metric = agent ? agent.entity_count : step.id === "results" ? "Top-K" : ": ";
           const detail = agent
             ? `${metric} ${step.unit}`
             : step.id === "vector"

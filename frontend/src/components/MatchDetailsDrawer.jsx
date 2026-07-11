@@ -158,15 +158,15 @@ export default function MatchDetailsDrawer({
               <ul className="match-drawer-meta-list">
                 <li>
                   <span>Experience</span>
-                  <strong>{formatCandidateExperience(row.candidate_experience_years) || "—"}</strong>
+                  <strong>{formatCandidateExperience(row.candidate_experience_years) || ": "}</strong>
                 </li>
                 <li>
                   <span>Expected compensation</span>
-                  <strong>{formatExpectedCompensation(row) || "—"}</strong>
+                  <strong>{formatExpectedCompensation(row) || ": "}</strong>
                 </li>
                 <li>
                   <span>Remote preference</span>
-                  <strong>{formatRemotePreference(row) || "—"}</strong>
+                  <strong>{formatRemotePreference(row) || ": "}</strong>
                 </li>
               </ul>
             </MatchDrawerCard>

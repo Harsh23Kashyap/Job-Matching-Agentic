@@ -3,7 +3,7 @@ import Button from "./Button.jsx";
 const GRADE_LABELS = {
   strong: "Strong profile",
   good: "Good profile",
-  fair: "Fair — room to improve",
+  fair: "Fair, room to improve",
   needs_work: "Needs work",
 };
 

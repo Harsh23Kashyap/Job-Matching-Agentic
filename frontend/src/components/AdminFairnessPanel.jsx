@@ -36,7 +36,7 @@ export default function AdminFairnessPanel({ fairness }) {
         </div>
         <div className="admin-fairness-metric admin-fairness-metric--meta">
           <span className="admin-fairness-metric__label">Queries evaluated</span>
-          <span className="admin-fairness-metric__value">{fairness.queries_evaluated ?? "—"}</span>
+          <span className="admin-fairness-metric__value">{fairness.queries_evaluated ?? ": "}</span>
         </div>
       </div>
     </section>

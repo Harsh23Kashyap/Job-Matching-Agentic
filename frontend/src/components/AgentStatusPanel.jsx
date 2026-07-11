@@ -29,7 +29,7 @@ function deriveHealth(agent, key) {
 }
 
 function formatLastEvent(raw) {
-  if (!raw) return "—";
+  if (!raw) return ": ";
   return raw.replace(/\./g, " · ");
 }
 

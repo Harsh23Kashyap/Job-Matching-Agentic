@@ -18,9 +18,9 @@ export default function AdminSummaryRow({ status, backendError }) {
     );
   }
 
-  const profiles = status?.candidates?.entity_count ?? "—";
-  const jobs = status?.employer?.entity_count ?? "—";
-  const sessions = status?.matchmaking?.entity_count ?? "—";
+  const profiles = status?.candidates?.entity_count ?? ": ";
+  const jobs = status?.employer?.entity_count ?? ": ";
+  const sessions = status?.matchmaking?.entity_count ?? ": ";
   const sys = systemStatusLabel(status, backendError);
 
   const cards = [

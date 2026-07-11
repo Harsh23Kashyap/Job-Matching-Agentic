@@ -29,10 +29,10 @@ export default function AdminMatchResults({ response, error, recentRuns = [], la
         <div className="admin-match-preview">
           <p className="admin-match-preview__query">
             <span className="admin-match-preview__label">Query</span>
-            {response.query_label || "—"}
+            {response.query_label || ": "}
           </p>
           <p className="admin-match-preview__meta">
-            {formatStrategy(response)} · {response.results?.length ?? 0} ranked · corpus {response.corpus_size ?? "—"}
+            {formatStrategy(response)} · {response.results?.length ?? 0} ranked · corpus {response.corpus_size ?? ": "}
           </p>
           {topResults.length > 0 ? (
             <ol className="admin-match-preview__list">
@@ -62,7 +62,7 @@ export default function AdminMatchResults({ response, error, recentRuns = [], la
               <li key={`${run.session_id || run.query_label}-${i}`}>
                 <span>{run.query_label || "Match"}</span>
                 <span className="admin-recent-runs__meta">
-                  {run.results?.length ?? 0} results · {run.strategy_used || "—"}
+                  {run.results?.length ?? 0} results · {run.strategy_used || ": "}
                 </span>
               </li>
             ))}
