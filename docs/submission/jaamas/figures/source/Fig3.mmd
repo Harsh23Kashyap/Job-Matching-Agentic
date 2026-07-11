@@ -1,81 +1,66 @@
-%%{init: {'flowchart': {'rankSpacing': 28, 'nodeSpacing': 18, 'diagramPadding': 16}}}%%
-flowchart TB
-  subgraph ROW1[" "]
-    direction LR
-    subgraph IN[" "]
-      direction TB
-      H_IN["Inputs"]
-      INP("JD paste / file / form")
-      LIVE("External jobs API optional")
-      H_IN --> INP
-    end
-    subgraph ST[" "]
-      direction TB
-      H_STATE["Owned state"]
-      POST("Editable posting + status") --> SNAP("Versioned job snapshot")
-      MEM[("In-memory jobs<br/>bootstrap jobs.json")]
-      SIM("Similar candidates")
-      H_STATE --> POST
-      SNAP --> MEM
-      SNAP -.-> SIM
-    end
-  end
-
-  subgraph ROW2[" "]
+%%{init: {'flowchart': {'rankSpacing': 60, 'nodeSpacing': 40, 'diagramPadding': 24, 'curve': 'basis', 'wrappingWidth': 220}}}%%
+flowchart LR
+  subgraph IN["Inputs"]
     direction TB
-    H_PARSE["Ingestion pipeline"]
-    subgraph PAR[" "]
-      direction LR
-      CLEAN("Text clean") --> RULES("Rule extract") --> NORM("Job field normalize") --> SK("Required skills") --> JQ("Job quality check")
-    end
-    subgraph OPT[" "]
-      direction LR
-      LLM("Optional LLM merge")
-      LIVESYNC("Live sync optional · fetch · jobs_live.json · re-embed")
-    end
-    H_PARSE --> CLEAN
-    LLM -.-> NORM
-    LIVE -.-> LIVESYNC
-    LIVESYNC -.-> NORM
+    INP["JD paste, file<br/>or form"]
+    LIVE["External jobs<br/>API optional"]
   end
 
-  subgraph ROW3[" "]
+  subgraph PARSE["Ingestion pipeline"]
     direction LR
-    subgraph VEC[" "]
-      direction TB
-      H_VEC["Representation"]
-      TMPL("Document text template") --> EMB("Embedder MiniLM") --> VS[("Job vector index")]
-      H_VEC --> TMPL
-    end
-    subgraph OUT[" "]
-      direction TB
-      H_OUT["Outputs"]
-      EVT("job-updated event") --> UI("Posting UI") --> APPL("Applicants feed read-only")
-      H_OUT --> EVT
-    end
+    CLEAN["Text clean"] --> RULES["Rule<br/>extract"] --> NORM["Job field<br/>normalize"] --> SK["Required<br/>skills"] --> JQ["Job quality<br/>check"]
   end
 
-  INP --> CLEAN
-  JQ --> LIVESYNC
-  JQ --> SNAP
+  subgraph STATE["Owned state"]
+    direction LR
+    POST["Editable posting<br/>plus status"] --> SNAP["Versioned job<br/>snapshot"]
+    MEM[("In-memory jobs<br/>bootstrap jobs.json")]
+    SNAP --> MEM
+  end
+
+  subgraph VEC["Representation"]
+    direction LR
+    TMPL["Document text<br/>template"] --> EMB["Embedder<br/>MiniLM L6"] --> VS[("Job vector<br/>index")]
+  end
+
+  subgraph OUT["Outputs"]
+    direction LR
+    EVT["job-updated<br/>event"] --> UI["Posting UI"] --> APPL["Applicants feed<br/>read-only"]
+  end
+
+  subgraph OPT["Optional"]
+    direction TB
+    LLM["LLM merge"]
+    LIVESYNC["Live sync, fetch,<br/>jobs_live.json,<br/>re-embed"]
+    SIM["Similar<br/>candidates"]
+  end
+
+  INP     --> CLEAN
+  INP     --> NORM
+  JQ      --> SNAP
+  JQ      --> LIVESYNC
   LIVESYNC --> POST
-  SNAP --> TMPL
-  MEM --> H_VEC
-  VS --> H_OUT
-  SNAP --> EVT
-  POST --> UI
+  SNAP    --> TMPL
+  MEM     --> VS
+  VS      --> APPL
+  SNAP    --> EVT
+  POST    --> UI
+  LIVE    -.-> LIVESYNC
+  LIVESYNC -.-> NORM
+  LLM     -.-> NORM
+  SIM     -.-> SNAP
 
-  classDef header fill:#f1f5f9,stroke:#334155,color:#0f172a,stroke-width:2.5px,font-weight:bold
-  classDef input fill:#fffbeb,stroke:#b45309,color:#78350f,stroke-width:2.5px
-  classDef parse fill:#fef3c7,stroke:#d97706,color:#92400e,stroke-width:2.5px
-  classDef sync fill:#fde68a,stroke:#ca8a04,color:#713f12,stroke-width:2.5px
-  classDef state fill:#fef9c3,stroke:#a16207,color:#78350f,stroke-width:2.5px
-  classDef store fill:#f0fdf4,stroke:#166534,color:#14532d,stroke-width:2.5px
-  classDef vec fill:#eff6ff,stroke:#2563eb,color:#1e3a8a,stroke-width:2.5px
-  classDef out fill:#faf5ff,stroke:#7c3aed,color:#4c1d95,stroke-width:2.5px
-  classDef opt fill:#fff7ed,stroke:#ea580c,color:#9a3412,stroke-width:2.5px
+  classDef header fill:#f1f5f9,stroke:#334155,color:#0f172a,stroke-width:3px,font-weight:bold,font-size:18px
+  classDef input fill:#fffbeb,stroke:#b45309,color:#78350f,stroke-width:2.5px,font-size:16px
+  classDef parse fill:#fef3c7,stroke:#d97706,color:#92400e,stroke-width:2.5px,font-size:16px
+  classDef sync fill:#fde68a,stroke:#ca8a04,color:#713f12,stroke-width:2.5px,font-size:16px
+  classDef state fill:#fef9c3,stroke:#a16207,color:#78350f,stroke-width:2.5px,font-size:16px
+  classDef store fill:#f0fdf4,stroke:#166534,color:#14532d,stroke-width:2.5px,font-size:16px
+  classDef vec fill:#eff6ff,stroke:#2563eb,color:#1e3a8a,stroke-width:2.5px,font-size:16px
+  classDef out fill:#faf5ff,stroke:#7c3aed,color:#4c1d95,stroke-width:2.5px,font-size:16px
+  classDef opt fill:#fff7ed,stroke:#ea580c,color:#9a3412,stroke-width:2px,font-size:14px,stroke-dasharray:4 3
 
-  class H_IN,H_PARSE,H_STATE,H_VEC,H_OUT header
+  class IN,PARSE,STATE,VEC,OUT,OPT header
   class INP input
   class LIVE,LLM,SIM opt
   class CLEAN,RULES,NORM,SK,JQ parse
