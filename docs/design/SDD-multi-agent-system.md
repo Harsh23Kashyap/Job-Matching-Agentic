@@ -13,7 +13,7 @@
 
 This SDD specifies the **implemented** multi-agent system: package layout, classes, interfaces, Pydantic schemas, event contracts, REST API, matching algorithm, configuration, bootstrap sequence, role portals, auth/ownership, and test plan.
 
-**Original gate (v1.0):** No application code until SDD approved — **completed**. This v1.1 revision documents as-built behavior including product extensions (auth, LLM parsing, composite scoring, research pipeline).
+**Original gate (v1.0):** No application code until SDD approved, **completed**. This v1.1 revision documents as-built behavior including product extensions (auth, LLM parsing, composite scoring, research pipeline).
 
 ---
 
@@ -721,8 +721,8 @@ All JSON bodies. OpenAPI at `/docs`. Session cookie auth for role routes (`withC
 
 | Method | Path | Auth | Response |
 |--------|------|------|----------|
-| POST | `/auth/register` | — | User + session |
-| POST | `/auth/login` | — | User + session |
+| POST | `/auth/register` |, | User + session |
+| POST | `/auth/login` |, | User + session |
 | POST | `/auth/logout` | session | 204 |
 | GET | `/auth/me` | session | `{ id, email, role }` |
 
@@ -737,9 +737,9 @@ All JSON bodies. OpenAPI at `/docs`. Session cookie auth for role routes (`withC
 
 | Method | Path | Auth | Response |
 |--------|------|------|----------|
-| GET | `/candidates` | — | `{ names: string[] }` |
-| GET | `/candidates/full` | — | `CandidateProfile[]` (no embeddings) |
-| GET | `/candidates/{name}` | — | `CandidateProfile` or 404 |
+| GET | `/candidates` |, | `{ names: string[] }` |
+| GET | `/candidates/full` |, | `CandidateProfile[]` (no embeddings) |
+| GET | `/candidates/{name}` |, | `CandidateProfile` or 404 |
 | POST | `/candidates` | optional | Register or upsert if logged-in candidate |
 | GET | `/candidates/me` | candidate | Profile or 404 (`NOT_FOUND` / `PROFILE_NOT_FOUND`) |
 | PUT | `/candidates/me` | candidate | Upsert profile + ownership link |
@@ -752,9 +752,9 @@ All JSON bodies. OpenAPI at `/docs`. Session cookie auth for role routes (`withC
 
 | Method | Path | Auth | Response |
 |--------|------|------|----------|
-| GET | `/jobs` | — | `{ titles: string[] }` |
-| GET | `/jobs/full` | — | `JobProfile[]` |
-| GET | `/jobs/{title}` | — | `JobProfile` or 404 |
+| GET | `/jobs` |, | `{ titles: string[] }` |
+| GET | `/jobs/full` |, | `JobProfile[]` |
+| GET | `/jobs/{title}` |, | `JobProfile` or 404 |
 | POST | `/jobs` | optional | Register job; employer gets ownership via `link_job_if_unowned`; 403 if id owned by another user |
 | GET | `/jobs/mine` | employer | Owned jobs |
 | PUT | `/jobs/mine/{job_id}` | employer | Update owned job |
@@ -790,7 +790,7 @@ All JSON bodies. OpenAPI at `/docs`. Session cookie auth for role routes (`withC
 | GET | `/feedback/me` | session | User feedback actions |
 | POST | `/feedback/actions` | session | save / unsave / apply / reject / contact |
 | POST | `/feedback` | optional | Legacy pair feedback |
-| GET | `/feedback/counts` | — | Pair-level counts |
+| GET | `/feedback/counts` |, | Pair-level counts |
 
 ### 11.8 System routes (`/system`)
 
@@ -906,7 +906,7 @@ Phase11 benchmarks may append suffix via env `CHROMA_COLLECTION_SUFFIX` / `QDRAN
 | `hooks/parser_factory.py` | `create_llm_parser()` | Factory + entity ID slugs |
 | `hooks/explainer.py` | `RuleExplainer` | Default `why_ranked` bullets |
 | `hooks/grounded_explainer.py` | `GroundedLlmExplainer` | Optional LLM bullets with grounding |
-| `core/resume_suggestions.py` | — | ATS gap analysis for drawer coach |
+| `core/resume_suggestions.py` |, | ATS gap analysis for drawer coach |
 
 HTTP upload routes call `LlmParser`; on `LlmUnavailableError` return manual fallback with `llm_status: "unavailable"`. Gateway sanitizes CID noise and contact fields before persist (`_sanitize_profile_payload`).
 
@@ -1106,7 +1106,7 @@ Python under `tests/unit/` and node under `tests/unit/*.mjs` (e.g. `test_profile
 - **PII:** Eval corpus uses synthetic names; live profiles may include contact fields (email, phone) stored in agent memory + SQLite activity.  
 - **Transparency:** `why_ranked` bullets and `MatchDetailsDrawer` score breakdown; fairness report via `/system/fairness`.  
 - **Feedback:** Product default has `use_feedback_boost=false`; optional boost when enabled (+0.04 save, +0.06 apply, −0.06 dismiss). Saved/applied state persisted in SQLite activity store.
-- **Demo accounts:** Seeded with known password (`demo1234`) — not for production deployment as-is.
+- **Demo accounts:** Seeded with known password (`demo1234`), not for production deployment as-is.
 
 ---
 
@@ -1116,7 +1116,7 @@ Python under `tests/unit/` and node under `tests/unit/*.mjs` (e.g. `test_profile
 |----------|------|----------|------|
 | Harsh Kashyap | Author | ☐ | |
 | Taranumpreet Kaur Wasu | Author | ☐ | |
-| Dr Parteek Bhatia | Supervisor | ☐ | |
+| Dr Parteek Kumar | Supervisor | ☐ | |
 
 **Next step:** Run 100×50 research pipeline eval; align paper §3 with as-built portals and composite scoring.
 

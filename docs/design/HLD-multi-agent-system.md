@@ -605,7 +605,7 @@ Not part of the three-agent core, but required for role portals:
 |----------|------|----------|------|
 | Harsh Kashyap | Author | ☐ | |
 | Taranumpreet Kaur Wasu | Author | ☐ | |
-| Dr Parteek Bhatia | Supervisor | ☐ | |
+| Dr Parteek Kumar | Supervisor | ☐ | |
 
 **Next step:** align paper §3 diagram with implemented portals and composite scoring; run 100×50 research pipeline eval.
 

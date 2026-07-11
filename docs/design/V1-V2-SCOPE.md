@@ -252,4 +252,4 @@ Small additions that do not require full v2 scope:
 |----------|-------------|-------------|------|
 | Harsh Kashyap | ☐ | ☐ | |
 | Taranumpreet Kaur Wasu | ☐ | ☐ | |
-| Dr Parteek Bhatia | ☐ | ☐ | |
+| Dr Parteek Kumar | ☐ | ☐ | |

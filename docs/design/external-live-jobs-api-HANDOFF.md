@@ -1,4 +1,4 @@
-# Handoff — External Live Jobs API Contract
+# Handoff, External Live Jobs API Contract
 > Written: 2026-05-27 | Branch: main | Dir: `/Users/harshkashyap/Projects/JobMatcher-v1/Agentic-Job-Matching`
 
 ## Goal
@@ -10,8 +10,8 @@ Document the **complete contract** for the external live jobs feed used by Agent
 ## Current state
 
 - **Done:** External jobs sync fully implemented in `backend/real_jobs_sync.py`; wired into `backend/app.py` (`/real-jobs/*`), frontend sync button, daily agent pre-sync, and CLI `backend/scripts/sync_real_jobs_once.py`.
-- **In progress:** None for this API — documentation handoff only.
-- **Blocked:** No committed `data/jobs_live.json` sample (gitignored). `REAL_JOBS_BASE_URL` is not checked into the repo — must be supplied per deployment.
+- **In progress:** None for this API, documentation handoff only.
+- **Blocked:** No committed `data/jobs_live.json` sample (gitignored). `REAL_JOBS_BASE_URL` is not checked into the repo, must be supplied per deployment.
 
 ---
 
@@ -36,11 +36,11 @@ Document the **complete contract** for the external live jobs feed used by Agent
 └─────────────────────┘                          └──────────────────────────┘
 ```
 
-**Default corpus when sync is disabled:** `data/jobs.json` (15 static jobs). Live sync **replaces** in-memory jobs entirely — resumes stay on `data/cvs.json`.
+**Default corpus when sync is disabled:** `data/jobs.json` (15 static jobs). Live sync **replaces** in-memory jobs entirely, resumes stay on `data/cvs.json`.
 
 ---
 
-## Contract 1 — Upstream external provider API
+## Contract 1, Upstream external provider API
 
 This is what **your new application must call** (or what your new backend must expose if you become the provider).
 
@@ -51,7 +51,7 @@ This is what **your new application must call** (or what your new backend must e
 | **Method** | `GET` |
 | **URL pattern** | `{REAL_JOBS_BASE_URL}{REAL_JOBS_PATH}?limit={limit}&skip={skip}` |
 | **Default path** | `/jobs` |
-| **Default base** | Set via env — **not hardcoded in repo** |
+| **Default base** | Set via env, **not hardcoded in repo** |
 | **Example** | `https://api.example.com/jobs?limit=50&skip=0` |
 
 **URL construction** (from `fetch_all_jobs`):
@@ -82,16 +82,16 @@ No auth headers are implemented in the current client. If the provider requires 
 Client stops fetching when **any** of:
 
 1. `total <= 0`
-2. `skip + limit >= total` (primary contract — comment in code: *"Contract from provider: stop when skip+limit >= total"*)
+2. `skip + limit >= total` (primary contract, comment in code: *"Contract from provider: stop when skip+limit >= total"*)
 3. Current page returns **zero jobs**
 
 First response sets `total` from payload; if absent, defaults to `len(current_page_jobs)`.
 
-### Response envelope — accepted shapes
+### Response envelope, accepted shapes
 
 The client accepts **either** a bare array **or** a JSON object. Job list is extracted by `_extract_jobs_and_total`:
 
-**Shape A — bare array**
+**Shape A, bare array**
 
 ```json
 [
@@ -100,9 +100,9 @@ The client accepts **either** a bare array **or** a JSON object. Job list is ext
 ]
 ```
 
-- `total` = `len(array)` (no further pages unless array length equals limit and you implement provider-specific logic — current code treats total as array length, so **single page only** for bare arrays).
+- `total` = `len(array)` (no further pages unless array length equals limit and you implement provider-specific logic, current code treats total as array length, so **single page only** for bare arrays).
 
-**Shape B — paginated object (preferred)**
+**Shape B, paginated object (preferred)**
 
 ```json
 {
@@ -156,7 +156,7 @@ Timeout: `REAL_JOBS_TIMEOUT_SEC` (default **30** seconds per request).
 
 ---
 
-## Contract 2 — Raw job field mapping (provider → canonical)
+## Contract 2, Raw job field mapping (provider → canonical)
 
 Each raw job object is passed through `normalize_external_job()`. Your new app should implement the same mapping for compatibility with existing snapshots and ingestion.
 
@@ -230,7 +230,7 @@ After normalization, jobs are deduped by **`id`**, preserving **first-seen order
 
 ---
 
-## Contract 3 — Snapshot file (`jobs_live.json`)
+## Contract 3, Snapshot file (`jobs_live.json`)
 
 Written after every successful fetch. Default path: `data/jobs_live.json` (`REAL_JOBS_OUTPUT_PATH`).
 
@@ -250,7 +250,7 @@ Written after every successful fetch. Default path: `data/jobs_live.json` (`REAL
 | Field | Meaning |
 |-------|---------|
 | `fetched_at_utc` | ISO8601 UTC timestamp when fetch completed |
-| `expected_refresh_utc` | Hardcoded `"02:00"` — provider hint, not enforced |
+| `expected_refresh_utc` | Hardcoded `"02:00"`, provider hint, not enforced |
 | `raw_count` | Jobs collected before dedupe |
 | `normalized_count` | Same as raw_count (normalize is 1:1) |
 | `deduped_count` | Unique jobs after ID dedupe |
@@ -265,7 +265,7 @@ On `app.py` import:
 
 ---
 
-## Contract 4 — Environment variables
+## Contract 4, Environment variables
 
 | Variable | Default | Required for live sync | Effect |
 |----------|---------|------------------------|--------|
@@ -291,7 +291,7 @@ REAL_JOBS_OUTPUT_PATH=data/jobs_live.json
 
 ---
 
-## Contract 5 — Current backend proxy API (wraps upstream)
+## Contract 5, Current backend proxy API (wraps upstream)
 
 If the new app talks to **this** FastAPI service instead of the provider directly:
 
@@ -366,8 +366,8 @@ If the new app talks to **this** FastAPI service instead of the provider directl
 
 After sync, clients typically refresh:
 
-- `GET /jobs` — title strings only
-- `GET /jobs/full` — full canonical job objects (includes `company`, `link`, `location`, etc.)
+- `GET /jobs`, title strings only
+- `GET /jobs/full`, full canonical job objects (includes `company`, `link`, `location`, etc.)
 
 ### Daily agent integration
 
@@ -375,7 +375,7 @@ After sync, clients typically refresh:
 
 ---
 
-## Contract 6 — Ingestion & matching (downstream of sync)
+## Contract 6, Ingestion & matching (downstream of sync)
 
 After jobs land in memory, `ingestion.ingest_data()`:
 
@@ -435,10 +435,10 @@ Note: API field is `apply_link` in daily output but canonical job uses `link`.
 
 ## Open questions
 
-- [ ] **Unknown:** Exact production `REAL_JOBS_BASE_URL` — not in repo; confirm with deployment/env owner.
-- [ ] **Unknown:** Whether provider requires auth (Bearer/API key) — legacy client sends none.
-- [ ] **Hypothesis:** Provider is `aiforjob.ai` (User-Agent references it) — verify URL and OpenAPI if migrating.
-- [ ] **Hunch:** Bare-array responses only return one page — if provider uses arrays without `total`, pagination may be incomplete.
+- [ ] **Unknown:** Exact production `REAL_JOBS_BASE_URL`, not in repo; confirm with deployment/env owner.
+- [ ] **Unknown:** Whether provider requires auth (Bearer/API key), legacy client sends none.
+- [ ] **Hypothesis:** Provider is `aiforjob.ai` (User-Agent references it), verify URL and OpenAPI if migrating.
+- [ ] **Hunch:** Bare-array responses only return one page, if provider uses arrays without `total`, pagination may be incomplete.
 
 ---
 
@@ -447,8 +447,8 @@ Note: API field is `apply_link` in daily output but canonical job uses `link`.
 | What | Who/Where | Status |
 |------|-----------|--------|
 | Production `REAL_JOBS_BASE_URL` | Deployment env / team | Not in repo |
-| Provider API documentation | External team | Not in repo — this handoff derives contract from client code |
-| Sample `jobs_live.json` | Runtime artifact | Gitignored — generate via sync |
+| Provider API documentation | External team | Not in repo, this handoff derives contract from client code |
+| Sample `jobs_live.json` | Runtime artifact | Gitignored, generate via sync |
 
 ---
 
@@ -476,7 +476,7 @@ Note: API field is `apply_link` in daily output but canonical job uses `link`.
 ## What didn't work
 
 - Calling sync with `REAL_JOBS_ENABLE=false` → 400 (by design; must enable first)
-- Strict Pydantic `Job` model strips extra fields if you run `Job(**dict)` on normalized live jobs — ingestion uses `.dict()` only on seed JSON; live jobs bypass strict validation
+- Strict Pydantic `Job` model strips extra fields if you run `Job(**dict)` on normalized live jobs, ingestion uses `.dict()` only on seed JSON; live jobs bypass strict validation
 - Bare JSON array responses without `total` → single-page fetch only
 
 ---
@@ -517,7 +517,7 @@ pytest backend/tests/test_api.py::test_get_real_jobs_status -v
 | `backend/ingestion.py` | How normalized jobs become embeddings + vector metadata |
 | `backend/schemas.py` | Strict seed job schema (subset of canonical live job) |
 | `backend/scripts/sync_real_jobs_once.py` | CLI sync without HTTP |
-| `frontend/src/App.jsx` | `handleSyncRealJobs`, `fetchRealJobsStatus` — client integration reference |
+| `frontend/src/App.jsx` | `handleSyncRealJobs`, `fetchRealJobsStatus`, client integration reference |
 | `backend/tests/test_api.py` | Status + disabled-sync tests |
 | `data/jobs.json` | Static fallback corpus (15 jobs) |
 
@@ -542,17 +542,17 @@ None documented in repo for provider OpenAPI. User-Agent references: `https://ai
 
 ## Next steps (for new application)
 
-1. **Confirm provider URL + auth** — verify: manual `curl` to `{BASE}/jobs?limit=1&skip=0` returns expected JSON envelope.
-2. **Port `normalize_external_job` logic** — verify: output matches canonical schema above for 3 sample raw jobs.
-3. **Implement pagination loop** — verify: fetch all pages until `skip + limit >= total`; compare `deduped_count` with provider total.
-4. **Decide snapshot strategy** — keep `jobs_live.json` pattern or replace with DB; verify: restart loads last sync without re-fetch.
-5. **Wire ingestion** — embed `job_document_text` equivalent and upsert to your vector store; verify: ANN search returns synced job IDs.
-6. **Expose sync/status endpoints** — mirror `GET /real-jobs/status` + `POST /real-jobs/sync` or call provider directly from new app.
-7. **Add integration test** — mock provider paginated JSON; verify: normalize + dedupe + empty-response error handling.
+1. **Confirm provider URL + auth**, verify: manual `curl` to `{BASE}/jobs?limit=1&skip=0` returns expected JSON envelope.
+2. **Port `normalize_external_job` logic**, verify: output matches canonical schema above for 3 sample raw jobs.
+3. **Implement pagination loop**, verify: fetch all pages until `skip + limit >= total`; compare `deduped_count` with provider total.
+4. **Decide snapshot strategy**, keep `jobs_live.json` pattern or replace with DB; verify: restart loads last sync without re-fetch.
+5. **Wire ingestion**, embed `job_document_text` equivalent and upsert to your vector store; verify: ANN search returns synced job IDs.
+6. **Expose sync/status endpoints**, mirror `GET /real-jobs/status` + `POST /real-jobs/sync` or call provider directly from new app.
+7. **Add integration test**, mock provider paginated JSON; verify: normalize + dedupe + empty-response error handling.
 
 ---
 
-## Quick reference — endpoint cheat sheet
+## Quick reference, endpoint cheat sheet
 
 | Layer | Endpoint | Purpose |
 |-------|----------|---------|

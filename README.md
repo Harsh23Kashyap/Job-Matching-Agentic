@@ -612,7 +612,7 @@ Job-Matching-Agentic/
 ## JAAMAS submission (thesis paper)
 
 **Authors:** Harsh Kashyap, Taranumpreet Kaur Wasu (Thapar Institute of Engineering and Technology)  
-**Supervisor:** Dr Parteek Bhatia (Washington State University)
+**Supervisor:** Dr Parteek Kumar (Washington State University)
 
 | Artifact | Path |
 |----------|------|
@@ -653,4 +653,4 @@ Figure 10 includes eight portal screenshots (candidate onboarding through admin 
 
 ## License and attribution
 
-Thesis research project by **Harsh Kashyap** and **Taranumpreet Kaur Wasu** (Thapar Institute of Engineering and Technology), supervised by **Dr Parteek Bhatia** (Washington State University). JAAMAS manuscript and figures: `docs/submission/jaamas/`.
+Thesis research project by **Harsh Kashyap** and **Taranumpreet Kaur Wasu** (Thapar Institute of Engineering and Technology), supervised by **Dr Parteek Kumar** (Washington State University). JAAMAS manuscript and figures: `docs/submission/jaamas/`.

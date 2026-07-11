@@ -8,13 +8,13 @@ Ship a **thesis-ready multi-agent JobMatch platform** and a **JAAMAS submission 
 ## Current state
 
 - **Done (committed & pushed @ `14eaad0`):**
-  - **JAAMAS manuscript** — authors Harsh Kashyap + Taranumpreet Kaur Wasu (Thapar Institute); supervisor Dr Parteek Bhatia (WSU) in acknowledgments; `main.pdf` ~41 pages
-  - **Figures 1–9** — Fig 1 draw.io HLD; Figs 2–9 Mermaid + crop/border pipeline; LaTeX `\JFigFramed` borders on diagram PDFs
-  - **Figure 10** — 8 stacked portal screenshots (onboarding, profile, matches, breakdown, employer jobs/matches, admin console + match run); Playwright capture script
-  - **Layout fixes** — tables use `[h!]` in-flow placement; screenshots vertical stack in §4
-  - **Overleaf zip** — `docs/submission/jaamas/build/jaamas-overleaf-upload.zip` (54 files, all PNGs + PDFs)
-  - **Profile bugfix** — `hasExtractedSections(null)` crash on `/candidate/profile` fixed in `extractedSections.js`
-  - **Zip script** — includes `figures/screenshots/*.png`; ignores `node_modules`
+  - **JAAMAS manuscript**, authors Harsh Kashyap + Taranumpreet Kaur Wasu (Thapar Institute); supervisor Dr Parteek Kumar (WSU) in acknowledgments; `main.pdf` ~41 pages
+  - **Figures 1–9**, Fig 1 draw.io HLD; Figs 2–9 Mermaid + crop/border pipeline; LaTeX `\JFigFramed` borders on diagram PDFs
+  - **Figure 10**, 8 stacked portal screenshots (onboarding, profile, matches, breakdown, employer jobs/matches, admin console + match run); Playwright capture script
+  - **Layout fixes**, tables use `[h!]` in-flow placement; screenshots vertical stack in §4
+  - **Overleaf zip**, `docs/submission/jaamas/build/jaamas-overleaf-upload.zip` (54 files, all PNGs + PDFs)
+  - **Profile bugfix**, `hasExtractedSections(null)` crash on `/candidate/profile` fixed in `extractedSections.js`
+  - **Zip script**, includes `figures/screenshots/*.png`; ignores `node_modules`
 - **Done (committed @ `03dc791`):** responsive layout, admin console rebuild, Qdrant fix, live jobs API (`a4005e0`), test reorg
 - **In progress:** None
 - **Blocked:** Springer submission still needs corresponding-author email; ~29 manuscript `\todo`s (12 citation gaps in §2); `REAL_JOBS_BASE_URL` not in repo
@@ -32,11 +32,11 @@ Ship a **thesis-ready multi-agent JobMatch platform** and a **JAAMAS submission 
 
 ## Open questions
 
-- [ ] Unknown: Corresponding-author email for Springer — not in repo
-- [ ] Hypothesis: Professor accepts citation TODOs as draft — prior QA marked citations **FAIL**
-- [ ] Unknown: Redraw Figs 2–9 in draw.io reference style — Fig 1 done, rest still Mermaid
-- [ ] Unknown: Add admin UI button for `POST /real-jobs/sync` — API ready, no frontend control
-- [ ] Hunch: Figure 10 may span 3+ PDF pages — acceptable for prototype proof; could split to Figure 11 if reviewer complains
+- [ ] Unknown: Corresponding-author email for Springer, not in repo
+- [ ] Hypothesis: Professor accepts citation TODOs as draft, prior QA marked citations **FAIL**
+- [ ] Unknown: Redraw Figs 2–9 in draw.io reference style, Fig 1 done, rest still Mermaid
+- [ ] Unknown: Add admin UI button for `POST /real-jobs/sync`, API ready, no frontend control
+- [ ] Hunch: Figure 10 may span 3+ PDF pages, acceptable for prototype proof; could split to Figure 11 if reviewer complains
 
 ## Blockers & dependencies
 
@@ -65,18 +65,18 @@ None blocking localhost demo or Overleaf compile.
 ## What worked
 
 - `bash archive/dev-scripts/make_overleaf_zip.sh` after fixing screenshot glob (`compgen -G`)
-- `node capture_portal_screenshots.mjs` with demo accounts — 8 PNGs + auto border pass
+- `node capture_portal_screenshots.mjs` with demo accounts, 8 PNGs + auto border pass
 - `crop_figures.py --borders-only --border-screenshots-only` for `#94a3b8` frames
 - Fig 1 via `export_fig1_drawio.sh` + `gen_fig1_drawio.py`
-- Stacked `\JFigShot` panels at 0.92\linewidth — readable in PDF
-- Null-safe `hasExtractedSections(extractedRaw ?? {})` — unblocks profile page
+- Stacked `\JFigShot` panels at 0.92\linewidth, readable in PDF
+- Null-safe `hasExtractedSections(extractedRaw ?? {})`, unblocks profile page
 
 ## What didn't work
 
-- `float` package `[H]` on `JTable` — breaks sn-jnl `threeparttable` wrapper
-- Side-by-side 3 minipage screenshots — overlap and illegible on Springer column
-- Profile capture before null-guard — white screen from `hasExtractedSections(null)`
-- Committing `figures/scripts/node_modules/` — added `package.json` + `.gitignore` instead
+- `float` package `[H]` on `JTable`, breaks sn-jnl `threeparttable` wrapper
+- Side-by-side 3 minipage screenshots, overlap and illegible on Springer column
+- Profile capture before null-guard, white screen from `hasExtractedSections(null)`
+- Committing `figures/scripts/node_modules/`, added `package.json` + `.gitignore` instead
 
 ## Commands
 
@@ -127,7 +127,7 @@ None.
 
 ## Memory snapshot
 
-- Authors: Harsh Kashyap, Taranumpreet Kaur Wasu (Thapar); supervisor Dr Parteek Bhatia (WSU)
+- Authors: Harsh Kashyap, Taranumpreet Kaur Wasu (Thapar); supervisor Dr Parteek Kumar (WSU)
 - Demo accounts: `demo.candidate@test.com`, `demo.employer@test.com`, `demo.admin@test.com` / `demo1234`
 - Professor QA (2026-05-27): citations marked FAIL among ~29 todos
 
@@ -140,9 +140,9 @@ None.
 
 ## Next steps
 
-1. **Add corresponding-author email** in `main.tex` — verify: `\email{...}` renders on title page
-2. **Resolve §2 citation TODOs** — verify: `rg '\\todo' manuscript` count drops
-3. **Optional: redraw Figs 2–9 in draw.io** — verify: match Fig 1 pageframe style
-4. **Run full test suite** after push — verify: `bash scripts/run_tests.sh` → 310+ pass
-5. **Set `REAL_JOBS_BASE_URL` and smoke sync** — verify: `POST /real-jobs/sync` → 200
-6. **Springer upload** — verify: Overleaf compiles zip to same ~41-page PDF
+1. **Add corresponding-author email** in `main.tex`, verify: `\email{...}` renders on title page
+2. **Resolve §2 citation TODOs**, verify: `rg '\\todo' manuscript` count drops
+3. **Optional: redraw Figs 2–9 in draw.io**, verify: match Fig 1 pageframe style
+4. **Run full test suite** after push, verify: `bash scripts/run_tests.sh` → 310+ pass
+5. **Set `REAL_JOBS_BASE_URL` and smoke sync**, verify: `POST /real-jobs/sync` → 200
+6. **Springer upload**, verify: Overleaf compiles zip to same ~41-page PDF

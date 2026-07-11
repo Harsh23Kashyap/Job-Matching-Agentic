@@ -1,12 +1,12 @@
 ================================================================================
-SESSION CHANGE LOG — JobMatch JAAMAS submission
+SESSION CHANGE LOG, JobMatch JAAMAS submission
 Date: 2026-06-06
 Scope: Overleaf zip install + addressing all 8 JobMatch Paper Review comments
        + benchmark runs + calibration fix + doc weight reconciliation
 ================================================================================
 
 --------------------------------------------------------------------------------
-REVIEW PDF — EVERY TODO, DONE/LEFT  (verified 2026-06-06)
+REVIEW PDF, EVERY TODO, DONE/LEFT  (verified 2026-06-06)
 --------------------------------------------------------------------------------
 Source: 'JobMatch Paper Review.pdf' (8 improvement items + 11 inline \todo markers).
 RESULT: ALL review TODOs DONE. 0 \todo{} remain in author-written manuscript files
@@ -44,7 +44,7 @@ LEGEND
   [BAK]   = backup created before overwriting
 
 --------------------------------------------------------------------------------
-A. MANUSCRIPT — review fixes (docs/submission/jaamas/manuscript/)
+A. MANUSCRIPT, review fixes (docs/submission/jaamas/manuscript/)
 --------------------------------------------------------------------------------
 [EDIT] main.tex
          - abstract: composite ablation 0.942 -> 0.949 (portal weights);
@@ -156,7 +156,7 @@ KNOWN STALE (intentionally not regenerated this session)
 ================================================================================
 
 ================================================================================
-FOLLOW-UP — 2026-06-07: compiled-PDF analysis + remaining-issue fixes
+FOLLOW-UP, 2026-06-07: compiled-PDF analysis + remaining-issue fixes
 ================================================================================
 Analyzed the user-supplied compiled PDF:
   ~/Downloads/JobMatch__Agentic_Explainable_Job__Candidate_Matching.pdf
@@ -166,26 +166,26 @@ revision behind (0.942 / 6/10 / old wording) because main.tex was not re-pasted
 into Overleaf. main.tex on disk is already correct (0.949 / 7/10) -> needs recompile.
 
 Issues fixed this pass (all submission-facing):
-  1. manuscript/references.bib — added missing address fields (fixes "???" in refs):
+  1. manuscript/references.bib, added missing address fields (fixes "???" in refs):
        Manning2008  -> address = {Cambridge, UK}
        Wooldridge2009 -> address = {Chichester, UK}
        Khan2024     -> address = {New York, NY}
-  2. portal/information-sheet.tex — 6/10->7/10 (audit bullet); 0.942->0.949 and
+  2. portal/information-sheet.tex, 6/10->7/10 (audit bullet); 0.942->0.949 and
        6/10->7/10 (repo-paper relationship paragraph).
-  3. portal/information-sheet.md  — 6/10->7/10 (audit bullet); 0.942->0.949 and
+  3. portal/information-sheet.md , 6/10->7/10 (audit bullet); 0.942->0.949 and
        6/10->7/10 (repo-paper relationship paragraph).
-  4. portal/cover-letter.tex — composite ablation 0.942->0.949.
-  5. portal/cover-letter.md  — composite ablation 0.942->0.949.
+  4. portal/cover-letter.tex, composite ablation 0.942->0.949.
+  5. portal/cover-letter.md , composite ablation 0.942->0.949.
 Verified: 0 occurrences of 0.942 or 6/10 remain anywhere in docs/submission/jaamas
 (tex/md). All three book bib entries now have address fields.
 
 Dismissed (not an error): Acknowledgments list Dr Parteek Bhatia (Washington State
-University) — user confirmed WSU is correct; left unchanged.
+University), user confirmed WSU is correct; left unchanged.
 
 Noted, not changed (provenance only, numbers valid):
   - manuscript/tables/tab-methods.tex (Table 3) cites run 2026-05-27T150000Z. Its
     lexical-baseline nDCG@5 differs from the 2026-06-06 run by <=0.008
-    (BM25 0.894 vs 0.902, TF-IDF 0.898 vs 0.905) — within the +/-0.04 gate. Table is
+    (BM25 0.894 vs 0.902, TF-IDF 0.898 vs 0.905), within the +/-0.04 gate. Table is
     self-consistent with its cited run; refresh to the 2026-06-06 run only if single-
     run provenance across all tables is desired.
 

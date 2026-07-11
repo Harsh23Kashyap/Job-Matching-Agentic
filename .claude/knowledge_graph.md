@@ -7,7 +7,7 @@
 
 **Project:** Job-Matching-Agentic · greenfield **multi-agent rewrite** of the job matching system. Three agents (Candidate, Employer, Matchmaking), role portals, composite explainable matching, thesis-demo ready.
 
-**Authors:** Harsh Kashyap, Taranumpreet Kaur Wasu (Thapar Institute of Engineering and Technology). Supervisor: Dr Parteek Bhatia (Washington State University).
+**Authors:** Harsh Kashyap, Taranumpreet Kaur Wasu (Thapar Institute of Engineering and Technology). Supervisor: Dr Parteek Kumar (Washington State University).
 
 **Repository:** https://github.com/Harsh23Kashyap/Job-Matching-Agentic  
 **Branch:** `main` · **Local uncommitted (2026-05-28):** JAAMAS manuscript (authors, Figs 1–10, 8 portal screenshots, Overleaf zip), figure borders, table layout, profile null-guard · **Recent pushed commit:** `03dc791` responsive layout + frontend tests
@@ -1034,7 +1034,7 @@ Five bullets: lexical baselines; soft embed @0.7; cautious ANN on tiny corpus; b
 ### Back matter
 
 **Supplementary paragraph:** OR 1–3 diagrams + CSV/JSON file list  
-**Acknowledgments:** Dr Parteek Bhatia (WSU), Thapar Institute  
+**Acknowledgments:** Dr Parteek Kumar (WSU), Thapar Institute  
 **Declarations (`declarations.tex`):** Funding (none), competing interests (none), ethics N/A, data+code on GitHub, equal author contributions, supervisor credit  
 **References:** 7 BibTeX entries, numeric `sn-mathphys` style
 
@@ -1102,7 +1102,7 @@ react.js/reactjs/react js→react; node.js/nodejs→node; vue.js→vue; ml→mac
 
 **Q4 · prior publication:** None archival; GitHub + technical report are non-archival companions.
 
-**Cover letter highlights:** JAAMAS fit (agents + IR); soft 0.969 vs semantic 0.911; ANN 0.913 vs 0.884; replication package; synthetic data; Dr Bhatia supervision.
+**Cover letter highlights:** JAAMAS fit (agents + IR); soft 0.969 vs semantic 0.911; ANN 0.913 vs 0.884; replication package; synthetic data; Dr Parteek Kumar supervision.
 
 ---
 
@@ -3441,7 +3441,7 @@ backend/
 ### docs/submission/jaamas/portal/information-sheet.pdf
 **Importance:** MEDIUM | **Indexed:** 2026-05-24  
 **Purpose:** Springer mandatory Q&A (3 pages).  
-**Authors:** Harsh Kashyap (corresponding), Taranumpreet Kaur Wasu, supervisor Dr Parteek Bhatia (WSU).  
+**Authors:** Harsh Kashyap (corresponding), Taranumpreet Kaur Wasu, supervisor Dr Parteek Kumar (WSU).  
 **Evidence:** Dual protocol tables identical to README; artifact list (14 endpoints, drivers, datasets, supplementary JSON/CSV).
 
 ---
@@ -3506,7 +3506,7 @@ Sources: `figures/source/FigN.drawio` · regenerate via `scripts/generate_jaamas
 | `sections/section-9.tex` | 37 | Future work (5 subsections) |
 | `sections/appendix-recommendations.tex` | 14 | Production recommendation bullets |
 | `declarations.tex` | 26 | Springer Declarations (funding, data, code, contributions) |
-| `acknowledgments.tex` | 2 | Dr Bhatia + Thapar |
+| `acknowledgments.tex` | 2 | Dr Parteek Kumar + Thapar |
 | `references.bib` | 7 entries | Numeric citations |
 
 ### figures/
