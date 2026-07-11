@@ -14,7 +14,7 @@ Supplementary: `../supplementary/supplementary-information.pdf`
 ## Authors (manuscript)
 
 Harsh Kashyap, Taranumpreet Kaur Wasu, Thapar Institute of Engineering and Technology  
-Supervisor (acknowledgments): Dr Parteek Kumar, Washington State University
+Supervisor (acknowledgments): Dr Parteek Kumar, Associate Professor, Washington State University, Pullman, WA
 
 ## Rebuild
 
