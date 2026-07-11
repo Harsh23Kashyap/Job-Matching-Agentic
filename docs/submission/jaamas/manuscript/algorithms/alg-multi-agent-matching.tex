@@ -1,10 +1,10 @@
-\AlgHeading{Multi-Agent Semantic Job Matching}\label{alg:matching}
+\subsection*{Detailed Workflow}\label{workflow:matching}
 
 \small
-\noindent\textbf{Input:}
+\noindent\textbf{Inputs:}
 Candidate résumés or CVs; job descriptions; candidate preferences when available; employer constraints when available.
 
-\noindent\textbf{Output:}
+\noindent\textbf{Outputs:}
 Ranked candidate--job matches; matching scores; structured explanations and matched-skill summaries.
 
 \begin{enumerate}[label=\arabic*., leftmargin=1.6em, itemsep=0.12em, topsep=0.2em]
@@ -19,7 +19,7 @@ Ranked candidate--job matches; matching scores; structured explanations and matc
   \item \textbf{Employer Agent} generates a job embedding from the confirmed canonical text.
   \item \textbf{Employer Agent} stores the job profile, versioned snapshot, and vector representation; emit a job-updated event.
   \item \textbf{Matchmaking Agent} retrieves candidate and job representations from both vector stores (read-only).
-  \item \textbf{Matchmaking Agent} computes semantic similarity and optional constraint-aware component scores (formulas in \S\ref{sec:5}).
+  \item \textbf{Matchmaking Agent} computes semantic similarity and optional constraint-aware component scores (formulas in Section~\ref{sec:5}).
   \item \textbf{Matchmaking Agent} ranks candidate--job pairs by the configured strategy (portal default: composite score).
   \item \textbf{Matchmaking Agent} generates an explanation and matched-skill summary for each ranked pair.
   \item \textbf{UI/Application Layer} displays ranked recommendations; the user explicitly chooses save, apply, shortlist, or contact.

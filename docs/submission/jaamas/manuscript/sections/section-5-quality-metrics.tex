@@ -1,43 +1,56 @@
 \section{Quality Metrics}\label{sec:5}
 
-This section defines the scores computed inside the Matchmaking agent and the ranking, explanation, and fairness criteria used in offline evaluation.
-Figure~\ref{fig:9} summarizes the evaluation pipeline from the frozen demo corpus through benchmark drivers, metrics, audits, and regression gates.
-Implementation modules appear in \S\ref{sec:4}; numeric outcomes appear in \S\ref{sec:6}.
-
-\begin{JFigure}{../figures/Fig10.png}
-\vspace{1\baselineskip}
-\figcap{9}{Quality evaluation pipeline: frozen demo corpus, benchmark drivers (baselines, progression, ablations, significance, explainability, cross-encoder report, negative mining), metric aggregation, fairness audits, optional ML training of fusion/calibration artifacts, regression gates, and paper tables. Evaluation runs via CLI/pytest only.}
-\end{JFigure}
+This section defines the scores computed inside the Matchmaking Agent and the ranking, explanation, and fairness criteria used in offline evaluation.
+Implementation modules appear in Section~\ref{sec:4}; numeric outcomes appear in Section~\ref{sec:6}.
 
 \subsection{Evaluation corpus and protocol}\label{sec:5-corpus}
 
 Offline evaluation treats each résumé as a query and each job posting as a candidate document.
 The labeled set comprises 30 résumés, 15 jobs, and 47 graded query--document pairs in \texttt{data/eval\_pairs.json}.
 Relevance grades are $r \in \{0,1,2\}$ (none, partial, strong); queries with $r>0$ form the relevant set for binary metrics, while nDCG uses the full graded scale.
-Table~\ref{tab:dataset} summarizes corpus statistics.
-Snapshots are built with the same embedding path used in production (\S\ref{sec:4}).
 
 The relevance labels were assigned manually by the project authors during demo-corpus construction; they are not inferred from portal clicks or hiring outcomes.
 Each candidate--job pair was judged against the structured snapshot fields used by the matcher: résumé skills, experience level, job title, required skills, compensation constraints, and remote-policy fit.
 A strong label indicates that the candidate satisfies the core role requirements; a partial label indicates plausible fit with missing or weaker requirements; and a none label indicates no clear role fit.
 Final labels were chosen conservatively: when a pair was borderline, it was kept at partial or none rather than promoted to strong.
 
-Unless a driver overrides \texttt{top\_k}, we report macro-averaged metrics at $K{=}5$ over all 30 queries.
-Each benchmark driver calls the shared \texttt{eval\_rankings()} routine (\path{benchmarks/metrics.py}) so that method comparisons differ only in the ranking function, not in metric code.
+Unless a driver overrides \texttt{top\_k}, metrics are macro-averaged at $K{=}5$ over all 30 queries.
+All benchmark drivers use the same metric routine so method comparisons differ only in the ranking function.
+Table~\ref{tab:dataset} summarizes corpus statistics.
 
-\begin{JTable}
-\input{tables/tab-dataset.tex}
-\end{JTable}
+\begin{center}
+\refstepcounter{table}\label{tab:dataset}
+\par\smallskip\noindent\textbf{Table~\thetable:} Evaluation corpus statistics.
+\par\smallskip
+\begin{tabular}{@{}ll@{}}
+\toprule
+Statistic & Value \\
+\midrule
+Task & Résumé $\rightarrow$ jobs (candidate-initiated retrieval) \\
+Candidates (queries) & 30 \\
+Job postings (corpus) & 15 \\
+Graded query--document pairs & 47 \\
+Queries with $\geq 1$ relevant job & 30 \\
+Relevance scale & 0 (none), 1 (partial), 2 (strong) \\
+Grade-2 (strong) labels & 21 \\
+Grade-1 (partial) labels & 26 \\
+Labels per query (min / max) & 1 / 2 \\
+Embedding model & \texttt{all-MiniLM-L6-v2} ($d{=}384$) \\
+Label source & \path{data/eval_pairs.json} v1.0 \\
+\bottomrule
+\end{tabular}
+\par\vspace{0.4em}
+\footnotesize{Starter labeled set for offline benchmarks; not derived from live portal traffic.}
+\end{center}
 
 \subsection{Matching scores}\label{sec:5-matching-scores}
 
-For intuition before the formal definitions, Figure~\ref{fig:8} traces the end-to-end scoring flow: a résumé and a job snapshot pass through embedding similarity, skill overlap, and the experience, compensation, and remote signals, which combine into a weighted composite score and a structured explanation that drives the ranked recommendation.
+A résumé and a job snapshot pass through embedding similarity, skill overlap, and the experience, compensation, and remote signals, which combine into a weighted composite score and a structured explanation that drives the ranked recommendation.
 All component scores are normalized to $[0,1]$.
 Let $\mathbf{e}_c, \mathbf{e}_j \in \mathbb{R}^{d}$ denote candidate and job snapshot embeddings ($d{=}384$), and let $A$ and $B$ be canonical skill sets on the résumé and required job skills, respectively.
 
-\leadpara{Semantic similarity.}
-The semantic score measures how closely résumé and job-description embeddings align.
-Cosine mode (portal default):
+The semantic score compares résumé and job-description embeddings.
+Cosine mode is the portal default:
 \begin{equation}
   s_{\mathrm{sem}}^{\mathrm{cos}} =
     \frac{\mathbf{e}_c \cdot \mathbf{e}_j}{\|\mathbf{e}_c\|\,\|\mathbf{e}_j\|}.
@@ -49,9 +62,8 @@ Euclidean mode maps distance to similarity:
   \label{eq:semantic-euclidean}
 \end{equation}
 
-\leadpara{Skill overlap.}
-The skill score measures overlap between résumé skills and job requirements.
-Jaccard mode (portal default):
+The skill score compares résumé skills against job requirements.
+Jaccard mode is the portal default:
 \begin{equation}
   s_{\mathrm{skl}}^{\mathrm{jac}} =
     \begin{cases}
@@ -68,14 +80,12 @@ Embedding mode averages, for each required skill $b \in B$, the maximum cosine b
   \label{eq:skill-embed}
 \end{equation}
 
-\leadpara{Multimodal weighted score (research baseline).}
 A two-signal blend combines semantic and skill scores with weight $\alpha$ (default $\alpha{=}0.7$):
 \begin{equation}
   s_{\mathrm{mm}} = \alpha\, s_{\mathrm{sem}} + (1-\alpha)\, s_{\mathrm{skl}}.
   \label{eq:multimodal}
 \end{equation}
 
-\leadpara{Composite score (portal default).}
 The composite score is a fixed weighted sum over six interpretable components---semantic, skills, title token overlap, experience fit, compensation fit, and remote preference---then clipped to $[0,1]$:
 \begin{equation}
   \begin{aligned}
@@ -87,39 +97,30 @@ The composite score is a fixed weighted sum over six interpretable components---
   \end{aligned}
   \label{eq:composite}
 \end{equation}
-where $s_{\mathrm{tit}}$, $s_{\mathrm{exp}}$, $s_{\mathrm{comp}}$, and $s_{\mathrm{rem}}$ are rule-based scalars in \path{component_scores.py} (piecewise mappings from experience gap, budget band, and remote-policy fields).
-Title overlap blends token coverage and Jaccard overlap between job-title tokens and résumé summary/skills text.
-
-\leadpara{Ensemble and optional adjustments.}
-Reciprocal rank fusion (RRF) merges $m$ ranked lists without retraining:
+Reciprocal rank fusion (RRF), used in comparison experiments, merges $m$ ranked lists without retraining:
 \begin{equation}
   \mathrm{RRF}(x) = \sum_{i=1}^{m} \sum_{r} \mathbb{1}[\mathcal{L}_i[r] = x] \cdot \frac{1}{k + r},
   \label{eq:rrf}
 \end{equation}
 with smoothing constant $k{=}60$ by default.
-When enabled, hard constraints multiply $s_{\mathrm{final}}$ by a feasibility factor $\phi \in (0,1]$; Platt calibration maps scores to $\hat{p}(s)=\sigma(a s + b)$ with fitted $(a,b)$; feedback boost adds fixed save/apply/dismiss deltas.
-These optional paths are disabled in default portal requests (\S\ref{sec:4-params}).
-The Platt calibrator is fit on 450 composite-scored candidate--job pairs (47 labeled relevant plus 403 implicit negatives from unlabeled pairs); it reduces expected calibration error from 0.40 for raw composite scores to 0.032 under 5-fold cross-validation (Brier 0.093), and being monotonic it leaves ranking order and nDCG@5 unchanged (Table~\ref{tab:model-params}). Feedback boost is inert in offline evaluation, which has no logged interactions.
+Optional constraints, Platt calibration, learned fusion, feedback boosts, cross-encoder reranking, and ANN shortlist sweeps are evaluated as experimental branches; portal defaults keep them disabled.
 
 \subsection{Ranking metrics}\label{sec:5-ranking}
 
 Given ranked list $\pi_q$ for query $q$, graded relevance map $\mathrm{rel}_q(\cdot)$, and relevant set $\mathcal{R}_q = \{ j : \mathrm{rel}_q(j) > 0 \}$, let $\pi_q[:K]$ denote the top-$K$ prefix.
 
-\leadpara{Precision@K.}
 Precision@K is the fraction of the top-$K$ slots occupied by relevant jobs:
 \begin{equation}
   \mathrm{P@}K(q) = \frac{1}{K}\sum_{j \in \pi_q[:K]} \mathbb{1}[j \in \mathcal{R}_q].
   \label{eq:p-at-k}
 \end{equation}
 
-\leadpara{Recall@K.}
 Recall@K is the fraction of all relevant jobs for the query retrieved within the top-$K$:
 \begin{equation}
   \mathrm{R@}K(q) = \frac{1}{|\mathcal{R}_q|}\sum_{j \in \pi_q[:K]} \mathbb{1}[j \in \mathcal{R}_q].
   \label{eq:r-at-k}
 \end{equation}
 
-\leadpara{nDCG@K.}
 Normalized discounted cumulative gain rewards higher grades at higher ranks.
 For graded relevance:
 \begin{equation}
@@ -132,7 +133,6 @@ For graded relevance:
 \end{equation}
 where $\pi_{q^\ast}$ is the ideal ranking that sorts jobs by $\mathrm{rel}_q$ descending.
 
-\leadpara{Mean reciprocal rank (MRR).}
 MRR treats relevance as binary ($r>0$) and measures how early the first relevant job appears:
 \begin{equation}
   \mathrm{RR}(q) =
@@ -144,7 +144,6 @@ MRR treats relevance as binary ($r>0$) and measures how early the first relevant
 \end{equation}
 Macro-averaged $\mathrm{MRR} = \frac{1}{|\mathcal{Q}|}\sum_{q \in \mathcal{Q}} \mathrm{RR}(q)$.
 
-\leadpara{Mean average precision (MAP).}
 MAP averages precision at each relevant hit, normalized by $|\mathcal{R}_q|$:
 \begin{equation}
   \mathrm{AP}(q) = \frac{1}{|\mathcal{R}_q|}
@@ -157,19 +156,11 @@ Drivers report macro-averaged P@K, R@K, MRR, nDCG@K, and MAP unless noted otherw
 
 \subsection{Benchmark comparison criteria}\label{sec:5-benchmark-criteria}
 
-\leadpara{Compared method families.}
-The research pipeline (\path{benchmarks/comparison.py}, \path{paper_progression.py}, \path{ablation.py}, \path{table11_fusion.py}) evaluates, on the \emph{same} labeled corpus:
-(i)~lexical baselines (TF--IDF cosine, BM25, exact skill overlap);
-(ii)~dense strategies (semantic cosine/euclidean, skills Jaccard/embedding, multimodal weighted);
-(iii)~composite and component ablations;
-(iv)~fusion variants (RRF, learned logistic regression, hierarchical blending);
-(v)~optional cross-encoder reranking and ANN shortlist sweeps (\texttt{phase11.py}).
+The benchmark suite evaluates, on the \emph{same} labeled corpus: lexical baselines, dense strategies, composite and component ablations, fusion variants, optional cross-encoder reranking, and ANN shortlist sweeps.
 Primary comparison metrics are macro-averaged P@5, R@5, MRR, nDCG@5, and MAP at $K{=}5$.
 
-\leadpara{Statistical comparison.}
-Paired bootstrap tests (\path{benchmarks/significance.py}) resample queries with replacement ($N{=}5000$, seed~42) and compare method pairs on nDCG@K and MRR; a difference is flagged significant at $\alpha{=}0.05$ when the two-sided bootstrap $p$-value falls below 0.05. Significant comparisons are reported in \S\ref{sec:6-main-result}.
+Paired bootstrap tests resample queries with replacement ($N{=}5000$, seed~42) and compare method pairs on nDCG@K and MRR; significant comparisons are reported in Section~\ref{sec:6-main-result}.
 
-\leadpara{Regression gate.}
 Continuous integration recomputes selected rankings and requires:
 \begin{equation}
   \left| \widehat{\mathrm{nDCG@}5}_{\mathrm{run}} - \mathrm{nDCG@}5_{\mathrm{expected}} \right| \leq 0.04,
@@ -177,7 +168,6 @@ Continuous integration recomputes selected rankings and requires:
 \end{equation}
 against committed values in \path{data/expected/paper_progression_summary.json} (\path{tests/benchmarks/test_eval_regression.py}).
 
-\leadpara{Hard-negative mining (sanity check).}
 From the top-$P{=}10$ multimodal pool per query, hard negatives are high-scoring jobs outside the labeled relevant set:
 \begin{equation}
   \mathcal{H}_q = \left\{ j \in \pi_q[:P] : j \notin \mathcal{R}_q \right\}_{|\cdot|\leq 5}.
@@ -185,39 +175,20 @@ From the top-$P{=}10$ multimodal pool per query, hard negatives are high-scoring
 \end{equation}
 Success criterion: zero overlap between $\mathcal{H}_q$ and declared relevant jobs across all queries (label-set sanity, not ranking quality).
 
-ANN shortlist latency from \path{phase11.py} is committed in \path{phase11_summary.csv} and summarized in Table~\ref{tab:latency}.
+ANN shortlist latency is summarized in Section~\ref{sec:6-strengths}.
 
 \subsection{Explanation quality criteria}\label{sec:5-explainability}
 
-Explainability is evaluated offline on ranked pairs using \path{benchmarks/explainability_eval.py} and \path{explainability_checks.py}.
-Two explainer modes are compared: rule-based bullets (\texttt{explain\_mode=rules}, portal default) and a grounded template explainer.
+Explainability is evaluated offline on ranked pairs by comparing rule-based bullets (portal default) with a grounded template explainer.
+Faithfulness requires explanations to cite available matched or missing skills, avoid hallucinated skills, and align qualitative claims with the underlying score breakdown.
+Specificity measures whether bullets contain concrete skill references rather than generic text.
+For synthetic profile variants, consistency is measured with bullet-set Jaccard similarity and matched-skill equality.
 
-\leadpara{Faithfulness.}
-For each explanation, three hard checks must pass: (1)~mention at least one matched or missing skill when such skills exist; (2)~introduce no skill strings outside the candidate/job vocabulary; (3)~align qualitative component claims (e.g.\ ``high semantic similarity'') with the underlying \texttt{ScoreBreakdown}.
-Faithfulness is the fraction of hard checks passed (0--1).
-
-\leadpara{Specificity.}
-Specificity scores how concrete the bullets are relative to generic-only templates (0--1 heuristic based on explicit skill references and parsed skill lists).
-
-\leadpara{Consistency under profile variants.}
-For synthetic profile pairs, bullet-set Jaccard similarity and matched-skill equality are measured between explanations for two controlled variants of the same base profile.
-A pair is \emph{consistent} when Jaccard $\geq 0.5$ and matched-skill sets agree; drift is $1 - \text{Jaccard}$.
-An instance is \emph{flagged} when any hard check fails.
-
-Aggregate explanation-quality results appear in Table~\ref{tab:explainability} (\S\ref{sec:6}).
+Aggregate explanation-quality results are summarized in Section~\ref{sec:6-limitations}.
 
 \subsection{Fairness and sanity metrics}\label{sec:5-fairness}
 
 Fairness checks are proxy-based sanity audits on the synthetic demo corpus; they do not infer protected attributes from real users.
-
-\leadpara{Proxy-group selection rates.}
-Queries are grouped by experience tier (junior/mid/senior) and remote preference (remote-seeker vs.\ onsite-flexible).
-For each group $g$, selection rate is the fraction of queries whose top-$K$ average match score meets or exceeds the corpus median score (\texttt{core/fairness.py}).
-Disparate impact ratio (DIR) is $\min_g \mathrm{rate}_g / \max_g \mathrm{rate}_g$ (1.0 indicates parity).
-Proxy-group disparate-impact ratios are committed to \path{benchmark_outputs/fairness_eval.json} and reported in \S\ref{sec:6-limitations}.
-
-\leadpara{Synthetic counterfactual audit.}
-Ten fabricated profile pairs in \path{fairness_audit_profiles.json} undergo controlled field edits (\path{benchmarks/fairness_audit.py}).
-Per pair and job, the audit records rank change, absolute score delta, and explanation drift (bullet-set Jaccard) between variants.
-A case is flagged when top-$K$ rank shifts, score delta exceeds $0.01$, explanation drift is positive in the top-$K$ union, or the top-1 job changes.
-Reported aggregates include flagged-pair count and maximum score shift; numeric outcomes appear in \S\ref{sec:6}.
+Queries are grouped by experience tier and remote preference to compute selection-rate disparate-impact ratios.
+A separate counterfactual audit applies controlled edits to ten fabricated profile pairs and records rank shifts, score deltas, and explanation drift.
+Numeric outcomes appear in Section~\ref{sec:6-limitations}.

@@ -1,138 +1,40 @@
 \section{Implementation}\label{sec:4}
 
-This section maps the architecture in \S\ref{sec:3} to concrete repository artifacts.
-The implementation is organized around four execution boundaries:
-\begin{enumerate}[leftmargin=*]
-  \item role-specific agents own mutable candidate and job state;
-  \item a read-only Matchmaking agent ranks immutable snapshots;
-  \item the React portals expose candidate, employer, and admin workflows; and
-  \item offline assets reproduce the reported evaluation numbers.
-\end{enumerate}
-Figure~\ref{fig:8} shows the runtime matching path; \S\ref{sec:5} defines the scores and \S\ref{sec:6} reports outcomes.
+This section summarizes how the architecture in Section~\ref{sec:3} is realized in the prototype.
+Detailed component maps, data contracts, runtime defaults, and reproducibility artifacts are moved to the supplementary information to keep the main paper focused.
+Section~\ref{sec:5} defines the scores and Section~\ref{sec:6} reports outcomes; the detailed runtime pipeline diagram is provided in the supplementary information.
 
-\begin{JFigure}{../figures/Fig8.png}
-\vspace{1\baselineskip}
-\figcap{8}{Implementation of the matching pipeline: retrieval (exhaustive or ANN primary; lexical benchmark-only), composite scoring with six weighted components, feasibility constraints, optional fusion/calibration/feedback boost/auto-strategy, and structured explanation fork (rule default, LLM optional) consumed by portal cards and drawer.}
-\end{JFigure}
+\subsection{Runtime boundaries}\label{sec:4-runtime}
 
-\subsection{Backend implementation}\label{sec:4-backend}
+The backend runs as a single FastAPI process wired through the repository bootstrap layer.
+Logical agents share a process and communicate through an in-process event bus rather than network RPC.
+Candidate and employer routes mutate only their owned records; the Matchmaking Agent consumes immutable snapshots and returns ranked lists with explanation payloads.
+Authentication uses role-scoped sessions for candidate, employer, and administrator portals, while benchmark and telemetry endpoints remain available to the admin console and tests.
 
-\leadpara{Deployment shape.}
-The backend is a single FastAPI process built by \texttt{backend/gateway/app.py} and wired through \texttt{bootstrap.py}.
-Routers mount at the root rather than under a global \texttt{/api} prefix.
-Session cookies use \texttt{jm\_session} with a 7-day max age, and an optional \texttt{ReadOnlyMiddleware} blocks writes when \texttt{read\_only=true}.
-The committed default listen address is \texttt{0.0.0.0:8001}.
+At runtime, an owning agent parses an uploaded résumé or job description, normalizes fields, embeds the resulting snapshot, and emits a profile-update event.
+The Matchmaking Agent then retrieves an exhaustive or ANN-filtered candidate set, rescales requested component scores, applies the configured ranking strategy, and attaches explanation fields for the portal.
+Lexical BM25/TF--IDF retrieval is retained for offline baselines rather than as the portal default.
+An optional live-job refresh path can replace the employer corpus from an external provider API, but all reported experiments use the frozen offline corpus.
 
-\begin{JTable}
-\input{tables/tab-implementation-backend.tex}
-\end{JTable}
-
-\leadpara{Matching execution path.}
-At runtime, the owning agent embeds and registers each profile snapshot, then emits a profile-update event.
-The Matchmaking agent consumes only snapshots, retrieves an exhaustive or ANN-filtered candidate set, rescales the requested component scores, attaches explanations, and returns a top-$K$ list.
-Lexical BM25/TF--IDF retrieval is kept for offline baselines and is not the portal default.
-
-\leadpara{Live job refresh.}
-The optional live-feed path is deliberately isolated from the offline corpus.
-\path{core/real_jobs_sync.py} performs paginated upstream \texttt{GET} requests, normalizes external fields, deduplicates identifiers, and writes \path{data/jobs_live.json}.
-\path{services/real_jobs_service.py} then calls \texttt{EmployerAgent.replace\_corpus} and may re-embed candidates and jobs through \texttt{reindex\_all}.
-The API surface is \texttt{GET} \path{/real-jobs/status} and \texttt{POST} \path{/real-jobs/sync}; the CLI equivalent is \texttt{python} \path{backend/scripts/sync_real_jobs_once.py}.
-
-\leadpara{Authentication and route ownership.}
-The roles are \texttt{candidate}, \texttt{employer}, and \texttt{admin}.
-Gateway dependencies enforce ownership for profile-scoped routes:
-\begin{itemize}[leftmargin=*]
-  \item \textbf{Candidate:} \texttt{/candidates/me/*}, résumé upload, saved jobs, applications, and \texttt{/similar/jobs/*}.
-  \item \textbf{Employer:} \texttt{/jobs/mine/*}, description upload/parse, applications for owned jobs, and \texttt{/similar/candidates/*}.
-  \item \textbf{Admin:} demo reset and system-level inspection routes.
-\end{itemize}
-Matching and agent telemetry endpoints remain callable without role checks so the admin console and integration tests can invoke them directly.
-
-Table~\ref{tab:workflows} summarizes the main end-to-end user flows and the API/agent path behind each one.
-
-\begin{JTable}
-\input{tables/tab-workflows.tex}
-\end{JTable}
+The main user-facing flows are candidate onboarding/profile/matches/saved jobs, employer job management/reverse matching/applications, and administrator monitoring/manual inspection.
+Detailed route mappings are provided in the supplementary information.
 
 \subsection{Frontend implementation}\label{sec:4-frontend}
 
-The UI is a React~19 single-page application built with Vite.
-All portals use axios with session cookies and role guards in \texttt{App.jsx}; shared navigation and layout live in \texttt{PortalShell}.
+The frontend is a React~19 single-page application built with Vite.
+It exposes role-specific candidate, employer, and administrator surfaces over the same session-cookie backend.
+Candidate views cover onboarding, profile review, match explanation, and saved jobs.
+Employer views cover job editing, application inspection, and reverse candidate search for owned postings.
+The administrator console exposes agent status, recent events, manual match controls, system configuration, and fairness summaries.
+The portal demonstrates end-to-end workflow feasibility; it is not evaluated as a live-user study.
 
-\begin{itemize}[leftmargin=*]
-  \item \textbf{Candidate portal:} \path{/candidate/onboarding}, \path{/candidate/profile}, \path{/candidate/matches}, and \path{/candidate/saved}. Profile saves dispatch \texttt{jobmatch:profile-updated}; match and saved-job views refetch on that signal. Explanation surfaces are \texttt{MatchExplainability} and \texttt{MatchDetailsDrawer}.
-  \item \textbf{Employer portal:} \path{/employer/jobs}, \path{/employer/matches}, and \path{/employer/applications}. The job editor and upload flow call \path{/jobs/mine/*}; reverse matching uses \texttt{mode=job\_to\_candidates}.
-  \item \textbf{Admin console:} \path{/admin/console}. Panels show agent status, recent events, system config, manual match controls, recent results in \texttt{localStorage}, and the fairness summary from \texttt{GET} \path{/system/fairness}. Live sync is available through the API and CLI, but no dedicated admin button is wired.
-  \item \textbf{Error routes:} full-screen 404/502/unknown-error pages distinguish client routing failures from upstream outages.
-\end{itemize}
+\subsection{Contracts, defaults, and reproducibility}\label{sec:4-data}\label{sec:4-params}
 
-Figure~\ref{fig:10} shows the portal surfaces that invoke the matching pipeline in Figure~\ref{fig:8}.
-Screenshots use the demo corpus and default composite strategy; they demonstrate the research prototype UI, not a usability study.
+The main implementation invariant is that editable portal records are converted into match-ready snapshots before scoring.
+Contracts are implemented as Pydantic models, and feedback records store user action context without rewriting embeddings.
+The portal default is deliberately conservative: fixed composite scoring, rules-based explanations, no calibration, no feedback boost, no cross-encoder rerank, and no automatic strategy switch.
+This default keeps online behavior interpretable and aligned with the score definitions in Section~\ref{sec:5}.
 
-\begin{figure}[p]
-\centering
-\begin{minipage}{0.98\linewidth}
-\centering
-\JFigFramed{\includegraphics[width=0.99\linewidth,height=0.30\textheight,keepaspectratio]{../figures/screenshots/ui-candidate-matches.png}}\\[3pt]
-{\small (a) Candidate job matches}
-\end{minipage}\\[0.65\baselineskip]
-\begin{minipage}{0.98\linewidth}
-\centering
-\JFigFramed{\includegraphics[width=0.99\linewidth,height=0.30\textheight,keepaspectratio]{../figures/screenshots/ui-employer-matches.png}}\\[3pt]
-{\small (b) Employer reverse search}
-\end{minipage}\\[0.65\baselineskip]
-\begin{minipage}{0.98\linewidth}
-\centering
-\JFigFramed{\includegraphics[width=0.99\linewidth,height=0.36\textheight,keepaspectratio]{../figures/screenshots/ui-score-breakdown.png}}\\[3pt]
-{\small (c) Composite score breakdown}
-\end{minipage}
-\figcap{10}{Portal implementation backing the workflows in Figures~\ref{fig:6}--\ref{fig:7} and the matching pipeline in Figure~\ref{fig:8}: (a) candidate job matches with explanation drawer; (b) employer reverse candidate search for an owned posting; (c) composite score breakdown and skill alignment (portal default strategy, top-$K{=}10$).}
-\end{figure}
-
-\subsection{Data contracts}\label{sec:4-data}
-
-Contracts are Pydantic models in \texttt{backend/contracts/}.
-The key invariant is that the Matchmaking agent scores snapshots, not editable portal records.
-Table~\ref{tab:implementation-contracts} lists the objects that cross the boundary between agents, stores, and portals.
-
-\begin{JTable}
-\input{tables/tab-implementation-contracts.tex}
-\end{JTable}
-
-\leadpara{Feedback and events.}
-\texttt{FeedbackStore} records user, target, action, optional context, role, and timestamp.
-Match-scoped actions are \texttt{save}, \texttt{dismiss}, and \texttt{apply}; broader actions include \texttt{contact}, \texttt{reject}, and \texttt{not\_interested}.
-Feedback never rewrites embeddings and affects ranking only when \texttt{use\_feedback\_boost=true}.
-Agent events cover profile updates, corpus bootstrap, match requests, and match completions; emitted event names are surfaced in the admin event strip.
-
-\subsection{Libraries and runtime defaults}\label{sec:4-libraries}
-
-JobMatch ships as one backend process plus one static SPA bundle; there is no inter-service RPC layer beyond the in-process event bus.
-Only dependencies declared in the repository are listed here:
-\begin{itemize}[leftmargin=*]
-  \item \textbf{Backend framework:} FastAPI~0.129, Uvicorn~0.29, Pydantic~2.9, and \texttt{pydantic-settings}.
-  \item \textbf{Backend data/retrieval:} NumPy~1.26, Sentence-Transformers~5.1, ChromaDB~0.4.24, and optional Qdrant client~1.12.
-  \item \textbf{Backend utilities:} HTTPX, Passlib/bcrypt, \texttt{python-multipart}, \texttt{python-dotenv}, pdfplumber, \texttt{email-validator}, \texttt{itsdangerous}, and optional \texttt{tiktoken}~0.8.
-  \item \textbf{Storage/frontend:} SQLite through Python \texttt{sqlite3}; React~19, React DOM, React Router~7, axios~1.7, Vite~6, and \texttt{@vitejs/plugin-react}.
-\end{itemize}
-
-\subsection{Parameter settings}\label{sec:4-params}
-
-Table~\ref{tab:implementation-params} separates portal defaults, API defaults, optional branches, and live-job gates.
-The portal default is intentionally conservative: fixed composite scoring, rules-based explanations, no calibration, no feedback boost, no cross-encoder rerank, and no automatic strategy switch.
-
-\begin{table}[!htbp]
-\centering
-\input{tables/tab-implementation-params.tex}
-\end{table}
-
-\subsection{Reproducibility}\label{sec:4-benchmarks}
-
-The evaluation path uses frozen data and scripted drivers rather than portal state.
-Table~\ref{tab:implementation-repro} lists the artifacts needed to reproduce the paper-facing runs.
-ANN shortlist latency is summarized separately in Table~\ref{tab:latency} from the committed \texttt{phase11\_summary.csv}.
-
-\begin{table}[!htbp]
-\centering
-\input{tables/tab-implementation-repro.tex}
-\end{table}
+Offline evaluation does not depend on portal state.
+Scripts build snapshots from frozen files, run benchmark drivers, and compare selected metrics against committed expected values.
+The supplementary information lists the implementation map, contracts, runtime defaults, dependencies, and regeneration commands needed to reproduce the paper-facing runs.

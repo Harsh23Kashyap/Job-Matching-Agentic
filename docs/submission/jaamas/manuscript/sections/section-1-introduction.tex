@@ -1,62 +1,25 @@
 \section{Introduction}\label{sec:1}
 
-Online hiring markets route high application volume through platforms that rank candidates and jobs at scale, yet both sides often receive limited feedback on why a match appeared, changed, or disappeared.
-Candidates submit the same résumé to many openings and cannot distinguish rejection, filtering, and queue effects.
-When outcomes arrive---an interview invitation, a rejection, or a role removed from a results page---the rationale seldom returns to the applicant in actionable form.
+Online hiring markets increasingly depend on ranking systems that match candidates to jobs at scale, yet the reasons behind those rankings are often opaque.
+Candidates see ordered lists without a clear link to résumé fields or job requirements, while employers see shortlists change after role edits without a visible account of which requirement moved the ranking.
+This opacity makes it difficult for either side to answer a practical question: \emph{why was this person shown this role, and what would need to change for the ranking to differ?}
 
-Recruitment platforms centralize workflow, but they rarely make ranking decisions auditable.
-Candidates see ordered lists without evidence tying each slot to profile fields or job requirements.
-Recruiters and hiring managers see shortlists update after job-text edits without a visible link between requirement changes and rank movement.
-Neither side can reliably answer: \emph{why was this person shown this role, and what would need to change for the ranking to differ?}
+We address this problem through \textbf{JobMatch}, a research prototype for explainable job--candidate matching.
+The system separates the market into three logical agents.
+A \textbf{Candidate Agent} owns résumés, profile updates, and candidate snapshots.
+An \textbf{Employer Agent} owns job descriptions, requirement updates, and job snapshots.
+A neutral \textbf{Matchmaking Agent} reads those snapshots, scores candidate--job pairs, and returns ranked recommendations with structured explanations.
+When either side edits its data, the owning agent refreshes its snapshot and notifies the matching layer so stale rankings can be invalidated without cross-agent writes.
 
-These gaps impose measurable cost.
-Misaligned interviews consume calendar time on both sides; qualified candidates who never reach a shortlist extend vacancies or divert talent elsewhere.
-Organizations pay in recruiter hours and manager attention; job seekers pay in repeated preparation for roles that were poor fits from the outset.
+This architecture follows human--agent systems research that positions agents as decision support with calibrated trust, not autonomous hiring authority~\cite{Rosenfeld2019HAS}.
+JobMatch does not automate hiring decisions.
+It parses résumés and job descriptions into structured states, exposes component-level reasons for each match, and leaves save, apply, shortlist, and reject decisions to users.
+The prototype includes separate candidate, employer, and administrator portals, but the core research question is narrower: whether role-separated agents can support auditable, reproducible, and explainable ranking.
 
-Assistive artificial intelligence can address such opacity without automating hire-or-reject decisions.
-Sal Khan~\cite{Khan2024} argues that AI should guide people through complex choices---clarifying trade-offs, supporting preparation, and preserving human judgment.
-In admissions and hiring alike, static snapshots often replace evolving context; software that maintains structured, versioned profiles can instead support informed decisions over time.
-
-We instantiate that principle with a dedicated agent on each market side.
-A \textbf{candidate-side agent}---also referred to as the client-side agent in our implementation---accepts résumés and profile updates, extracts a structured record of skills and experience, and keeps that record current as the user revises materials.
-An \textbf{employer-side agent} performs the parallel work for hiring: it accepts job descriptions and requirements, organizes them into a structured job record, and updates that record when a role changes.
-Each agent owns its side of the market; neither manages the other's data.
-
-Separate ownership only helps if the two sides can still meet on common ground.
-When candidate records and job records never connect, both portals collapse into blind browsing.
-When one large program controls every edit and every score, users cannot see who changed what or why a recommendation moved.
-JobMatch therefore treats \textbf{collaboration among agents} as the core design problem.
-Candidate and employer agents maintain their own state; a neutral \textbf{Matchmaking Agent} reads both, compares them, and returns ranked recommendations with structured explanations.
-When either side updates a résumé or a job description, the owning agent refreshes its record and notifies the Matchmaking layer so stale rankings can be invalidated.
-
-These components form \textbf{JobMatch}, a multi-agent job-matching platform implemented as a research prototype with separate web portals for candidates, employers, and administrators.
-The platform parses résumés and job descriptions into structured states, builds comparable representations of people and roles, and routes matching through the Matchmaking Agent to produce ordered recommendations.
-For deployment scenarios, the Employer agent can optionally refresh its job corpus from an external provider API; offline evaluation in this paper uses a fixed demo corpus (\S\ref{sec:4}).
-Users remain in control throughout: they review extracted fields, read why a pairing ranked as it did, and decide whether to save, apply, or shortlist.
-The system advises; it does not hire or reject on anyone's behalf.
-We evaluate the matching core offline on a labeled demo corpus---30 résumés, 15 jobs, and 47 graded relevance pairs---using standard ranking metrics and reproducible benchmark comparisons (\S\ref{sec:5}--\S\ref{sec:6}).
-Hybrid rankers reach nDCG@5 up to $0.969$ on this corpus; the portal defaults to a fixed composite score whose components map to user-visible explanations.
-
-\subsection{A running example}\label{sec:1-example}
-
-A concrete walkthrough makes the three-agent design tangible before we formalize it.
-Suppose Alex uploads a résumé to the candidate portal.
-The \textbf{Candidate Agent} cleans the document, normalizes skills against a shared vocabulary, and---once Alex confirms the parsed fields---registers a versioned \emph{candidate snapshot} of skills, experience, compensation expectation, and remote preference, together with an embedding.
-Separately, a hiring team posts a ``Machine Learning Engineer'' opening; the \textbf{Employer Agent} performs the parallel work, producing a \emph{job snapshot} with required skills, experience bounds, and a compensation band.
-When Alex opens the matches page, the read-only \textbf{Matchmaking Agent} compares the candidate snapshot against the available job snapshots, scores each pairing, and returns a ranked list.
-For the ML Engineer role Alex sees a match percentage, the skills that matched and the ones still missing, an experience and compensation read-out, and a one-line rationale.
-Alex---not the system---decides whether to save or apply.
-If Alex later edits the résumé and re-saves, the Candidate Agent refreshes its snapshot and signals the Matchmaking Agent to discard the now-stale ranking, so the next view reflects the change with a visible cause.
-The remainder of this paper formalizes these agents, their communication, and the scoring that produces the explained ranking.
-
-\subsection{Why an agentic architecture?}\label{sec:1-why-agents}
-
-A reasonable question is why JobMatch is framed as cooperating \emph{agents} rather than as a handful of conventional services.
-The distinction concerns ownership, memory, and coordination, not deployment topology: JobMatch ships as a single process, and its agents are logical roles that communicate through an in-process event bus rather than network RPC.
-A stateless service typically handles each request in isolation, shares or externalizes record ownership, and keeps no durable model of a user that evolves across visits.
-A JobMatch agent instead (i)~\textbf{owns} one side of the market---candidate records or job records, but never both; (ii)~maintains an \textbf{evolving, versioned memory} (an editable profile and a match-ready snapshot) that persists and updates as the user revises materials; (iii)~\textbf{reacts to events}, invalidating stale rankings when its own state changes; and (iv)~operates under explicit \textbf{ownership boundaries}, so no agent writes another agent's store.
-These properties make accountability and cache invalidation first-class rather than emergent: a reader can always identify which side's edit moved a ranking, and the neutral Matchmaking Agent reads versioned snapshots without ever mutating them.
-This framing motivates the ownership and communication boundaries formalized in Section~\ref{sec:3}.
+The system is evaluated offline on a fixed demo corpus of 30 résumés, 15 jobs, and 47 graded relevance pairs.
+We compare lexical baselines, dense embedding methods, hybrid semantic--skill rankers, fusion variants, ablations, latency, and fairness/explainability sanity checks.
+Hybrid rankers reach nDCG@5 up to $0.969$ on this corpus; the portal defaults to a fixed composite score whose six components map directly to user-visible explanations.
+The results should be read as evidence for an assistive ranking prototype, not as evidence of production hiring impact.
 
 This paper makes the following contributions:
 \begin{itemize}[noitemsep]
@@ -70,8 +33,8 @@ This paper makes the following contributions:
 
 The remainder of the paper is organized as follows.
 Section~\ref{sec:2} reviews recruitment systems, AI agents in hiring, and related matching approaches.
-Section~\ref{sec:3} presents the multi-agent architecture (Candidate, Employer, and Matchmaking agents; communication; overall workflow).
-Section~\ref{sec:4} describes implementation details (libraries, APIs, data structures, and parameters).
+Section~\ref{sec:3} presents the multi-agent architecture (Candidate, Employer, and Matchmaking agents; communication; end-to-end workflow).
+Section~\ref{sec:4} summarizes implementation details.
 Section~\ref{sec:5} defines quality metrics, similarity scores, and evaluation criteria.
 Section~\ref{sec:6} reports benchmark results and discussion.
 Section~\ref{sec:7} concludes and outlines future scope.
