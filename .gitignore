@@ -5,7 +5,7 @@ backend/__pycache__/
 backend/**/__pycache__/
 *.pyc
 
-# Secrets — never commit real API keys or session secrets
+# Secrets, never commit real API keys or session secrets
 .env
 .env.local
 .env.*.local
@@ -35,3 +35,4 @@ docs/submission/jaamas/manuscript/*.fls
 .coverage
 htmlcov/
 backend/qdrant_db/
+.DS_Store
