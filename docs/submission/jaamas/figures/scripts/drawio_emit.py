@@ -1,4 +1,4 @@
-"""Emit diagrams.net (draw.io) mxGraph XML — shared JAAMAS figure helpers."""
+"""Emit diagrams.net (draw.io) mxGraph XML for shared JAAMAS figure helpers."""
 from __future__ import annotations
 
 import textwrap

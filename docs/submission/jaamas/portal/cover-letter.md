@@ -1,4 +1,4 @@
-# Cover Letter — JAAMAS Submission
+# Cover Letter, JAAMAS Submission
 
 **Date:** 27 May 2026
 

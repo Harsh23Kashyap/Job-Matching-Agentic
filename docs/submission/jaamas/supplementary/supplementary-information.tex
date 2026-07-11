@@ -4,10 +4,22 @@
 \usepackage[margin=2.5cm]{geometry}
 \usepackage{hyperref}
 \usepackage{booktabs}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{amsmath}
 \usepackage{parskip}
 
 \hypersetup{hidelinks}
-\pagestyle{empty}
+\pagestyle{plain}
+
+\newcommand{\suppTable}[1]{%
+  \begin{table}[htbp]
+  \centering
+  \input{../manuscript/tables/#1}
+  \end{table}
+}
 
 \title{Supplementary Information\\JobMatch: An Agentic Multi-Role Platform for Explainable Job--Candidate Matching}
 \author{}
@@ -19,24 +31,129 @@
 
 \section*{Scope}
 
-This supplementary note lists benchmark artifacts and regeneration commands referenced in the main manuscript. It does not introduce new experimental results.
+This supplementary note preserves implementation and audit detail moved out of the main manuscript during page reduction. It does not introduce new experimental results.
+
+\section*{Implementation Map}
+
+The main manuscript summarizes the runtime boundaries. Table~\ref{tab:implementation-backend} lists the concrete backend artifacts behind those boundaries.
+
+\suppTable{tab-implementation-backend.tex}
+
+\section*{User-Facing Workflows}
+
+Table~\ref{tab:workflows} lists the role-specific portal routes and API/agent paths summarized in the main implementation section.
+
+\suppTable{tab-workflows.tex}
+
+\section*{Data Contracts}
+
+Table~\ref{tab:implementation-contracts} lists the snapshot and response contracts used by the Matchmaking Agent and portals.
+
+\suppTable{tab-implementation-contracts.tex}
+
+\section*{Runtime Defaults}
+
+Table~\ref{tab:implementation-params} records the portal defaults, optional branches, and live-job gates used by the prototype.
+
+\suppTable{tab-implementation-params.tex}
+
+\section*{Runtime Matching Pipeline}
+
+Figure~\ref{fig:supp-matching-pipeline} shows the implementation pipeline summarized in the main manuscript.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.95\linewidth]{../figures/Fig8.png}
+\caption{Implementation of the matching pipeline: retrieval, composite scoring, feasibility constraints, optional fusion/calibration/feedback boost/auto-strategy, and structured explanations consumed by portal cards and drawers.}
+\label{fig:supp-matching-pipeline}
+\end{figure}
+
+\section*{Reproducibility Assets}
+
+Table~\ref{tab:implementation-repro} lists the frozen corpus, benchmark drivers, and verification paths.
+
+\suppTable{tab-implementation-repro.tex}
+
+\section*{Portal Screenshots}
+
+The screenshots in Figure~\ref{fig:supp-portal} show the candidate, employer, and score-breakdown surfaces that consume the matching pipeline. They use the same demo corpus and portal-default composite strategy as the main manuscript.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.90\linewidth,height=0.70\textheight,keepaspectratio]{../figures/screenshots/ui-candidate-matches.png}
+\caption{Portal screenshot: candidate job matches with explanation drawer.}
+\label{fig:supp-portal}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.90\linewidth,height=0.70\textheight,keepaspectratio]{../figures/screenshots/ui-employer-matches.png}
+\caption{Portal screenshot: employer reverse candidate search for an owned posting.}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.90\linewidth,height=0.70\textheight,keepaspectratio]{../figures/screenshots/ui-score-breakdown.png}
+\caption{Portal screenshot: composite score breakdown and skill alignment.}
+\end{figure}
+
+\section*{Evaluation Pipeline}
+
+Figure~\ref{fig:supp-eval-pipeline} summarizes the frozen-corpus evaluation pipeline used to generate the main manuscript tables.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.95\linewidth]{../figures/Fig10.png}
+\caption{Quality evaluation pipeline: frozen demo corpus, benchmark drivers, metric aggregation, fairness audits, optional model training, regression gates, and paper tables.}
+\label{fig:supp-eval-pipeline}
+\end{figure}
+
+\section*{Fusion and Model Parameters}
+
+Table~\ref{tab:method-comparison} gives the full method comparison summarized in the main results section. Table~\ref{tab:fusion} gives the fusion and constraint variants, and Table~\ref{tab:model-params} records the fitted calibration and learned-fusion parameters.
+
+\suppTable{tab-methods.tex}
+
+\suppTable{tab-fusion.tex}
+
+\suppTable{tab-model-params.tex}
+
+\section*{Ablation and Latency Details}
+
+Tables~\ref{tab:ablation} and \ref{tab:latency} provide the detailed ablation and latency rows summarized in the main results section.
+
+\suppTable{tab-ablation.tex}
+
+\suppTable{tab-latency.tex}
+
+\section*{Hard-Negative, Fairness, and Explanation Audits}
+
+Tables~\ref{tab:hard-negs}, \ref{tab:fairness}, and \ref{tab:explainability} provide the detailed audit outputs summarized in the main manuscript.
+
+\suppTable{tab-hard-negs.tex}
+
+\suppTable{tab-fairness.tex}
+
+\suppTable{tab-explainability.tex}
 
 \section*{Primary benchmark artifacts}
 
-\begin{tabular}{@{}ll@{}}
+\small
+\begin{tabular}{@{}p{0.30\linewidth}p{0.62\linewidth}@{}}
 \toprule
 Artifact & Path (repository root) \\
 \midrule
-Paper progression summary & \texttt{data/expected/paper\_progression\_summary.json} \\
-Fusion ablation & \texttt{backend/benchmark\_outputs/table11\_fusion.json} \\
-Composite ablation & \texttt{docs/research/evaluation/artifacts/runs/2026-05-27T150000Z/ablation/ablation\_summary.json} \\
-Method comparison & \texttt{docs/research/evaluation/artifacts/runs/2026-05-27T150000Z/comparison/comparison\_summary.json} \\
-Cross-encoder report & \texttt{docs/research/evaluation/artifacts/runs/2026-05-27T150000Z/cross\_encoder/cross\_encoder\_report.json} \\
-Hard negatives & \texttt{backend/benchmark\_outputs/hard\_negatives.json} \\
-Fairness audit table & \texttt{docs/research/evaluation/paper\_tables/table4\_fairness.csv} \\
-Eval corpus & \texttt{data/cvs.json}, \texttt{data/jobs.json}, \texttt{data/eval\_pairs.json} \\
+Paper progression summary & \path{data/expected/paper_progression_summary.json} \\
+Fusion ablation & \path{backend/benchmark_outputs/table11_fusion.json} \\
+Composite ablation & \path{docs/research/evaluation/artifacts/runs/2026-05-27T150000Z/ablation/ablation_summary.json} \\
+Method comparison & \path{docs/research/evaluation/artifacts/runs/2026-05-27T150000Z/comparison/comparison_summary.json} \\
+Cross-encoder report & \path{docs/research/evaluation/artifacts/runs/2026-05-27T150000Z/cross_encoder/cross_encoder_report.json} \\
+Hard negatives & \path{backend/benchmark_outputs/hard_negatives.json} \\
+Fairness audit table & \path{docs/research/evaluation/paper_tables/table4_fairness.csv} \\
+Eval corpus & \path{data/cvs.json}, \path{data/jobs.json}, \path{data/eval_pairs.json} \\
 \bottomrule
 \end{tabular}
+\normalsize
 
 \section*{Regeneration commands}
 

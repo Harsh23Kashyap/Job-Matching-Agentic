@@ -1,4 +1,4 @@
-# Springer Nature Information Sheet — JAAMAS
+# Springer Nature Information Sheet, JAAMAS
 
 **Manuscript title:** JobMatch: An Agentic Multi-Role Platform for Explainable Job–Candidate Matching
 
@@ -10,7 +10,7 @@
 
 ## Q1. What is the main contribution?
 
-This paper presents **JobMatch**, an integrated research prototype for **explainable job–candidate matching** built as a **role-aware multi-agent platform**. The contribution is architectural, algorithmic, and evaluative—not a claim of production hiring effectiveness.
+This paper presents **JobMatch**, an integrated research prototype for **explainable job–candidate matching** built as a **role-aware multi-agent platform**. The contribution is architectural, algorithmic, and evaluative: not a claim of production hiring effectiveness.
 
 **1. Agentic platform design.** We describe a three-agent pattern in which Candidate and Employer agents own profile ingestion, normalization, and embedding, while a read-only Matchmaking agent scores and explains candidate–job pairs. Agents coordinate through a shared in-process event bus; role-separated web portals enforce authenticated ownership and keep hiring actions (save, apply, contact) under explicit human control.
 
@@ -41,7 +41,7 @@ This paper presents **JobMatch**, an integrated research prototype for **explain
 
 *Journal of Autonomous Agents and Multi-Agent Systems* publishes research on **agent architectures, coordination, and deployed agent systems**. JobMatch fits this scope in four ways:
 
-**Multi-agent decomposition with clear responsibilities.** Profile mutation (Candidate and Employer agents) is separated from matchmaking (read-only Matchmaking agent). This modular design supports independent failure diagnosis, cache invalidation on profile updates, and role-specific workflows—core MAS concerns rather than a monolithic recommender service.
+**Multi-agent decomposition with clear responsibilities.** Profile mutation (Candidate and Employer agents) is separated from matchmaking (read-only Matchmaking agent). This modular design supports independent failure diagnosis, cache invalidation on profile updates, and role-specific workflows: core MAS concerns rather than a monolithic recommender service.
 
 **Coordination without autonomous hiring decisions.** Agents exchange events (e.g., profile updates) and expose HTTP endpoints consumed by role-aware interfaces. Users review parsed profiles, inspect explanations, and explicitly act on matches. The system **orchestrates** retrieval and scoring; it does **not** autonomously hire, reject, or negotiate on behalf of users.
 
@@ -49,7 +49,7 @@ This paper presents **JobMatch**, an integrated research prototype for **explain
 
 **Empirical study of agent-supported ranking choices.** The paper compares lexical baselines, dense retrieval, reciprocal rank fusion, learned fusion, composite scoring, and cross-encoder reranking on a fixed labeled corpus, and reports when higher offline nDCG does **not** justify deployment (e.g., cross-encoder latency/quality trade-off; portal preference for interpretable composite weights over the highest offline nDCG in research drivers).
 
-In summary, the paper contributes an **agentic, explainable matching platform** with **reproducible evaluation**, aligned with JAAMAS interest in multi-agent systems that are designed, measured, and deployed with explicit human roles—not fully autonomous labor-market agents.
+In summary, the paper contributes an **agentic, explainable matching platform** with **reproducible evaluation**, aligned with JAAMAS interest in multi-agent systems that are designed, measured, and deployed with explicit human roles: not fully autonomous labor-market agents.
 
 ---
 
@@ -59,7 +59,7 @@ JobMatch sits at the intersection of **information retrieval**, **multi-agent sy
 
 **Information retrieval and hybrid ranking.** Job–candidate matching is fundamentally a retrieval-and-ranking problem over semi-structured documents. Our evaluation compares standard IR baselines (TF–IDF, BM25), dense bi-encoder similarity (`all-MiniLM-L6-v2`, 384-dimensional embeddings), multimodal combinations of semantic and skill signals, reciprocal rank fusion (RRF), learned fusion, and cross-encoder reranking. These components build on established IR practice (Manning et al.; Robertson & Zaragoza on BM25; Reimers & Gurevych on sentence embeddings; Cormack et al. on RRF). **Our novelty is not a new single retrieval formula** but the **integration** of these signals in a composite, explainable ranker within an agentic platform, with metrics reported only from reproducible drivers.
 
-**Multi-agent systems.** We adopt a role-specialized agent decomposition (Wooldridge) in which agents own domain state and communicate via events. Unlike generic MAS tutorials or abstract coordination models, we document **concrete portal workflows**, gateway endpoints, and the read-only boundary of the Matchmaking agent—connecting MAS design to an implemented hiring support system.
+**Multi-agent systems.** We adopt a role-specialized agent decomposition (Wooldridge) in which agents own domain state and communicate via events. Unlike generic MAS tutorials or abstract coordination models, we document **concrete portal workflows**, gateway endpoints, and the read-only boundary of the Matchmaking agent: connecting MAS design to an implemented hiring support system.
 
 **Explainability and calibration.** Structured explanations are attached at scoring time (skill alignment, constraint fit, component weights). Optional Platt scaling and LIME-style rationale hooks exist in the codebase; calibration and feedback boost are **off** in the default portal configuration. We do not claim LIME- or calibration-driven improvements without held-out numbers in the manuscript.
 

@@ -17,7 +17,7 @@ for n in 1 2 3 4 5 6 7 8 9; do
   fi
   echo "Exporting Fig${n}..."
   if [[ "$n" == "1" ]]; then
-    echo "  Skip Fig1 (canonical source: source/Fig1.drawio — run export_fig1_drawio.sh)"
+    echo "  Skip Fig1 (canonical source: source/Fig1.drawio; run export_fig1_drawio.sh)"
     continue
   elif [[ "$n" == "2" || "$n" == "3" ]]; then
     # Figs 2–3 agent internals: square grid layout

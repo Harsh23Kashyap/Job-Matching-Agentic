@@ -2,7 +2,7 @@
 
 **Workflow:** Review Mermaid here → approve each figure → export to `source/FigN.drawio` → `python3 scripts/generate_jaamas_figures.py` → check `FigN.pdf` → `\JFigure` in manuscript.
 
-**Rules:** Grayscale in final PDF; agent names match §3–§5; one idea per figure; dashed = read/event/optional, solid = owned path.
+**Rules:** Grayscale in final PDF; agent names match Section 3–Section 5; one idea per figure; dashed = read/event/optional, solid = owned path.
 
 **Color policy:** Mermaid previews in this doc use **color for review only** (flowcharts via `classDef`; sequence diagrams use the default theme for Markdown preview compatibility). draw.io export for `FigN.pdf` converts to **grayscale** for Springer/JAAMAS print.
 
@@ -23,25 +23,25 @@
 
 ## Architecture ladder (professor spec)
 
-Read figures **top-down** in §3 — simple → per-agent → full detail.
+Read figures **top-down** in Section 3, simple → per-agent → full detail.
 
 | Fig | Name | Where in paper | Purpose |
 |-----|------|----------------|---------|
-| **1** | **HLD (simple)** | Start of §3 | 3 agents + 2 portals + users; one glance |
-| **2** | **Candidate agent (expanded)** | §3.1 | Inner components of candidate-side agent |
-| **3** | **Employer agent (expanded)** | §3.2 | Inner components of employer-side agent |
-| **4** | **Matchmaking agent (expanded)** | §3.3 | Inner components of read-only matcher |
-| **5** | **Full block architecture (detailed)** | End of §3 (before §3.4 comms) | All agents + stores + gateway + bus in one diagram |
-| 6 | Candidate workflow (sequence) | §3.5 | End-user path |
-| 7 | Employer workflow (sequence) | §3.5 | Mirror of Fig 6 |
-| 8 | Matching pipeline | §4 | Implementation scoring path |
-| 9 | Evaluation pipeline | §5 | Benchmark / regression |
+| **1** | **HLD (simple)** | Start of Section 3 | 3 agents + 2 portals + users; one glance |
+| **2** | **Candidate agent (expanded)** | Section 3.1 | Inner components of candidate-side agent |
+| **3** | **Employer agent (expanded)** | Section 3.2 | Inner components of employer-side agent |
+| **4** | **Matchmaking agent (expanded)** | Section 3.3 | Inner components of read-only matcher |
+| **5** | **Full block architecture (detailed)** | End of Section 3 (before Section 3.4 comms) | All agents + stores + gateway + bus in one diagram |
+| 6 | Candidate workflow (sequence) | Section 3.5 | End-user path |
+| 7 | Employer workflow (sequence) | Section 3.5 | Mirror of Fig 6 |
+| 8 | Matching pipeline | Section 4 | Implementation scoring path |
+| 9 | Evaluation pipeline | Section 5 | Benchmark / regression |
 
-**Manuscript:** `\JFigure` refs updated in `section-3/4/5 .tex` — Fig 1 HLD → Figs 2–4 agents → Fig 5 capstone → Figs 6–7 workflows → Figs 8–9 pipelines.
+**Manuscript:** `\JFigure` refs updated in `section-3/4/5 .tex`, Fig 1 HLD → Figs 2–4 agents → Fig 5 capstone → Figs 6–7 workflows → Figs 8–9 pipelines.
 
 ---
 
-## Fig 1 — HLD simple (§3 opening) `approved → synced source/Fig1.mmd → exported Fig1.png`
+## Fig 1, HLD simple (Section 3 opening) `approved → synced source/Fig1.mmd → exported Fig1.png`
 
 **Caption:** High-level view of JobMatch: two market-side agents own candidate and job state; a read-only Matchmaking agent scores pairings and returns explained rankings to role-specific portals.
 
@@ -101,7 +101,7 @@ flowchart LR
 
 ---
 
-## Fig 2 — Candidate agent expanded (§3.1) `approved → synced source/Fig2.mmd`
+## Fig 2, Candidate agent expanded (Section 3.1) `approved → synced source/Fig2.mmd`
 
 **Caption:** Internal structure of the Candidate/Client agent: document ingestion (clean, rule extract, optional LLM merge), skill normalization, profile quality check, editable profile vs match-ready snapshot, embedding, and side outputs (events, activity store, resume coach).
 
@@ -196,7 +196,7 @@ flowchart TB
 
 ---
 
-## Fig 3 — Employer agent expanded (§3.2) `approved → synced source/Fig3.mmd`
+## Fig 3, Employer agent expanded (Section 3.2) `approved → synced source/Fig3.mmd`
 
 **Caption:** Internal structure of the Employer agent: JD ingestion (clean, rules, optional LLM), job quality check, posting status lifecycle, optional external feed sync, job snapshots, and side outputs (events, applicants feed, similar candidates).
 
@@ -300,7 +300,7 @@ flowchart TB
 
 ---
 
-## Fig 4 — Matchmaking agent expanded (§3.3) `approved`
+## Fig 4, Matchmaking agent expanded (Section 3.3) `approved`
 
 **Caption:** Internal structure of the read-only Matchmaking agent: retrieval (exhaustive or ANN; lexical eval-only), composite scoring (28/27/10/15/10/10 weights including title fit), feasibility constraints, optional fusion/rerank/calibration/feedback boost, rule or LLM explanations, and session invalidation log.
 
@@ -408,11 +408,11 @@ flowchart TB
 
 ---
 
-## Fig 5 — Full detailed block architecture (§3 capstone) `approved`
+## Fig 5, Full detailed block architecture (Section 3 capstone) `approved`
 
 **Caption:** End-to-end block diagram: three portals (candidate, employer, admin console sub-zones), API gateway with auth and read-only middleware, three agents (abbreviated from Figs 2–4), persistence layer (SQLite, bootstrap JSON, vectors), shared platform, feedback loop, and vector backends (Chroma/Qdrant).
 
-*Superset of Figs 2–4 — every agent box maps to an expanded figure.*
+*Superset of Figs 2–4, every agent box maps to an expanded figure.*
 
 **Admin console sub-zones:** agent health, event strip, vector switch, demo reset, live jobs sync, fairness snapshot, match eval controls.
 
@@ -540,7 +540,7 @@ flowchart TB
 
 ---
 
-## Fig 6 — Candidate workflow (§3.5) `approved → synced source/Fig6.mmd`
+## Fig 6, Candidate workflow (Section 3.5) `approved → synced source/Fig6.mmd`
 
 **Caption:** Candidate workflow: resume upload, assisted parsing, quality check and form prefill, profile confirmation with ownership link, snapshot registration, vector upsert, ranked job discovery with explanation drawer, and explicit save/apply/dismiss actions recorded to the feedback store.
 
@@ -585,7 +585,7 @@ sequenceDiagram
 
 ---
 
-## Fig 7 — Employer workflow (§3.5) `approved → synced source/Fig7.mmd`
+## Fig 7, Employer workflow (Section 3.5) `approved → synced source/Fig7.mmd`
 
 **Caption:** Employer workflow: JD ingestion, job quality check, posting confirmation with status open, snapshot registration, reverse candidate matching with explanation drawer, feedback actions (save/reject/contact), and applicants page review.
 
@@ -630,7 +630,7 @@ sequenceDiagram
 
 ---
 
-## Fig 8 — Matching pipeline (§4) `approved`
+## Fig 8, Matching pipeline (Section 4) `approved`
 
 **Caption:** Implementation of the matching pipeline: retrieval (exhaustive or ANN primary; lexical benchmark-only), composite scoring with six weighted components (28/27/10/15/10/10), feasibility constraints, optional fusion/calibration/feedback boost/auto-strategy, and structured explanation fork (rule default, LLM optional) consumed by portal cards and drawer.
 
@@ -739,7 +739,7 @@ flowchart LR
 
 ---
 
-## Fig 9 — Evaluation pipeline (§5) `approved`
+## Fig 9, Evaluation pipeline (Section 5) `approved`
 
 **Caption:** Quality evaluation pipeline: frozen demo corpus, benchmark drivers (baselines, progression, ablations, significance, explainability, cross-encoder report, negative mining), metric aggregation, fairness audits, optional ML training of fusion/calibration artifacts, regression gates, and paper tables. Evaluation runs via CLI/pytest only (no portal UI).
 
@@ -787,7 +787,7 @@ flowchart TB
   end
 
   subgraph OUT["Artifacts"]
-    TBL["Paper tables §6"]
+    TBL["Paper tables Section 6"]
     JSON["benchmark_outputs/"]
   end
 
@@ -827,7 +827,7 @@ flowchart TB
 - [x] Extended driver set (significance, explainability, CE, negative mining)
 - [x] ML train path dashed
 - [x] Admin fairness hook dashed
-- [x] No eval UI — CLI/pytest only
+- [x] No eval UI, CLI/pytest only
 
 ---
 
@@ -837,17 +837,17 @@ Components present in the codebase but intentionally omitted from paper figures 
 
 | Component | Reason omitted |
 |-----------|----------------|
-| Legacy route aliases (`/match-resume`, `/match-job`, etc.) | Implementation detail; canonical paths in §4 text |
+| Legacy route aliases (`/match-resume`, `/match-job`, etc.) | Implementation detail; canonical paths in Section 4 text |
 | `parser_backend` config field | Unused at runtime |
 | Orphan UI: `ProfileQualityPanel.jsx`, `ProfileStrength.jsx` | Not wired in current portal tree |
 | Premium / 402 error page | No billing flow implemented |
-| Full 50-endpoint API catalog | Listed in §4 prose, not as a figure |
+| Full 50-endpoint API catalog | Listed in Section 4 prose, not as a figure |
 | `rerank_diagnostics` telemetry | Internal CE timing logs only |
 | Unused API client exports (`createApplication`, `updateSavedJob`, `recordFeedback`) | Portal uses `recordFeedbackAction` instead |
 
 ---
 
-## Fig 1 (legacy) — superseded by ladder above
+## Fig 1 (legacy), superseded by ladder above
 
 <details>
 <summary>Old single-shot architecture (merged into Fig 5)</summary>
@@ -862,11 +862,11 @@ See Fig 5 for the capstone block diagram with full inner components.
 
 ## Order of work (professor ladder)
 
-1. **Fig 1 HLD** — approved → draw.io → PDF  
-2. **Fig 2** Candidate agent → **Fig 3** Employer → **Fig 4** Matchmaking — approved  
-3. **Fig 5** Full block architecture — approved  
-4. **Fig 6–7** Workflows — approved  
-5. **Fig 8–9** Pipeline + evaluation — approved  
+1. **Fig 1 HLD**, approved → draw.io → PDF  
+2. **Fig 2** Candidate agent → **Fig 3** Employer → **Fig 4** Matchmaking, approved  
+3. **Fig 5** Full block architecture, approved  
+4. **Fig 6–7** Workflows, approved  
+5. **Fig 8–9** Pipeline + evaluation, approved  
 6. Export all to draw.io → regenerate PDFs → verify manuscript `\JFigure` paths
 
 ## Preview Mermaid locally

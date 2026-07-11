@@ -4,24 +4,24 @@ Academic diagrams for the JobMatch multi-agent paper. **LaTeX uses `FigN.pdf`**;
 
 ## Figure ladder (9 figures)
 
-| PDF | § | Purpose |
+| PDF | Section | Purpose |
 |-----|---|---------|
-| `Fig1.pdf` | §3 opening | HLD: 3 agents + portals |
-| `Fig2.pdf` | §3.1 | Candidate agent expanded |
-| `Fig3.pdf` | §3.2 | Employer agent expanded |
-| `Fig4.pdf` | §3.3 | Matchmaking agent expanded |
-| `Fig5.pdf` | §3 capstone | Full block architecture |
-| `Fig6.pdf` | §3.5 | Candidate workflow (sequence) |
-| `Fig7.pdf` | §3.5 | Employer workflow (sequence) |
-| `Fig8.pdf` | §4 | Matching pipeline |
-| `Fig9.pdf` | §5 | Evaluation pipeline |
-| Fig 10 (PNG) | §4 | Portal screenshots (8 panels, all three roles) |
+| `Fig1.pdf` | Section 3 opening | HLD: 3 agents + portals |
+| `Fig2.pdf` | Section 3.1 | Candidate agent expanded |
+| `Fig3.pdf` | Section 3.2 | Employer agent expanded |
+| `Fig4.pdf` | Section 3.3 | Matchmaking agent expanded |
+| `Fig5.pdf` | Section 3 capstone | Full block architecture |
+| `Fig6.pdf` | Section 3.5 | Candidate workflow (sequence) |
+| `Fig7.pdf` | Section 3.5 | Employer workflow (sequence) |
+| `Fig8.pdf` | Section 4 | Matching pipeline |
+| `Fig9.pdf` | Section 5 | Evaluation pipeline |
+| Fig 10 (PNG) | Section 4 | Portal screenshots (8 panels, all three roles) |
 
 Design source: [`DIAGRAM-DESIGNS.md`](DIAGRAM-DESIGNS.md)  
 Mermaid source: `source/Fig2.mmd` … `source/Fig9.mmd` (Fig 1 uses draw.io)  
 Shared theme: `source/mermaid-config.json`
 
-## Export Fig 1 (draw.io — canonical HLD)
+## Export Fig 1 (draw.io, canonical HLD)
 
 ```bash
 cd docs/submission/jaamas/figures
@@ -73,9 +73,9 @@ Figure 10 uses `\JFigShot` (pre-bordered PNGs) to avoid double frames in the PDF
 
 Figures are included via `\JFigure{../figures/FigN.pdf}` in:
 
-- `manuscript/sections/section-3-architecture.tex` — Figs 1–7
-- `manuscript/sections/section-4-implementation.tex` — Fig 8 + Fig 10 (screenshots)
-- `manuscript/sections/section-5-quality-metrics.tex` — Fig 9
+- `manuscript/sections/section-3-architecture.tex`, Figs 1–7
+- `manuscript/sections/section-4-implementation.tex`, Fig 8 + Fig 10 (screenshots)
+- `manuscript/sections/section-5-quality-metrics.tex`, Fig 9
 
 Labels: `\figcap{N}{...}` → `\label{fig:N}`. Cite with `Figure~\ref{fig:N}`.
 

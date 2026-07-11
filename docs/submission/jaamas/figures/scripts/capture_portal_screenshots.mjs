@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Capture §4 portal screenshots (Figure 10) from the running dev stack.
+ * Capture Section 4 portal screenshots (Figure 10) from the running dev stack.
  * Prereqs: backend :8001, frontend :5173, demo accounts seeded.
  */
 import { chromium } from "playwright";
