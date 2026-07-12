@@ -36,3 +36,6 @@ docs/submission/jaamas/manuscript/*.fls
 htmlcov/
 backend/qdrant_db/
 .DS_Store
+
+# drawio autosave backup files
+.$*.bkp
