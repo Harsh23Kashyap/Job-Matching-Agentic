@@ -9,7 +9,6 @@
 \usepackage{parskip}
 
 \hypersetup{hidelinks}
-
 \title{Springer Nature Information Sheet --- JAAMAS}
 \author{}
 \date{}
@@ -22,7 +21,15 @@
 
 \noindent\textbf{Article type:} Original research (regular paper)
 
-\noindent\textbf{Corresponding author:} First Author (\url{author@example.edu})
+\noindent\textbf{Corresponding author:} Harsh Kashyap (\url{harsh.kashyap2001@gmail.com})
+
+\noindent\textbf{Co-authors:} Taranumpreet Kaur Wasu (Thapar Institute of Engineering and Technology, Patiala, India)
+
+\noindent\textbf{Research supervisor (acknowledged):} Dr Parteek Kumar, Associate Professor, Washington State University, Pullman, WA
+
+\noindent\textbf{Repository:} \url{https://github.com/Harsh23Kashyap/Job-Matching-Agentic}
+
+\noindent\textbf{Funding:} This work was supported by the NVIDIA Academic Grant Program through an unrestricted gift of 32,000 NVIDIA A100 GPU-hours on the Brev cloud platform.
 
 \vspace{0.8em}
 \hrule
@@ -102,7 +109,7 @@ This manuscript has \textbf{not been published previously} and is \textbf{not un
 There is \textbf{no separate technical report} or conference version whose results are reused without disclosure. Repository benchmark artifacts support the manuscript but are not standalone prior publications.
 
 \paragraph{Code availability (per manuscript declarations).}
-Source code for the platform, benchmark drivers, and regression tests is available in the \textbf{JobMatch project repository at the submission tag}. Key entry points: \texttt{backend/gateway/}, \texttt{backend/agents/}, \texttt{frontend/src/}, and \texttt{tests/benchmarks/test\_eval\_regression.py}.
+Source code for the platform, benchmark drivers, and regression tests is available in the \textbf{JobMatch project repository at the submission tag}: \url{https://github.com/Harsh23Kashyap/Job-Matching-Agentic}. Key entry points: \texttt{backend/gateway/}, \texttt{backend/agents/}, \texttt{frontend/src/}, and \texttt{tests/benchmarks/test\_eval\_regression.py}.
 
 \paragraph{Data availability (per manuscript declarations).}
 The demo corpus (\texttt{data/cvs.json}, \texttt{data/jobs.json}, \texttt{data/eval\_pairs.json}) and benchmark outputs under \texttt{backend/benchmark\_outputs/} and \texttt{docs/research/evaluation/} are included in the project repository. Regenerate metrics with \texttt{python backend/scripts/run\_research\_pipeline.py} and \texttt{python -m benchmarks.paper\_progression}.
@@ -110,7 +117,10 @@ The demo corpus (\texttt{data/cvs.json}, \texttt{data/jobs.json}, \texttt{data/e
 \paragraph{Repository--paper relationship.}
 Reported numbers (nDCG@5 \textbf{0.969}, \textbf{0.968}, \textbf{0.949}; cross-encoder $\Delta$nDCG@5 = \textbf{$-$0.108}; hard negatives \textbf{150} pairs with \textbf{0} conflicts; fairness audit \textbf{7/10} flagged) are drawn from named artifacts cited in the paper tables.
 
+\paragraph{Funding.}
+This work was supported by the NVIDIA Academic Grant Program through an unrestricted gift of 32,000 NVIDIA A100 GPU-hours on the Brev cloud platform.
+
 \vspace{0.5em}
-\noindent\small\textit{Aligned with \texttt{docs/submission/jaamas/manuscript/main.tex} (May 2026). Author metadata pending final submission.}
+\noindent\small\textit{Aligned with \texttt{docs/submission/jaamas/manuscript/main.tex} (12 July 2026).}
 
 \end{document}

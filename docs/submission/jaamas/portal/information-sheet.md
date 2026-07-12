@@ -4,7 +4,15 @@
 
 **Article type:** Original research (regular paper)
 
-**Corresponding author:** First Author (author@example.edu)
+**Corresponding author:** Harsh Kashyap (harsh.kashyap2001@gmail.com)
+
+**Co-authors:** Taranumpreet Kaur Wasu (Thapar Institute of Engineering and Technology, Patiala, India)
+
+**Research supervisor (acknowledged):** Dr Parteek Kumar, Associate Professor, Washington State University, Pullman, WA
+
+**Repository:** https://github.com/Harsh23Kashyap/Job-Matching-Agentic
+
+**Funding:** This work was supported by the NVIDIA Academic Grant Program through an unrestricted gift of 32,000 NVIDIA A100 GPU-hours on the Brev cloud platform.
 
 ---
 
@@ -75,14 +83,14 @@ JobMatch sits at the intersection of **information retrieval**, **multi-agent sy
 
 **Technical reports and overlapping write-ups.** There is **no separate technical report** or conference version whose results are reused without disclosure. Benchmark JSON/CSV artifacts and evaluation tables in the repository support the manuscript but are **supporting research outputs**, not standalone prior publications.
 
-**Code availability (per manuscript declarations).** Source code for the platform, benchmark drivers, and regression tests is available in the **JobMatch project repository at the submission tag**. Key entry points: `backend/gateway/`, `backend/agents/`, `frontend/src/`, and `tests/benchmarks/test_eval_regression.py`.
+**Code availability (per manuscript declarations).** Source code for the platform, benchmark drivers, and regression tests is available in the **JobMatch project repository at the submission tag**: [https://github.com/Harsh23Kashyap/Job-Matching-Agentic](https://github.com/Harsh23Kashyap/Job-Matching-Agentic). Key entry points: `backend/gateway/`, `backend/agents/`, `frontend/src/`, and `tests/benchmarks/test_eval_regression.py`.
 
 **Data availability (per manuscript declarations).** The demo corpus (`data/cvs.json`, `data/jobs.json`, `data/eval_pairs.json`) and benchmark outputs under `backend/benchmark_outputs/` and `docs/research/evaluation/` are included in the project repository. Metrics can be regenerated with `python backend/scripts/run_research_pipeline.py` and `python -m benchmarks.paper_progression`.
 
 **Relationship between repository and paper.** The repository implements the architecture, matching core, portals, and evaluation pipeline described in the manuscript. Reported numbers (e.g., nDCG@5 **0.969**, **0.968**, **0.949**; cross-encoder **ΔnDCG@5 = −0.108**; hard negatives **150** pairs with **0** conflicts; fairness audit **7/10** flagged) are drawn from named artifacts cited in the paper tables, not from unaudited runs.
 
-**Author note.** Author names, affiliations, and CRediT roles in the manuscript remain placeholders pending final submission metadata; this information sheet will be updated accordingly before upload.
+**Funding.** This work was supported by the NVIDIA Academic Grant Program through an unrestricted gift of 32,000 NVIDIA A100 GPU-hours on the Brev cloud platform.
 
 ---
 
-*Document version: aligned with `docs/submission/jaamas/manuscript/main.tex` (May 2026).*
+*Document version: aligned with `docs/submission/jaamas/manuscript/main.tex` (12 July 2026).*
