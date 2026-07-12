@@ -4,11 +4,11 @@
 
 **Article type:** Original research (regular paper)
 
-**Corresponding author:** Harsh Kashyap (harsh.kashyap2001@gmail.com)
+**Corresponding author:** Harsh Kashyap (hkashyap_be19@thapar.edu, harsh.kashyap2001@gmail.com)
 
-**Co-authors:** Taranumpreet Kaur Wasu (Thapar Institute of Engineering and Technology, Patiala, India)
+**Co-authors:** Taranumpreet Kaur Wasu (twasu_be20@thapar.edu, taranumwasu121@gmail.com) — Thapar Institute of Engineering and Technology, Patiala, India
 
-**Research supervisor (acknowledged):** Dr Parteek Kumar, Associate Professor, Washington State University, Pullman, WA
+**Research supervisor (acknowledged):** Dr Parteek Kumar, Associate Professor, Washington State University, Pullman, WA (parteek.kumar@wsu.edu)
 
 **Repository:** https://github.com/Harsh23Kashyap/Job-Matching-Agentic
 

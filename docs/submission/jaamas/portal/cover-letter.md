@@ -8,7 +8,7 @@ Springer
 
 **From:** Harsh Kashyap (Corresponding Author)
 Department of Computer Science, Thapar Institute of Engineering and Technology, Patiala, India
-harsh.kashyap2001@gmail.com
+hkashyap_be19@thapar.edu, harsh.kashyap2001@gmail.com
 
 ---
 
@@ -31,4 +31,4 @@ Corresponding Author
 Department of Computer Science, Thapar Institute of Engineering and Technology, Patiala, India  
 harsh.kashyap2001@gmail.com
 
-On behalf of Taranumpreet Kaur Wasu (Thapar Institute) — co-author. Dr Parteek Kumar (Washington State University, Pullman, WA) supervised the research and is acknowledged in the manuscript.
+On behalf of Taranumpreet Kaur Wasu (twasu_be20@thapar.edu, taranumwasu121@gmail.com) — co-author. Dr Parteek Kumar (parteek.kumar@wsu.edu, Washington State University, Pullman, WA) supervised the research and is acknowledged in the manuscript.
