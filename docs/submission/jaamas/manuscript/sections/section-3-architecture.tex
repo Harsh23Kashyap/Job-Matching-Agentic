@@ -1,7 +1,7 @@
 \section{Architecture of the Multi-Agent System}\label{sec:3}
 
 JobMatch organizes hiring support around three collaborating agents and a shared representation layer.
-Figure~\ref{fig:1} shows the high-level layout; Figures~\ref{fig:2} and~\ref{fig:3} expand the candidate and employer agents; Figures~\ref{fig:6} and~\ref{fig:7} trace the end-user workflows; Figure~\ref{fig:4} details the Matchmaking agent; and Figure~\ref{fig:5} summarizes the full block architecture.
+Figure~\ref{fig:1} shows the high-level layout; Figures~\ref{fig:2} and~\ref{fig:3} expand the candidate and employer agents; Figures~\ref{fig:6} and~\ref{fig:7} trace the end-user workflows and detail the Matchmaking agent; and Figure~\ref{fig:5} summarizes the full block architecture.
 Three design principles guide the layout: \textbf{separation of ownership} (each market side controls its own records), \textbf{read-only matchmaking} (scoring never edits profiles or acts on behalf of users), and \textbf{human-in-the-loop decisions} (save, apply, contact, and shortlist remain explicit user actions).
 Concrete libraries, APIs, and parameters appear in Section~\ref{sec:4}; score formulas and evaluation metrics in Section~\ref{sec:5}.
 
@@ -70,14 +70,14 @@ When profile or job events indicate that inputs changed, the matchmaking layer d
 
 \begin{center}
 \JFigPortrait{../figures/Fig4.png}
-\refstepcounter{figure}\label{fig:4}
+\refstepcounter{figure}\label{fig:6}
 \par\smallskip\noindent\textbf{Fig.~\thefigure:} Internal structure of the read-only Matchmaking agent: retrieval (exhaustive or ANN; lexical eval-only), composite scoring with six weighted components including title fit, feasibility constraints, optional fusion/rerank/calibration/feedback boost, rule or LLM explanations, and session invalidation log.
 \end{center}
 
 \begin{center}
 \JFigPortrait{../figures/Fig5.png}
 \refstepcounter{figure}\label{fig:5}
-\par\smallskip\noindent\textbf{Fig.~\thefigure:} End-to-end block architecture: three portals, API gateway with auth and read-only middleware, three agents (abbreviated from Figures~\ref{fig:2}, \ref{fig:3}, and~\ref{fig:4}), persistence layer (SQLite, bootstrap JSON, vectors), shared skill catalog and event bus, feedback loop, and vector backends (Chroma/Qdrant).
+\par\smallskip\noindent\textbf{Fig.~\thefigure:} End-to-end block architecture: three portals, API gateway with auth and read-only middleware, three agents (abbreviated from Figures~\ref{fig:2}, \ref{fig:3}, and~\ref{fig:6}), persistence layer (SQLite, bootstrap JSON, vectors), shared skill catalog and event bus, feedback loop, and vector backends (Chroma/Qdrant).
 \end{center}
 
 \subsection{Agent Communication and State Sharing}\label{sec:3-communication}
