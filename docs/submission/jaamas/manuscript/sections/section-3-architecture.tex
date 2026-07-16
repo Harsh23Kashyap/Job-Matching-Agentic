@@ -1,7 +1,7 @@
 \section{Architecture of the Multi-Agent System}\label{sec:3}
 
 JobMatch organizes hiring support around three collaborating agents and a shared representation layer.
-Figure~\ref{fig:1} shows the high-level layout; Figures~\ref{fig:2} and~\ref{fig:3} expand the candidate and employer agents; Figures~\ref{fig:6} and~\ref{fig:7} trace the end-user workflows and detail the Matchmaking agent; and Figure~\ref{fig:5} summarizes the full block architecture.
+Figure~1 shows the high-level layout; Figures~2 and~3 expand the candidate and employer agents; Figure~4 traces the employer workflow end to end; Figure~5 details the Matchmaking agent internals; Figure~6 traces the candidate lifecycle end to end. Figure~7 (at the end of this section) revisits the high-level architecture with each lane expanded into its portal and agent responsibilities, and adds the Admin/Evaluation Console.
 Three design principles guide the layout: \textbf{separation of ownership} (each market side controls its own records), \textbf{read-only matchmaking} (scoring never edits profiles or acts on behalf of users), and \textbf{human-in-the-loop decisions} (save, apply, contact, and shortlist remain explicit user actions).
 Concrete libraries, APIs, and parameters appear in Section~\ref{sec:4}; score formulas and evaluation metrics in Section~\ref{sec:5}.
 
@@ -48,14 +48,9 @@ The Matchmaking agent consumes the refreshed snapshots read-only; it does not ca
 \figcap{3}{Internal structure of the Employer agent: JD ingestion (clean, rules, optional LLM), job quality check, posting status lifecycle, optional external feed sync, job snapshots, and side outputs (events, applicants feed, similar candidates).}
 \end{JFigure}
 
-\begin{JFigure}{../figures/Fig6.png}
+\begin{JFigure}{../figures/Fig4.png}
 \vspace{1\baselineskip}
-\figcap{6}{Candidate workflow: resume upload, assisted parsing, quality check and form prefill, profile confirmation with ownership link, snapshot registration, vector upsert, ranked job discovery with explanation drawer, and explicit save/apply/dismiss actions recorded to the feedback store.}
-\end{JFigure}
-
-\begin{JFigure}{../figures/Fig7.png}
-\vspace{1\baselineskip}
-\figcap{7}{Employer workflow: JD ingestion, job quality check, posting confirmation with status open, snapshot registration, reverse candidate matching with explanation drawer, feedback actions (save/reject/contact), and applicants page review.}
+\figcap{6}{Employer workflow: JD ingestion, job quality check, posting confirmation with status open, snapshot registration, reverse candidate matching with explanation drawer, feedback actions (save/reject/contact), and applicants page review.}
 \end{JFigure}
 
 \subsection{Matchmaking Agent}\label{sec:3-matchmaking}
@@ -69,20 +64,20 @@ The default portal path favors a fixed composite strategy whose components users
 When profile or job events indicate that inputs changed, the matchmaking layer drops cached rankings for the affected entity and recomputes on the next request.
 
 \begin{center}
-\JFigPortrait{../figures/Fig4.png}
-\refstepcounter{figure}\label{fig:6}
-\par\smallskip\noindent\textbf{Fig.~\thefigure:} Internal structure of the read-only Matchmaking agent: retrieval (exhaustive or ANN; lexical eval-only), composite scoring with six weighted components including title fit, feasibility constraints, optional fusion/rerank/calibration/feedback boost, rule or LLM explanations, and session invalidation log.
+\JFigPortrait{../figures/Fig5.png}
+\refstepcounter{figure}\label{fig:4}
+\par\smallskip\noindent\textbf{Fig.~\thefigure:} Internal structure of the read-only Matchmaking agent: retrieval (exhaustive or ANN; lexical eval-only), composite scoring with six weighted components including title fit, feasibility constraints, optional fusion/rerank/calibration, rule or LLM explanations, and session invalidation events.
 \end{center}
 
 \begin{center}
-\JFigPortrait{../figures/Fig5.png}
+\JFigPortrait{../figures/Fig6.png}
 \refstepcounter{figure}\label{fig:5}
-\par\smallskip\noindent\textbf{Fig.~\thefigure:} End-to-end block architecture: three portals, API gateway with auth and read-only middleware, three agents (abbreviated from Figures~\ref{fig:2}, \ref{fig:3}, and~\ref{fig:6}), persistence layer (SQLite, bootstrap JSON, vectors), shared skill catalog and event bus, feedback loop, and vector backends (Chroma/Qdrant).
+\par\smallskip\noindent\textbf{Fig.~\thefigure:} Candidate lifecycle and matchmaking workflow in five phases: (1) ingestion with assisted parsing and quality check; (2) snapshot registration with ownership link, vector upsert, and invalidation event; (3) read-only matchmaking that scores, ranks, and attaches explanations; (4) optional read-only resume coach; (5) explicit save/apply/dismiss feedback recorded to the feedback store.
 \end{center}
 
 \subsection{Agent Communication and State Sharing}\label{sec:3-communication}
 
-JobMatch uses exactly three cooperating agents---Candidate/Client, Employer, and Matchmaking (Figures~\ref{fig:1} and~\ref{fig:5}).
+JobMatch uses exactly three cooperating agents---Candidate/Client, Employer, and Matchmaking (Figures~1 and~5).
 Sections~\ref{sec:3-candidate}--\ref{sec:3-matchmaking} define their roles; here we specify what each keeps private, what crosses the boundary, and how updates propagate.
 The three design principles of Section~\ref{sec:3}---separation of ownership, read-only matchmaking, and human-in-the-loop decisions---are stated once and not repeated per agent.
 
@@ -109,9 +104,15 @@ Confirming a resume or job edit triggers the owning agent's snapshot refresh and
 Secondary actions (save, apply, shortlist, dismiss) are recorded as activity and do not alter embeddings unless the user later re-saves.
 Because snapshots change only after confirmation, a person can review parsed fields and understand what will be compared before any recommendation is computed; administrators may inspect events for debugging but cannot override ownership through the UI.
 
+\begin{JFigure}{../figures/Fig7.png}
+\vspace{1\baselineskip}
+\refstepcounter{figure}\label{fig:7}
+\par\smallskip\noindent\textbf{Fig.~\thefigure:} Detailed view of the high-level architecture: the candidate lane (Job Seeker, Candidate Portal, Candidate Agent) and employer lane (Employer/Recruiter, Employer Portal, Employer Agent) communicate with the central Matchmaking Agent via snapshots and events and receive ranked matches back; an Admin/Evaluation Console sits below for fairness inspection, reset, and benchmarking.
+\end{JFigure}
+
 \subsection{End-to-End Workflow}\label{sec:3-workflow}
 
-Figure~\ref{fig:6} traces the candidate path; Figure~\ref{fig:7} traces the employer path.
+Figure~4 traces the employer path; Figure~6 traces the candidate path.
 In both portal workflows, document ingestion is assistive: extracted fields populate review forms, users confirm or correct them, and only then does the owning agent register a snapshot and notify the matchmaking layer.
 
 \input{algorithms/alg-multi-agent-matching.tex}

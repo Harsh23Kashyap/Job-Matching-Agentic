@@ -31,6 +31,16 @@ docs/submission/jaamas/manuscript/*.bbl
 docs/submission/jaamas/manuscript/*.blg
 docs/submission/jaamas/manuscript/*.fdb_latexmk
 docs/submission/jaamas/manuscript/*.fls
+docs/submission/jaamas/manuscript/*.toc
+# LaTeX build artifacts (supplementary)
+docs/submission/jaamas/supplementary/*.aux
+docs/submission/jaamas/supplementary/*.log
+docs/submission/jaamas/supplementary/*.out
+docs/submission/jaamas/supplementary/*.bbl
+docs/submission/jaamas/supplementary/*.blg
+docs/submission/jaamas/supplementary/*.fdb_latexmk
+docs/submission/jaamas/supplementary/*.fls
+docs/submission/jaamas/supplementary/*.toc
 .pytest_cache/
 .coverage
 htmlcov/
