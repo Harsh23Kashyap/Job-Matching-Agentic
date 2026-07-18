@@ -60,3 +60,5 @@ backend/qdrant_db/
 
 # drawio autosave backup files
 .$*.bkp
+# drawio session-local files at the figures root (not source-of-truth)
+docs/submission/jaamas/figures/Fig*.drawio
