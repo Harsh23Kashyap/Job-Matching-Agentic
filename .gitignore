@@ -41,6 +41,17 @@ docs/submission/jaamas/supplementary/*.blg
 docs/submission/jaamas/supplementary/*.fdb_latexmk
 docs/submission/jaamas/supplementary/*.fls
 docs/submission/jaamas/supplementary/*.toc
+# LaTeX build artifacts (portal)
+docs/submission/jaamas/portal/*.aux
+docs/submission/jaamas/portal/*.log
+docs/submission/jaamas/portal/*.out
+docs/submission/jaamas/portal/*.bbl
+docs/submission/jaamas/portal/*.blg
+docs/submission/jaamas/portal/*.fdb_latexmk
+docs/submission/jaamas/portal/*.fls
+docs/submission/jaamas/portal/*.toc
+# Overleaf build staging
+docs/submission/jaamas/build/overleaf-staging/
 .pytest_cache/
 .coverage
 htmlcov/

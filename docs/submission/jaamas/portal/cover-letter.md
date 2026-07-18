@@ -6,9 +6,10 @@
 *Journal of Autonomous Agents and Multi-Agent Systems*
 Springer
 
-**From:** Harsh Kashyap (Corresponding Author)
+**From:** Harsh Kashyap and Taranumpreet Kaur Wasu (Joint First Authors, Contributing Equally)
 Department of Computer Science, Thapar Institute of Engineering and Technology, Patiala, India
-hkashyap_be19@thapar.edu, harsh.kashyap2001@gmail.com
+Harsh: hkashyap_be19@thapar.edu, harsh.kashyap2001@gmail.com
+Taranumpreet: twasu_be20@thapar.edu, taranumwasu121@gmail.com
 
 ---
 
@@ -26,9 +27,10 @@ Thank you for your consideration.
 
 Sincerely,
 
-Harsh Kashyap  
-Corresponding Author  
+Harsh Kashyap and Taranumpreet Kaur Wasu  
+Joint First Authors (Equal Contribution)  
 Department of Computer Science, Thapar Institute of Engineering and Technology, Patiala, India  
-harsh.kashyap2001@gmail.com
+Harsh: hkashyap_be19@thapar.edu, harsh.kashyap2001@gmail.com  
+Taranumpreet: twasu_be20@thapar.edu, taranumwasu121@gmail.com
 
-On behalf of Taranumpreet Kaur Wasu (twasu_be20@thapar.edu, taranumwasu121@gmail.com) — co-author. Dr Parteek Kumar (parteek.kumar@wsu.edu, Washington State University, Pullman, WA) supervised the research and is acknowledged in the manuscript.
+With Dr Parteek Kumar (parteek.kumar@wsu.edu, Washington State University, Pullman, WA) — co-author and research supervisor.
