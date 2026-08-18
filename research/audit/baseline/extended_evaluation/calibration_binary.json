@@ -1,0 +1,23 @@
+{
+  "method": "Platt binary P(y=1|s)",
+  "n_pairs": 450,
+  "n_resumes": 30,
+  "k_folds": 5,
+  "ece_mean": 0.01915637956970754,
+  "ece_ci": {
+    "mean": 0.01915637956970754,
+    "ci_low": 0.00974746901766014,
+    "ci_high": 0.02856529012175494,
+    "se": 0.0051060562218642296
+  },
+  "brier_mean": 0.09283626503561773,
+  "brier_ci": {
+    "mean": 0.09283626503561773,
+    "ci_low": 0.08622943851414362,
+    "ci_high": 0.1011057046925008,
+    "se": 0.003760111860628161
+  },
+  "a_mean": 0.3015137285408585,
+  "b_mean": -2.1167834861455215,
+  "note": "Platt scaling fit per fold on 24-resume training set, evaluated on 6-resume held-out test set. ECE in 10 equal-width bins, Brier is mean squared error of probability. This is a held-out evaluation; the previous single-split 0.032 ECE was on the same data the calibrator was fit on."
+}

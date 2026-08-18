@@ -1,0 +1,39 @@
+{
+  "method": "Cold-start probe: unseen skills, synonyms, misspellings",
+  "rows": [
+    {
+      "perturbation": "unseen_skill_add",
+      "mean_d_ndcg": -0.02435986287505619,
+      "top1_changes": 2,
+      "ci_d_ndcg": {
+        "mean": -0.02435986287505619,
+        "ci_low": -0.06121747158511723,
+        "ci_high": 0.0022786259555805416,
+        "se": 0.016251873085298227
+      }
+    },
+    {
+      "perturbation": "synonym_substitution",
+      "mean_d_ndcg": 0.0,
+      "top1_changes": 0,
+      "ci_d_ndcg": {
+        "mean": 0.0,
+        "ci_low": 0.0,
+        "ci_high": 0.0,
+        "se": 0.0
+      }
+    },
+    {
+      "perturbation": "misspelling_substitution",
+      "mean_d_ndcg": -0.019236254202737054,
+      "top1_changes": 1,
+      "ci_d_ndcg": {
+        "mean": -0.019236254202737054,
+        "ci_low": -0.06131471927654584,
+        "ci_high": 0.0036059566683346754,
+        "se": 0.02022138358254766
+      }
+    }
+  ],
+  "note": "A robust pipeline should be invariant to synonymous rewrites and only mildly affected by misspellings; the unseen-skill addition should improve nDCG when the new skill is relevant and leave it unchanged otherwise."
+}

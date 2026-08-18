@@ -1,0 +1,84 @@
+{
+  "experiment": "EXP-015 weight-stability cluster bootstrap (RQ2)",
+  "n_bootstraps": 1000,
+  "resamples": "cluster over 30 resumes",
+  "per_channel": {
+    "semantic": {
+      "hand_set_weight": 0.28,
+      "boot_coef_mean": 1.8101,
+      "boot_coef_ci95": [
+        1.4561,
+        2.2148
+      ],
+      "pct_positive": 1.0,
+      "sign_stable": true
+    },
+    "skills": {
+      "hand_set_weight": 0.27,
+      "boot_coef_mean": 2.9994,
+      "boot_coef_ci95": [
+        2.2552,
+        3.6337
+      ],
+      "pct_positive": 1.0,
+      "sign_stable": true
+    },
+    "title": {
+      "hand_set_weight": 0.1,
+      "boot_coef_mean": 3.7724,
+      "boot_coef_ci95": [
+        2.964,
+        4.5896
+      ],
+      "pct_positive": 1.0,
+      "sign_stable": true
+    },
+    "experience": {
+      "hand_set_weight": 0.15,
+      "boot_coef_mean": 0.7492,
+      "boot_coef_ci95": [
+        0.0817,
+        1.2911
+      ],
+      "pct_positive": 0.988,
+      "sign_stable": true
+    },
+    "compensation": {
+      "hand_set_weight": 0.1,
+      "boot_coef_mean": 1.5016,
+      "boot_coef_ci95": [
+        1.0115,
+        2.0025
+      ],
+      "pct_positive": 1.0,
+      "sign_stable": true
+    },
+    "remote": {
+      "hand_set_weight": 0.1,
+      "boot_coef_mean": 1.758,
+      "boot_coef_ci95": [
+        1.1011,
+        2.3377
+      ],
+      "pct_positive": 1.0,
+      "sign_stable": true
+    }
+  },
+  "normalized_abs_coef_pseudo_weights": {
+    "semantic": 0.144,
+    "skills": 0.238,
+    "title": 0.3,
+    "experience": 0.06,
+    "compensation": 0.119,
+    "remote": 0.14
+  },
+  "hand_set_weights": {
+    "semantic": 0.28,
+    "skills": 0.27,
+    "title": 0.1,
+    "experience": 0.15,
+    "compensation": 0.1,
+    "remote": 0.1
+  },
+  "interpretation": "sign_stable=false or a wide CI spanning 0 => that channel's contribution is not stable at n=30 and the hand-set weight is not empirically pinned. Compare the normalized pseudo-weights to the hand-set weights: large divergence means the 0.28/0.27... vector is a prior, not a fitted optimum."
+}

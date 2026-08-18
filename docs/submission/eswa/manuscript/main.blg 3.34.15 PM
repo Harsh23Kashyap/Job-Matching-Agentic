@@ -1,0 +1,68 @@
+This is BibTeX, Version 0.99e (TeX Live 2026)
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: main.aux
+The style file: elsarticle-num.bst
+Database file #1: references.bib
+Repeated entry---line 209 of file references.bib
+ : @article{wanner2020generating
+ :                              ,
+I'm skipping whatever remains of this entry
+Repeated entry---line 359 of file references.bib
+ : @inproceedings{peake2018explanation
+ :                                    ,
+I'm skipping whatever remains of this entry
+You're missing a field name---line 475 of file references.bib
+ : 
+ : %   author = {{Anonymous}},
+(Error may have been on previous line)
+I'm skipping whatever remains of this entry
+Warning--empty pages in he2017neural
+Warning--empty pages in covington2016deep
+Warning--empty pages in wei2022chain
+Warning--empty pages in yao2023react
+Warning--empty pages in platt1999probabilistic
+Warning--empty pages in guo2017calibration
+Warning--empty pages in le2020cold
+Warning--empty pages in lo2025hiring
+You've used 35 entries,
+            2952 wiz_defined-function locations,
+            849 strings with 11611 characters,
+and the built_in function-call counts, 9343 in all, are:
+= -- 793
+> -- 410
+< -- 0
++ -- 160
+- -- 125
+* -- 564
+:= -- 1377
+add.period$ -- 35
+call.type$ -- 35
+change.case$ -- 36
+chr.to.int$ -- 0
+cite$ -- 43
+duplicate$ -- 299
+empty$ -- 1100
+format.name$ -- 154
+if$ -- 2444
+int.to.chr$ -- 0
+int.to.str$ -- 35
+missing$ -- 35
+newline$ -- 113
+num.names$ -- 35
+pop$ -- 234
+preamble$ -- 1
+purify$ -- 0
+quote$ -- 0
+skip$ -- 663
+stack$ -- 0
+substring$ -- 234
+swap$ -- 27
+text.length$ -- 0
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 0
+warning$ -- 8
+while$ -- 54
+width$ -- 37
+write$ -- 292
+(There were 3 error messages)

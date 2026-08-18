@@ -1,0 +1,66 @@
+{
+  "method": "Parser robustness: 5 controlled perturbations",
+  "rows": [
+    {
+      "perturbation": "remove_skill",
+      "mean_d_ndcg": -0.02681233481751588,
+      "mean_rank_of_base_top1": 0.2,
+      "max_d_ndcg": 0.6131471927654584,
+      "ci_d_ndcg": {
+        "mean": -0.02681233481751588,
+        "ci_low": -0.07617682001532168,
+        "ci_high": 0.0014410537085339274,
+        "se": 0.021624334762492783
+      }
+    },
+    {
+      "perturbation": "add_skill",
+      "mean_d_ndcg": -0.023321128074838104,
+      "mean_rank_of_base_top1": 0.1,
+      "max_d_ndcg": 0.36907024642854247,
+      "ci_d_ndcg": {
+        "mean": -0.023321128074838104,
+        "ci_low": -0.06300324881684595,
+        "ci_high": 0.003953776647700869,
+        "se": 0.016850353159302552
+      }
+    },
+    {
+      "perturbation": "wrong_experience_+1y",
+      "mean_d_ndcg": -0.00023409698358639968,
+      "mean_rank_of_base_top1": 0.0,
+      "max_d_ndcg": 0.019092476757067267,
+      "ci_d_ndcg": {
+        "mean": -0.00023409698358639968,
+        "ci_low": -0.0019092476757067267,
+        "ci_high": 0.0012069567249475277,
+        "se": 0.0007366890192769965
+      }
+    },
+    {
+      "perturbation": "wrong_experience_-1y",
+      "mean_d_ndcg": -0.003551457739385026,
+      "mean_rank_of_base_top1": 0.0,
+      "max_d_ndcg": 0.10654373218155078,
+      "ci_d_ndcg": {
+        "mean": -0.003551457739385026,
+        "ci_low": -0.010654373218155077,
+        "ci_high": 0.0,
+        "se": 0.003519311378680372
+      }
+    },
+    {
+      "perturbation": "wrong_remote",
+      "mean_d_ndcg": -0.012790003695839262,
+      "mean_rank_of_base_top1": 0.26666666666666666,
+      "max_d_ndcg": 1.0,
+      "ci_d_ndcg": {
+        "mean": -0.012790003695839262,
+        "ci_low": -0.09151797985180274,
+        "ci_high": 0.08490082489365335,
+        "se": 0.04404750819155414
+      }
+    }
+  ],
+  "note": "Each perturbation is applied to all 30 resumes; the change in nDCG@5 and the rank of the original top-1 item are reported. A robust ranking should show small D-nDCG and small top-1 rank movement."
+}

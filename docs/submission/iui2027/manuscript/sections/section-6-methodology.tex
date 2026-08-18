@@ -1,0 +1,48 @@
+\section{Methodology}\label{sec:6}
+
+The evaluation is designed to ask, for each design principle of \secref{sec:3}, what measurable property operationalizes it and what the system reports for that property.
+We describe the corpus, the recommendation baselines, the explanation-generation procedure, the calibration procedure, the counterfactual probe, and the adversarial probe; we map each to a user-facing property; we close with the user-study stance and its justification.
+Numerical results are reported in \secref{sec:7}.
+
+\leadpara{Corpus and labeling}
+The evaluation uses a fixed demo corpus of 30 resumes, 15 job descriptions, and 47 manually labeled resume--job relevance pairs, with an additional 21 strong and 26 partial labels used for the calibration set.
+The corpus is frozen and committed; no evaluation run mutates it.
+The relevance scale is a four-point ordinal scale (irrelevant, partially relevant, relevant, strongly relevant), annotated by two independent reviewers with reconciliation on disagreement.
+Macro-averaged metrics are reported across all 30 resumes so that no single profile dominates the score.
+The corpus is small by the standards of production recommendation systems and is reported as such; it is large enough to support the controlled, end-to-end probes used here, and it is what the prototype is currently fit to evaluate.
+We return to the implications of corpus size in \secref{sec:8}.
+
+\leadpara{Recommendation quality (operationalizes G1 and G4)}
+Recommendation quality is reported as \ndcg{} over the labeled pairs at cutoff $K{=}5$~\cite{jarvelin2002ndcg}.
+We compare lexical baselines (BM25, TF--IDF)~\cite{robertson1995okapi}, dense semantic similarity using a sentence-transformer encoder (all-MiniLM-L6-v2, $d{=}384$)~\cite{reimers2019sentence}, skill overlap, hybrid semantic--skill rankers, fixed multimodal blending with the same six channels the user sees in the explanation panel, learned logistic-regression fusion, and reciprocal rank fusion across four list views~\cite{cormack2010reciprocal}.
+The user-facing interpretation of this metric is the relevance of the top five ranked items on average, which is the property a user reading a list experiences.
+We additionally report the precision and recall at $K{=}5$ to surface the trade-off between exhaustiveness and accuracy.
+
+\leadpara{Explanation faithfulness (operationalizes G2)}
+Explanation faithfulness is measured by the proportion of explanation bullets whose named component is consistent with the score that the named component contributes to the ranking.
+A bullet that names \emph{skill overlap} but is generated when the skill-overlap component is below a configured threshold is counted as inconsistent.
+The rule-based explainer in the prototype is the primary generator; an LLM-based explainer is also evaluated for comparison, and its outputs are reported in the supplementary material.
+The metric is reported together with explanation specificity (the proportion of bullets that name a concrete field rather than a general statement) and explanation consistency (the proportion of synthetic profile variants under which the explanation does not change without the underlying input changing).
+The user-facing interpretation of these metrics is the user's ability to act on an explanation: a faithful, specific, and consistent explanation is one a user can trust to point at a real change they might make.
+
+\leadpara{Confidence calibration (operationalizes G3)}
+Confidence calibration is reported as the \ece{} between the system's reported confidence and the empirical rate at which the top-ranked item is among the labeled relevant items, computed in ten equal-width confidence bins.
+The uncalibrated system is a composite of the same six channels that drive the explanation; the calibrated system applies Platt scaling to the composite score~\cite{platt1999probabilistic,guo2017calibration} and reports a confidence value alongside the ranked list.
+We additionally report the Brier score as a complementary measure~\cite{brier1950verification} and the calibration parameters (slope and intercept) of the Platt scaler.
+The user-facing interpretation of \ece{} is the user's ability to know when the system is sure and when it is not: a well-calibrated system lets a user treat a 0.9 confidence as a strong signal and a 0.5 confidence as a weak one, with predictable consequences.
+
+\leadpara{Counterfactual probe (operationalizes G3)}
+The counterfactual probe generates, for each labeled pair, a small set of single-field edits that would change the ranking, and reports the proportion of edits that, when applied, change the rank by at least one position.
+The probe is a proxy for the counterfactual view of \figref{fig:portal}(d); it answers the question of whether the system's reported reasons are sufficient to predict the effect of a small edit.
+The probe is restricted to edits within a pre-defined edit space (skills the user has but did not list, experience tiers the user could plausibly attain within the evaluation window, and remote-policy toggles) to avoid counterfactuals that have no actionable interpretation.
+The user-facing interpretation is the user's ability to use an explanation as a guide to action: if the explanation names skill overlap as the reason for a low rank, a single-skill addition should move the rank.
+
+\leadpara{Adversarial probe (operationalizes fairness and robustness)}
+The adversarial probe constructs ten controlled profile pairs that differ only in a single protected attribute (name, summary, or metadata) and reports the proportion of pairs for which the top-ranked item changes, the maximum score shift, and the disparate-impact ratio (\dir{}) on the experience and remote-policy dimensions.
+The probe is narrow by design; it is an engineering probe, not a demographic-fairness audit.
+The user-facing interpretation is the system's stability under small, semantically irrelevant edits: a user who makes a typo in a summary should not see their ranking change.
+
+\leadpara{User study stance}
+We do not report a live user study in this paper.
+The three-week submission window, the small corpus, and the absence of an {IRB}-approved participant pool make a powered user study infeasible before the deadline; we discuss in \secref{sec:8} the study we plan to run after submission.
+The evaluation reported here is the strongest evaluation that the prototype, the corpus, and the schedule together support: an end-to-end probe of each design principle, with metrics that map to a user-facing property, on a controlled corpus, with all artifacts released.

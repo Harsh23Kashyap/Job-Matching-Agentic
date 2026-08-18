@@ -1,0 +1,9 @@
+\section{Conclusion}\label{sec:9}
+
+This paper has presented \JobMatch, a research prototype for interactive, explainable agentic career recommendation.
+The system organizes a job-candidate matching workflow as three cooperating interaction components, each described by the user need it addresses, the information it returns, and the control it preserves.
+Four design principles---transparency of state, faithful component-level explanations, user control at consequential points, and multi-perspective decision support---anchor the design; an evaluation methodology that maps each principle to a measurable property supports the empirical claims.
+The evaluation on a controlled $30$-resume, $15$-job corpus reports a portal-default composite \ndcg{} of $0.949$, an explanation faithfulness of $0.745$ with a consistency of $1.00$, and a calibrated \ece{} of $0.032$ after Platt scaling.
+The contribution is a design artifact and an evaluation methodology, not a deployment study: every consequential outcome in the prototype---applying, shortlisting, contacting---remains an explicit user action.
+The next step is a within-subjects user study on a larger corpus, with outcome measures on trust calibration, decision quality, and perceived control.
+We release the prototype, the corpus, the explanation generator, the calibration layer, and the regression benchmark as an anonymized open-source artifact.

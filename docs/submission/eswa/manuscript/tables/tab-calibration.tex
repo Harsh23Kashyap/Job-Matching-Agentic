@@ -1,0 +1,17 @@
+\begin{table*}[!t]
+\centering
+\caption{Calibration-method comparison on the held-out 5-fold protocol (probability target $p_{ij}=P(y{=}1\mid s_{ij})$; $n{=}450$; base rate 0.104). Equal-width ECE alone is misleading: Platt attains a low equal-width ECE by shrinking confidence to a razor band at the base rate (near-zero discrimination), but the adaptive (equal-mass) ECE --- more honest when scores cluster in a narrow band --- exposes this (Platt 0.084). Beta calibration \citep{kull2017beta} attains the lowest ECE under both binnings \emph{and} preserves discrimination (BSS/AUC), resolving the trade-off; isotonic is a close second. Source: \texttt{calibration\_methods.json}. Auto-generated.}
+\label{tab:calibration}
+\begin{tabular}{@{}lrrrrr@{}}
+\toprule
+Calibration map & ECE $\downarrow$ & Adaptive ECE $\downarrow$ & Brier $\downarrow$ & Brier skill $\uparrow$ & ROC-AUC $\uparrow$ \\
+\midrule
+Raw composite (uncalibrated) & 0.400 & 0.412 & 0.210 & -1.247 & 0.967 \\
+Platt scaling & 0.018 & 0.084 & 0.093 & +0.007 & 0.758 \\
+Isotonic regression & 0.024 & 0.019 & 0.034 & +0.640 & 0.950 \\
+Temperature (1-param) & 0.461 & 0.504 & 0.297 & -2.177 & 0.967 \\
+Beta calibration & 0.009 & 0.009 & 0.030 & +0.673 & 0.964 \\
+Constant base-rate (floor) & 0.000 & --- & 0.093 & +0.000 & 0.500 \\
+\bottomrule
+\end{tabular}
+\end{table*}

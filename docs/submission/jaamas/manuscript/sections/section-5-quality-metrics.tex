@@ -79,6 +79,13 @@ Embedding mode averages, for each required skill $b \in B$, the maximum cosine b
     \max_{a \in A} \cos\!\bigl(\mathbf{e}_a^{(\mathrm{skill})}, \mathbf{e}_b^{(\mathrm{skill})}\bigr).
   \label{eq:skill-embed}
 \end{equation}
+A third, \emph{graded relation-aware} mode addresses the all-or-nothing behavior of Jaccard by giving partial (never full) credit to related skills. It resolves each required skill $b \in B$ to a relation class against the resume skills and averages the best graded credit over requirements:
+\begin{equation}
+  s_{\mathrm{skl}}^{\mathrm{grd}} = \frac{1}{|B|}\sum_{b \in B} \max_{a \in A} g(a,b),\quad
+  g(a,b) = \begin{cases} 1.0 & \text{same canonical skill (\textsc{exact})},\\ 0.5 & \text{same taxonomy group (\textsc{related})},\\ 0 & \text{otherwise}. \end{cases}
+  \label{eq:skill-graded}
+\end{equation}
+The credits are fixed a priori (not tuned). Holding all six weights fixed, we evaluate this matcher as a drop-in for the skill channel and decompose its effect into the coverage-form change (symmetric Jaccard $\to$ asymmetric required-coverage) and the relation-aware partial credit. On the high-power synthetic corpus the coverage form drives the gain (composite nDCG@5 $0.917 \to 0.949$) while the relation-aware credit does not help there --- the synthetic ground truth is exact coverage and has no related-skill structure. On the real human corpus the coverage form is null but the relation-aware credit improves six of thirty queries and worsens none (sign-test $p{=}0.03$, one query dominant, effective $n{=}6$), which we read as a directional signal on a near-ceiling benchmark rather than a broad effect. The portal retains Jaccard for comparability; the graded matcher is reported as an auditable enhancement whose measurable benefit is specific to human-judged relevance.
 
 A two-signal blend combines semantic and skill scores with weight $\alpha$ (default $\alpha{=}0.7$):
 \begin{equation}
@@ -104,6 +111,7 @@ Reciprocal rank fusion (RRF), used in comparison experiments, merges $m$ ranked 
 \end{equation}
 with smoothing constant $k{=}60$ by default.
 Optional constraints, Platt calibration, learned fusion, feedback boosts, cross-encoder reranking, and ANN shortlist sweeps are evaluated as experimental branches; portal defaults keep them disabled.
+A held-out calibration comparison finds that Platt scaling reaches expected calibration error (ECE) 0.019 but with low discrimination (Brier skill near zero), whereas beta calibration attains a lower ECE (0.009) under both equal-width and equal-mass binnings \emph{and} preserves discrimination (Brier skill 0.67); we report this trade-off honestly and recommend beta as the confidence head while retaining the simpler Platt map as the frozen default.
 
 \subsection{Ranking metrics}\label{sec:5-ranking}
 

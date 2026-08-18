@@ -1,0 +1,173 @@
+\begin{thebibliography}{10}
+\expandafter\ifx\csname url\endcsname\relax
+  \def\url#1{\texttt{#1}}\fi
+\expandafter\ifx\csname urlprefix\endcsname\relax\def\urlprefix{URL }\fi
+\expandafter\ifx\csname href\endcsname\relax
+  \def\href#1#2{#2} \def\path#1{#1}\fi
+
+\bibitem{tang2025explainable}
+X.~Tang, et~al., Explainable person--job recommendation systems: A systematic
+  review of methods, challenges, and comparative analysis, Frontiers in
+  Artificial Intelligence 8 (2025) 1660548, cross-listed systematic review
+  covering 85 studies (2019--2025); cited here for taxonomy positioning of the
+  present work.
+
+\bibitem{koren2009matrix}
+Y.~Koren, R.~Bell, C.~Volinsky, Matrix factorization techniques for recommender
+  systems, Computer 42~(8) (2009) 30--37.
+
+\bibitem{he2017neural}
+X.~He, L.~Liao, H.~Zhang, L.~Nie, X.~Hu, T.-S. Chua, Neural collaborative
+  filtering, in: Proceedings of the International World Wide Web Conference
+  (WWW), 2017.
+
+\bibitem{raub2018bots}
+M.~Raub, Bots, bias and big data: Artificial intelligence, algorithmic bias,
+  and disparate impact liability in hiring, Emory Law Journal 69 (2018).
+
+\bibitem{ajunwa2021paradox}
+I.~Ajunwa, The paradox of automation as anti-bias intervention, Cardozo Law
+  Review 41 (2021).
+
+\bibitem{covington2016deep}
+P.~Covington, J.~Adams, E.~Sargin, Deep neural networks for {YouTube}
+  recommendations, in: Proceedings of the ACM Conference on Recommender Systems
+  (RecSys), 2016.
+
+\bibitem{reimers2019sentence}
+N.~Reimers, I.~Gurevych, Sentence-{BERT}: Sentence embeddings using siamese
+  {BERT}-networks, Proceedings of the EMNLP (2019).
+
+\bibitem{wei2022chain}
+J.~Wei, X.~Wang, D.~Schuurmans, M.~Bosma, B.~Ichter, F.~Xia, E.~H. Chi, Q.~V.
+  Le, D.~Zhou, Chain-of-thought prompting elicits reasoning in large language
+  models, in: Advances in Neural Information Processing Systems (NeurIPS),
+  2022.
+
+\bibitem{yao2023react}
+S.~Yao, J.~Zhao, D.~Yu, N.~Du, I.~Shafran, K.~R. Narasimhan, Y.~Cao, {ReAct}:
+  Synergizing reasoning and acting in language models, in: International
+  Conference on Learning Representations (ICLR), 2023.
+
+\bibitem{sumers2024cognitive}
+T.~R. Sumers, S.~Yao, K.~Narasimhan, T.~L. Griffiths, Cognitive architectures
+  for language agents (coala), arXiv preprint arXiv:2309.02427 (2024).
+
+\bibitem{platt1999probabilistic}
+J.~C. Platt, Probabilistic outputs for support vector machines and comparisons
+  to regularized likelihood methods, in: Advances in Large-Margin Classifiers,
+  1999.
+
+\bibitem{guo2017calibration}
+C.~Guo, G.~Pleiss, Y.~Sun, K.~Q. Weinberger, On calibration of modern neural
+  networks, in: Proceedings of the International Conference on Machine Learning
+  (ICML), 2017.
+
+\bibitem{le2020cold}
+H.~Le, L.~Meyler, S.~Narang, et~al., Cold-start recommendation via two-tower
+  deep retrieval, in: Proceedings of the ACM Conference on Recommender Systems
+  (RecSys) -- Industry, 2020.
+
+\bibitem{hidasi2015session}
+B.~Hidasi, A.~Karatzoglou, L.~Baltrunas, D.~Tikk, Session-based recommendations
+  with recurrent neural networks, arXiv preprint arXiv:1511.06939 (2015).
+
+\bibitem{lavi2025careerbert}
+O.~Lavi, P.~Zschech, {CareerBERT}: Matching resumes to {ESCO} jobs in a shared
+  embedding space for generic job recommendations, Expert Systems with
+  Applications 275 (2025) 127043.
+
+\bibitem{saito2024leveraging}
+Y.~Saito, K.~Sugiyama, Leveraging multiple behaviors and explicit preferences
+  for job recommendation, Expert Systems with Applications 258 (2024) 125149.
+
+\bibitem{robertson1995okapi}
+S.~E. Robertson, S.~Walker, S.~Jones, M.~Hancock-Beaulieu, M.~Gatford, Okapi at
+  {TREC}-3, Proceedings of the Text REtrieval Conference (TREC) (1995).
+
+\bibitem{cormack2010reciprocal}
+G.~V. Cormack, C.~L.~A. Clarke, S.~B\"{u}ttcher, Reciprocal rank fusion
+  outperforms condorcet and individual rank learning methods, Proceedings of
+  the SIGIR Conference on Research and Development in Information Retrieval
+  (2009).
+
+\bibitem{nikolakopoulos2023knowledge}
+A.~Nikolakopoulos, K.~Kotzinos, I.~Karydis, et~al., Knowledge-enhanced
+  recommendation systems: A survey, ACM Computing Surveys 56~(3) (2023).
+
+\bibitem{gentile2014feature}
+C.~Gentile, T.~Schnabel, A.~Karatzoglou, T.~Joachims, Feature selection for
+  recommender systems with boolean conjunctive queries, Proceedings of the ACM
+  Conference on Recommender Systems (RecSys) (2014).
+
+\bibitem{lo2025hiring}
+F.~P.-W. Lo, J.~Qiu, Z.~Wang, H.~Yu, Y.~Chen, G.~Zhang, B.~Lo, {AI} hiring with
+  {LLMs}: A context-aware and explainable multi-agent framework for resume
+  screening, in: Proceedings of the IEEE/CVF Conference on Computer Vision and
+  Pattern Recognition Workshops (CVPRW), 2025.
+
+\bibitem{bhattacharya2025xcui}
+A.~Bhattacharya, K.~Verbert, Let's get you hired: A job seeker's perspective on
+  multi-agent recruitment systems for explaining hiring decisions, arXiv
+  preprint arXiv:2505.20312 (2025).
+
+\bibitem{miller2019explanation}
+T.~Miller, Explanation in artificial intelligence: Insights from the social
+  sciences, Artificial Intelligence 267 (2019) 1--38.
+
+\bibitem{gunning2017explainable}
+D.~Gunning, M.~Stefik, J.~Choi, T.~Miller, S.~Stumpf, G.-Z. Yang,
+  {XAI}--explainable artificial intelligence, Science Robotics 4~(37) (2019).
+
+\bibitem{tintarev2015explaining}
+N.~Tintarev, J.~Masthoff, Explaining recommendations: Design and evaluation of
+  effective interfaces, Foundations and Trends in Human-Computer Interaction
+  10~(3) (2015) 149--224.
+
+\bibitem{peake2018explanation}
+G.~Peake, J.~Wang, K.~Mason, S.~Sadiq, X.~Li, P.~Demena, X.~C. Zhang, et~al.,
+  Explanation mining: Post hoc interpretability of latent factor models for
+  recommendation systems, Proceedings of the ACM Conference on Recommender
+  Systems (RecSys) (2018).
+
+\bibitem{chen2022explainable}
+X.~Chen, Y.~Zhang, J.-R. Wen, Measuring ``{Why}'' in recommendation systems: a
+  comprehensive survey on methods, challenges and future directions, ACM
+  Transactions on Information Systems (2022).
+
+\bibitem{wanner2020generating}
+J.~Wanner, L.~V\"{o}gtle, C.~Meske, A.~Dieterle, Generating counterfactual
+  explanations for explainable {AI} in recruitment, Expert Systems with
+  Applications 159 (2020) 113638.
+
+\bibitem{lofstrom2024calibrated}
+H.~L\"{o}fstr\"{o}m, T.~Hammar, A.~Brezar, C.~Steinhauer, P.~Papapetrou,
+  U.~Johansson, Calibrated explanations: With uncertainty information and
+  counterfactuals, Expert Systems with Applications 245 (2024) 123154.
+
+\bibitem{kaur2020interpreting}
+A.~Kaur, R.~Goyal, S.~R.~S. Iyengar, Interpreting black-box models via
+  counterfactuals, arXiv preprint arXiv:2008.11124 (2020).
+
+\bibitem{liu2020trust}
+Y.~Liu, Y.~Liu, X.~Zhang, H.~Yin, W.~Lu, H.~Zhang, Trust calibration in
+  recommender systems: A {Bayesian} approach, ACM Transactions on Information
+  Systems 38~(4) (2020) 1--34.
+
+\bibitem{pu2007trust}
+P.~Pu, L.~Chen, Trust-inspiring explanation interfaces for recommender systems,
+  Knowledge-Based Systems 20~(6) (2007) 542--556.
+
+\bibitem{brier1950verification}
+G.~W. Brier, Verification of forecasts expressed in terms of probability,
+  Monthly Weather Review 78~(1) (1950) 1--3.
+
+\bibitem{jarvelin2002ndcg}
+K.~J\"{a}rvelin, J.~Kek\"{a}l\"{a}inen, Cumulated gain-based evaluation of {IR}
+  techniques, ACM Transactions on Information Systems 20~(4) (2002) 422--446.
+
+\bibitem{wooldridge2009introduction}
+M.~Wooldridge, An introduction to multiagent systems, John Wiley \& Sons
+  (2009).
+
+\end{thebibliography}

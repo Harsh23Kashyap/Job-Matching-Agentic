@@ -1,0 +1,61 @@
+{
+  "experiment": "EXP-024 structure recovery on synthetic_v1 (Stage-2 \u00a7F-H)",
+  "provenance": "SYNTHETIC / CONTROLLED \u2014 validity probe, NOT a human-benchmark headline number",
+  "seed": 42,
+  "smoke": false,
+  "n_resumes": 500,
+  "n_jobs": 75,
+  "ranking_recovery": {
+    "composite_ndcg@5": {
+      "mean": 0.917012,
+      "ci_low": 0.908662,
+      "ci_high": 0.925174
+    },
+    "composite_ndcg@10_mean": 0.919995,
+    "random_baseline_ndcg@5": 0.111657,
+    "oracle_ndcg@5": 1.0,
+    "recovery_ratio": 0.9066,
+    "recovery_ratio_note": "(composite - random) / (oracle - random); 1.0 = perfect recovery, 0 = random"
+  },
+  "noise_robustness": {
+    "composite_ndcg@5_vs_clean": 0.917012,
+    "composite_ndcg@5_vs_8pct_noisy": 0.893933
+  },
+  "global_monotonicity": {
+    "spearman_composite_vs_latent": 0.7905,
+    "n_pairs": 37500
+  },
+  "decomposition_validity": {
+    "skills": {
+      "recovers_factor": "required",
+      "spearman": 0.9956
+    },
+    "experience": {
+      "recovers_factor": "experience",
+      "spearman": 0.8674
+    },
+    "compensation": {
+      "recovers_factor": "comp",
+      "spearman": 0.9852
+    },
+    "remote": {
+      "recovers_factor": "workmode",
+      "spearman": 0.647
+    },
+    "title": {
+      "recovers_factor": "family",
+      "spearman": 0.689
+    },
+    "semantic": {
+      "recovers_factor": "__latent__",
+      "spearman": 0.3879
+    }
+  },
+  "recovery_by_difficulty": {
+    "adversarial": 0.8825,
+    "easy": 0.9341,
+    "hard": 0.8872,
+    "moderate": 0.9267
+  },
+  "interpretation": "High composite-vs-oracle recovery + strong per-channel Spearman => the auditable decomposition recovers the KNOWN latent structure, supporting the explainability claim on controlled data. Report as a synthetic VALIDITY result, never as a human-benchmark nDCG."
+}

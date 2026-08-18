@@ -531,6 +531,44 @@ python -m benchmarks.phase11 --stores chroma
 
 These reproduce paper Table 9 regression gates and progression metrics against the fixed corpus. See [V1-V2-SCOPE.md](docs/design/V1-V2-SCOPE.md) for what is in v1 vs v2.
 
+### ESWA submission — one-command reproduction
+
+The scientific evaluation for the ESWA manuscript lives under `research/` (control plane) and
+regenerates every reported number from committed artifacts.
+
+```bash
+# 1. install research deps (in addition to backend/requirements-min.txt)
+backend/.venv/bin/pip install -r backend/requirements-research.txt   # scikit-learn, scipy, xgboost, matplotlib
+
+# 2. reproduce all experiments -> tables/figures -> numeric gate (deterministic, seed 42)
+bash scripts/reproduce_all.sh
+```
+
+This runs EXP-011..033 (extended evaluation, baselines incl. LambdaMART/JobBERT, held-out
+calibration + calibration-method comparison, job/candidate/both-unseen generalization, 6-channel
+ablation, weight-stability, protocol-gated 25-config model selection, mechanistic explanation
+faithfulness, robustness matrix, temporal-drift simulation, failure injection, architecture value,
+significance + Holm), then auto-generates the manuscript tables (`docs/submission/eswa/manuscript/tables/*.tex`)
+and the held-out reliability figure, and finally runs the numerical consistency checker
+(`research/experiments/verify_paper_numbers.py`), which fails the run on any stale/forbidden number.
+The scalability micro-benchmark is opt-in (`RUN_SCALABILITY=1`) and the LLM-assisted label expansion
+needs a local `claude -p` (run separately). Every result is seed-pinned and single-threaded
+(`PYTHONHASHSEED=0 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 TOKENIZERS_PARALLELISM=false`).
+
+Provenance and audit trail:
+
+- `research/EXPERIMENT_REGISTRY.yaml` — every experiment (ID, dataset, seed, repro command, result).
+- `research/results/MANUSCRIPT_NUMBERS.json` — each headline number mapped to its source artifact.
+- `research/reports/FINAL_AUDIT.md`, `FINAL_NUMERICAL_AUDIT.md`, `FINAL_REPRODUCTION.md`,
+  `FINAL_DOCUMENT_AUDIT.md`, `FINAL_REVIEW.md` — the final audit deliverables.
+- `research/datasets/synthetic_v1/` — the deterministic synthetic corpus (transparent latent ground
+  truth; used only for controlled recovery/stress/scale probes, never as human judgments).
+
+Expected headline results: composite nDCG@5 = 0.949 (ranking parity — no method significantly better
+after Holm at n=30); held-out ECE 0.019 (with a reported low-discrimination caveat); unseen
+candidate/job/both generalization ≈ 0.93. Numbers are CPU-deterministic; a different BLAS/threading
+setup may shift the last digit of a bootstrap CI bound.
+
 ---
 
 ## Project layout

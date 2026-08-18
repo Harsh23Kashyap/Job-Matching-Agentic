@@ -1,0 +1,21 @@
+% eswa-style.tex
+% Style notes for the ESWA manuscript.
+
+% --- Typography --------------------------------------------------
+% ESWA follows Elsevier's elsarticle class with the [preprint,review]
+% options for double-anonymous review. Single-column is the
+% elsarticle default; the [twocolumn] option in main.tex sets the
+% two-column journal style. For pre-submission drafts we use
+% single-column for readability; switch to [twocolumn] at the
+% final camera-ready stage.
+
+% --- Caption style ---------------------------------------------
+\usepackage[font=small,labelfont=bf,skip=4pt]{caption}
+
+% --- Float placement defaults ----------------------------------
+\providecommand{\floatplacement}{!htbp}
+
+% --- DRAFT watermark (pre-submission only) ---------------------
+% The watermark is set in eswa-macros.tex. Remove the draftwatermark
+% \usepackage{...} and the three \SetWatermark* lines at the
+% final camera-ready stage.

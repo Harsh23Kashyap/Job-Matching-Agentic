@@ -1,0 +1,101 @@
+% iui-macros.tex
+% Reusable macros for the IUI 2027 manuscript.
+
+% --- Figure macros ------------------------------------------------
+% JFigure is an environment that takes the image path as its
+% only argument. Inside the environment, use \caption{...}\label{...}
+% to add a numbered caption with a label for cross-references.
+%
+% Usage:
+%   \begin{JFigure}{../figures/Fig1.png}
+%     \caption{High-level view of the system.}
+%     \label{fig:arch}
+%   \end{JFigure}
+\newenvironment{JFigure}[1]{%
+  \begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=0.95\linewidth]{#1}
+}{%
+  \end{figure}
+}
+
+% Portrait figure (taller than wide) — single image with caption
+\newcommand{\JFigPortrait}[3]{%
+  \begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=0.85\linewidth,keepaspectratio]{#1}
+    \caption{#2}\label{#3}
+  \end{figure}
+}
+
+% Side-by-side figure pair
+\newcommand{\JFigPair}[6]{%
+  \begin{figure}[!htbp]
+    \centering
+    \begin{subfigure}[t]{0.48\linewidth}
+      \includegraphics[width=\linewidth]{#1}
+      \caption{#3}
+    \end{subfigure}\hfill
+    \begin{subfigure}[t]{0.48\linewidth}
+      \includegraphics[width=\linewidth]{#4}
+      \caption{#6}
+    \end{subfigure}
+  \end{figure}
+}
+
+% --- Lead paragraph (drop-cap style opening) ---------------------
+\newcommand{\leadpara}[1]{%
+  \par\noindent\textbf{#1}\par\medskip
+}
+
+% --- Cross-reference helpers -------------------------------------
+\newcommand{\figref}[1]{Figure~\ref{#1}}
+\newcommand{\tabref}[1]{Table~\ref{#1}}
+\newcommand{\secref}[1]{Section~\ref{#1}}
+\newcommand{\appref}[1]{Appendix~\ref{#1}}
+
+% --- Evaluation metric helpers -----------------------------------
+\newcommand{\ndcg}{nDCG@5}
+\newcommand{\ndcgtwo}{nDCG@10}
+\newcommand{\ece}{ECE}
+\newcommand{\dir}{DIR}
+
+% --- Anonymized citation helpers ---------------------------------
+% Use \blindcite{key} for self-citations in the anonymized draft.
+% The argument expands to the same \cite{key} at unblind time but is
+% marked in the source so it is easy to find and unblind post-acceptance.
+\newcommand{\blindcite}[1]{[Anonymous \citeyear{#1}]}
+
+% --- Compact inline math ----------------------------------------
+\newcommand{\abs}[1]{\lvert#1\rvert}
+\newcommand{\norm}[1]{\lVert#1\rVert}
+
+% --- System name (consistent typography throughout the paper) ---
+\newcommand{\JobMatch}{\textsc{JobMatch}}
+
+% --- Keywords environment (stub for local article build) ---------
+% acmart provides \keywords{...}; the local article build does not.
+% We provide a no-op stub that prints the keywords as a paragraph,
+% matching the visual style of an acmart article.
+\newenvironment{IEEEkeywords}{%
+  \par\noindent\textbf{Keywords:}~%
+}{\par}
+
+% --- ACM TAPS-only environments (stubbed for local build) ---------
+% The acmart class provides \begin{CCSXML} ... \end{CCSXML} for the
+% ACM CCS taxonomy. The local article build does not have it; we
+% always define a no-op stub here, and acmart's real definition
+% takes precedence at submission time because the class loads
+% before the preamble finishes.
+\newenvironment{CCSXML}{}{}
+\newcommand{\ccsdesc}[2][]{\par\noindent\textbf{[CCS (TAPS only): #2]}\par}
+
+% --- TODO marker (for the author pass) ---------------------------
+\newcommand{\authortodo}[1]{\textcolor{red}{\textbf{[TODO: #1]}}}
+
+% --- DRAFT watermark for pre-final PDFs -------------------------
+% Comment out for camera-ready.
+\usepackage{draftwatermark}
+\SetWatermarkLightness{0.92}
+\SetWatermarkScale{2.5}
+\SetWatermarkText{DRAFT - ANONYMIZED}

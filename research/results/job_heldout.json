@@ -1,0 +1,26 @@
+{
+  "experiment": "EXP-012 job-held-out generalization (RQ7)",
+  "protocol": "5 folds over 15 jobs; LTR trained on non-held-out jobs; rank all 15 per resume; seed=42",
+  "n_jobs": 15,
+  "n_resumes": 30,
+  "ltr_jobheldout_ndcg_at_5_mean": 0.928466,
+  "ltr_jobheldout_ndcg_at_5_ci": {
+    "mean": 0.9284663819836398,
+    "ci_low": 0.8981513902135579,
+    "ci_high": 0.9546661974103802,
+    "se": 0.01476978393824421
+  },
+  "ltr_jobheldout_p_at_5_mean": 0.294667,
+  "ltr_jobheldout_r_at_5_mean": 0.94,
+  "ltr_STRICT_heldout_relevant_ndcg_at_5_mean": 0.930174,
+  "ltr_STRICT_heldout_relevant_ndcg_at_5_ci": {
+    "mean": 0.9301744907666925,
+    "ci_low": 0.8761887116758551,
+    "ci_high": 0.9693330952918916,
+    "se": 0.023879015807881036
+  },
+  "n_strict_resume_fold_pairs": 47,
+  "fixed_composite_reference_ndcg_at_5_mean": 0.949236,
+  "compare_resume_heldout_ltr": "pointwise_ltr.json ndcg@5=0.917 (resume folds); composite kfold=0.949",
+  "interpretation": "The STRICT number (resumes whose relevant job was held out of LTR training) is the honest unseen-job generalization measure. The fixed composite is not trained, so its 'job-held-out' value is descriptive, not generalization. If STRICT << overall, the learned model does not generalize to unseen jobs and the composite/held-out numbers should be reported with that caveat."
+}

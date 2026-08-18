@@ -172,10 +172,10 @@ def test_resume_upload_cid_cleanup_and_contact(mock_factory, client):
     import io
 
     content = (
-        b"Harsh Kashyap (cid:131), (cid:239)\n"
-        b"harsh@example.com | +91 9876543210\n"
-        b"github.com/harshkashyap\n"
-        b"https://leetcode.com/u/harshkashyap\n"
+        b"Jordan Rivera (cid:131), (cid:239)\n"
+        b"jordan@example.com | +91 9876543210\n"
+        b"github.com/janedoe\n"
+        b"https://leetcode.com/u/janedoe\n"
     )
     resp = client.post(
         "/candidates/upload-resume",
@@ -185,8 +185,8 @@ def test_resume_upload_cid_cleanup_and_contact(mock_factory, client):
     data = resp.json()
     assert "(cid:" not in data["cleaned_text"]
     fields = data["extracted_fields"]
-    assert fields["name"] == "Harsh Kashyap"
-    assert fields["email"] == "harsh@example.com"
+    assert fields["name"] == "Jordan Rivera"
+    assert fields["email"] == "jordan@example.com"
     assert any("github.com" in link for link in [fields.get("portfolio", ""), *fields.get("other_links", [])])
 
 

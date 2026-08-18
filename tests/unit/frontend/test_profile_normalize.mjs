@@ -10,7 +10,7 @@ import {
 import { EMPTY_PROFILE_FIELDS } from "../../../frontend/src/utils/profileFields.js";
 
 test("cleanFieldText removes CID artifacts from names", () => {
-  assert.equal(cleanFieldText("Harsh Kashyap (cid:131), (cid:239)"), "Harsh Kashyap");
+  assert.equal(cleanFieldText("Jordan Rivera (cid:131), (cid:239)"), "Jordan Rivera");
 });
 
 test("normalizeProfileFields cleans contact fields", () => {

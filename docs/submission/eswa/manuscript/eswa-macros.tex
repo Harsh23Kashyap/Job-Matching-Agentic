@@ -1,0 +1,52 @@
+% eswa-macros.tex
+% Reusable macros for the ESWA manuscript.
+
+% --- Figure macros ------------------------------------------------
+\newcommand{\JFigure}[2]{%
+  \begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=0.95\linewidth]{#1}
+    \caption{#2}
+  \end{figure}
+}
+
+\newcommand{\JFigPortrait}[2]{%
+  \begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=0.85\linewidth,keepaspectratio]{#1}
+    \caption{#2}
+  \end{figure}
+}
+
+% --- Lead paragraph (drop-cap style opening) ---------------------
+\newcommand{\leadpara}[1]{%
+  \par\noindent\textbf{#1}\par\medskip
+}
+
+% --- Cross-reference helpers -------------------------------------
+\newcommand{\figref}[1]{Figure~\ref{#1}}
+\newcommand{\tabref}[1]{Table~\ref{#1}}
+\newcommand{\secref}[1]{Section~\ref{#1}}
+
+% --- Evaluation metric helpers -----------------------------------
+\newcommand{\ndcg}{nDCG@5}
+\newcommand{\ndcgtwo}{nDCG@10}
+\newcommand{\ece}{ECE}
+\newcommand{\dir}{DIR}
+
+% --- System name (consistent typography) --------------------------
+\newcommand{\JobMatch}{\textsc{JobMatch}}
+
+% --- Compact inline math -----------------------------------------
+\newcommand{\abs}[1]{\lvert#1\rvert}
+\newcommand{\norm}[1]{\lVert#1\rVert}
+
+% --- TODO marker (for the author pass) ---------------------------
+\newcommand{\authortodo}[1]{}% neutralized for submission (was a red [TODO] marker)
+
+% --- DRAFT watermark (pre-submission only) -----------------------
+% Draft watermark removed for submission (integrity/hygiene fix):
+% \usepackage{draftwatermark}
+% \SetWatermarkLightness{0.92}
+% \SetWatermarkScale{2.5}
+% \SetWatermarkText{PRE-SUBMISSION DRAFT}

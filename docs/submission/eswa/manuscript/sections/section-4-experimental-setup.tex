@@ -1,0 +1,39 @@
+\section{Experimental Setup}\label{sec:4}
+
+This section describes the experimental setup in four subsections: the dataset (\secref{sec:4.1}), the baselines (\secref{sec:4.2}), the metrics (\secref{sec:4.3}), and the evaluation protocol (\secref{sec:4.4}).
+The setup is designed to be reproducible from the released artifact; the frozen demo corpus and the regression benchmark are committed and version-controlled.
+
+\subsection{Dataset}\label{sec:4.1}
+The evaluation uses a frozen demo corpus of 30 resumes, 15 job descriptions, and 47 manually labeled resume--job relevance pairs; the 47 labels consist of 21 strong (relevance grade 2) and 26 partial (relevance grade 1) pairs, with no irrelevant-grade (grade 0) labels in the labeled set.
+The corpus is small by the standards of production recommendation systems; we acknowledge this limitation explicitly in \secref{sec:6} and contextualize the small corpus as a controlled evaluation with a regression-gated test suite.
+The relevance scale is a three-point ordinal scale (irrelevant = 0, partially relevant = 1, strongly relevant = 2). The 47 primary labels were curated by a single author-annotator; we do not claim multi-annotator adjudication for the primary set. To provide a second, independent annotation signal we additionally produced an LLM-assisted labeling pass (a headless \texttt{claude} annotator applied to the full $30 \times 15$ matrix), which agrees with the human anchor at quadratic Cohen's $\kappa = 0.69$ (substantial agreement; within-one-grade agreement $100\%$); this expanded set is used only as a denser, second-annotator corroboration set (\secref{sec:5}), never as the primary benchmark, and its non-human provenance is disclosed. Single-annotator labeling of the primary set is stated as a limitation in \secref{sec:6}.
+The macro-averaged metrics are reported across all 30 resumes so that no single profile dominates the score; nDCG@5, P@5, and R@5 are computed using the 47 manually labeled (resume, job) pairs as graded positives and, under a closed-world assumption, treating the remaining unjudged (resume, job) pairs as grade 0. Because the labeled set consists of curated positives, unjudged does not mean verified-irrelevant; this sparse-judgment convention can only lower-bound the true relevance and is disclosed as a limitation in \secref{sec:6}.
+The corpus statistics are: 30 resumes with an average of 2.97 skills per resume; 15 job descriptions with an average of 2.13 required skills per posting (the corpus does not populate a separate preferred-skills field); a distinct skill vocabulary of 74 canonical skills; 47 labeled pairs (21 strong at grade 2, 26 partial at grade 1, no grade-0 labels).
+
+\subsection{Baselines}\label{sec:4.2}
+We compare the proposed system against six baselines, spanning lexical, semantic, hybrid, and learned-to-rank families:
+\emph{(1) BM25} \citep{robertson1995okapi}: a classical lexical baseline with field-boosted weighting (title boost 2.0, skill boost 1.5, default elsewhere).
+\emph{(2) TF--IDF cosine}: a sparse vector baseline with the same field-boosted weighting.
+\emph{(3) Sentence-BERT cosine} \citep{reimers2019sentence}: a dense semantic baseline using the \texttt{all-MiniLM-L6-v2} encoder.
+\emph{(4) Hybrid semantic--skill}: a fixed $0.7/0.3$ blend of Sentence-BERT cosine and Jaccard skill overlap (the prototype default; the blend weight is not tuned on the labeled pairs).
+\emph{(5) Reciprocal rank fusion (RRF)} \citep{cormack2010reciprocal}: a fusion of the top-$K$ lists from BM25, TF--IDF, Sentence-BERT, and the hybrid, with $K = 10$ and the RRF constant $k = 60$.
+\emph{(6) Cross-encoder reranker}: a BERT cross-encoder trained on the labeled pairs, evaluated for completeness but disabled by default in the prototype due to its 141.7 ms latency.
+In addition, we report two reference points: the portal-default composite (the proposed system with the six-channel fixed-weight combination) and a learned logistic-regression fusion (a learned-to-rank alternative to the fixed-weight composite).
+The learned fusion is fit on the same labeled pairs it is judged against, which is an overfitting risk that we acknowledge in \secref{sec:6}; the fixed-weight composite is the primary result.
+
+\subsection{Metrics}\label{sec:4.3}
+The evaluation reports four families of metrics, each mapping to a user-facing property.
+\emph{Ranking quality} is reported as nDCG@5 \citep{jarvelin2002ndcg} over the labeled pairs at cutoff $K = 5$, with precision@5 and recall@5 reported as supplementary measures.
+\emph{Explanation faithfulness} is reported as the proportion of explanation bullets whose named channel is consistent with the score that the named channel contributes to the ranking, with explanation specificity (the proportion of bullets that name a concrete field) and explanation consistency (the proportion of synthetic profile variants under which the explanation does not change without the underlying input changing) reported as supplementary measures.
+\emph{Confidence calibration} is reported as the expected calibration error (ECE) \citep{guo2017calibration} between the calibrated confidence $p_{ij} = P(y_{ij}{=}1 \mid s_{ij})$ and the empirical relevance rate, computed over all judged (resume, job) pairs under a held-out 5-fold protocol ($n = 450$ pairs, base rate 0.104; the calibrator is never fit on the evaluation fold), in ten equal-width confidence bins, with the Brier score \citep{brier1950verification} and a reliability diagram as supplementary measures.
+\emph{Counterfactual robustness} is reported as the proportion of single-field edits that, when applied, change the rank by at least one position, with the top-$K$ stability and the maximum score shift as supplementary measures.
+The metric suite is designed to map each metric to a user-facing property: nDCG@5 maps to recommendation effectiveness, faithfulness maps to explanation reliability, ECE maps to confidence trustworthiness, and counterfactual robustness maps to explanation actionability.
+
+\subsection{Evaluation protocol}\label{sec:4.4}
+All experiments are run on the frozen demo corpus; no experiment mutates the corpus.
+The reported numbers come from committed benchmark artifacts and are reproduced by the regression benchmark; the regression tolerance is $\pm 0.04$ nDCG.
+The statistical significance of the difference between the proposed system and the strongest single-channel baseline is tested by a paired bootstrap with $N = 5{,}000$ resamples and seed $42$.
+The bootstrap resamples the 30 resumes with replacement, recomputes the macro-averaged nDCG@5 on each resample, and reports the $p$-value as the proportion of resamples in which the baseline meets or exceeds the proposed system.
+The counterfactual probe is run on 50 controlled pairs: 25 recourse edits (adding or removing a skill, changing experience or salary) that test whether an explanation-implied change moves the rank, and 25 demographic-proxy edits (name, summary suffix, hometown label, pronouns, or email domain) that test invariance to non-job fields. The demographic-proxy edits are reported as a sensitivity check, not a demographic-fairness audit.
+The latency profile is measured on a single-threaded Python process on a 2.4 GHz Intel Xeon E5-2680 v4 with 64 GB RAM; the reported numbers are the mean over 1{,}000 queries.
+The computational cost of the full evaluation is approximately 30 minutes of wall-clock time on the reference machine; the regression benchmark completes in approximately 5 minutes.

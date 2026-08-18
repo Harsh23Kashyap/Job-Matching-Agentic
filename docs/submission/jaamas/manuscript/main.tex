@@ -38,8 +38,8 @@ Separate portals keep save, apply, and shortlist decisions with human users.
 
 The Matchmaking agent combines semantic similarity, skill overlap, and experience, compensation, and remote compatibility into a fixed composite score with structured explanations---assistive ranking, not autonomous hiring.
 We evaluate offline on 30 resumes, 15 job postings, and 47 graded relevance pairs using macro-averaged P@5, R@5, and nDCG@5 at $K{=}5$, comparing TF--IDF, BM25, dense retrieval, reciprocal rank fusion, learned fusion, and cross-encoder reranking.
-Multimodal soft-embed and learned fusion reach nDCG@5 of 0.969 and 0.968 in committed artifacts; composite ablation reaches 0.949 under the portal-default weight vector.
-Cross-encoder reranking reduces nDCG@5 by 0.108 at ${\sim}141.7$ ms/query and stays disabled in the default portal.
+The portal-default six-channel composite reaches nDCG@5 of 0.949; the strongest single configuration reaches 0.924 and learned fusion, evaluated held-out, does not beat the composite. On this small corpus ($n{=}30$) no method is statistically distinguishable from the others (differences fail Holm correction), so we report ranking parity rather than superiority.
+Cross-encoder reranking (nDCG@5 0.939) does not exceed the composite (0.949) at ${\sim}141.7$ ms/query and stays disabled in the default portal.
 Hard-negative mining yields 150 pairs with zero label conflicts; a synthetic fairness audit flags 7/10 fabricated pairs---an engineering check, not demographic validation.
 Benchmark drivers and regression tests reproduce reported metrics on an integrated research prototype, not a validated production hiring system.}
 

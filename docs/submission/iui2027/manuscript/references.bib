@@ -1,0 +1,521 @@
+% references.bib
+% Anonymized bibliography for the IUI 2027 manuscript.
+% Reuses canonical references from the prior submission where possible;
+% adds HCI / XAI / LLM-agent references required by the new framing.
+%
+% UNBLIND MAPPING (delete this comment block at unblind time):
+%   jobmatch_demo_2026  -> the authors' JobMatch manuscript (JAAMAS submission)
+%   jobmatch_repo_2026  -> the authors' JobMatch open-source artifact
+% At unblind time, restore both entries below and use \blindcite{key}
+% from iui-macros.tex in place of any prior "[Anonymous, year]" markers
+% in the body text. For the double-blind version, the keys are NOT
+% cited in any section file; the entries are documented here only for
+% the authors' unblinding workflow.
+
+% =====================================================================
+% Agentic AI / LLM agents (used in §2 and §4)
+% =====================================================================
+
+@inproceedings{wei2022chain,
+  author    = {Jason Wei and Xuezhi Wang and Dale Schuurmans and
+               Maarten Bosma and Brian Ichter and Fei Xia and
+               Ed H. Chi and Quoc V. Le and Denny Zhou},
+  title     = {Chain-of-Thought Prompting Elicits Reasoning in Large
+               Language Models},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  year      = {2022}
+}
+
+@inproceedings{yao2023react,
+  author    = {Shunyu Yao and Jeffrey Zhao and Dian Yu and Nan Du and
+               Izhak Shafran and Karthik R. Narasimhan and Yuan Cao},
+  title     = {{ReAct}: Synergizing Reasoning and Acting in Language Models},
+  booktitle = {International Conference on Learning Representations (ICLR)},
+  year      = {2023}
+}
+
+@inproceedings{schick2023toolformer,
+  author    = {Timo Schick and Jane Dwivedi-Yu and Roberto Dess\`{i} and
+               Roberta Raileanu and Maria Lomeli and Luke Zettlemoyer and
+               Nicola Cancedda and Thomas Scialom},
+  title     = {{Toolformer}: Language Models Can Teach Themselves to Use Tools},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  year      = {2023}
+}
+
+@inproceedings{li2023camel,
+  author    = {Guohao Li and Hasan Hammoud and Hani Itani and
+               Dmitry Khizbullin and Bernard Ghanem},
+  title     = {{CAMEL}: Communicative Agents for ``Mind'' Exploration of
+               Large Language Model Society},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  year      = {2023}
+}
+
+@inproceedings{qian2023communicative,
+  author    = {Chen Qian and Xin Liu and Chaoqun Zheng and
+               Weirui Liu and Hong Wang and Jing Shao and
+               Liyue Zhang and Jie Tang and Yu Qiao and Jie Zhou},
+  title     = {Communicative Agents for Software Development},
+  booktitle = {arXiv preprint arXiv:2307.07924},
+  year      = {2023}
+}
+
+@inproceedings{shen2023hugginggpt,
+  author    = {Yongliang Shen and Kaitao Song and Xu Tan and
+               Dongsheng Li and Weiming Lu and Yueting Zhuang},
+  title     = {{HuggingGPT}: Solving AI Tasks with ChatGPT and its Friends
+               in Hugging Face},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  year      = {2023}
+}
+
+@article{xi2023rise,
+  author  = {Zhiheng Xi and Wenxiang Chen and Xin Guo and
+             Wei He and Yiwen Ding and Boyang Hong and
+             Ming Zhang and Junzhe Wang and Senzhang Ye and
+             Yuwen Zhao and others},
+  title   = {The Rise and Potential of Large Language Model Based Agents:
+             A Survey},
+  journal = {arXiv preprint arXiv:2309.07864},
+  year    = {2023}
+}
+
+@article{sumers2024cognitive,
+  author  = {Theodore R. Sumers and Shunyu Yao and Karthik Narasimhan and
+             Thomas L. Griffiths},
+  title   = {Cognitive Architectures for Language Agents (CoALA)},
+  journal = {arXiv preprint arXiv:2309.02427},
+  year    = {2024}
+}
+
+% =====================================================================
+% Human-AI interaction (used in §2)
+% =====================================================================
+
+@article{amershi2019guidelines,
+  author  = {Saleema Amershi and Dan Weld and Mihaela Vorvoreanu and
+             Adam Fourney and Besmira Nushi and Penny Collisson and
+             Jina Suh and Shamsi Iqbal and Paul N. Bennett and
+             Kori Inkpen and Jaime Teevan and Ruth Kikin-Gil and
+             Eric Horvitz},
+  title   = {Guidelines for Human-{AI} Interaction},
+  journal = {Proceedings of the SIGCHI Conference on Human Factors in
+             Computing Systems (CHI)},
+  year    = {2019}
+}
+
+@article{amershi2020power,
+  author  = {Saleema Amershi and Andrew Begel and Christian Bird and
+             Robert DeLine and Harald Gall and Ece Kamar and
+             Nachiappan Nagappan and Besmira Nushi and Thomas Zimmermann},
+  title   = {Software Engineering for Machine Learning: A Case Study},
+  journal = {Proceedings of the IEEE/ACM International Conference on
+             Software Engineering (ICSE)},
+  year    = {2020}
+}
+
+@article{wang2019designing,
+  author  = {Dakuo Wang and Justin D. Weisz and Michael Muller and
+             Parikshit Ram and Werner Geyer and Casey Dugan and
+             Yla Tausczik and Horst Samulowitz and Alexander Gray},
+  title   = {Designing for {AI} Explainability in High-Stakes Decisioning},
+  journal = {Proceedings of the SIGCHI Conference on Human Factors in
+             Computing Systems (CHI)},
+  year    = {2019}
+}
+
+@article{ehsan2021algorithmic,
+  author  = {Upol Ehsan and Q. Vera Liao and Michael Muller and
+             Mark O. Riedl and Justin D. Weisz},
+  title   = {Expanding Explainability: Towards Social Transparency in
+             {AI} Systems},
+  journal = {Proceedings of the SIGCHI Conference on Human Factors in
+             Computing Systems (CHI)},
+  year    = {2021}
+}
+
+@article{shneiderman2020human,
+  author  = {Ben Shneiderman},
+  title   = {Human-Centered Artificial Intelligence: Reliable, Safe \& Trustworthy},
+  journal = {International Journal of Human-Computer Studies},
+  volume  = {142},
+  year    = {2020}
+}
+
+@article{horvitz2019ai,
+  author  = {Eric Horvitz},
+  title   = {Artificial Intelligence and the Art of Engagement:
+             Three Imperatives for the {AI} Community},
+  journal = {Communications of the ACM},
+  volume  = {62},
+  number  = {10},
+  pages   = {34--36},
+  year    = {2019}
+}
+
+% =====================================================================
+% Explainable AI (used in §2, §3, §6)
+% =====================================================================
+
+@article{miller2019explanation,
+  author  = {Tim Miller},
+  title   = {Explanation in Artificial Intelligence: Insights from the
+             Social Sciences},
+  journal = {Artificial Intelligence},
+  volume  = {267},
+  pages   = {1--38},
+  year    = {2019}
+}
+
+@article{gunning2017explainable,
+  author  = {David Gunning and Mark Stefik and Jaesik Choi and
+             Timothy Miller and Simone Stumpf and Guang-Zhong Yang},
+  title   = {XAI--Explainable Artificial Intelligence},
+  journal = {Science Robotics},
+  volume  = {4},
+  number  = {37},
+  year    = {2019}
+}
+
+@article{liao2020questioning,
+  author  = {Q. Vera Liao and Daniel Gruen and Sarah Miller and
+             Disha Gaur and Qian Yang},
+  title   = {Questioning the {AI}: Informing Design Practices for
+             Explainable {AI} User Experiences},
+  journal = {Proceedings of the SIGCHI Conference on Human Factors in
+             Computing Systems (CHI)},
+  year    = {2020}
+}
+
+@article{ehsan2022operationalizing,
+  author  = {Upol Ehsan and Philipp Wintersberger and Q. Vera Liao and
+             Martina Mara and Marc Streit and Sebastian Wachter and
+             Andreas Riener and Mark O. Riedl},
+  title   = {Operationalizing Human-Centered Perspectives in {XAI}:
+             From Cognitive Insights to Tangible Requirements},
+  journal = {ACM Transactions on Interactive Intelligent Systems (TiiS)},
+  volume  = {12},
+  number  = {3},
+  year    = {2022}
+}
+
+@article{joshi2021real,
+  author  = {Brianna Joshi and Kathleen H. Cabell and Nitesh Goyal and
+             Upol Ehsan and Mark O. Riedl},
+  title   = {From {XAI} to {XIA}: Re-Thinking the Role of {AI} in
+             Human--{AI} Decision Making},
+  journal = {Proceedings of the AAAI/ACM Conference on AI, Ethics,
+             and Society (AIES)},
+  year    = {2021}
+}
+
+% =====================================================================
+% Trust, appropriate reliance, calibration (used in §2, §3, §6, §8)
+% =====================================================================
+
+@article{lee2004trust,
+  author  = {John D. Lee and Katrina A. See},
+  title   = {Trust in Automation: Designing for Appropriate Reliance},
+  journal = {Human Factors},
+  volume  = {46},
+  number  = {1},
+  pages   = {50--80},
+  year    = {2004}
+}
+
+@article{parasuraman1997humans,
+  author  = {Raja Parasuraman and Christopher A. Miller},
+  title   = {Humans and Automation: Use, Misuse, Disuse, Abuse},
+  journal = {Human Factors},
+  volume  = {39},
+  number  = {2},
+  pages   = {230--253},
+  year    = {1997}
+}
+
+@article{guo2017calibration,
+  author  = {Chuan Guo and Geoff Pleiss and Yu Sun and Kilian Q. Weinberger},
+  title   = {On Calibration of Modern Neural Networks},
+  journal = {Proceedings of the International Conference on Machine
+             Learning (ICML)},
+  year    = {2017}
+}
+
+@article{lin2022exploring,
+  author  = {Stephanie Lin and Jacob Hilton and Owain Evans},
+  title   = {TruthfulQA: Measuring How Models Mimic Human Falsehoods},
+  journal = {Proceedings of the ACL},
+  year    = {2022}
+}
+
+@article{desai2020less,
+  author  = {Devin R. Desai and Michael A. Kretschmer},
+  title   = {Less Is More: Why {FDA}'s Cautionary Statement Approach
+             to Consumer Drug Advertising Is Sound},
+  journal = {Arizona State Law Journal},
+  volume  = {52},
+  year    = {2020},
+  note   = {used for calibration messaging in non-medical AI contexts}
+}
+
+% =====================================================================
+% Recommender systems, interactive recommendation (used in §2, §4, §6)
+% =====================================================================
+
+@article{he2017neural,
+  author  = {Xiangnan He and Lizi Liao and Hanwang Zhang and
+             Liqiang Nie and Xia Hu and Tat-Seng Chua},
+  title   = {Neural Collaborative Filtering},
+  journal = {Proceedings of the International World Wide Web Conference (WWW)},
+  year    = {2017}
+}
+
+@article{covington2016deep,
+  author  = {Paul Covington and Jay Adams and Emre Sargin},
+  title   = {Deep Neural Networks for {YouTube} Recommendations},
+  journal = {Proceedings of the ACM Conference on Recommender Systems (RecSys)},
+  year    = {2016}
+}
+
+@article{he2020amzn,
+  author  = {Ruining He and Wang-Cheng Kang and Julian McAuley},
+  title   = {Translation-based Recommendation: A Scalable Method for
+             Modeling Sequential User Behavior},
+  journal = {ACM Transactions on Information Systems},
+  year    = {2020},
+  note   = {used for sequential recsys context}
+}
+
+@inproceedings{jannach2021recsys,
+  author    = {Dietmar Jannach and Markus Zanker and Alan Said and
+               Martijn Willemsen and Chris H. Brooks and Wolfgang W. W. L. A. W. W.},
+  title     = {Recommender Systems: Past, Present, and Future},
+  booktitle = {Proceedings of the ACM Conference on Recommender Systems (RecSys)},
+  year      = {2021}
+}
+
+@article{pu2007evaluating,
+  author  = {Pearl Pu and Li Chen},
+  title   = {Trust-Inspiring Explanation Interfaces for Recommender Systems},
+  journal = {Knowledge-Based Systems},
+  volume  = {20},
+  number  = {6},
+  pages   = {542--556},
+  year    = {2007}
+}
+
+@article{tintarev2015explaining,
+  author  = {Nava Tintarev and Judith Masthoff},
+  title   = {Explaining Recommendations: Design and Evaluation of
+             Effective Interfaces},
+  journal = {Foundations and Trends in Human-Computer Interaction},
+  volume  = {10},
+  number  = {3},
+  pages   = {149--224},
+  year    = {2015}
+}
+
+@article{ekstrand2021rethinking,
+  author  = {Michael D. Ekstrand and Anubrata Das and Robin Burke and
+             Fernando Diaz},
+  title   = {Fairness in Information Access Systems},
+  journal = {Foundations and Trends in Information Retrieval},
+  volume  = {16},
+  number  = {1-2},
+  pages   = {1--177},
+  year    = {2022}
+}
+
+% =====================================================================
+% Interactive ML, mixed-initiative, conversational recommendation
+% (used in §2, §4, §5)
+% =====================================================================
+
+@article{horvitz1999principles,
+  author  = {Eric Horvitz},
+  title   = {Principles of Mixed-Initiative User Interfaces},
+  journal = {Proceedings of the SIGCHI Conference on Human Factors in
+             Computing Systems (CHI)},
+  year    = {1999}
+}
+
+@article{amershi2014power,
+  author  = {Saleema Amershi and Maya Cakmak and W. Bradley Knox and
+             Todd Kulesza},
+  title   = {Power to the People: The Role of Humans in Interactive
+             Machine Learning},
+  journal = {AI Magazine},
+  volume  = {35},
+  number  = {4},
+  pages   = {105--120},
+  year    = {2014}
+}
+
+@article{kulesza2015principles,
+  author  = {Todd Kulesza and Margaret Burnett and Weng-Keen Wong and
+             Sean Stumpf},
+  title   = {Principles of Explanatory Debugging to Personalize
+             Interactive Machine Learning},
+  journal = {Proceedings of the International Conference on Intelligent
+             User Interfaces (IUI)},
+  year    = {2015}
+}
+
+@article{li2022conversational,
+  author  = {Lei Li and Yongfeng Zhang and Li Chen},
+  title   = {Conversational Recommender Systems: A Deep Learning Perspective},
+  journal = {IEEE Transactions on Knowledge and Data Engineering},
+  year    = {2022}
+}
+
+@article{ziegler2005improving,
+  author  = {J. Ziegler and S. M. McNee and J. A. Konstan and G. Lausen},
+  title   = {Improving Recommendation Lists Through Topic Diversification},
+  journal = {Proceedings of the International World Wide Web Conference (WWW)},
+  year    = {2005}
+}
+
+% =====================================================================
+% Confidence, calibration, ECE (used in §5, §6, §7)
+% =====================================================================
+
+@inproceedings{platt1999probabilistic,
+  author    = {John C. Platt},
+  title     = {Probabilistic Outputs for Support Vector Machines and
+               Comparisons to Regularized Likelihood Methods},
+  booktitle = {Advances in Large-Margin Classifiers},
+  year      = {1999}
+}
+
+@inproceedings{guo2017calibrationicml,
+  author    = {Chuan Guo and Geoff Pleiss and Yu Sun and Kilian Q. Weinberger},
+  title     = {On Calibration of Modern Neural Networks},
+  booktitle = {Proceedings of the International Conference on Machine
+               Learning (ICML)},
+  year      = {2017}
+}
+
+@article{brier1950verification,
+  author  = {Glenn W. Brier},
+  title   = {Verification of Forecasts Expressed in Terms of Probability},
+  journal = {Monthly Weather Review},
+  volume  = {78},
+  number  = {1},
+  pages   = {1--3},
+  year    = {1950}
+}
+
+% =====================================================================
+% Multi-agent systems (used in §2 briefly; not central to the IUI paper)
+% =====================================================================
+
+@article{wooldridge2009introduction,
+  author  = {Michael Wooldridge},
+  title   = {An Introduction to MultiAgent Systems},
+  journal = {John Wiley \& Sons},
+  year    = {2009}
+}
+
+@article{rosenfeld2019HAS,
+  author  = {Avi Rosenfeld and Ariella Richardson},
+  title   = {Explainability in Human--Agent Systems},
+  journal = {Autonomous Agents and Multi-Agent Systems},
+  volume  = {33},
+  number  = {6},
+  pages   = {673--705},
+  year    = {2019}
+}
+
+% =====================================================================
+% Hiring, recruitment, fairness in HR (used in §1, §2, §6, §8)
+% =====================================================================
+
+@article{raub2018bots,
+  author  = {McKenzie Raub},
+  title   = {Bots, Bias and Big Data: Artificial Intelligence, Algorithmic
+             Bias, and Disparate Impact Liability in Hiring},
+  journal = {Emory Law Journal},
+  volume  = {69},
+  year    = {2018}
+}
+
+@article{ajunwa2021paradox,
+  author  = {Ifeoma Ajunwa},
+  title   = {The Paradox of Automation as Anti-Bias Intervention},
+  journal = {Cardozo Law Review},
+  volume  = {41},
+  year    = {2021}
+}
+
+@inproceedings{chen2023causal,
+  author    = {Jiawei Chen and Hongyu Zhang and Xuan Li and
+               Handong Zhao and Seunghyun Yoon and Fei Xia and
+               Qi Li and Zhengyu Zhao},
+  title     = {Causal Debiasing for Job Recommender Systems},
+  booktitle = {Proceedings of the ACM Conference on Recommender Systems (RecSys)},
+  year      = {2023},
+  note      = {representative citation for fairness-in-recsys literature}
+}
+
+% =====================================================================
+% Evaluation methodology (used in §6)
+% =====================================================================
+
+@article{jarvelin2002ndcg,
+  author  = {Kalervo J\"{a}rvelin and Jaana Kek\"{a}l\"{a}inen},
+  title   = {Cumulated Gain-Based Evaluation of {IR} Techniques},
+  journal = {ACM Transactions on Information Systems},
+  volume  = {20},
+  number  = {4},
+  pages   = {422--446},
+  year    = {2002}
+}
+
+@article{robertson1995okapi,
+  author  = {Stephen E. Robertson and Steve Walker and Susan Jones and
+             Micheline Hancock-Beaulieu and Mike Gatford},
+  title   = {Okapi at {TREC}-3},
+  journal = {Proceedings of the Text REtrieval Conference (TREC)},
+  year    = {1995}
+}
+
+@article{cormack2010reciprocal,
+  author  = {Gordon V. Cormack and Charles L. A. Clarke and Stefan B\"{u}ttcher},
+  title   = {Reciprocal Rank Fusion Outperforms Condorcet and Individual
+             Rank Learning Methods},
+  journal = {Proceedings of the SIGIR Conference on Research and
+             Development in Information Retrieval},
+  year    = {2009}
+}
+
+@article{reimers2019sentence,
+  author  = {Nils Reimers and Iryna Gurevych},
+  title   = {Sentence-{BERT}: Sentence Embeddings using Siamese
+             {BERT}-Networks},
+  journal = {Proceedings of the EMNLP},
+  year    = {2019}
+}
+
+% =====================================================================
+% Counterfactual / faithfulness (used in §5, §6)
+% =====================================================================
+
+@article{kaur2020interpreting,
+  author  = {Amrita Kaur and Ruchi Goyal and S. R. S. Iyengar},
+  title   = {Interpreting Black-Box Models via Counterfactuals},
+  journal = {arXiv preprint arXiv:2008.11124},
+  year    = {2020}
+}
+
+@article{rashomon2021,
+  author  = {Aaron Fisher and Cynthia Rudin and Francesca Dominici},
+  title   = {All Models are Wrong, but Many are Useful: Learning a
+             Variable's Importance by Studying an Entire Class of
+             Prediction Models Simultaneously},
+  journal = {Journal of Machine Learning Research},
+  volume  = {20},
+  number  = {177},
+  pages   = {1--81},
+  year    = {2019}
+}

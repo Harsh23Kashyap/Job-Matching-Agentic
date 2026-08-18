@@ -1,0 +1,19 @@
+\begin{table*}[!t]
+\centering
+\caption{Stage-2 strengthening evidence (synthetic-controlled and held-out human corpus). Synthetic rows are controlled-validity probes on a transparent latent ground truth (never presented as human judgments). Auto-generated from committed artifacts.}
+\label{tab:stage2}
+\begin{tabular}{@{}llr@{}}
+\toprule
+Probe & Measure & Value \\
+\midrule
+Structure recovery (synthetic) & composite recovery ratio (random$\to$oracle) & 0.907 \\
+\quad decomposition validity & skills$\leftrightarrow$required Spearman & 0.996 \\
+Model-selection search & challengers vs.\ incumbent (25 configs) / beat after Holm & 24 / 0 \\
+Generalization (held-out LTR) & candidate-unseen \ndcg & 0.929 \\
+ & job-unseen \ndcg & 0.929 \\
+ & both-unseen \ndcg & 0.927 \\
+Scalability & mean ms/query at 10{,}000 jobs & 516.9 \\
+Temporal drift (simulated) & \ndcg loss under emerging skills & 0.149 \\
+\bottomrule
+\end{tabular}
+\end{table*}

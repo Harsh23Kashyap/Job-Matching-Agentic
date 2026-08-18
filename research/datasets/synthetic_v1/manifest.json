@@ -1,0 +1,44 @@
+{
+  "version": "synthetic_v1",
+  "seed": 42,
+  "n_resumes": 500,
+  "n_jobs": 75,
+  "n_pairs": 37500,
+  "latent_weights": {
+    "required": 0.4,
+    "preferred": 0.12,
+    "seniority": 0.15,
+    "experience": 0.13,
+    "family": 0.1,
+    "workmode": 0.05,
+    "comp": 0.05
+  },
+  "grade_thresholds": "3>=0.80,2>=0.60,1>=0.40",
+  "label_noise": 0.08,
+  "positive_pairs": 9668,
+  "grade_distribution": {
+    "0": 27832,
+    "1": 6427,
+    "2": 2002,
+    "3": 1239
+  },
+  "families": [
+    "ml_engineering",
+    "data_science",
+    "data_engineering",
+    "backend",
+    "frontend",
+    "mobile",
+    "devops",
+    "security",
+    "product",
+    "design"
+  ],
+  "difficulty_levels": [
+    "easy",
+    "moderate",
+    "hard",
+    "adversarial"
+  ],
+  "note": "Transparent latent-compatibility relevance. Recovery of this structure by the ranker is the test."
+}

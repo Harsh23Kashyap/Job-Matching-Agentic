@@ -1,0 +1,57 @@
+\section{Discussion}\label{sec:6}
+
+This section discusses the engineering implications of the proposed system (\secref{sec:6.1}), the limitations of the evaluation (\secref{sec:6.2}), and the broader perspective (\secref{sec:6.3}).
+The discussion is organized around the practical deployment of the prototype in a production recruitment workflow, and the open engineering questions that the deployment would surface.
+
+\subsection{Engineering implications}\label{sec:6.1}
+The proposed system has four engineering implications that follow from the controlled evaluation.
+\emph{(i) The per-decision factor decomposition is a reliable engineering artifact.} The rule-based explainer is bound to the same six channels that produce the score, and the explanation is consistent with the score by construction; a recruiter who reads the explanation can trust the named channels to be the channels that produced the rank.
+\emph{(ii) The calibrated confidence is a coarse signal, with a discrimination caveat.} Platt scaling reduces the held-out 5-fold expected calibration error to 0.019, but a Brier skill score near zero and a pooled AUC of 0.76 show the Platt-calibrated confidence has low discrimination (it concentrates near the base rate); a comparison of calibration maps (\secref{sec:5.3}) shows isotonic regression preserves the raw score's discrimination (AUC 0.95) at comparable ECE but with an unstable tail on this small set, and beta calibration attains the lowest ECE under both equal-width and equal-mass binnings while preserving discrimination (Brier skill 0.67, AUC 0.96). For the deployed Platt default the confidence should be read as a coarse low/medium/high signal, not a literal probability; adopting the recommended beta map removes this caveat.
+\emph{(iii) The cross-encoder is correctly disabled in the hot path.} The cross-encoder (nDCG@5 0.939) does not improve on the fixed composite (0.949) yet is approximately 340$\times$ slower; the diagnosis is that the cross-encoder is fit on a small training set and overfits to the labeled pairs, and the disable decision is the right engineering call.
+\emph{(iv) The engineering surface is reproducible.} The 341-test regression gate and the $\pm 0.04$ nDCG tolerance mean that the deployed claims are reproducible from a clean clone of the repository, and any regression in the deployed claims is caught by the CI gate.
+
+\subsubsection*{6.1.1 Deployment cost estimate}
+As \emph{illustrative} engineering estimates based on the prototype architecture (not derived from a measured deployment), a rough integration cost for a production recruitment workflow would be on the order of 200--300 engineering hours to integrate the prototype with an existing ATS, 50--100 hours of infrastructure engineering to deploy the Python backend on a Kubernetes cluster, and 20--40 hours per month of ongoing maintenance.
+The latency profile (under 10 ms per request for the prototype ranking path) means that the prototype can be deployed behind an existing ATS without changing the user-facing latency budget.
+The calibration must be re-run when the underlying corpus shifts (e.g., a new industry vertical is added); a calibration update takes approximately 2--4 hours of engineering time and is gated by the same CI regression check.
+
+\subsection{Positioning against the closest systems}\label{sec:6.pos}
+The closest prior systems each address a subset of the properties we combine, but none reports all of them under a single controlled, reproducible protocol. Table~\ref{tab:positioning} contrasts the properties on which we frame the contribution; the entries reflect what each system \emph{reports}, not a claim that a property is impossible for it. The point is not that any single property is new --- most are individually well-established --- but that the auditable combination, the relation-aware skill layer, and the property-by-property evaluation methodology are, to our knowledge, not jointly reported in the recruitment-recommendation literature.
+
+\begin{table*}[t]
+\centering
+\small
+\caption{Positioning against the closest systems on the properties we combine. \checkmark{} = reported; \textbf{--} = not reported. ``Relation-aware skill'' = graded partial credit for related skills beyond exact/synonym overlap; ``Faithfulness'' = an explanation-to-score correspondence measure; ``Counterfactual'' = reports counterfactual / what-if analysis (in our system, a single-field perturbation-stability probe: whether a controlled single-field edit moves the rank; other systems may report counterfactual \emph{explanations} instead); ``Reproducible artifact'' = a released, regression-gated, one-command reproduction.}
+\label{tab:positioning}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lcccccc}
+\toprule
+System & Decomposable & Calibrated & Relation-aware & Faithfulness & Counterfactual & Reproducible \\
+       & explanation  & confidence & skill match    & measure      & probe          & artifact \\
+\midrule
+CareerBERT \citep{lavi2025careerbert}          & --         & --         & \checkmark & --         & --         & partial \\
+Saito \& Sugiyama \citep{saito2024leveraging}  & --         & --         & --         & --         & --         & -- \\
+Calibrated Explanations \citep{lofstrom2024calibrated} & \checkmark & \checkmark & --   & --         & \checkmark & \checkmark \\
+\textbf{\JobMatch{} (this work)}               & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark \\
+\bottomrule
+\end{tabular}%
+}
+\end{table*}
+
+\subsection{Limitations}\label{sec:6.2}
+The evaluation has the following limitations, all stated explicitly and not hedged.
+\emph{Corpus size, label polarity, and statistical power.} The frozen demo corpus (30 resumes, 15 jobs, 47 labeled pairs) is small by the standards of production recommendation systems; many methods reach nDCG $\geq 0.90$, all pairwise confidence intervals overlap, and no comparison survives Holm correction --- so we report ranking \emph{parity}, not superiority. This parity is partly an artifact of the measurement instrument: the labels are exclusively positive (grades 1--2, no explicit grade-0), the job pool (15) is barely larger than the evaluation cutoff ($K=5$), and unjudged pairs are treated as grade-0 only under a closed-world assumption --- conditions under which nDCG@5 has limited power to separate methods (a lexical baseline reaches 0.905). We therefore do not over-interpret parity as method equivalence; a larger, explicitly-negative-judged benchmark is required to discriminate ranking methods, and is in progress.
+\emph{Single-annotator primary labels.} The 47 primary relevance labels were curated by a single author-annotator; the second annotation pass is LLM-assisted (quadratic $\kappa = 0.69$ with the human anchor), not a second independent human rater, and is used only as a denser corroboration set. The sparse-judgment convention (unjudged pairs treated as grade 0 under a closed-world assumption) can only lower-bound the true relevance.
+\emph{Calibration discrimination (deployed Platt map).} The deployed Platt-calibrated confidence has low discrimination (Brier skill $\approx 0$; \secref{sec:5.3}), so for the deployed default the confidence is a coarse low/medium/high signal only. This is a property of the Platt map, not of the task: the held-out beta-calibration comparison (\secref{sec:5.3}) attains both a low ECE and preserved discrimination (Brier skill 0.67, AUC 0.96), which we recommend adopting; we retain Platt as the frozen deployed default and report the difference honestly rather than swapping the calibrator post hoc.
+\emph{No human explanation study.} The explanation evaluation is automated (structural checks plus a mechanistic ranking-level faithfulness probe); no human study assessed usefulness or trust.
+\emph{Robustness gaps.} The ranker is invariant to catalog-covered synonyms and resistant to keyword stuffing, but it is \emph{not} invariant to raw formatting noise or misspellings (mean $|\Delta| \approx 0.12$ composite; \secref{sec:5.7}).
+\emph{Simulated, not real, temporal and scale evidence.} Temporal drift is a controlled simulation (no real timestamps), and the scalability/structure-recovery results use a synthetic corpus with a transparent latent ground truth; they are controlled validity/stress evidence, never presented as human judgments or real deployment telemetry.
+\emph{Narrow fairness probe.} The fairness probe is a 50-pair sensitivity check (25 recourse + 25 demographic-proxy edits) on synthetic proxy groups; it is not a demographic-fairness audit, and the disparate-impact ratios (0.82, 0.75) should not be over-interpreted.
+\emph{Learned-fusion overfitting.} The in-sample learned fusion is fit on the pairs it is judged against (an overfitting risk); we therefore report only its held-out and unseen-candidate/job values, and the fixed-weight composite is the primary, recommended configuration.
+\emph{Coarse, partial-coverage skill taxonomy.} The relation-aware matcher uses a small, hand-built grouping (7 groups, $\approx 54$ skills), frozen a priori; it is not aligned to a full competency standard such as ESCO or O*NET. Two consequences follow: (a) same-group partial credit can be too generous for non-substitutable same-group skills (for example, two different general-purpose programming languages each receive 0.5), and (b) coverage is partial, so for job families whose skills the grouping does not cover, the \textsc{related} tier never fires and the matcher reduces to exact coverage. The relation-aware credit's measurable ranking benefit is therefore established only on the real human corpus and only as a directional signal (\secref{sec:5.7}); alignment to a full standard and an independent \textsc{related}-class benchmark are left to the larger study (\secref{sec:7}).
+
+\subsection{Broader perspective}\label{sec:6.3}
+The methodological contribution of this paper is a reusable pipeline for explainable, calibrated recommendation.
+The pipeline is domain-agnostic in its structure (six channels, per-decision factor decomposition, calibrated confidence, faithfulness evaluation, counterfactual probe) and could be applied to any recommendation domain with structured documents and labeled pairs, including clinical decision support, legal search, and education recommendation.
+The application consequence of the present work is a transparent, calibrated decision-support prototype for the recruitment workflow, and the engineering surface is reproducible from a clean clone of the released artifact.
+We hope the design choices and the evaluation methodology are useful to other researchers building applied AI systems for high-stakes domains, and we hope the open-source artifact makes both inspectable and extensible.

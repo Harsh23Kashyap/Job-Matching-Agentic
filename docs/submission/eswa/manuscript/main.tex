@@ -1,0 +1,121 @@
+% =====================================================================
+% JobMatch for Expert Systems with Applications (ESWA)
+% Title: An Auditable, Calibrated, and Explainable Multi-Agent System for
+%       Job-Candidate Recommendation
+% Target: Expert Systems with Applications, Elsevier
+% Format: Elsevier single-column (elsarticle), 8-10K words
+% Build: pdflatex + bibtex
+% =====================================================================
+
+\documentclass[preprint,review,3p,times,twocolumn,authoryear]{elsarticle}
+
+% --- Core packages ------------------------------------------------
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{array}
+\usepackage{amsmath,amssymb}
+\usepackage{xcolor}
+\usepackage{url}
+\usepackage[hidelinks]{hyperref}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue!60!black,
+  citecolor=blue!60!black,
+  urlcolor=blue!60!black,
+  breaklinks=true,
+  pdftitle={An Auditable, Calibrated, and Explainable Multi-Agent System for
+            Job-Candidate Recommendation},
+  pdfauthor={Authors},
+  pdfsubject={Expert Systems with Applications submission}
+}
+
+% --- Project macros ----------------------------------------------
+\input{eswa-macros}
+\input{eswa-style}
+
+% --- Journal + title block (anonymous for pre-submission review) --
+\journal{Expert Systems with Applications}
+
+\title{An Auditable, Calibrated, and Explainable Multi-Agent System for
+       Job-Candidate Recommendation}
+
+\author[anonymous]{Anonymous Authors}
+\address[anonymous]{Anonymous Institution, Anytown, AnyState, AnyCountry}
+
+\begin{document}
+
+\begin{abstract}
+\input{sections/abstract}
+\end{abstract}
+
+\begin{keyword}
+Recommender systems \sep Explainable AI \sep Confidence calibration \sep
+Skill matching \sep Job-candidate matching \sep Auditable ranking \sep
+Recruitment
+\end{keyword}
+
+\maketitle
+
+\input{sections/section-1-introduction}
+\input{sections/section-2-related-work}
+\input{sections/section-3-methodology}
+\input{sections/section-4-experimental-setup}
+\input{sections/section-5-results}
+\input{sections/section-6-discussion}
+\input{sections/section-7-future-work}
+\input{sections/section-8-conclusion}
+
+% --- Acknowledgments (omitted in the anonymized manuscript) ------
+\section*{Acknowledgments}
+Acknowledgments and funding sources are omitted here to preserve anonymity for
+review; they are provided in the separate title page and will appear in the
+camera-ready version.
+
+% --- Declarations (Elsevier mandatory) ----------------------------
+\section*{Declaration of generative AI and AI-assisted technologies
+in the manuscript preparation process}
+During the preparation of this work the author(s) used OpenAI
+ChatGPT (GPT-4 model) as a language-model assistant to support
+copy-editing of selected paragraphs, to generate initial drafts of
+figure captions from a structured outline, and to suggest edits
+during the literature review. All technical content, experimental
+results, design decisions, and final wording are the authors' own.
+After using this tool, the author(s) reviewed and edited the content
+as needed and take(s) full responsibility for the content of the
+publication.
+
+\section*{CRediT authorship contribution statement}
+\textbf{Anonymous Author 1:} Conceptualization, Methodology, Software,
+Investigation, Writing -- original draft, Writing -- review \& editing.
+\textbf{Anonymous Author 2:} Conceptualization, Supervision, Writing --
+review \& editing, Funding acquisition.
+\textbf{Anonymous Author 3:} Software, Validation, Writing -- review \&
+editing.
+
+\section*{Declaration of competing interest}
+The authors declare that they have no known competing financial
+interests or personal relationships that could have appeared to
+influence the work reported in this paper.
+
+\section*{Data availability}
+The frozen demo corpus (30 resumes, 15 job descriptions, 47 labeled
+pairs), the synthetic corpus and generator, the evaluation scripts,
+the explanation generator, the calibration layer, and the regression
+benchmark will be deposited in a public repository (Harvard Dataverse)
+with a citable DOI upon acceptance; an anonymized copy, with author
+identifiers removed from the released code and test fixtures (and from the
+documentation in the reviewer bundle), is provided to reviewers during
+review. The release includes the one-command
+reproduction script, the auto-generated tables, the per-experiment JSON
+artifacts, and the figure source scripts.
+
+% --- References ---------------------------------------------------
+\bibliographystyle{elsarticle-harv}
+\bibliography{references}
+
+\end{document}

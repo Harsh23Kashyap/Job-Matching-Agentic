@@ -1,0 +1,33 @@
+{
+  "experiment": "EXP-034b de-circularized objective skill-matching benchmark (Stage-3 panel fix)",
+  "note": "Labels are DEFINITIONAL (canonical-catalog + curated non-equivalences); MiniLM is NOT used for any EXACT or hard-negative decision -> no circularity. Embedding SEMANTIC tier is reported by EXP-034 as EXPLORATORY only.",
+  "orthographic_exact_recall": {
+    "ok": 70,
+    "total": 70,
+    "rate": 1.0
+  },
+  "synonym_abbrev_exact_recall": {
+    "ok": 7,
+    "total": 7,
+    "rate": 1.0
+  },
+  "misspelling_robustness": {
+    "still_exact": 0,
+    "taxonomy_related_fallback": 0,
+    "total": 14,
+    "matched_rate": 0.0,
+    "exact_rate": 0.0
+  },
+  "hard_negatives": {
+    "n": 8,
+    "false_exact_count": 1,
+    "false_exact_pairs": [
+      [
+        "Angular",
+        "AngularJS"
+      ]
+    ],
+    "false_exact_rate": 0.125
+  },
+  "interpretation": "Strong, non-circular claims: (1) orthographic/abbreviation/synonym variants are correctly collapsed to EXACT via the catalog; (2) similar-named NON-equivalent technologies are NOT falsely merged (false-exact rate is the key safety metric); (3) misspellings are only partially robust (a known limitation, matches EXP-029). The embedding-based SEMANTIC tier remains exploratory and is not claimed as validated."
+}

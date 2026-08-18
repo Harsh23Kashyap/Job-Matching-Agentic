@@ -1,0 +1,276 @@
+[
+  {
+    "id": "cv_01",
+    "name": "Rahul Sharma",
+    "skills": ["Python", "Machine Learning", "AWS"],
+    "experience_years": 3,
+    "preferred_salary": 120000,
+    "remote_preference": true,
+    "summary": "Rahul Sharma is a machine learning engineer with 3 years of experience in Python, AWS, and applied ML systems. He has worked on automation, cloud integrations, and production-facing software workflows."
+  },
+  {
+    "id": "cv_02",
+    "name": "Priya Mehta",
+    "skills": ["React", "JavaScript", "CSS"],
+    "experience_years": 2,
+    "preferred_salary": 90000,
+    "remote_preference": true,
+    "summary": "Frontend developer skilled in React and modern JavaScript frameworks."
+  },
+  {
+    "id": "cv_03",
+    "name": "Arjun Verma",
+    "skills": ["Java", "Spring Boot", "Microservices"],
+    "experience_years": 4,
+    "preferred_salary": 130000,
+    "remote_preference": false,
+    "summary": "Backend engineer experienced in Java Spring Boot and distributed systems."
+  },
+  {
+    "id": "cv_04",
+    "name": "Neha Kapoor",
+    "skills": ["Python", "Pandas", "Data Visualization"],
+    "experience_years": 2,
+    "preferred_salary": 100000,
+    "remote_preference": true,
+    "summary": "Data analyst skilled in Python, Pandas and visualization tools."
+  },
+  {
+    "id": "cv_05",
+    "name": "Vikram Rao",
+    "skills": ["Docker", "Kubernetes", "CI/CD"],
+    "experience_years": 5,
+    "preferred_salary": 140000,
+    "remote_preference": false,
+    "summary": "DevOps engineer with strong experience in Docker and Kubernetes deployments."
+  },
+  {
+    "id": "cv_06",
+    "name": "Sneha Iyer",
+    "skills": ["TensorFlow", "Deep Learning", "Python"],
+    "experience_years": 4,
+    "preferred_salary": 135000,
+    "remote_preference": true,
+    "summary": "Deep learning engineer with TensorFlow and neural network experience."
+  },
+  {
+    "id": "cv_07",
+    "name": "Rohit Singh",
+    "skills": ["Node.js", "Express", "MongoDB"],
+    "experience_years": 3,
+    "preferred_salary": 110000,
+    "remote_preference": true,
+    "summary": "Backend developer specializing in Node.js and NoSQL databases."
+  },
+  {
+    "id": "cv_08",
+    "name": "Ananya Das",
+    "skills": ["UI/UX", "Figma", "Design Systems"],
+    "experience_years": 2,
+    "preferred_salary": 85000,
+    "remote_preference": true,
+    "summary": "UI/UX designer experienced in building user-centered design systems."
+  },
+  {
+    "id": "cv_09",
+    "name": "Karan Malhotra",
+    "skills": ["AWS", "Terraform", "Cloud Architecture"],
+    "experience_years": 6,
+    "preferred_salary": 150000,
+    "remote_preference": false,
+    "summary": "Cloud architect experienced in AWS infrastructure and Terraform automation."
+  },
+  {
+    "id": "cv_10",
+    "name": "Meera Nair",
+    "skills": ["SQL", "Power BI", "Data Modeling"],
+    "experience_years": 3,
+    "preferred_salary": 95000,
+    "remote_preference": true,
+    "summary": "Business intelligence analyst with expertise in SQL and Power BI."
+  },
+
+  {
+    "id": "cv_11",
+    "name": "Amit Tiwari",
+    "skills": ["Go", "Microservices", "Distributed Systems"],
+    "experience_years": 5,
+    "preferred_salary": 140000,
+    "remote_preference": false,
+    "summary": "Golang backend engineer with microservices and distributed systems experience."
+  },
+  {
+    "id": "cv_12",
+    "name": "Pooja Shah",
+    "skills": ["Python", "NLP", "Transformers"],
+    "experience_years": 4,
+    "preferred_salary": 145000,
+    "remote_preference": true,
+    "summary": "NLP engineer experienced in transformer-based language models."
+  },
+  {
+    "id": "cv_13",
+    "name": "Sahil Gupta",
+    "skills": ["Angular", "TypeScript", "Frontend Development"],
+    "experience_years": 3,
+    "preferred_salary": 95000,
+    "remote_preference": true,
+    "summary": "Frontend engineer skilled in Angular and TypeScript."
+  },
+  {
+    "id": "cv_14",
+    "name": "Ritika Jain",
+    "skills": ["Python", "Statistics", "Machine Learning"],
+    "experience_years": 2,
+    "preferred_salary": 105000,
+    "remote_preference": true,
+    "summary": "Junior ML engineer with strong statistical background."
+  },
+  {
+    "id": "cv_15",
+    "name": "Aditya Rao",
+    "skills": ["C++", "Algorithms", "System Design"],
+    "experience_years": 4,
+    "preferred_salary": 125000,
+    "remote_preference": false,
+    "summary": "Systems engineer experienced in C++ and scalable system design."
+  },
+
+  {
+    "id": "cv_16",
+    "name": "Isha Kapoor",
+    "skills": ["React Native", "Mobile Development"],
+    "experience_years": 3,
+    "preferred_salary": 100000,
+    "remote_preference": true,
+    "summary": "Mobile app developer specializing in React Native."
+  },
+  {
+    "id": "cv_17",
+    "name": "Harsh Vardhan",
+    "skills": ["Kubernetes", "AWS", "CI/CD"],
+    "experience_years": 4,
+    "preferred_salary": 135000,
+    "remote_preference": false,
+    "summary": "Cloud DevOps engineer with Kubernetes and AWS experience."
+  },
+  {
+    "id": "cv_18",
+    "name": "Tanvi Sharma",
+    "skills": ["Data Science", "Python", "Scikit-learn"],
+    "experience_years": 3,
+    "preferred_salary": 120000,
+    "remote_preference": true,
+    "summary": "Data scientist experienced in predictive modeling."
+  },
+  {
+    "id": "cv_19",
+    "name": "Manav Khanna",
+    "skills": ["Cybersecurity", "Network Security", "Penetration Testing"],
+    "experience_years": 5,
+    "preferred_salary": 145000,
+    "remote_preference": false,
+    "summary": "Cybersecurity specialist focused on network security and threat analysis."
+  },
+  {
+    "id": "cv_20",
+    "name": "Ayesha Ali",
+    "skills": ["Product Management", "Agile", "Roadmapping"],
+    "experience_years": 6,
+    "preferred_salary": 155000,
+    "remote_preference": true,
+    "summary": "Product manager experienced in agile development and roadmap planning."
+  },
+
+  {
+    "id": "cv_21",
+    "name": "Nikhil Bansal",
+    "skills": ["Python", "Flask", "Backend Development"],
+    "experience_years": 2,
+    "preferred_salary": 95000,
+    "remote_preference": true,
+    "summary": "Backend developer experienced in Flask and REST APIs."
+  },
+  {
+    "id": "cv_22",
+    "name": "Simran Kaur",
+    "skills": ["Tableau", "Data Analytics", "SQL"],
+    "experience_years": 3,
+    "preferred_salary": 98000,
+    "remote_preference": true,
+    "summary": "Data analyst skilled in Tableau dashboards and SQL queries."
+  },
+  {
+    "id": "cv_23",
+    "name": "Dev Patel",
+    "skills": ["Android", "Kotlin", "Mobile Development"],
+    "experience_years": 4,
+    "preferred_salary": 115000,
+    "remote_preference": true,
+    "summary": "Android developer with strong Kotlin experience."
+  },
+  {
+    "id": "cv_24",
+    "name": "Kavya Reddy",
+    "skills": ["Deep Learning", "Computer Vision", "PyTorch"],
+    "experience_years": 3,
+    "preferred_salary": 140000,
+    "remote_preference": true,
+    "summary": "Computer vision engineer with PyTorch expertise."
+  },
+  {
+    "id": "cv_25",
+    "name": "Yash Agarwal",
+    "skills": ["Blockchain", "Solidity", "Smart Contracts"],
+    "experience_years": 4,
+    "preferred_salary": 150000,
+    "remote_preference": false,
+    "summary": "Blockchain developer experienced in Solidity smart contracts."
+  },
+
+  {
+    "id": "cv_26",
+    "name": "Rhea Thomas",
+    "skills": ["Marketing Analytics", "SEO", "Google Analytics"],
+    "experience_years": 3,
+    "preferred_salary": 90000,
+    "remote_preference": true,
+    "summary": "Marketing analyst focused on SEO and performance analytics."
+  },
+  {
+    "id": "cv_27",
+    "name": "Kabir Sethi",
+    "skills": ["Data Engineering", "Spark", "Hadoop"],
+    "experience_years": 5,
+    "preferred_salary": 145000,
+    "remote_preference": false,
+    "summary": "Data engineer experienced in Spark and big data pipelines."
+  },
+  {
+    "id": "cv_28",
+    "name": "Naina Bhatia",
+    "skills": ["HR Management", "Recruitment", "Talent Acquisition"],
+    "experience_years": 6,
+    "preferred_salary": 110000,
+    "remote_preference": true,
+    "summary": "HR professional with strong recruitment and talent acquisition background."
+  },
+  {
+    "id": "cv_29",
+    "name": "Om Prakash",
+    "skills": ["Rust", "Systems Programming", "Concurrency"],
+    "experience_years": 4,
+    "preferred_salary": 130000,
+    "remote_preference": false,
+    "summary": "Systems programmer specializing in Rust and concurrency."
+  },
+  {
+    "id": "cv_30",
+    "name": "Zoya Khan",
+    "skills": ["UX Research", "User Testing", "Prototyping"],
+    "experience_years": 3,
+    "preferred_salary": 95000,
+    "remote_preference": true,
+    "summary": "UX researcher experienced in user testing and prototyping."
+  }
+]

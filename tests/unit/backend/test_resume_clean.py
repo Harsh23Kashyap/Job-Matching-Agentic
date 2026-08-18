@@ -6,10 +6,10 @@ from core.resume_clean import clean_resume_text, resume_preview_excerpt
 @pytest.mark.parametrize(
     "raw, forbidden",
     [
-        ("Harsh Kashyap (cid:131) Python", "(cid:"),
+        ("Jordan Rivera (cid:131) Python", "(cid:"),
         ("Skills (cid:239) Java (cid:1)", "(cid:"),
         ("Contact (cid:155) info", "(cid:"),
-        ("Harsh Kashyap (cid:131), (cid:239), (cid:1), (cid:155)", "(cid:"),
+        ("Jordan Rivera (cid:131), (cid:239), (cid:1), (cid:155)", "(cid:"),
         ("Skills § Java", "§"),
         ("Notes ¶ more", "¶"),
     ],
@@ -20,54 +20,54 @@ def test_removes_pdf_noise(raw, forbidden):
 
 
 def test_removes_cid_comma_debris():
-    raw = "Harsh Kashyap (cid:131), (cid:239), (cid:1), (cid:155)\nPython developer"
+    raw = "Jordan Rivera (cid:131), (cid:239), (cid:1), (cid:155)\nPython developer"
     cleaned = clean_resume_text(raw)
-    assert cleaned == "Harsh Kashyap\nPython developer"
+    assert cleaned == "Jordan Rivera\nPython developer"
 
 
 def test_preserves_name_and_skills():
-    raw = "Harsh Kashyap\nSkills: Python, FastAPI, React"
+    raw = "Jordan Rivera\nSkills: Python, FastAPI, React"
     cleaned = clean_resume_text(raw)
-    assert "Harsh Kashyap" in cleaned
+    assert "Jordan Rivera" in cleaned
     assert "Python" in cleaned
     assert "FastAPI" in cleaned
 
 
 def test_preserves_email_phone_and_links():
     raw = """
-    Harsh Kashyap (cid:131)
-    harsh@example.com | +91 98765 43210
-    https://linkedin.com/in/harsh-kashyap
-    https://github.com/harshkashyap
-    https://leetcode.com/u/harshkashyap
-    https://harsh.dev
+    Jordan Rivera (cid:131)
+    jordan@example.com | +91 98765 43210
+    https://linkedin.com/in/jordan-rivera
+    https://github.com/janedoe
+    https://leetcode.com/u/janedoe
+    https://jordan.dev
     Skills § Python
     """
     cleaned = clean_resume_text(raw)
-    assert "harsh@example.com" in cleaned
+    assert "jordan@example.com" in cleaned
     assert "98765" in cleaned
-    assert "linkedin.com/in/harsh-kashyap" in cleaned
-    assert "github.com/harshkashyap" in cleaned
-    assert "leetcode.com/u/harshkashyap" in cleaned
-    assert "harsh.dev" in cleaned
+    assert "linkedin.com/in/jordan-rivera" in cleaned
+    assert "github.com/janedoe" in cleaned
+    assert "leetcode.com/u/janedoe" in cleaned
+    assert "jordan.dev" in cleaned
     assert "Python" in cleaned
     assert "(cid:" not in cleaned
     assert "§" not in cleaned
 
 
 def test_collapses_repeated_spaces_and_blank_lines():
-    raw = "Harsh   Kashyap\n\n\n\nPython    developer"
+    raw = "Jordan   Rivera\n\n\n\nPython    developer"
     cleaned = clean_resume_text(raw)
     assert "  " not in cleaned
     assert "\n\n\n" not in cleaned
-    assert cleaned == "Harsh Kashyap\n\nPython developer"
+    assert cleaned == "Jordan Rivera\n\nPython developer"
 
 
 def test_drops_punctuation_only_lines():
-    raw = "Harsh Kashyap\n***\nPython"
+    raw = "Jordan Rivera\n***\nPython"
     cleaned = clean_resume_text(raw)
     assert "***" not in cleaned
-    assert "Harsh Kashyap" in cleaned
+    assert "Jordan Rivera" in cleaned
     assert "Python" in cleaned
 
 
@@ -91,9 +91,9 @@ def test_fixes_hyphenated_line_breaks():
 
 
 def test_removes_duplicate_lines():
-    raw = "Harsh Kashyap\nHarsh Kashyap\nPython developer"
+    raw = "Jordan Rivera\nJordan Rivera\nPython developer"
     cleaned = clean_resume_text(raw)
-    assert cleaned.count("Harsh Kashyap") == 1
+    assert cleaned.count("Jordan Rivera") == 1
 
 
 def test_joins_wrapped_lines():

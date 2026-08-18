@@ -1,5 +1,5 @@
 # Handoff, External Live Jobs API Contract
-> Written: 2026-05-27 | Branch: main | Dir: `/Users/harshkashyap/Projects/JobMatcher-v1/Agentic-Job-Matching`
+> Written: 2026-05-27 | Branch: main | Dir: `/home/user/Projects/JobMatcher-v1/Agentic-Job-Matching`
 
 ## Goal
 

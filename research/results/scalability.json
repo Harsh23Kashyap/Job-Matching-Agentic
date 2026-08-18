@@ -1,0 +1,67 @@
+{
+  "experiment": "EXP-031/032 scalability + incremental updates (Stage-2 \u00a7T-U)",
+  "note": "Scoring-path latency on a replicated synthetic job pool (embeddings precomputed/cached, as in production). Single-threaded Python; seed 42. NOT a distributed-systems benchmark.",
+  "n_query_resumes": 20,
+  "scalability_per_query_latency": {
+    "15": {
+      "p50_ms": 0.771,
+      "p95_ms": 0.909,
+      "p99_ms": 0.972,
+      "mean_ms": 0.791,
+      "throughput_pairs_per_s": 18961.2
+    },
+    "75": {
+      "p50_ms": 3.721,
+      "p95_ms": 4.538,
+      "p99_ms": 4.638,
+      "mean_ms": 3.811,
+      "throughput_pairs_per_s": 19682.0
+    },
+    "500": {
+      "p50_ms": 24.763,
+      "p95_ms": 29.247,
+      "p99_ms": 30.922,
+      "mean_ms": 25.389,
+      "throughput_pairs_per_s": 19694.0
+    },
+    "1000": {
+      "p50_ms": 49.576,
+      "p95_ms": 57.96,
+      "p99_ms": 61.178,
+      "mean_ms": 50.813,
+      "throughput_pairs_per_s": 19679.9
+    },
+    "5000": {
+      "p50_ms": 251.159,
+      "p95_ms": 297.52,
+      "p99_ms": 313.28,
+      "mean_ms": 259.035,
+      "throughput_pairs_per_s": 19302.4
+    },
+    "10000": {
+      "p50_ms": 502.436,
+      "p95_ms": 618.414,
+      "p99_ms": 623.371,
+      "mean_ms": 516.94,
+      "throughput_pairs_per_s": 19344.6
+    }
+  },
+  "incremental_updates_warm_1000_pool": {
+    "1": {
+      "incremental_score_and_merge_ms": 0.076,
+      "full_rerank_1000_plus_k_ms": 58.166,
+      "speedup_x": 767.4
+    },
+    "10": {
+      "incremental_score_and_merge_ms": 0.573,
+      "full_rerank_1000_plus_k_ms": 54.577,
+      "speedup_x": 95.3
+    },
+    "100": {
+      "incremental_score_and_merge_ms": 5.445,
+      "full_rerank_1000_plus_k_ms": 59.55,
+      "speedup_x": 10.9
+    }
+  },
+  "interpretation": "Per-query scoring latency grows ~linearly in pool size (brute-force scoring); report p50/p95/p99 and throughput honestly, and note that production would add an ANN retrieval prefilter before scoring (not implemented here). Incremental scoring of k new jobs is far cheaper than a full re-rank."
+}

@@ -3,9 +3,9 @@ from core.resume_structured_extract import extract_structured_resume, merge_resu
 
 
 RESUME_SAMPLE = """
-Harsh Kashyap (cid:131), (cid:239)
-harsh@example.com | +91 9876543210
-https://linkedin.com/in/harsh-kashyap
+Jordan Rivera (cid:131), (cid:239)
+jordan@example.com | +91 9876543210
+https://linkedin.com/in/jordan-rivera
 
 SUMMARY
 Machine learning engineer with 5 years of experience building Python services.
@@ -30,8 +30,8 @@ Built a composite scoring job search demo.
 def test_structured_resume_extracts_core_fields():
     cleaned = clean_resume_text(RESUME_SAMPLE)
     data = extract_structured_resume(cleaned)
-    assert data["name"] == "Harsh Kashyap"
-    assert data["email"] == "harsh@example.com"
+    assert data["name"] == "Jordan Rivera"
+    assert data["email"] == "jordan@example.com"
     assert "python" in [skill.lower() for skill in data["skills"]]
     assert data["experience_years"] >= 5
     assert data["education"]
@@ -42,7 +42,7 @@ def test_structured_resume_extracts_core_fields():
 def test_merge_resume_extraction_prefers_llm_summary():
     rules = extract_structured_resume(clean_resume_text(RESUME_SAMPLE))
     llm = {
-        "name": "Harsh Kashyap",
+        "name": "Jordan Rivera",
         "skills": ["Go"],
         "experience_years": 5,
         "summary": "Senior engineer focused on ML platforms and API design for hiring products.",

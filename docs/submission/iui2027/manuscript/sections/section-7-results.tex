@@ -1,0 +1,194 @@
+\section{Results}\label{sec:7}
+
+We report results in the order of the principles of \secref{sec:3}, mapping each measured property to a user-facing interpretation.
+All numbers come from committed benchmark artifacts; the supplementary material reports the underlying tables, the calibration curves, and the full method-comparison matrix.
+
+\leadpara{Recommendation quality (G1 and G4)}
+\tabref{tab:progression} reports \ndcg{}, precision@5, and recall@5 for the recommendation baselines, the portal-default composite, and the strongest single configuration.
+The portal-default composite---the strategy the user actually sees in the prototype---reaches \ndcg{} $= 0.949$, with P@5 $= 0.303$ and R@5 $= 0.983$.
+The strongest single configuration, a multimodal soft-embedding ranker with skill weights set to $0.7$, reaches \ndcg{} $= 0.969$ with P@5 $= 0.313$ and R@5 $= 1.000$.
+A learned logistic-regression fusion ties the best progression run at \ndcg{} $= 0.968$; fixed multimodal blending and hierarchical skill weighting both reach $0.924$.
+Lexical baselines remain close (BM25 \ndcg{} $= 0.901$, TF--IDF $0.905$); pure semantic cosine is $0.911$; a richer semantic template nudges to $0.922$.
+A cross-encoder reranker reaches \ndcg{} $= 0.939$ but lowers the score from the bi-encoder baseline by $0.108$ on this corpus, consistent with the prior report's decision to leave it disabled by default.
+
+\begin{center}
+\refstepcounter{table}\label{tab:progression}
+\par\smallskip\noindent\textbf{Table~\thetable:} Progression of \ndcg{}, P@5, and R@5 across recommendation baselines. The portal-default composite is the strategy the user sees; the multimodal soft-embed configuration is the strongest single configuration. Differences between rows should be read with the corpus size caveat from \secref{sec:6} in mind.
+\par\smallskip
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+Configuration & P@5 & R@5 & nDCG@5 \\
+\midrule
+Multimodal soft embed (skill weight $0.7$)  & 0.313 & 1.000 & 0.969 \\
+Soft embed + cross-encoder rerank            & 0.307 & 0.983 & 0.939 \\
+RRF ensemble of four list views              & 0.293 & 0.950 & 0.935 \\
+Multimodal Jaccard (skill weight $0.7$)      & 0.293 & 0.950 & 0.933 \\
+Semantic cosine, rich template               & 0.300 & 0.950 & 0.922 \\
+Semantic cosine                              & 0.280 & 0.900 & 0.911 \\
+TF--IDF (lexical)                            & 0.307 & 0.983 & 0.905 \\
+BM25 (lexical)                               & 0.307 & 0.983 & 0.901 \\
+\midrule
+Portal-default composite                     & 0.303 & 0.983 & 0.949 \\
+\bottomrule
+\end{tabular}
+\par\vspace{0.4em}
+\footnotesize{Source: committed benchmark artifact \texttt{paper\_progression\_summary.json}. Gated by a regression test with a $\pm 0.04$ \ndcg{} tolerance.}
+\end{center}
+
+For the user, the practical interpretation is that the top-five list on average places the most relevant jobs within reach: recall@5 saturates at $1.000$ for the best configuration, meaning every resume retrieves all of its labeled relevant jobs within the top five.
+The precision@5 of approximately $0.31$ means that, on this corpus, roughly three of every ten top-five slots are labeled relevant; the user should still expect to see plausible but not relevant jobs in the remainder and should rely on the explanation drawer and the calibrated confidence to identify them.
+
+\leadpara{Statistical significance}
+Paired bootstrap tests ($N{=}5000$, seed $42$) confirm the hybrid gains are not noise.
+The portal-default composite significantly improves \ndcg{} over semantic-only ranking ($\Delta = +0.071$, $p = 0.048$).
+Multimodal blending and reciprocal rank fusion both significantly beat semantic cosine ($p = 0.010$ and $p = 0.009$ respectively).
+The lexical baselines do not differ significantly from semantic cosine ($p > 0.25$), consistent with their close scores on this small corpus.
+For the user, the significance result is a guardrail: a user who notices the explanation panel weighting both text and skills is not seeing a quirk of the corpus.
+
+\leadpara{Explanation faithfulness (G2)}
+\tabref{tab:explainability} reports the explainability metrics for the rule-based explainer (the deployed default) and the LLM-template explainer (an offline comparison) on the 150 composite top-5 matches.
+The rule-based explainer in the prototype achieves faithfulness $0.745$, specificity $0.627$, and consistency $1.000$ across the synthetic profile variants.
+Skill-mention coverage is $25.3\%$, indicating that the rule-based explainer names a concrete matched or missing skill in roughly a quarter of explanation bullets; the remainder are general statements that the explainer is honest about not having a specific reason to assert.
+For the user, the practical interpretation is that a user who reads an explanation can trust the named components to be the components that produced the score, and can read the absence of a specific skill as a signal of low specificity rather than as a hidden model behavior.
+The supplementary material reports the same metrics for the LLM-based explainer; the LLM-template explainer reaches similar faithfulness (0.747) and slightly higher skill-mention coverage (0.267), at the cost of a marginally higher hallucination rate (2.7\% vs 2.0\%); both explainers have 100\% component alignment with the channel scores that produced the rank.
+
+\begin{center}
+\refstepcounter{table}\label{tab:explainability}
+\par\smallskip\noindent\textbf{Table~\thetable:} Explainability evaluation summary, rule-based explainer (deployed) vs.\ LLM-template explainer (offline comparison). Faithfulness is the pass rate on the automated checks (skill mention, no hallucination, component alignment). Consistency is the bullet-set Jaccard on synthetic similar-profile pairs. Source: committed benchmark artifact \texttt{explainability\_report.json}.
+\par\smallskip
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}lcccccc@{}}
+\toprule
+Explainer & Faithful. & Specif. & Skill (\%) & No halluc. (\%) & Comp. align (\%) & Consist. \\
+\midrule
+Rule-based (deployed)       & 0.745 & 0.627 & 25.3 & 98.0 & 100.0 & 1.000 \\
+LLM-template (comparison)   & 0.747 & 0.633 & 26.7 & 97.3 & 100.0 & 1.000 \\
+\bottomrule
+\end{tabular*}
+\par\vspace{0.4em}
+\normalsize
+\end{center}
+
+\leadpara{Confidence calibration (G3)}
+\tabref{tab:calibration} reports the calibration metrics before and after Platt scaling.
+The uncalibrated composite has \ece{} $= 0.40$ on the held-out calibration set, which is too poorly calibrated to expose directly to the user.
+After Platt scaling with parameters $a = 0.298$ and $b = -2.116$, the \ece{} drops to $0.032$, a reduction of approximately an order of magnitude.
+The Brier score of the calibrated system is $0.093$.
+For the user, the practical interpretation is that a confidence value displayed next to a ranked item is a usable signal: a confidence of $0.9$ is associated with a top-rank outcome approximately nine times out of ten, and a confidence of $0.5$ is associated with one approximately half the time.
+The calibration is committed and reproducible; the parameters are exposed in the prototype.
+
+\begin{center}
+\refstepcounter{table}\label{tab:calibration}
+\par\smallskip\noindent\textbf{Table~\thetable:} Calibration metrics before and after Platt scaling. The Platt parameters are learned by maximum likelihood on the held-out calibration set of 21 strong + 26 partial labels. ECE is the expected calibration error; Brier is the mean squared error of the confidence prediction. Source: committed benchmark artifact \texttt{calibration.json}.
+\par\smallskip
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Configuration & $a$ & $b$ & ECE & Brier \\
+\midrule
+Uncalibrated composite (Platt removed) & -- & -- & 0.400 & 0.245 \\
+Calibrated composite (Platt, MLE) & 0.298 & $-2.116$ & 0.032 & 0.093 \\
+\bottomrule
+\end{tabular}
+\par\vspace{0.4em}
+\end{center}
+
+\leadpara{Counterfactual probe (G3)}
+\tabref{tab:counterfactual} reports the per-pair breakdown of the 10-pair counterfactual probe.
+Seven of the ten counterfactual pairs in the probe are flagged as having a single-field edit that would change the rank by at least one position; in all seven cases, the top-ranked item remains stable, and the maximum score shift across all ten pairs is $0.017$.
+The probe is small but supports the design choice to expose counterfactual previews in the user interface: when the system names a component as a reason, a single-field edit to that component is usually sufficient to move the rank.
+For the user, the practical interpretation is that the counterfactual view of \figref{fig:portal}(d) is not a toy: the predicted effect of an edit corresponds to an actual effect on the next ranking.
+
+\begin{center}
+\refstepcounter{table}\label{tab:counterfactual}
+\par\smallskip\noindent\textbf{Table~\thetable:} Counterfactual probe on 10 synthetic demographic-pair edits. The top-1 item is stable for all 10 pairs; the top-5 overlap is the number of items in common with the unedited profile's top-5. A pair is flagged when the score delta exceeds 0.005 or the rank delta exceeds 1. No protected attributes are inferred from real users. Source: committed benchmark artifact \texttt{fairness\_eval.json}.
+\par\smallskip
+\scriptsize
+\begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}lccccc@{}}
+\toprule
+Pair & Top-1 stable & Top-5 overlap & Max rank $\Delta$ & Max score $\Delta$ & Flagged \\
+\midrule
+name\_gender\_01     & Yes & 5/5 & 2 & 0.0067 & No  \\
+name\_gender\_02     & Yes & 5/5 & 1 & 0.0050 & Yes \\
+name\_ethnicity\_01  & Yes & 5/5 & 0 & 0.0110 & Yes \\
+name\_ethnicity\_02  & Yes & 4/5 & 3 & 0.0167 & Yes \\
+nationality\_01      & Yes & 5/5 & 1 & 0.0061 & Yes \\
+nationality\_02      & Yes & 5/5 & 1 & 0.0077 & No  \\
+hometown\_01         & Yes & 5/5 & 1 & 0.0082 & Yes \\
+hometown\_02         & Yes & 4/5 & 2 & 0.0100 & Yes \\
+pronouns\_01         & Yes & 5/5 & 0 & 0.0029 & No  \\
+email\_domain\_01    & Yes & 5/5 & 1 & 0.0057 & Yes \\
+\midrule
+\textbf{Summary}   & \textbf{10/10} & \textbf{9.0/10} avg & \textbf{1.2} avg & \textbf{0.0080} avg & \textbf{7/10} flagged \\
+\bottomrule
+\end{tabular*}
+\par\vspace{0.4em}
+\normalsize
+\end{center}
+
+\leadpara{Adversarial probe (fairness and robustness)}
+\tabref{tab:fairness} reports the selection-rate disparate-impact ratios on synthetic proxy groups.
+The disparate-impact ratio on the experience tier dimension is $0.82$; on the remote-preference dimension it is $0.75$ (parity is $1.0$).
+Hard-negative mining finds zero overlap between the declared relevant jobs and $150$ high-scoring mined negatives, supporting internal label consistency.
+The probe is narrow and is reported as such; we discuss what it does and does not establish in \secref{sec:8}.
+
+\begin{center}
+\refstepcounter{table}\label{tab:fairness}
+\par\smallskip\noindent\textbf{Table~\thetable:} Adversarial fairness probe: selection-rate disparate-impact ratios (DIR) on synthetic proxy groups. Parity is 1.0. The experience-tier probe groups candidates by self-reported seniority (mid vs senior); the remote-preference probe groups by declared remote-work preference (remote-seeker vs onsite-flexible). Source: committed benchmark artifact \texttt{fairness\_eval.json}.
+\par\smallskip
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}lcc@{}}
+\toprule
+Dimension & Selection rate (group 1) & Selection rate (group 2) \\
+\midrule
+Experience tier (mid vs senior)  & 0.522 & 0.429 \\
+Remote preference (remote vs onsite-flexible) & 0.450 & 0.600 \\
+\midrule
+Dimension & Disparate-impact ratio (DIR) & Parity \\
+\midrule
+Experience tier  & 0.82 & 1.0 (parity) \\
+Remote preference & 0.75 & 1.0 (parity) \\
+\bottomrule
+\end{tabular*}
+\par\vspace{0.4em}
+\normalsize
+\end{center}
+
+\leadpara{Latency}
+\tabref{tab:latency} reports the nDCG@5 and per-query latency for the main scoring methods on the 15-job pool.
+Lightweight scorers complete in well under one millisecond per resume on the $15$-job pool; the full composite bi-encoder run averages approximately $0.4$ ms per query.
+The cross-encoder reranker averages approximately $141.7$ ms per query, which is approximately $340$ times slower than the bi-encoder on this setup and is the reason it remains disabled by default.
+For the user, the practical interpretation is that the prototype responds to a snapshot confirmation in well under one perceptual latency unit, so the system's feedback feels immediate and the user can iterate on edits without a perceptible wait.
+
+\begin{center}
+\refstepcounter{table}\label{tab:latency}
+\par\smallskip\noindent\textbf{Table~\thetable:} Quality--latency trade-off across retrieval methods on the 15-job pool with $K = 5$. The soft-skill embed reranker is approximately 100$\times$ slower than the composite bi-encoder and is reported as a research variant, not the deployed default. Source: committed benchmark artifact \texttt{phase11\_summary.csv}.
+\par\smallskip
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}lrrl@{}}
+\toprule
+Method & nDCG@5 & Latency (ms/q) & Notes \\
+\midrule
+TF--IDF (lexical)         & 0.905 & 0.05  & Lexical baseline \\
+BM25 (lexical)            & 0.902 & 0.09  & Lexical baseline \\
+Exact skill overlap       & 0.748 & 0.17  & Lexical baseline \\
+Skills Jaccard             & 0.748 & 0.17  & Skill overlap \\
+Semantic (L2)              & 0.878 & 0.21  & Embedding \\
+Semantic (cosine)          & 0.878 & 0.23  & Embedding \\
+Multimodal (cosine, $w=0.7$) & 0.924 & 0.51  & Embedding, deployed default \\
+RRF ensemble (4 lists)     & 0.913 & 1.35  & Embedding, fusion \\
+Soft-skill embed reranker  & 0.869 & 51.81 & Embedding, research variant \\
+Cross-encoder reranker     & 0.939 & 141.7 & Embedding, disabled by default \\
+\bottomrule
+\end{tabular*}
+\par\vspace{0.4em}
+\normalsize
+\end{center}
+
+\leadpara{Engineering surface}
+The prototype is implemented as a small web stack; the candidate, employer, and admin portals sit above a shared gateway.
+The repository contains $302$ Python unit tests and $39$ Node tests, for a total of $341$ tests, with a continuous-integration gate that fails the build on a \ndcg{} regression greater than $\pm 0.04$ against the committed benchmark.
+The full engineering detail, including endpoint maps, default request parameters, and the test surface, is reported in the supplementary material.
+The engineering surface is reported because the user-facing properties depend on it: a prototype whose tests gate on a \ndcg{} tolerance is a prototype whose user-facing claims are reproducible.

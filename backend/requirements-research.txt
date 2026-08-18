@@ -1,0 +1,7 @@
+# Research / evaluation dependencies (Stage-2 experiments + reproduce_all.sh).
+# Pinned to the versions used to produce the committed research/results/*.json artifacts.
+# Install:  .venv/bin/pip install -r backend/requirements-research.txt
+scikit-learn==1.9.0
+scipy==1.17.1
+xgboost==3.2.0
+matplotlib==3.9.2

@@ -52,10 +52,11 @@ We document an evaluation protocol on a labeled demo corpus of \textbf{30 resume
 \toprule
 Result & Source & nDCG@5 \\
 \midrule
-Multimodal soft embed ($\alpha = 0.7$) & \texttt{paper\_progression\_summary.json} & \textbf{0.969} \\
-Learned fusion (logistic regression) & \texttt{table11\_fusion.json} & \textbf{0.968} \\
-Full composite ablation & \texttt{ablation\_summary.json} (portal weights 28/27/10/15/10/10) & \textbf{0.949} \\
-TF--IDF / BM25 lexical baselines & progression benchmark & \textbf{0.905 / 0.901} \\
+Portal-default composite (6-channel) & \texttt{composite\_eval\_report.json} (weights 28/27/10/15/10/10) & \textbf{0.949} \\
+Multimodal weighted blend & \texttt{comparison\_table.json} & \textbf{0.924} \\
+RRF ensemble (4 lists) & \texttt{comparison\_table.json} & \textbf{0.913} \\
+Learned fusion (logistic, held-out) & \texttt{table11\_fusion.json} & \textbf{0.917} \\
+TF--IDF / BM25 lexical baselines & \texttt{comparison\_table.json} & \textbf{0.905 / 0.902} \\
 \bottomrule
 \end{tabular}
 \end{center}
@@ -113,7 +114,7 @@ Source code for the platform, benchmark drivers, and regression tests is availab
 The demo corpus (\texttt{data/cvs.json}, \texttt{data/jobs.json}, \texttt{data/eval\_pairs.json}) and benchmark outputs under \texttt{backend/benchmark\_outputs/} and \texttt{docs/research/evaluation/} are included in the project repository. Regenerate metrics with \texttt{python backend/scripts/run\_research\_pipeline.py} and \texttt{python -m benchmarks.paper\_progression}.
 
 \paragraph{Repository--paper relationship.}
-Reported numbers (nDCG@5 \textbf{0.969}, \textbf{0.968}, \textbf{0.949}; cross-encoder $\Delta$nDCG@5 = \textbf{$-$0.108}; hard negatives \textbf{150} pairs with \textbf{0} conflicts; fairness audit \textbf{7/10} flagged) are drawn from named artifacts cited in the paper tables.
+Reported numbers (portal composite nDCG@5 \textbf{0.949}, with ranking \textbf{parity} --- no method statistically distinguishable at $n{=}30$, fails Holm; held-out ECE \textbf{0.019}; cross-encoder $\Delta$nDCG@5 = \textbf{$-$0.108} when reranking a pool; hard negatives \textbf{150} pairs with \textbf{0} conflicts; fairness audit \textbf{7/10} flagged) are drawn from named artifacts cited in the paper tables.
 
 \paragraph{Funding.}
 This work was supported by the NVIDIA Academic Grant Program through an unrestricted gift of 32,000 NVIDIA A100 GPU-hours on the Brev cloud platform.

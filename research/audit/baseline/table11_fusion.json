@@ -1,0 +1,37 @@
+[
+  {
+    "method": "Fixed multimodal \u03b1=0.7",
+    "avg_precision_at_k": 0.2866666666666667,
+    "avg_recall_at_k": 0.9333333333333333,
+    "avg_ndcg_at_k": 0.9237306496163087,
+    "queries": 30
+  },
+  {
+    "method": "Hierarchical skills",
+    "avg_precision_at_k": 0.2866666666666667,
+    "avg_recall_at_k": 0.9333333333333333,
+    "avg_ndcg_at_k": 0.9237306496163087,
+    "queries": 30
+  },
+  {
+    "method": "Learned fusion (LR)",
+    "avg_precision_at_k": 0.3066666666666667,
+    "avg_recall_at_k": 0.9833333333333333,
+    "avg_ndcg_at_k": 0.9684903401670818,
+    "queries": 30
+  },
+  {
+    "method": "Multimodal + constraints",
+    "avg_precision_at_k": 0.30000000000000004,
+    "avg_recall_at_k": 0.95,
+    "avg_ndcg_at_k": 0.9083953157634465,
+    "queries": 30
+  },
+  {
+    "method": "Semantic cosine",
+    "avg_precision_at_k": 0.26666666666666666,
+    "avg_recall_at_k": 0.8666666666666667,
+    "avg_ndcg_at_k": 0.8781765441996437,
+    "queries": 30
+  }
+]

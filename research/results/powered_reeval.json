@@ -1,0 +1,45 @@
+{
+  "experiment": "Powered re-evaluation (Goal-2 enablement)",
+  "eval_file": "data/eval_pairs_llm_expanded.json",
+  "n_labeled_pairs": 450,
+  "grade_distribution": {
+    "0": 392,
+    "1": 33,
+    "2": 25
+  },
+  "explicit_negatives_present": true,
+  "n_explicit_negatives": 392,
+  "queries_with_a_negative": 30,
+  "n_queries_scored": 30,
+  "ndcg5_by_method": {
+    "composite_jaccard": 0.94239,
+    "composite_graded_exact": 0.93992,
+    "composite_graded_related": 0.98339,
+    "semantic_only": 0.86036
+  },
+  "composite_vs_semantic": {
+    "delta_mean": 0.08203,
+    "ci_low": 0.00707,
+    "ci_high": 0.1524,
+    "excludes_zero": true,
+    "perm_p": 0.039,
+    "n": 30
+  },
+  "graded_vs_jaccard": {
+    "delta_mean": 0.041,
+    "ci_low": -0.0024,
+    "ci_high": 0.11347,
+    "excludes_zero": false,
+    "perm_p": 0.1537,
+    "n": 30
+  },
+  "relation_aware_vs_exact_coverage": {
+    "delta_mean": 0.04347,
+    "ci_low": -0.00209,
+    "ci_high": 0.11737,
+    "excludes_zero": false,
+    "perm_p": 0.1321,
+    "n": 30
+  },
+  "interpretation": "If explicit_negatives_present is False, this is still the positive-only corpus and the re-test is NOT yet powered \u2014 annotate annotation_sheet_unjudged.csv and merge first. Once negatives are present, read composite_vs_semantic and the graded decomposition with the new power; report parity honestly if the composite still does not significantly beat semantic."
+}

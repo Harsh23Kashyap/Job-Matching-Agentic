@@ -1,0 +1,19 @@
+method_key,method,metric,mean,ci95_lo,ci95_hi,n_queries
+bm25,BM25 (lexical),nDCG@K,0.90234,0.8254,0.965072,30
+bm25,BM25 (lexical),MRR,0.917778,0.831111,0.983333,30
+exact_skill_overlap,Exact skill overlap,nDCG@K,0.748122,0.621845,0.861336,30
+exact_skill_overlap,Exact skill overlap,MRR,0.815753,0.685291,0.930342,30
+multimodal_weighted,Multimodal weighted blend,nDCG@K,0.923731,0.869769,0.970985,30
+multimodal_weighted,Multimodal weighted blend,MRR,0.961111,0.9,1.0,30
+rrf_ensemble,RRF ensemble,nDCG@K,0.913141,0.856755,0.962108,30
+rrf_ensemble,RRF ensemble,MRR,0.944444,0.872222,1.0,30
+semantic_cosine,Semantic cosine,nDCG@K,0.878177,0.794052,0.945096,30
+semantic_cosine,Semantic cosine,MRR,0.931481,0.848148,1.0,30
+semantic_euclidean,Semantic euclidean-derived,nDCG@K,0.878177,0.794163,0.947438,30
+semantic_euclidean,Semantic euclidean-derived,MRR,0.931481,0.848148,1.0,30
+skills_jaccard,Skills Jaccard,nDCG@K,0.748122,0.622022,0.858996,30
+skills_jaccard,Skills Jaccard,MRR,0.815753,0.687514,0.930342,30
+soft_skill_embed,Soft skill embedding,nDCG@K,0.868885,0.78289,0.936563,30
+soft_skill_embed,Soft skill embedding,MRR,0.910714,0.821429,0.983333,30
+tfidf_cosine,TF-IDF cosine (lexical),nDCG@K,0.905223,0.838686,0.960367,30
+tfidf_cosine,TF-IDF cosine (lexical),MRR,0.917778,0.835556,0.983333,30

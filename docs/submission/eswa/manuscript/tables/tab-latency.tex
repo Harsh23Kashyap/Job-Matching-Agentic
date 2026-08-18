@@ -1,0 +1,19 @@
+\begin{table*}[!t]
+\centering
+\caption{Quality--latency trade-off across retrieval methods, mean wall-clock ms/query on the 15-job pool at $K{=}5$ (canonical run \texttt{comparison\_table.json}). The cross-encoder reranker (\ndcg = 0.939, 141.7\,ms/query, \texttt{phase11\_summary.csv}) is disabled by default. Scaling to larger pools is characterized separately in \secref{sec:5.7}. Auto-generated.}
+\label{tab:latency}
+\begin{tabular}{@{}lrrl@{}}
+\toprule
+Method & nDCG@5 & Latency (ms/query) & Notes \\
+\midrule
+TF--IDF (lexical) & 0.905 & 0.05 & Lexical baseline \\
+BM25 (lexical) & 0.902 & 0.09 & Lexical baseline \\
+Skills Jaccard & 0.748 & 0.17 & Skill overlap \\
+Semantic cosine & 0.878 & 0.23 & Embedding \\
+Multimodal ($w{=}0.7$) & 0.924 & 0.51 & Embedding, prototype default \\
+RRF ensemble (4 lists) & 0.913 & 1.35 & Embedding, fusion \\
+Soft-skill embed reranker & 0.869 & 51.81 & Embedding, research variant \\
+Cross-encoder reranker & 0.939 & 141.70 & Embedding, disabled by default \\
+\bottomrule
+\end{tabular}
+\end{table*}

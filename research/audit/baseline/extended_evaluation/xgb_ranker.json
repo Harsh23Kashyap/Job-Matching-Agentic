@@ -1,0 +1,42 @@
+{
+  "method": "Logistic regression (pointwise LTR, 6 channel features)",
+  "model": "sklearn.linear_model.LogisticRegression",
+  "C": 1.0,
+  "features": [
+    "semantic",
+    "skills",
+    "title",
+    "experience",
+    "compensation",
+    "remote"
+  ],
+  "n_pairs": 450,
+  "n_resumes": 30,
+  "k_folds": 5,
+  "ndcg_at_5_mean": 0.9166525508322423,
+  "ndcg_at_5_ci": {
+    "mean": 0.9166525508322423,
+    "ci_low": 0.8378770922928045,
+    "ci_high": 0.9742122856157487,
+    "se": 0.035570038129522745
+  },
+  "p_at_5_mean": 0.29333333333333333,
+  "r_at_5_mean": 0.9333333333333333,
+  "coefs_mean": [
+    1.5699992974429815,
+    2.7907708176241193,
+    3.456291975002064,
+    0.6633357850023684,
+    1.3516431505934179,
+    1.6035824878917964
+  ],
+  "coefs_std": [
+    0.09751950835363164,
+    0.20131518060689887,
+    0.20932962947426018,
+    0.19362290860620637,
+    0.09401868663553963,
+    0.150316936760069
+  ],
+  "note": "5-fold CV over 30 resumes; pointwise LTR (logistic regression) is fit on 24-resume training folds and evaluated on held-out 6-resume folds. Uses the same six channel features as the parametric composite; tests whether a learned LTR on the same features can beat the hand-designed fixed-weight composite."
+}

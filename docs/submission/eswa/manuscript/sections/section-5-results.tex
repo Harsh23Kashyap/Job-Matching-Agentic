@@ -1,0 +1,285 @@
+\section{Results}\label{sec:5}
+
+This section reports the results in the order of the metric families defined in \secref{sec:4.3}: ranking quality (\secref{sec:5.1}), explanation faithfulness (\secref{sec:5.2}), confidence calibration (\secref{sec:5.3}), counterfactual and adversarial robustness (\secref{sec:5.4}), and latency (\secref{sec:5.5}).
+Statistical significance is reported throughout.
+All numbers come from committed benchmark artifacts and are reproduced by the regression benchmark with a $\pm 0.04$ nDCG tolerance.
+
+\subsection{Ranking quality}\label{sec:5.1}
+\tabref{tab:progression} reports the nDCG@5, precision@5, and recall@5 for the baselines and the proposed system.
+The proposed portal-default composite reaches nDCG@5 = 0.949 with P@5 = 0.293 and R@5 = 0.933.
+The strongest single configuration is the multimodal weighted blend ($w = 0.7$) at nDCG@5 = 0.924 (P@5 = 0.293, R@5 = 0.933) in the committed comparison artifact.
+A learned logistic-regression fusion, evaluated on held-out 5-fold splits, reaches nDCG@5 = 0.917 --- it does not beat the fixed-weight composite. Its in-sample fit reaches 0.968, but because it is fit and judged on the same labeled pairs we report only the held-out value and treat the in-sample number as an optimistic upper bound rather than a result (\secref{sec:6}).
+
+\input{tables/tab-progression}
+
+\subsection{Ablation study}
+The ablation study in \tabref{tab:ablation} reports the effect of removing or replacing each component of the proposed system.
+The first row is the full prototype; each subsequent row removes or replaces one component while keeping the rest fixed.
+The faithfulness and ECE values are properties of the rule-based explainer and the Platt scaler, respectively, and are reported as ``n/a'' when the corresponding component is not part of the configuration.
+
+\begin{table*}[!t]
+\centering
+\caption{Ablation study of the proposed system. Each row removes or replaces one component of the full system while keeping the rest fixed. The faithfulness metric (0.745 for the full system) is a property of the rule-based explainer and is reported as ``n/a'' for configurations that do not use a rule-based explainer. The ECE metric (0.019, held-out 5-fold, for the full system) is a property of the Platt scaler and is reported as ``n/a'' for configurations that do not use a composite output. Source: committed benchmark artifacts \texttt{comparison\_table.json} and \texttt{calibration\_binary.json}.}
+\label{tab:ablation}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+Configuration & nDCG@5 & Faithfulness & ECE \\
+\midrule
+Full system (6-channel composite + Platt + rule-based explainer) & 0.949 & 0.745 & 0.019 \\
+\quad -- Platt calibration removed (uncalibrated composite) & 0.949 & 0.745 & 0.400 \\
+\quad -- Cross-encoder reranker replaces bi-encoder composite & 0.939 & n/a & n/a \\
+\quad -- Best single channel (multimodal weighted blend, $w=0.7$) & 0.924 & n/a & n/a \\
+\quad -- RRF ensemble of 4 list views (no composite) & 0.913 & n/a & n/a \\
+\quad -- Semantic cosine only (no skill, no calibration) & 0.878 & n/a & n/a \\
+\quad -- BM25 only (pure lexical, no skill, no calibration) & 0.902 & n/a & n/a \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+The ablation confirms three things: (i) the calibration layer is a real engineering contribution (removing it changes ECE by roughly 20$\times$ with no effect on nDCG, because calibration is a post-rank transformation); (ii) the composite ranking is a robust engineering choice (the composite at 0.949 is comparable to --- nominally above, and within roughly 0.03 nDCG of --- the strongest single configuration, with all differences inside the small-corpus confidence intervals of \secref{sec:5.1}); and (iii) the cross-encoder is correctly disabled (it underperforms the strongest bi-encoder configuration at 340$\times$ the latency cost).
+
+On this small corpus the lexical baselines (BM25 0.902, TF--IDF 0.905) are close to --- and nominally slightly \emph{above} --- the pure semantic cosine (0.878), reflecting small-corpus behavior in which exact term matches carry more weight than in large-corpus settings; all such differences are within the confidence intervals (\secref{sec:5.1}) and none is statistically established.
+The hybrid semantic--skill ranker (multimodal weighted blend 0.924) scores above the pure-semantic and pure-lexical baselines, though again within the small-corpus confidence intervals.
+The cross-encoder reranker, despite its higher capacity, does not improve on the strongest bi-encoder configuration and is approximately 340$\times$ slower; the diagnosis is reported in \secref{sec:3.10}.
+The user-facing interpretation of \tabref{tab:progression} is that the top-five list on average places the most relevant jobs within reach: recall@5 reaches up to 0.98 for the lexical baselines and 0.933 for the portal-default composite on the frozen demo corpus.
+The user should still expect to see plausible but not relevant jobs in the remainder of the top five, as P@5 is approximately 0.31; the per-decision factor decomposition and the calibrated confidence are the engineering artifacts that support the user's action on the imperfect top-five.
+
+\subsubsection*{Statistical significance}
+Paired bootstrap tests ($N = 5{,}000$, fixed deterministic seed) with Holm--Bonferroni correction across the comparison family are reported.
+The portal-default composite's improvement over the pure-semantic baseline is positive but \emph{not} statistically significant ($\Delta = +0.071$, two-sided $p = 0.10$, 95\% CI $[-0.014, +0.167]$ crossing zero).
+The multimodal blending and the reciprocal rank fusion have smaller nominal one-sided $p$-values ($0.010$ and $0.009$), but none of the comparisons survive Holm--Bonferroni correction at $n = 30$.
+The lexical baselines (BM25, TF--IDF) do not differ significantly from the pure-semantic baseline ($p > 0.25$).
+The honest interpretation is that, on this small corpus, the channel decomposition performs comparably to the baselines; we do not claim a statistically established ranking advantage, and the contribution rests on decomposition, calibration, and auditability rather than on beating baselines.
+Moreover, this parity is partly a property of the measurement instrument, not only of the methods (positive-only labels, a 15-job pool, cutoff $K=5$; detailed in \secref{sec:6.2}): we read it as ``this instrument cannot discriminate these methods at this scale,'' not as evidence that the methods are equivalent in general --- itself a reportable finding that motivates the controlled synthetic probes (\secref{sec:5.7}) and a larger judged benchmark (\secref{sec:6}).
+
+\subsection{Explanation faithfulness}\label{sec:5.2}
+\tabref{tab:explainability} reports the explainability metrics for the rule-based explainer (the prototype default) and the LLM-template explainer (an offline comparison) on the 150 composite top-5 matches.
+The rule-based explainer achieves a \emph{structural} faithfulness-check pass rate of 0.745 (score-consistency of the bullets with the channels that produced the rank), specificity 0.627, and consistency 1.000 across the synthetic profile variants; we deliberately call this \emph{structural} (or score-consistent) rather than ``faithful'' in the human sense, because the strongest structural component (channel alignment) is guaranteed by the deterministic template, and the genuinely non-trivial evidence is the mechanistic probe below.
+Skill-mention coverage is 0.253, indicating that the rule-based explainer names a concrete matched or missing skill in roughly a quarter of explanation bullets; the remainder are general statements that the explainer is honest about not having a specific reason to assert.
+The LLM-template explainer, evaluated as a comparison, achieves similar faithfulness (0.747) and slightly higher skill-mention coverage (0.267), at the cost of higher hallucination rate (2.7\% vs 2.0\%); both explainers have 100\% component alignment and 100\% consistency on the synthetic profile variants.
+The interpretation is bounded: the automated checks confirm the named channels are the channels that produced the score (component alignment is 100\% by construction for a deterministic template), but 77\% of explanations are flagged by at least one check and only 25\% name a concrete skill, and no human study has assessed usefulness. This is automated structural validation, not a demonstrated trust property.
+Beyond these structural checks, we add a mechanistic, ranking-level faithfulness probe that is \emph{not} true by construction: for each candidate's top-ranked job we zero the channel the explanation credits most and re-rank. Dropping the top-attributed channel displaces the top-1 job in 13.3\% of cases, versus 0\% for the least-attributed channel and 3.3\% for a random channel --- i.e., the channel the explanation names is directionally the most rank-load-bearing --- and under a controlled skill-addition edit the credited skill contribution increases in 100\% of cases. The effect is modest (the top job usually wins by a margin robust to single-channel removal) and we report it as directional evidence, not a strong faithfulness guarantee.
+The trade-off between the rule-based and the LLM-based explainer is discussed in \secref{sec:6}.
+
+\begin{table*}[!t]
+\centering
+\caption{Explainability evaluation summary, rule-based explainer (prototype default) vs.\ LLM-template explainer (offline comparison). Faithfulness is the pass rate on the automated checks (skill mention, no hallucination, component alignment). Specificity is the proportion of bullets that cite a concrete matched or missing skill. Consistency is the bullet-set Jaccard on synthetic similar-profile pairs. Both explainers have 100\% component alignment with the channel scores that produced the rank. Source: committed benchmark artifact \texttt{explainability\_report.json}.}
+\label{tab:explainability}
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lcccccc@{}}
+\toprule
+Explainer & Faithful. & Specif. & Skill (\%) & No halluc. (\%) & Comp. align (\%) & Consist. \\
+\midrule
+Rule-based (prototype)   & 0.745 & 0.627 & 25.3 & 98.0 & 100.0 & 1.000 \\
+LLM-template (comparison) & 0.747 & 0.633 & 26.7 & 97.3 & 100.0 & 1.000 \\
+\bottomrule
+\end{tabular*}
+\end{table*}
+
+\subsection{Confidence calibration}\label{sec:5.3}
+We define the calibration target precisely as $p_{ij} = P(y_{ij}{=}1 \mid s_{ij})$, the probability that a (resume, job) pair is relevant ($y{=}1$ iff graded relevance $\geq 1$) given its composite score $s_{ij}$, evaluated on a held-out 5-fold protocol ($n = 450$ pairs, base rate 0.104; the calibrator is never fit on the test fold).
+\tabref{tab:calibration} compares five calibration maps under two ECE binnings.
+The raw composite score \emph{discriminates} well (ROC-AUC 0.967) but is badly miscalibrated (ECE 0.40).
+Platt scaling ($a \approx 0.30$, $b \approx -2.12$) attains the lowest \emph{equal-width} ECE (0.018--0.019 held-out across the two calibration experiments EXP-026/EXP-004, which agree to within rounding; an earlier single-split value of 0.032 was measured on the fitting data and is superseded), but it does so by shrinking the confidence into a razor-thin band near the base rate ($[0.11, 0.14]$): its Brier skill score is $\approx 0$ and its pooled discrimination collapses (AUC 0.76), i.e.\ it is barely better than the constant base-rate predictor. Crucially, because the composite scores cluster in a narrow band, equal-width bins are mostly empty and \emph{understate} miscalibration; the adaptive (equal-mass) ECE, which is the more honest aggregate here, rises to 0.084 for Platt.
+Isotonic regression instead preserves the raw score's discrimination (Brier skill 0.64, AUC 0.95) at an adaptive ECE of 0.019, but has an unstable worst-bin error (MCE 0.63) on this small, class-imbalanced calibration set; a one-parameter temperature map (no bias term) fails outright (ECE 0.46).
+Beta calibration \citep{kull2017beta} --- the principled generalization of Platt scaling for scores already in $[0,1]$ --- is the best map on every axis: it attains the lowest plug-in ECE under \emph{both} binnings (0.009 equal-width, 0.009 adaptive) \emph{and} preserves discrimination (Brier skill 0.67, AUC 0.96), resolving the calibration-versus-discrimination trade-off that Platt and isotonic each only half-solve. Beta's bootstrap 95\% percentile CI \emph{for its own ECE} is $[0.012, 0.032]$; the plug-in point estimate (0.009) lies just below this interval because ECE --- an average of non-negative absolute per-bin deviations --- is upward-biased under resampling, an effect most visible for the best-calibrated map, whose plug-in error sits near the finite-sample noise floor.
+The deployed prototype retains the frozen Platt map, and we are deliberate about \emph{why} rather than swapping to beta on the strength of this table: the calibrator was fixed in the original system, and re-selecting it on the same held-out comparison it is evaluated on would be choosing the calibration map on the evaluation --- the very leakage this protocol avoids. Moreover, at $n = 450$ beta's ECE CI $[0.012, 0.032]$ overlaps Platt's ($[0.000, 0.044]$), so the ECE \emph{advantage} over Platt is directional rather than statistically separated; we therefore present beta as the \emph{recommended upgrade to be confirmed and adopted on the larger explicitly-judged benchmark} (\secref{sec:7}), not as a post-hoc deployment switch. We report ECE alongside Brier skill and AUC throughout so that a low equal-width ECE is never mistaken for a confident, discriminating probability; for the deployed Platt map the aggregate-calibrated confidence has low discrimination (a stated limitation, \secref{sec:6}) and should be read as a coarse low/medium/high signal, whereas the recommended beta map removes this caveat.
+The reliability diagram for the Platt-calibrated composite is shown in \figref{fig:reliability}.
+
+\input{tables/tab-calibration}
+
+\begin{figure*}[!t]
+\centering
+\includegraphics[width=0.95\linewidth]{figures/fig4_reliability_diagram.png}
+\caption{Reliability diagram (held-out 5-fold), regenerated from the calibration artifact \texttt{calibration\_methods.json} (EXP-026). The raw composite (orange) is over-confident (ECE 0.40); Platt scaling (green) attains a low equal-width ECE (0.018) but compresses the confidence toward the base rate; isotonic (blue) tracks the diagonal at comparable ECE (0.024) while preserving discrimination; and beta calibration (magenta, the recommended map) tracks the diagonal at the lowest ECE (0.009) while preserving discrimination (\secref{sec:5.3}, \tabref{tab:calibration}). Bins are 10 equal-width confidence intervals; ECE $= \sum_b |acc_b - conf_b|\, n_b / N$. The per-bin counts and the plot script are in the released artifact.}
+\label{fig:reliability}
+\end{figure*}
+
+\subsection{Counterfactual and adversarial robustness}\label{sec:5.4}
+\emph{Counterfactual probe.} On a 50-pair probe (25 recourse edits + 25 demographic-proxy edits), the 25 recourse edits (adding or removing a skill, changing experience or salary) leave the candidate's top-5 rank unchanged in every case; the composite \emph{score} does move (12 of the 25 exceed the 0.005 flag threshold, maximum $\Delta = 0.091$), but not enough to reorder the top five at this 15-job pool size --- a ranking-coarseness null rather than score insensitivity. Of the 25 demographic-proxy edits, 9 are flagged and the top-ranked item is stable in 24 of 25.
+We disclose a construction caveat: two of the demographic-proxy edit types (pronoun substitution and a hometown label) do not modify any field the deterministic ranker actually consumes, so their invariance is true \emph{by construction} rather than a learned fairness property; the probe is therefore a sensitivity check on the fields the model does read (name tokens, summary suffix, email domain), not evidence of demographic fairness.
+\tabref{tab:counterfactual} reports the per-pair breakdown.
+The candidate lifecycle during one of these probes is illustrated in \figref{fig:candidate-lifecycle}.
+\emph{Adversarial probe.} The selection-rate disparate-impact ratio on the experience tier dimension is 0.82; on the remote-preference dimension it is 0.75 (parity is 1.0).
+\tabref{tab:fairness} reports the per-group selection rates and the disparate-impact ratios; the remote-preference proxy (0.75) falls below the 0.80 four-fifths threshold while the experience-tier proxy (0.82) sits within the 0.80--0.85 range. Because these are synthetic proxy groups (not real demographic attributes), the values are a sensitivity signal, not a demographic-fairness finding.
+Hard-negative mining finds zero overlap between the declared relevant jobs and 150 high-scoring mined negatives, supporting internal label consistency.
+The adversarial probe is narrow by design; it is an engineering probe, not a demographic-fairness audit, and the limitation is stated in \secref{sec:6}.
+
+\begin{table*}[!t]
+\centering
+\caption{Counterfactual probe on 50 controlled pairs (25 recourse + 25 demographic-proxy). Recourse edits (skill/experience/salary) leave the rank unchanged in all 25 cases --- a null result at this corpus size --- while demographic-proxy edits (name, summary suffix, hometown label, pronouns, email domain) flag 9 of 25 with the top-1 item stable in 24 of 25. A pair is flagged when the score delta exceeds 0.005 or the rank delta exceeds 1. No protected attributes are inferred from real users. Source: committed benchmark artifact \texttt{counterfactual\_50.json}.}
+\label{tab:counterfactual}
+\scriptsize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lccccc@{}}
+\toprule
+Probe & Pairs & Flagged & Rank changes & Top-1 stable & Max score $\Delta$ \\
+\midrule
+Recourse (skill / experience / salary edit)           & 25 & 12 & 0 & 25/25 & 0.091 \\
+Demographic-proxy (name / pronoun / hometown / email) & 25 & 9  & 1 & 24/25 & 0.019 \\
+\bottomrule
+\end{tabular*}
+\end{table*}
+
+\begin{table*}[!t]
+\centering
+\caption{Adversarial fairness probe: selection-rate disparate-impact ratios (DIR) on synthetic proxy groups. Parity is 1.0. The proxy groups are derived from the labeled corpus, not from real demographic attributes. The experience-tier probe groups candidates by self-reported seniority (mid vs senior); the remote-preference probe groups by declared remote-work preference (remote-seeker vs onsite-flexible). The probe is reported as an engineering sanity check, not a demographic-fairness audit. Source: committed benchmark artifact \texttt{fairness\_eval.json}.}
+\label{tab:fairness}
+\begin{tabular}{@{}lcc@{}}
+\toprule
+Dimension & Selection rate (group 1) & Selection rate (group 2) \\
+\midrule
+Experience tier (mid vs senior)  & 0.522 & 0.429 \\
+Remote preference (remote vs onsite-flexible) & 0.450 & 0.600 \\
+\midrule
+Dimension & Disparate-impact ratio (DIR) & Parity \\
+\midrule
+Experience tier  & 0.82 & 1.0 (parity) \\
+Remote preference & 0.75 & 1.0 (parity) \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\subsection{Latency}\label{sec:5.5}
+\tabref{tab:latency} reports the nDCG@5 and per-query latency for the main scoring methods on the 15-job pool.
+Lightweight scorers complete in well under one millisecond per resume; the full composite bi-encoder run averages approximately 0.4 ms per query.
+The cross-encoder reranker averages approximately 141.7 ms per query, which is approximately 340$\times$ slower than the bi-encoder on this setup and is the reason it remains disabled by default.
+The end-to-end request (including the rule-based explainer and the calibrated confidence computation) completes in under 10 ms per request.
+The LLM-based explainer, when invoked, adds approximately 1--3 seconds per request depending on the prompt and the response length; the LLM invocation is on the post-rank path and is gated by a per-request budget.
+The user-facing interpretation is that the prototype responds to a snapshot confirmation in well under one perceptual latency unit, so the system's feedback feels immediate and the user can iterate on edits without a perceptible wait.
+
+\input{tables/tab-latency}
+
+\subsection{Sensitivity analysis on Platt parameters}\label{sec:5.6}
+The Platt parameters ($a \approx 0.30$, $b \approx -2.12$) are the maximum-likelihood estimates, and the calibration is evaluated under 5-fold cross-validation rather than an in-sample parameter grid: the held-out ECE is 0.019 with a 95\% bootstrap confidence interval of $[0.010, 0.029]$, which characterizes the calibration's uncertainty directly.
+
+\subsection{Structure recovery, generalization, robustness, and scale}\label{sec:5.7}
+Because the small human corpus cannot, on its own, establish generalization or recover a known
+ground truth, we add a battery of controlled probes; \tabref{tab:stage2} summarizes them and the
+full artifacts are released.
+
+\emph{Structure recovery (synthetic, controlled).} On a deterministic synthetic corpus of 500 resumes
+$\times$ 75 jobs with a \emph{transparent} latent-compatibility ground truth (skill, seniority,
+experience, family, work-mode, and compensation satisfaction, plus 8\% label noise; never presented
+as human judgments), the composite recovers 90.7\% of the distance from a random ranking to the
+oracle (nDCG@5 = 0.917, 95\% CI $[0.909, 0.925]$; global Spearman between composite score and latent
+compatibility 0.79). Crucially, each auditable channel recovers the latent factor it is designed to
+represent: the skill channel tracks required-skill satisfaction (Spearman 0.996), compensation 0.985,
+and experience 0.867, while the holistic semantic channel is only weakly aligned with any single
+factor (0.39), as expected. Recovery degrades gracefully on hard/adversarial profiles (0.88) relative
+to easy ones (0.93).
+We are deliberately conservative about this result: the synthetic latent ground truth is an \emph{additive}
+blend of factors that align with the composite's own additive channels, so part of the recovery could be
+expected \emph{by construction} (the additive latent weights are visible in the released generator manifest).
+We test this concern directly. Re-grading the \emph{same} corpus with a \emph{non-additive}, multiplicatively
+hard-gated latent ($\text{required}^{0.5}\cdot\text{seniority}^{0.2}\cdot\text{experience}^{0.2}\cdot
+\text{family}^{0.1}$, which does not mirror the composite's additive form and zeroes any pair lacking
+required-skill satisfaction), with grades re-thresholded to hold the label balance constant, the additive
+composite still recovers 0.891 (nDCG@5 = 0.904, 95\% CI $[0.894, 0.914]$) --- essentially unchanged from the
+additive case ($\Delta = -0.016$). Recovery is therefore \emph{not} merely an artifact of the additive
+construction: the composite recovers a non-additive ground truth almost as well. We nonetheless report
+structure recovery as a decomposition \emph{consistency check} (each channel tracks its intended factor; the
+scorer is monotone in the latent signal), NOT as evidence of general ranking superiority. This is a
+controlled validity check for the decomposition, not a headline ranking claim.
+
+\emph{Model-selection search.} We ran a protocol-gated search over 25 ranking configurations (fixed
+composite, uniform weights, drop-one variants, single channels, minimal fusions, learned linear/
+logistic/LambdaMART), with the selection criteria fixed \emph{before} inspecting results and the
+final test never influencing selection. No configuration significantly outperforms the fixed
+composite after Holm--Bonferroni correction; the only ablation whose removal significantly degrades
+ranking is the semantic channel ($\Delta = -0.080$, 95\% CI $[-0.163, -0.017]$, survives Holm),
+corroborating the leave-one-channel-out analysis. The fixed, auditable composite is therefore
+selected by parsimony among a statistically indistinguishable set.
+
+\emph{Generalization.} A learned logistic fusion of the six channels generalizes across strictly
+disjoint splits (all train/eval index sets verified disjoint), with every regime ranking the same
+full 15-job pool so the numbers are commensurable with the composite: unseen-candidate nDCG@5 = 0.929,
+strict unseen-job = 0.929, and strict both-unseen = 0.927, all overlapping the fixed composite (0.949,
+95\% CIs $\approx [0.85, 0.98]$). Confidence intervals are wide at this corpus size and are reported as such.
+
+\emph{Robustness.} Across 11 controlled perturbations, the ranker is invariant to catalog-covered
+skill synonyms (top-1 stability 1.00) and resistant to gaming (keyword stuffing \emph{lowers} the
+composite, mean signed $\Delta = -0.087$, rather than inflating it, though it does perturb the top-1 job
+in about 30\% of cases at this 15-job pool size, top-1 stability 0.70), and it correctly loses fit under
+skill deletion and sparsity. It is \emph{not} invariant to raw formatting noise or misspellings
+(mean $|\Delta| \approx 0.12$), which we report as a limitation.
+
+\emph{Scale and failure isolation.} Scoring latency grows approximately linearly with the job pool
+($\approx$0.05\,ms/pair; 0.8\,ms at 15 jobs, 517\,ms at 10{,}000 jobs, single-threaded, warm), and
+incrementally scoring and merging newly added jobs into the maintained ranking is 1--2 orders of
+magnitude cheaper than a full re-rank (11$\times$ for 100 new jobs, up to $\sim$760$\times$ for one); a
+production deployment would additionally place an approximate-nearest-neighbor prefilter before
+scoring (not implemented here). A nine-case failure-injection matrix confirms the deterministic
+scoring path isolates parser/LLM/embedding faults --- empty fields, zero embeddings, and missing
+skills/compensation all yield a finite, in-range score without a crash --- and we fixed one latent
+gap discovered in the process (a non-finite embedding is now sanitized rather than scoring as a
+spurious perfect match).
+
+\emph{Relation-aware skill matching.} Binary skill overlap gives all-or-nothing credit and is brittle to
+surface form. We add a graded, auditable matcher that resolves each candidate--requirement skill pair to
+one of \textsc{exact} (same canonical skill after synonym/abbreviation/orthographic normalization),
+\textsc{related} (same taxonomy group), or \textsc{unrelated}, with partial (never full) credit for
+non-exact matches. On a \emph{de-circularized} objective benchmark --- whose labels are definitional
+(catalog canonicalization and curated non-equivalences), with no embedding model used to decide any
+exact/negative case --- orthographic and abbreviation/synonym variants are collapsed to \textsc{exact}
+with recall 1.00, and seven of eight similar-named but non-equivalent technologies (e.g.\ Java vs
+JavaScript, React vs React Native, C vs C++) are correctly kept distinct (the one false merge,
+Angular/AngularJS, is a catalog-data issue we flag). Canonical matching remains brittle to misspellings
+(a limitation consistent with \secref{sec:5.7}); an embedding-similarity tier partially mitigates this but
+is reported only as exploratory (it would be circular to validate an embedding matcher against
+embedding-derived labels).
+
+\emph{Isolating the relation-aware effect on ranking.} We wire the matcher into the composite as a drop-in
+replacement for the skill channel, holding every other channel and all six weights fixed (no re-tuning),
+and decompose its effect into two pre-specified steps: (a) moving from symmetric set-overlap (Jaccard) to
+an \emph{asymmetric required-coverage} form, and (b) adding \emph{relation-aware partial credit} on top of
+coverage (\textsc{related} $=0.5$). This separation is essential because the synthetic ground truth is, by
+construction, exact required-coverage, so a coverage form is expected to help there regardless of the
+relation-aware novelty; conflating the two (as a bare Jaccard-versus-graded comparison would) is not a fair
+test of the contribution.
+
+The decomposition is revealing. On the high-power synthetic corpus (nDCG@5 against the noise-free grade,
+$n = 500$), the coverage \emph{form} accounts for the entire gain (Jaccard $0.917 \rightarrow$
+exact-coverage $0.949$; paired permutation $p < 0.001$), while the relation-aware credit slightly
+\emph{hurts} (exact-coverage $0.949 \rightarrow$ graded $0.944$; $p = 0.014$) --- as expected, since the
+generator has no notion of related skills. On the real human corpus the pattern reverses: the coverage form
+changes nothing detectable (Jaccard $0.949 \rightarrow$ exact-coverage $0.942$; $p = 0.50$), but the
+relation-aware credit --- the novel component --- improves six of the thirty queries and worsens none
+(exact-coverage $0.942 \rightarrow$ graded $0.992$; sign/permutation $p = 0.03$). The relation-aware matcher
+thus captures partial-credit structure that human recruiters' judgments reward but that an exact-coverage
+generator cannot express; the synthetic corpus consequently \emph{cannot} validate this novelty, and we do
+not claim it does. We are explicit about the fragility of the real-corpus signal: 24 of the 30 per-query
+scores are exact ties and the remaining six all move in the same (positive) direction, so the sign/permutation
+test has an effective $n$ of six and $p = 0.03$ is the \emph{smallest} value it can return for six concordant
+pairs --- a direction-only certificate, not an effect size, and a single query reversing would raise it to
+$p \approx 0.22$. The mean improvement is moreover dominated by one query that binary overlap had ranked
+entirely incorrectly, and the corpus is near the metric ceiling. We therefore read this as a directional
+signal only. We retain binary overlap in the primary composite for comparability with the baselines and
+report the graded matcher as an auditable enhancement whose measurable benefit is specific to human-judged
+relevance and awaits confirmation on the larger judged benchmark we outline in \secref{sec:7}.
+
+\emph{Fusion headroom (synthetic, development-only).} To probe whether the fixed six-channel composite is
+near a ceiling, we compare learned fusers against the fixed weights on the high-power synthetic corpus under
+5-fold resume cross-validation. Two findings matter. First, learned \emph{linear} fusion does not beat the
+hand-set weights (ridge 0.891, logistic 0.912 versus 0.917), so the domain-prior weights are near-optimal
+within the linear family. Second, \emph{nonlinear} fusion of the same six channels yields a small but
+statistically detectable gain --- a monotonic gradient-boosted ranker reaches 0.947 and a LambdaMART 0.961
+(paired-bootstrap CIs exclude zero) --- indicating the residual headroom is channel \emph{interaction} that
+the linear composite cannot express. Adding derived skill-coverage features raises the learned fusers
+further (to $\approx 0.99$), but we do \emph{not} claim this as a methodological gain: an audit shows the
+strongest derived feature (required-skill coverage) is, by construction, the single largest latent factor
+that generates the synthetic ground truth (weight 0.40, Pearson $1.00$), and preferred-skill coverage a
+smaller one (weight 0.12, Pearson $0.68$); together they carry 0.52 of the latent weight, versus Pearson
+$0.54$--$0.76$ for the text/embedding channels, so that jump largely reflects the model recovering its own
+generator. We therefore report only the base-channel nonlinear gain as development-stage evidence of
+headroom, retain the auditable fixed composite, and treat a learned-but-monotonic fuser plus a larger
+explicitly-judged benchmark as the natural next step.
+
+\input{tables/tab-stage2}
+
+\subsection{Engineering surface}
+The prototype is implemented as a small web stack; the candidate, employer, and admin portals sit above a shared gateway.
+The repository contains 302 Python unit tests and 39 Node tests, for a total of 341 tests, with a continuous-integration gate that fails the build on a regression greater than $\pm 0.04$ nDCG against the committed benchmark.
+The full engineering detail, including endpoint maps, default request parameters, and the test surface, is reported in the supplementary material.
+The engineering surface is reported because the prototype properties depend on it: a prototype whose tests gate on a nDCG tolerance is a prototype whose deployed claims are reproducible.

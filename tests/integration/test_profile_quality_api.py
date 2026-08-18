@@ -49,7 +49,7 @@ def test_upload_resume_includes_quality(client):
         mock_parser.parse_candidate_from_text = lambda _text: (_ for _ in ()).throw(LlmUnavailableError("off"))
         mock_factory.return_value = mock_parser
 
-        content = b"Harsh Kashyap\nharsh@example.com\nPython, FastAPI\n5 years experience"
+        content = b"Jordan Rivera\njordan@example.com\nPython, FastAPI\n5 years experience"
         resp = client.post(
             "/candidates/upload-resume",
             files={"file": ("resume.txt", io.BytesIO(content), "text/plain")},

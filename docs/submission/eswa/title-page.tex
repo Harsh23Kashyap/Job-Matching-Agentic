@@ -1,0 +1,125 @@
+% title-page.tex -- ESWA submission title page (unblinded)
+% SEPARATE FILE -- not sent to reviewers under double-anonymized review.
+% Build: pdflatex title-page.tex (twice for cross-refs)
+
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=1in,textwidth=6.5in]{geometry}
+\usepackage{textcomp}
+\usepackage{hyperref}
+\hypersetup{hidelinks}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.4em}
+
+\begin{document}
+
+% --- Submission date ---
+\noindent\textbf{Submitted to:} \textit{Expert Systems with Applications} (Elsevier)\\
+\textbf{Submission date:} August 17, 2026\\
+\textbf{Article type:} Research Article
+
+\vspace{0.6em}
+\hrule
+\vspace{0.6em}
+
+% --- Title block ---
+\begin{center}
+{\Large\bfseries An Auditable, Calibrated, and Explainable Multi-Agent System\\
+for Job-Candidate Recommendation}
+\end{center}
+
+\vspace{0.5em}
+\hrule
+\vspace{0.5em}
+
+% --- Authors block ---
+\begin{center}
+{\large
+Harsh Kashyap$^{1,*}$ \quad
+Taranumpreet Kaur Wasu$^{1,*}$ \quad
+Parteek Kumar$^{2}$
+}\\[0.4em]
+{\normalsize
+$^{1}$Department of Computer Science and Engineering,\\
+Thapar Institute of Engineering and Technology, Patiala, India\\
+$^{2}$School of Electrical Engineering and Computer Science,\\
+Washington State University, Pullman, WA, USA
+}\\[0.4em]
+{\small $^{*}$These authors contributed equally to this work (joint first authors).}
+\end{center}
+
+\vspace{0.4em}
+\hrule
+\vspace{0.5em}
+
+% --- Corresponding author ---
+\textbf{Corresponding author:} Harsh Kashyap\\
+Department of Computer Science and Engineering,\\
+Thapar Institute of Engineering and Technology, Patiala, India\\
+Email: \texttt{hkashyap\_be19@thapar.edu}
+
+\vspace{0.3em}
+\textbf{Co-authors:}\\
+\quad Taranumpreet Kaur Wasu (joint first author) --- Thapar Institute of Engineering and Technology\\
+\quad \quad Email: \texttt{twasu\_be20@thapar.edu}\\
+\quad Parteek Kumar (research supervisor) --- Washington State University\\
+\quad \quad Email: \texttt{parteek.kumar@wsu.edu}
+
+\vspace{0.2em}
+\noindent ORCID identifiers for all three authors are provided in the Editorial Manager submission system.
+
+\vspace{0.5em}
+\hrule
+\vspace{0.5em}
+
+% --- Acknowledgments ---
+\section*{Acknowledgments}
+This work was supported by the NVIDIA Academic Grant Program through an
+unrestricted gift of 32{,}000 NVIDIA A100 GPU-hours on the Brev cloud platform.
+The authors thank the JobMatch development team at Thapar Institute of Engineering
+and Technology for portal implementation and evaluation, and the reviewers for
+their constructive feedback during the development of this work. The authors also
+thank Thapar Institute of Engineering and Technology and Washington State
+University for institutional support.
+
+% --- Declaration of competing interest ---
+\section*{Declaration of competing interest}
+The authors declare that they have no known competing financial interests
+or personal relationships that could have appeared to influence the work
+reported in this paper.
+
+% --- CRediT author contribution statement ---
+\section*{CRediT authorship contribution statement}
+\textbf{Harsh Kashyap:} Conceptualization, Methodology, Software, Investigation,
+Writing -- original draft, Writing -- review \& editing.\\
+\textbf{Taranumpreet Kaur Wasu:} Conceptualization, Software, Investigation,
+Data Curation, Writing -- original draft, Writing -- review \& editing.\\
+\textbf{Parteek Kumar:} Conceptualization, Supervision, Writing -- review \&
+editing, Funding acquisition.
+
+% --- Data availability ---
+\section*{Data availability}
+The frozen demo corpus (30 resumes, 15 job descriptions, 47 labeled pairs), the
+synthetic corpus and generator, the evaluation scripts, the explanation generator,
+the calibration layer, and the regression benchmark will be deposited in a public
+repository (Harvard Dataverse) with a citable DOI upon acceptance; an anonymized copy
+(author identifiers removed from the released code and test fixtures) is available to
+reviewers during review. The release includes the one-command
+reproduction script, the auto-generated tables, the per-experiment JSON artifacts,
+and the figure source scripts.
+
+% --- Declaration of generative AI ---
+\section*{Declaration of generative AI and AI-assisted technologies
+in the manuscript preparation process}
+During the preparation of this work the author(s) used OpenAI ChatGPT
+(GPT-4 model) as a language-model assistant to support copy-editing of
+selected paragraphs, to generate initial drafts of figure captions from a
+structured outline, and to suggest edits during the literature review. All
+technical content, experimental results, design decisions, and final wording
+are the authors' own. After using this tool, the author(s) reviewed and edited
+the content as needed and take(s) full responsibility for the content of the
+publication.
+
+\end{document}

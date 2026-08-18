@@ -1,0 +1,415 @@
+{
+  "method": "50-pair counterfactual and fairness probe",
+  "n_pairs": 50,
+  "recourse_pairs": 25,
+  "demographic_pairs": 25,
+  "recourse_flagged": 12,
+  "recourse_flagged_rate": 0.48,
+  "demographic_flagged": 9,
+  "demographic_flagged_rate": 0.36,
+  "recourse_top1_stable_rate": 1.0,
+  "demographic_top1_stable_rate": 0.96,
+  "rows": [
+    {
+      "category": "recourse",
+      "kind": "skill_add",
+      "query_id": "cv_01",
+      "rank_delta": 0,
+      "score_delta": 0.03535170150822042,
+      "top1_stable": true
+    },
+    {
+      "category": "recourse",
+      "kind": "skill_remove",
+      "query_id": "cv_01",
+      "rank_delta": 0,
+      "score_delta": 0.0733747005462646,
+      "top1_stable": true
+    },
+    {
+      "category": "recourse",
+      "kind": "experience_up",
+      "query_id": "cv_01",
+      "rank_delta": 0,
+      "score_delta": 0.0011680173873901412,
+      "top1_stable": true
+    },
+    {
+      "category": "recourse",
+      "kind": "experience_down",
+      "query_id": "cv_01",
+      "rank_delta": 0,
+      "score_delta": 0.000789353847503671,
+      "top1_stable": true
+    },
+    {
+      "category": "recourse",
+      "kind": "salary",
+      "query_id": "cv_01",
+      "rank_delta": 0,
+      "score_delta": 0.0,
+      "top1_stable": true
+    },
+    {
+      "category": "recourse",
+      "kind": "skill_add",
+      "query_id": "cv_02",
+      "rank_delta": 0,
+      "score_delta": 0.059909061272939046,
+      "top1_stable": true
+    },
+    {
+      "category": "recourse",
+      "kind": "skill_remove",
+      "query_id": "cv_02",
+      "rank_delta": 0,
+      "score_delta": 0.09097624063491816,
+      "top1_stable": true
+    },
+    {
+      "category": "recourse",
+      "kind": "experience_up",
+      "query_id": "cv_02",
+      "rank_delta": 0,
+      "score_delta": 0.003113288879394549,
+      "top1_stable": true
+    },
+    {
+      "category": "recourse",
+      "kind": "experience_down",
+      "query_id": "cv_02",
+      "rank_delta": 0,
+      "score_delta": 0.0028114295005797763,
+      "top1_stable": true
+    },
+    {
+      "category": "recourse",
+      "kind": "salary",
+      "query_id": "cv_02",
+      "rank_delta": 0,
+      "score_delta": 0.0,
+      "top1_stable": true
+    },
+    {
+      "category": "recourse",
+      "kind": "skill_add",
+      "query_id": "cv_03",
+      "rank_delta": 0,
+      "score_delta": 0.05050910780646589,
+      "top1_stable": true
+    },
+    {
+      "category": "recourse",
+      "kind": "skill_remove",
+      "query_id": "cv_03",
+      "rank_delta": 0,
+      "score_delta": 0.08520102500915527,
+      "top1_stable": true
+    },
+    {
+      "category": "recourse",
+      "kind": "experience_up",
+      "query_id": "cv_03",
+      "rank_delta": 0,
+      "score_delta": 0.006679158210754488,
+      "top1_stable": true
+    },
+    {
+      "category": "recourse",
+      "kind": "experience_down",
+      "query_id": "cv_03",
+      "rank_delta": 0,
+      "score_delta": 0.0064782357215881214,
+      "top1_stable": true
+    },
+    {
+      "category": "recourse",
+      "kind": "salary",
+      "query_id": "cv_03",
+      "rank_delta": 0,
+      "score_delta": 0.0030000000000000027,
+      "top1_stable": true
+    },
+    {
+      "category": "recourse",
+      "kind": "skill_add",
+      "query_id": "cv_04",
+      "rank_delta": 0,
+      "score_delta": 0.05073513216442527,
+      "top1_stable": true
+    },
+    {
+      "category": "recourse",
+      "kind": "skill_remove",
+      "query_id": "cv_04",
+      "rank_delta": 0,
+      "score_delta": 0.08345502376556402,
+      "top1_stable": true
+    },
+    {
+      "category": "recourse",
+      "kind": "experience_up",
+      "query_id": "cv_04",
+      "rank_delta": 0,
+      "score_delta": 0.0041413497924804865,
+      "top1_stable": true
+    },
+    {
+      "category": "recourse",
+      "kind": "experience_down",
+      "query_id": "cv_04",
+      "rank_delta": 0,
+      "score_delta": 0.004024808406829838,
+      "top1_stable": true
+    },
+    {
+      "category": "recourse",
+      "kind": "salary",
+      "query_id": "cv_04",
+      "rank_delta": 0,
+      "score_delta": 0.0,
+      "top1_stable": true
+    },
+    {
+      "category": "recourse",
+      "kind": "skill_add",
+      "query_id": "cv_05",
+      "rank_delta": 0,
+      "score_delta": 0.054933534708890064,
+      "top1_stable": true
+    },
+    {
+      "category": "recourse",
+      "kind": "skill_remove",
+      "query_id": "cv_05",
+      "rank_delta": 0,
+      "score_delta": 0.08577234983444215,
+      "top1_stable": true
+    },
+    {
+      "category": "recourse",
+      "kind": "experience_up",
+      "query_id": "cv_05",
+      "rank_delta": 0,
+      "score_delta": 0.0007394528388977584,
+      "top1_stable": true
+    },
+    {
+      "category": "recourse",
+      "kind": "experience_down",
+      "query_id": "cv_05",
+      "rank_delta": 0,
+      "score_delta": 8.761882781982422e-05,
+      "top1_stable": true
+    },
+    {
+      "category": "recourse",
+      "kind": "salary",
+      "query_id": "cv_05",
+      "rank_delta": 0,
+      "score_delta": 0.0,
+      "top1_stable": true
+    },
+    {
+      "category": "demographic",
+      "kind": "name",
+      "query_id": "cv_01",
+      "rank_delta": 0,
+      "score_delta": 0.0021464276313781783,
+      "top1_stable": true
+    },
+    {
+      "category": "demographic",
+      "kind": "pronouns",
+      "query_id": "cv_02",
+      "rank_delta": 0,
+      "score_delta": 0.0,
+      "top1_stable": true
+    },
+    {
+      "category": "demographic",
+      "kind": "email_domain",
+      "query_id": "cv_03",
+      "rank_delta": 0,
+      "score_delta": 0.006638302803039564,
+      "top1_stable": true
+    },
+    {
+      "category": "demographic",
+      "kind": "hometown",
+      "query_id": "cv_04",
+      "rank_delta": 0,
+      "score_delta": 0.0,
+      "top1_stable": true
+    },
+    {
+      "category": "demographic",
+      "kind": "summary_suffix",
+      "query_id": "cv_05",
+      "rank_delta": 0,
+      "score_delta": 0.004833901405334462,
+      "top1_stable": true
+    },
+    {
+      "category": "demographic",
+      "kind": "name",
+      "query_id": "cv_06",
+      "rank_delta": 0,
+      "score_delta": 0.003202426433563277,
+      "top1_stable": true
+    },
+    {
+      "category": "demographic",
+      "kind": "pronouns",
+      "query_id": "cv_07",
+      "rank_delta": 0,
+      "score_delta": 0.0,
+      "top1_stable": true
+    },
+    {
+      "category": "demographic",
+      "kind": "email_domain",
+      "query_id": "cv_08",
+      "rank_delta": 0,
+      "score_delta": 0.01867914915084834,
+      "top1_stable": true
+    },
+    {
+      "category": "demographic",
+      "kind": "hometown",
+      "query_id": "cv_09",
+      "rank_delta": 0,
+      "score_delta": 0.0,
+      "top1_stable": true
+    },
+    {
+      "category": "demographic",
+      "kind": "summary_suffix",
+      "query_id": "cv_10",
+      "rank_delta": 0,
+      "score_delta": 0.005183834957353972,
+      "top1_stable": true
+    },
+    {
+      "category": "demographic",
+      "kind": "name",
+      "query_id": "cv_11",
+      "rank_delta": 1,
+      "score_delta": 0.006490035533904925,
+      "top1_stable": false
+    },
+    {
+      "category": "demographic",
+      "kind": "pronouns",
+      "query_id": "cv_12",
+      "rank_delta": 0,
+      "score_delta": 0.0,
+      "top1_stable": true
+    },
+    {
+      "category": "demographic",
+      "kind": "email_domain",
+      "query_id": "cv_13",
+      "rank_delta": 0,
+      "score_delta": 0.009143450260162389,
+      "top1_stable": true
+    },
+    {
+      "category": "demographic",
+      "kind": "hometown",
+      "query_id": "cv_14",
+      "rank_delta": 0,
+      "score_delta": 0.0,
+      "top1_stable": true
+    },
+    {
+      "category": "demographic",
+      "kind": "summary_suffix",
+      "query_id": "cv_15",
+      "rank_delta": 0,
+      "score_delta": 0.00035472679138182084,
+      "top1_stable": true
+    },
+    {
+      "category": "demographic",
+      "kind": "name",
+      "query_id": "cv_16",
+      "rank_delta": 0,
+      "score_delta": 0.006139025688171484,
+      "top1_stable": true
+    },
+    {
+      "category": "demographic",
+      "kind": "pronouns",
+      "query_id": "cv_17",
+      "rank_delta": 0,
+      "score_delta": 0.0,
+      "top1_stable": true
+    },
+    {
+      "category": "demographic",
+      "kind": "email_domain",
+      "query_id": "cv_18",
+      "rank_delta": 0,
+      "score_delta": 0.0012481594085693715,
+      "top1_stable": true
+    },
+    {
+      "category": "demographic",
+      "kind": "hometown",
+      "query_id": "cv_19",
+      "rank_delta": 0,
+      "score_delta": 0.0,
+      "top1_stable": true
+    },
+    {
+      "category": "demographic",
+      "kind": "summary_suffix",
+      "query_id": "cv_20",
+      "rank_delta": 0,
+      "score_delta": 0.0058559501965840255,
+      "top1_stable": true
+    },
+    {
+      "category": "demographic",
+      "kind": "name",
+      "query_id": "cv_21",
+      "rank_delta": 0,
+      "score_delta": 0.0056915688514709295,
+      "top1_stable": true
+    },
+    {
+      "category": "demographic",
+      "kind": "pronouns",
+      "query_id": "cv_22",
+      "rank_delta": 0,
+      "score_delta": 0.0,
+      "top1_stable": true
+    },
+    {
+      "category": "demographic",
+      "kind": "email_domain",
+      "query_id": "cv_23",
+      "rank_delta": 0,
+      "score_delta": 0.006715474128723087,
+      "top1_stable": true
+    },
+    {
+      "category": "demographic",
+      "kind": "hometown",
+      "query_id": "cv_24",
+      "rank_delta": 0,
+      "score_delta": 0.0,
+      "top1_stable": true
+    },
+    {
+      "category": "demographic",
+      "kind": "summary_suffix",
+      "query_id": "cv_25",
+      "rank_delta": 0,
+      "score_delta": 0.00012520805237781207,
+      "top1_stable": true
+    }
+  ],
+  "note": "Two independent 25-pair probes: recourse (skill/experience/salary/remote) and demographic-proxy (name/pronouns/email/hometown/summary). Both share the same controlled perturbation protocol; they test different hypotheses (recourse validation vs fairness robustness) and are reported separately."
+}

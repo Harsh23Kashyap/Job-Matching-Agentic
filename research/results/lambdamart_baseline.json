@@ -1,0 +1,19 @@
+{
+  "experiment": "EXP-014a LambdaMART (XGBRanker rank:ndcg) held-out baseline (RQ1)",
+  "protocol": "5-fold CV over 30 resumes; listwise rank:ndcg on 6 channel features; graded relevance; seed=42",
+  "n_resumes": 30,
+  "n_jobs": 15,
+  "lambdamart_ndcg_at_5_mean": 0.963395,
+  "lambdamart_ndcg_at_5_ci": {
+    "mean": 0.9633953335333776,
+    "ci_low": 0.9246028651578907,
+    "ci_high": 0.9916076656057538,
+    "se": 0.018617803519062195
+  },
+  "reference": {
+    "fixed_composite": 0.949,
+    "pointwise_LR_heldout": 0.917,
+    "semantic_bi_encoder_two_tower": 0.878
+  },
+  "interpretation": "Genuine listwise LTR (LambdaMART) on the same 6 channels, held out over resumes. Compare honestly to the fixed composite (0.949) and pointwise LR (0.917): report whether a stronger learned ranker beats the hand-set composite on this small corpus (CIs will be wide)."
+}

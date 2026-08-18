@@ -1,7 +1,7 @@
 {
   "run_id": "2026-05-27T150000Z",
   "exported_at": "2026-05-27T15:00:00.384663+00:00",
-  "reports_source": "/Users/harshkashyap/Projects/JobMatcher-v1/Job-Matching-Agentic/backend/reports",
+  "reports_source": "backend/reports",
   "top_k": 5,
   "studies": {
     "embedding": {

@@ -49,13 +49,22 @@ def build_composite_components(breakdown: ScoreBreakdown) -> list[ScoreComponent
     return components
 
 
+def _safe_vec(values) -> np.ndarray:
+    """Coerce an embedding to a finite float32 vector; non-finite entries (NaN/inf from a
+    corrupted upstream embedding) are zeroed so they cannot score as a spurious perfect match."""
+    vec = np.asarray(values, dtype=np.float32)
+    if not np.all(np.isfinite(vec)):
+        vec = np.nan_to_num(vec, nan=0.0, posinf=0.0, neginf=0.0)
+    return vec
+
+
 def compute_semantic(
     candidate: CandidateSnapshot,
     job: JobSnapshot,
     metric: str = "cosine",
 ) -> ScoreBreakdown:
-    c_vec = np.asarray(candidate.embedding, dtype=np.float32)
-    j_vec = np.asarray(job.embedding, dtype=np.float32)
+    c_vec = _safe_vec(candidate.embedding)
+    j_vec = _safe_vec(job.embedding)
     sem = compute_similarity(c_vec, j_vec, metric)
     return ScoreBreakdown(
         semantic_score=sem,

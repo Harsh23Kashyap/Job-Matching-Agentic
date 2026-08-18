@@ -1,0 +1,91 @@
+{
+  "experiment": "EXP-033 failure-injection matrix (Stage-2 \u00a7V)",
+  "cases": [
+    {
+      "case": "parser_failure_empty_structured",
+      "expected": "isolated: ranking works with empty skills/summary (uses embedding)",
+      "crashed": false,
+      "final_score": 0.665,
+      "finite": true,
+      "in_range": true,
+      "isolated_ok": true
+    },
+    {
+      "case": "missing_candidate_embedding_zero",
+      "expected": "isolated: cosine guards zero-norm -> semantic 0",
+      "crashed": false,
+      "final_score": 0.7067,
+      "finite": true,
+      "in_range": true,
+      "isolated_ok": true
+    },
+    {
+      "case": "missing_job_embedding_zero",
+      "expected": "isolated: cosine guards zero-norm -> semantic 0",
+      "crashed": false,
+      "final_score": 0.7067,
+      "finite": true,
+      "in_range": true,
+      "isolated_ok": true
+    },
+    {
+      "case": "malformed_job_no_required_skills",
+      "expected": "isolated: jaccard 0, ranking continues",
+      "crashed": false,
+      "final_score": 0.7167,
+      "finite": true,
+      "in_range": true,
+      "isolated_ok": true
+    },
+    {
+      "case": "missing_skill_vocabulary",
+      "expected": "isolated: unknown skills -> jaccard 0, no crash",
+      "crashed": false,
+      "final_score": 0.7033,
+      "finite": true,
+      "in_range": true,
+      "isolated_ok": true
+    },
+    {
+      "case": "missing_compensation_band",
+      "expected": "isolated: compensation defaults to 1.0 when band absent",
+      "crashed": false,
+      "final_score": 0.9867,
+      "finite": true,
+      "in_range": true,
+      "isolated_ok": true
+    },
+    {
+      "case": "empty_job_description_and_title",
+      "expected": "isolated: title defaults, semantic on empty text",
+      "crashed": false,
+      "final_score": 1.0,
+      "finite": true,
+      "in_range": true,
+      "isolated_ok": true
+    },
+    {
+      "case": "duplicate_candidate_determinism",
+      "expected": "deterministic: identical inputs -> identical score",
+      "crashed": false,
+      "final_score": 0.9867,
+      "finite": true,
+      "in_range": true,
+      "isolated_ok": true
+    },
+    {
+      "case": "nan_embedding_injection",
+      "expected": "GAP if NaN propagates -> needs input validation",
+      "crashed": false,
+      "final_score": 0.7067,
+      "finite": true,
+      "in_range": true,
+      "isolated_ok": true
+    }
+  ],
+  "determinism_identical_inputs_identical_score": true,
+  "n_cases": 9,
+  "n_isolated_ok": 9,
+  "gaps_found": [],
+  "interpretation": "The deterministic scoring path isolates parser/LLM/embedding faults for realistic degradations (empty fields, zero embeddings, missing skills/compensation) \u2014 it returns a finite in-range score without crashing, confirming failure isolation (RQ8/\u00a7W). Any propagating fault (e.g., NaN embedding) is reported as a gap requiring explicit input validation, not hidden."
+}

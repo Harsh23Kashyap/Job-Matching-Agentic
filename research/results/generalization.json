@@ -1,0 +1,54 @@
+{
+  "experiment": "EXP-027 generalization: unseen-candidate / unseen-job / both-unseen (Stage-2 \u00a7J)",
+  "seed": 42,
+  "n_resumes": 30,
+  "n_jobs": 15,
+  "note": "ALL regimes rank the full 15-job pool (commensurable with the composite reference); unseen-job/both regimes use the STRICT subset (resume has a relevant HELD-OUT job) and aggregate to one value per resume before bootstrapping (no pseudo-replication).",
+  "regimes": {
+    "candidate_heldout": {
+      "ltr_ndcg@5": {
+        "mean": 0.928955,
+        "ci_low": 0.849395,
+        "ci_high": 0.981206,
+        "n_queries": 30
+      },
+      "ltr_recall@5_mean": 0.933333,
+      "pool_size": 15,
+      "leakage_check_disjoint": true,
+      "desc": "LTR trained on train resumes; each UNSEEN resume ranks all 15 jobs, scored once"
+    },
+    "job_heldout": {
+      "ltr_ndcg@5": {
+        "mean": 0.928955,
+        "ci_low": 0.8459,
+        "ci_high": 0.982569,
+        "n_queries": 30
+      },
+      "pool_size": 15,
+      "leakage_check_disjoint": true,
+      "desc": "STRICT unseen-job: LTR trained on seen job columns; resumes with a relevant HELD-OUT job rank all 15; per-resume aggregated"
+    },
+    "both_heldout": {
+      "ltr_ndcg@5": {
+        "mean": 0.927462,
+        "ci_low": 0.846102,
+        "ci_high": 0.98096,
+        "n_queries": 30
+      },
+      "pool_size": 15,
+      "leakage_check_disjoint": true,
+      "desc": "STRICT both-unseen: train on (seen resume x seen job); UNSEEN resumes with a relevant UNSEEN job rank all 15; per-resume aggregated"
+    },
+    "fixed_composite_reference": {
+      "ndcg@5": {
+        "mean": 0.949236,
+        "ci_low": 0.874192,
+        "ci_high": 0.992951,
+        "n_queries": 30
+      },
+      "pool_size": 15,
+      "desc": "fixed composite ranking all 15 jobs (not trained -> descriptive)"
+    }
+  },
+  "interpretation": "The learned fusion generalizes if the unseen-candidate / unseen-job / both-unseen nDCG@5 stay close to the fixed composite reference (0.949), all over the same 15-job pool. Zero leakage is verified programmatically. CIs are wide at n=30 resumes / 15 jobs \u2014 report with that caveat."
+}

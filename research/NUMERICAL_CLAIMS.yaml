@@ -1,0 +1,105 @@
+# NUMERICAL_CLAIMS — every headline number: value, source, manuscript location, verdict.
+# verdict: REPRODUCIBLE | LEAKED | PHANTOM(no artifact) | NON-REPRODUCIBLE | STALE | HELD-OUT-AVAILABLE
+# "corrected" = the honest value to use going forward. Populated from BASELINE_AUDIT (2026-08-17).
+
+meta:
+  baseline_commit: 02a700e
+  human_corpus: {resumes: 30, jobs: 15, labels: 47, scale: "0-2 (only grades 1,2 present; 403/450 implicit-0)"}
+  synthetic_corpus: {resumes: 500, jobs: 75, marked_synthetic: true}
+
+claims:
+  - claim: composite nDCG@5
+    value: 0.949
+    source_artifact: backend/reports/research_run_20260606T150509Z/composite_eval_report.json
+    heldout_artifact: backend/reports/extended_evaluation/kfold_cv.json  # 0.949 CI[0.870,0.993]
+    manuscript_loc: [abstract.tex:5, section-5-results.tex:9]
+    verdict: REPRODUCIBLE   # survives; anchor here
+    action: keep; cite kfold_cv.json for generalization
+
+  - claim: best single (multimodal soft-embed w=0.7) nDCG@5 / R@5
+    value: "0.969 / 1.000"
+    source_artifact: NONE
+    manuscript_loc: [abstract.tex:5, section-5-results.tex:10,21,51, section-8-conclusion.tex:4]
+    verdict: PHANTOM   # best committed is Multimodal 0.924 / R@5 0.933
+    action: regenerate+commit OR replace with 0.924; delete non-existent-file citations
+
+  - claim: learned fusion nDCG@5
+    value: 0.968
+    corrected: 0.917   # CI[0.838,0.974]
+    source_artifact: backend/benchmark_outputs/table11_fusion.json (leaky)
+    heldout_artifact: backend/reports/extended_evaluation/pointwise_ltr.json
+    manuscript_loc: [section-5-results.tex:11]
+    verdict: LEAKED
+    action: replace with held-out 0.917; note it does NOT beat composite
+
+  - claim: significance composite vs semantic
+    value: "Δ=+0.071, p=0.048"
+    source_artifact: backend/reports/research_run_20260606T150509Z/significance_ablation_report.json
+    manuscript_loc: [abstract.tex:5, section-5-results.tex:69]
+    verdict: NON-REPRODUCIBLE   # salted hash() seed; CI[-0.016,+0.167] crosses 0; two-sided p~0.096; MRR NS; committed report actually shows Δ=+0.0456/p=0.0104 (composite absent)
+    action: pin PYTHONHASHSEED; report two-sided p+CI+multiple-comparison correction; downgrade language
+
+  - claim: cross-encoder nDCG@5 / delta / latency
+    value: "0.939 / -0.030(ESWA) vs -0.108(IUI) / 141.7ms"
+    source_artifact: NONE   # CE never run; pipeline_manifest cross_encoder_enabled=false
+    manuscript_loc: [section-5-results.tex:22,59,63,170]
+    verdict: PHANTOM
+    action: run+commit CE report OR remove specific CE numbers; reconcile ESWA vs IUI
+
+  - claim: calibration ECE (uncal -> Platt)
+    value: "0.40 -> 0.032"
+    corrected: "held-out 0.0192 CI[0.0097,0.0286]"
+    source_artifact: data/models/calibration.json (fit-on-eval)
+    heldout_artifact: backend/reports/extended_evaluation/calibration_binary.json
+    manuscript_loc: [abstract.tex:4, section-5-results.tex:48,100,104,198]
+    verdict: LEAKED
+    action: replace 0.032 with held-out 0.0192; define one calibration target; recompute 0.40 held-out
+
+  - claim: Brier (calibrated)
+    value: 0.093
+    source_artifact: backend/reports/extended_evaluation/calibration_binary.json
+    verdict: REPRODUCIBLE   # equals held-out value 0.0928; BUT ~ base-rate predictor 0.0935 (near-degenerate)
+    action: DONE (EXP-020) — BSS=0.0066, AUC=0.758, confidence squashed to [0.11,0.14] (never ~0.9); report these, drop "0.9=>9/10". Source research/results/calibration_discrimination.json
+
+  - claim: explanation faithfulness (rule / template)
+    value: "0.745 / 0.747"
+    source_artifact: backend/reports/research_run_20260606T150509Z/explainability_report.json
+    manuscript_loc: [section-5-results.tex:76,78,92]
+    verdict: STALE   # metric is mean of 3 lint checks; component_alignment=1.0 tautological; 77% flagged; "template"=no LLM
+    action: rename metric; add real sufficiency/comprehensiveness faithfulness test; fix "LLM-template" label
+
+  - claim: counterfactual flagged
+    value: "7/10 (top-1 stable all)"
+    corrected: "50 pairs: recourse 12/25 (rank_delta=0 all), demographic 9/25 (top1 stable 0.96)"
+    source_artifact: backend/reports/research_run_20260606T150509Z/fairness_audit_report.json
+    heldout_artifact: backend/reports/extended_evaluation/counterfactual_50.json
+    manuscript_loc: [section-5-results.tex:114,124]
+    verdict: STALE   # superseded; recourse is a NULL result; pronoun perturbation is a no-op
+    action: adopt 50-pair; report recourse null honestly; separate recourse vs demographic; fix pronoun no-op
+
+  - claim: fairness DIR (experience / remote)
+    value: "0.82 / 0.75"
+    source_artifact: backend/benchmark_outputs/fairness_eval.json
+    manuscript_loc: [section-5-results.tex:117,150]
+    verdict: STALE   # proxy groups on demo corpus, NOT demographic; caption arithmetic error (0.82 not below 0.80); n=30 no CI
+    action: reframe as proxy sensitivity; fix caption; add CI; drop DIR/four-fifths framing for job-relevant attrs
+
+  - claim: corpus stats (skills/resume, req+pref skills/job, vocab)
+    value: "12.3 / 8.7+4.2 / ~5000"
+    corrected: "~2.97 / ~2.13 + NO preferred field / ~7-63"
+    source_artifact: data/cvs.json, data/jobs.json (measured)
+    manuscript_loc: [section-4:11, section-3:73]
+    verdict: PHANTOM   # fabricated vs released data
+    action: recompute true stats OR enrich corpus
+
+  - claim: NVIDIA A100 GPU-hours
+    value: 32000
+    source_artifact: NONE   # CPU-only ~30min eval
+    manuscript_loc: [title-page.tex:78, cover-letter.md:29]
+    verdict: PHANTOM
+    action: verify grant; else remove compute figure
+
+  - claim: tests
+    value: "302 pytest + 39 node = 341"
+    verdict: UNVERIFIED   # to re-count in clean venv (Phase 24)
+    action: run pytest + node --test; record actual counts

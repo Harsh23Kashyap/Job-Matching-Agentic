@@ -8,8 +8,8 @@ Candidate, employer, and administrator portals sit on top of this layout so each
 
 We evaluated the Matchmaking agent offline on a labeled demo corpus---30 resumes, 15 jobs, and 47 graded relevance pairs---using the metrics defined in Section~\ref{sec:5} and reported in Section~\ref{sec:6}.
 Hybrid rankers that combine semantic text similarity with explicit skill overlap beat semantic search alone, while keyword methods such as BM25 remain competitive on this small pool.
-The best research configurations reach nDCG@5 $\approx 0.97$ and recall@5 $= 1.00$, but precision@5 stays near $0.31$.
-The live portal therefore defaults to a fixed composite score whose channels map directly to user-visible explanations, rather than to the single highest offline nDCG variant.
+The portal-default six-channel composite reaches nDCG@5 $= 0.949$, and no method is statistically distinguishable from the others at $n{=}30$ (differences fail Holm correction), so we report ranking parity rather than superiority; precision@5 stays near $0.31$ across methods.
+The live portal defaults to this fixed composite score whose channels map directly to user-visible explanations.
 These results are reproducible from committed benchmark artifacts; they characterize ranking behavior on a controlled corpus, not hiring quality in production.
 
 JobMatch is intentionally built as \textbf{decision-support software}, not an automated hiring replacement.

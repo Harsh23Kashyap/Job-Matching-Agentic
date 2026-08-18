@@ -1,0 +1,36 @@
+\section{Discussion}\label{sec:8}
+
+We organize the discussion around three questions: what the design suggests for interactive agentic systems, what the evaluation does and does not establish, and where the work goes next.
+
+\leadpara{Implications for interactive agentic AI}
+The four principles of \secref{sec:3} are domain-agnostic.
+G1 (transparency of state) is a property of any system that compares a user-supplied document to a learned representation; G2 (faithful, component-level explanations) is a property of any system that returns a composite score; G3 (user control at consequential points) is a property of any system that proposes a downstream action; G4 (multi-perspective decision support) is a property of any system that aggregates multiple signals.
+Together, they suggest a design space for agentic systems in which the user is the locus of decision at every consequential point and in which the system exposes the components of its reasoning rather than collapsing them into a single value.
+The same principles should be applicable, with appropriate substitution of domain components, to clinical decision support, legal search, and education recommendation.
+
+\leadpara{What the evaluation does and does not establish}
+The evaluation establishes that the prototype, on a controlled $30$-resume, $15$-job corpus with $47$ labeled pairs, returns a high-quality ranked list, returns explanations whose named components correspond to the components that produced the score, and reports a calibrated confidence that drops \ece{} by an order of magnitude.
+The evaluation does not establish that the prototype would perform as well on a production-scale corpus, on a different domain, or under a different distribution of job-seeker behavior.
+The corpus is small by the standards of production recommendation, and the $0.31$ precision@5 indicates that the user should still expect imperfect suggestions.
+The user study that would establish the effect of the prototype on user trust, control, and decision quality is not in this paper; we describe the planned study below.
+
+\leadpara{Limitations}
+\emph{Corpus size.} The $30$-resume, $15$-job corpus is small; many methods reach \ndcg{} $\geq 0.90$ and recall@5 $\geq 0.95$, so differences in \ndcg{} are informative but narrow.
+\emph{No live user study.} The submission window and the absence of an {IRB}-approved pool make a powered user study infeasible before the deadline.
+\emph{Narrow fairness audit.} The fairness probe is a ten-pair engineering check; it is not a demographic-fairness audit, and the disparate-impact ratios should not be over-interpreted.
+\emph{Demo corpus, not deployment.} The prototype is a research artifact; it has not been deployed, and the evaluation does not predict production-scale hiring impact.
+\emph{Calibration on a small calibration set.} The Platt scaling parameters are fit on $21$ strong and $26$ partial labels; a larger calibration set is expected to improve robustness.
+\emph{Explanation coverage.} The rule-based explainer names a concrete skill in roughly a quarter of bullets; most bullets are general statements, and the supplementary material reports the trade-off with an LLM-based explainer that has higher coverage and lower faithfulness.
+
+\leadpara{Future work}
+\emph{Live user study.} The most direct next step is a within-subjects user study comparing the prototype's interaction surface with a baseline that returns a ranked list without explanations, with outcome measures on trust calibration, decision quality, and perceived control.
+\emph{Longitudinal behavior.} A longitudinal study of how users revise their snapshots in response to explanations would test whether the explanation panel actually changes user behavior over time, not just user perception.
+\emph{Adaptive interfaces.} The current interface is static; an adaptive version that surfaces different components of the explanation panel depending on the user's prior interactions is a natural extension.
+\emph{Larger corpus and external replication.} A larger, externally labeled corpus would let us test the prototype's behavior on a distribution closer to a production setting; we are in the early stages of constructing one.
+\emph{Comparative evaluation against deployed hiring tools.} A study that benchmarks the prototype against a deployed hiring recommendation system, on a common corpus, would test whether the design choices yield measurable improvements in user-facing properties.
+\emph{Extended agentic capabilities.} The matchmaking component currently returns a ranked list; extending it to support multi-turn clarification, structured feedback on individual list items, and natural-language follow-up is a direction that the role-separation layout is well suited to support.
+
+\leadpara{Broader perspective}
+The system is a research prototype, not a deployment, and the results in \secref{sec:7} should be read as evidence for an assistive ranking prototype, not as evidence of production hiring impact.
+The contribution of the paper is a design artifact and an evaluation methodology for interactive, explainable agentic job recommendation, not a deployment study or a hiring-outcome study.
+We hope the design choices and the evaluation methodology are useful to other researchers building interactive agentic systems, and we hope the open-source artifact makes both inspectable and extensible.

@@ -12,6 +12,7 @@ from typing import Any, Callable
 from config import Settings
 from contracts.matching import ScoreBreakdown
 from contracts.snapshots import CandidateSnapshot, JobSnapshot
+from core.scoring import COMPOSITE_WEIGHTS
 
 from benchmarks.ablation_scoring import (
     compensation_only,
@@ -139,7 +140,7 @@ def build_ablation_strategies(
         BenchmarkStrategy(
             key="full_composite",
             label="Full composite",
-            description="Production composite: 40/30/15/10/5% over all five signals.",
+            description="Production composite: core.scoring.compute_composite over 6 channels (semantic .28/skills .27/title .10/experience .15/compensation .10/remote .10).",
             rank_fn=exhaustive(full_composite),
             contributes_to_rrf=False,
         ),
@@ -168,7 +169,7 @@ ABLATION_META: dict[str, dict[str, Any]] = {
     "location_only": {"category": "single", "components": "location"},
     "semantic_skills": {"category": "partial", "components": "semantic+skills"},
     "semantic_skills_experience": {"category": "partial", "components": "semantic+skills+experience"},
-    "full_composite": {"category": "full", "components": "semantic+skills+experience+compensation+location"},
+    "full_composite": {"category": "full", "components": "semantic+skills+title+experience+compensation+remote"},
     "rrf_ensemble": {"category": "ensemble", "components": "RRF(semantic,skills,experience,compensation,location)"},
 }
 
@@ -265,13 +266,16 @@ class AblationStudy:
             "top_k": self.top_k,
             "skills_mode": self.skills_mode,
             "embedding_model": model_name,
-            "composite_weights": {
-                "semantic": 0.40,
-                "skills": 0.30,
-                "experience": 0.15,
-                "compensation": 0.10,
-                "location": 0.05,
-            },
+            # Sourced from the single source of truth so reported weights can never
+            # drift from the production scorer (integrity audit B10): full_composite
+            # calls core.scoring.compute_composite directly.
+            "composite_weights": dict(COMPOSITE_WEIGHTS),
+            "ablation_note": (
+                "full_composite is the production 6-channel composite. The single-"
+                "component and partial variants explore a legacy 5-signal set "
+                "(semantic/skills/experience/compensation/location, no title); a "
+                "production-aligned 6-channel leave-one-out ablation is EXP-013 (Phase 8)."
+            ),
             "variants": [s.key for s in strategies],
             "best_ndcg": max(summary, key=lambda r: r["ndcg_at_k"])["variant"],
         }

@@ -1,7 +1,7 @@
 {
   "generated_at": "2026-05-27T15:06:45.034493+00:00",
-  "reports_dir": "/Users/harshkashyap/Projects/JobMatcher-v1/Job-Matching-Agentic/backend/reports",
-  "out_dir": "/Users/harshkashyap/Projects/JobMatcher-v1/Job-Matching-Agentic/docs/research/evaluation/paper_tables",
+  "reports_dir": "backend/reports",
+  "out_dir": "docs/research/evaluation/paper_tables",
   "top_k": 5,
   "tables": {
     "method_comparison": {

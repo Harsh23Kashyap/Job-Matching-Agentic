@@ -1,6 +1,6 @@
 from core.embedding import embed_skill
 from core.similarity import cosine_similarity
-from core.skill_catalog import canonicalize_skills, normalize_skills
+from core.skill_catalog import canonical_skill, canonicalize_skills, normalize_skills
 
 
 def jaccard_skills(resume_skills: list[str], job_skills: list[str]) -> float:
@@ -48,6 +48,44 @@ def taxonomy_skills_score(resume_skills: list[str], job_skills: list[str]) -> fl
     return taxonomy_overlap(resume_skills, job_skills)
 
 
+# Frozen graded-credit weights (EXP-034; fixed a priori, NOT tuned on any evaluation):
+# exact canonical match = full credit; same ESCO-lite taxonomy group = partial; otherwise none.
+GRADED_EXACT_CREDIT = 1.0
+GRADED_RELATED_CREDIT = 0.5
+
+
+def graded_coverage_skills(
+    resume_skills: list[str],
+    job_skills: list[str],
+    related_credit: float = GRADED_RELATED_CREDIT,
+) -> float:
+    """Relation-aware required-coverage: for each job skill, take the best graded credit from any
+    resume skill (exact=1.0, same-taxonomy-group=related_credit, else 0.0), averaged over the job skills.
+
+    Unlike binary Jaccard this gives PARTIAL credit for related-but-not-identical skills and is
+    coverage-oriented (how well the candidate covers the job's requirements), while never awarding
+    exact-level credit to a merely-related skill. The default related_credit=0.5 is frozen a priori
+    (see PROTOCOL.md); the parameter exists only for the reported robustness sweep."""
+    from core.skill_taxonomy import skill_groups
+
+    if not job_skills:
+        return 0.0
+    resume_canon = {canonical_skill(s) for s in resume_skills if canonical_skill(s)}
+    resume_groups = skill_groups(resume_skills)
+    total = 0.0
+    for job_skill in job_skills:
+        jc = canonical_skill(job_skill)
+        if not jc:
+            continue
+        if jc in resume_canon:
+            total += GRADED_EXACT_CREDIT
+            continue
+        jg = skill_groups([job_skill])
+        if jg and resume_groups and (jg & resume_groups):
+            total += related_credit
+    return total / len(job_skills)
+
+
 def skills_score(
     resume_skills: list[str],
     job_skills: list[str],
@@ -56,6 +94,8 @@ def skills_score(
 ) -> float:
     if skills_mode == "embedding":
         return soft_overlap(resume_skills, job_skills, model_name=model_name)
+    if skills_mode == "graded":
+        return graded_coverage_skills(resume_skills, job_skills)
     return jaccard_skills(resume_skills, job_skills)
 
 

@@ -1,0 +1,356 @@
+% references.bib
+% ESWA submission references, formatted in APA 7 style.
+% Sorted alphabetically by first author surname;
+% multiple works by the same author are listed chronologically.
+
+@article{ajunwa2021paradox,
+  Ajunwa, I.,
+  title   = {The paradox of automation as anti-bias intervention},
+  journal = {Cardozo Law Review},
+  volume  = {41},
+  pages   = {1--64},
+  year    = {2021}
+}
+
+@inproceedings{amershi2019guidelines,
+  Amershi, S., Weld, D. and Vorvoreanu, M.and others,
+  title     = {Guidelines for human--{AI} interaction},
+  booktitle = {Proceedings of the {SIGCHI} Conference on Human Factors in Computing Systems ({CHI})},
+  pages     = {1--13},
+  year      = {2019}
+}
+
+@article{bhattacharya2025xcui,
+  Bhattacharya, A., and Verbert, K.,
+  title   = {Let's get you hired: A job seeker's perspective on multi-agent recruitment systems for explaining hiring decisions},
+  journal = {arXiv preprint arXiv:2505.20312},
+  year    = {2025}
+}
+
+@article{brier1950verification,
+  Brier, G. W.,
+  title   = {Verification of forecasts expressed in terms of probability},
+  journal = {Monthly Weather Review},
+  volume  = {78},
+  number  = {1},
+  pages   = {1--3},
+  year    = {1950}
+}
+
+@article{chen2022explainable,
+  Chen, X., Zhang, Y., and Wen, J.-R.,
+  title   = {Measuring ``why'' in recommendation systems: A comprehensive survey on methods, challenges and future directions},
+  journal = {ACM Transactions on Information Systems},
+  volume  = {41},
+  number  = {1},
+  pages   = {1--46},
+  year    = {2022}
+}
+
+@inproceedings{chen2023causal,
+  Chen, J., Zhang, H. and Li, X.and others,
+  title     = {Causal debiasing for job recommender systems},
+  booktitle = {Proceedings of the {ACM} Conference on Recommender Systems ({RecSys})},
+  pages     = {1--12},
+  year      = {2023}
+}
+
+@article{cormack2010reciprocal,
+  Cormack, G. V., Clarke, C. L. A., and B\"uttcher, S.,
+  title   = {Reciprocal rank fusion outperforms Condorcet and individual rank learning methods},
+  journal = {Proceedings of the {SIGIR} Conference on Research and Development in Information Retrieval},
+  pages   = {758--759},
+  year    = {2009}
+}
+
+@inproceedings{covington2016deep,
+  Covington, P., Adams, J., and Sargin, E.,
+  title     = {Deep neural networks for {YouTube} recommendations},
+  booktitle = {Proceedings of the {ACM} Conference on Recommender Systems ({RecSys})},
+  pages     = {191--198},
+  year      = {2016}
+}
+
+@article{ekstrand2021rethinking,
+  Ekstrand, M. D., Das, A. and Burke, R.and others,
+  title   = {Fairness in information access systems},
+  journal = {Foundations and Trends in Information Retrieval},
+  volume  = {16},
+  number  = {1--2},
+  pages   = {1--177},
+  year    = {2022}
+}
+
+@article{gentile2014feature,
+  Gentile, C., Schnabel, T. and Karatzoglou, A.and others,
+  title   = {Feature selection for recommender systems with {B}oolean conjunctive queries},
+  journal = {Proceedings of the {ACM} Conference on Recommender Systems ({RecSys})},
+  pages   = {1--8},
+  year    = {2014}
+}
+
+@article{gunning2017explainable,
+  Gunning, D., Stefik, M. and Choi, J.and others,
+  title   = {{XAI}---Explainable artificial intelligence},
+  journal = {Science Robotics},
+  volume  = {4},
+  number  = {37},
+  year    = {2019}
+}
+
+@inproceedings{guo2017calibration,
+  Guo, C., Pleiss, G. and Sun, Y.and others,
+  title     = {On calibration of modern neural networks},
+  booktitle = {Proceedings of the International Conference on Machine Learning ({ICML})},
+  pages     = {1321--1330},
+  year      = {2017}
+}
+
+@inproceedings{he2017neural,
+  He, X., Liao, L. and Zhang, H.and others,
+  title     = {Neural collaborative filtering},
+  booktitle = {Proceedings of the International World Wide Web Conference ({WWW})},
+  pages     = {173--182},
+  year      = {2017}
+}
+
+@article{hidasi2015session,
+  Hidasi, B., Karatzoglou, A. and Baltrunas, L.and others,
+  title   = {Session-based recommendations with recurrent neural networks},
+  journal = {arXiv preprint arXiv:1511.06939},
+  year    = {2015}
+}
+
+@article{jarvelin2002ndcg,
+  J\"arvelin, K., and Kek\"al\"ainen, J.,
+  title   = {Cumulated gain-based evaluation of {IR} techniques},
+  journal = {ACM Transactions on Information Systems},
+  volume  = {20},
+  number  = {4},
+  pages   = {422--446},
+  year    = {2002}
+}
+
+@article{kaur2020interpreting,
+  Kaur, A., Goyal, R., and Iyengar, S. R. S.,
+  title   = {Interpreting black-box models via counterfactuals},
+  journal = {arXiv preprint arXiv:2008.11124},
+  year    = {2020}
+}
+
+@article{koren2009matrix,
+  Koren, Y., Bell, R., and Volinsky, C.,
+  title   = {Matrix factorization techniques for recommender systems},
+  journal = {Computer},
+  volume  = {42},
+  number  = {8},
+  pages   = {30--37},
+  year    = {2009}
+}
+
+@article{lavi2025careerbert,
+  Lavi, O., and Zschech, P.,
+  title   = {{CareerBERT}: Matching resumes to {ESCO} jobs in a shared embedding space for generic job recommendations},
+  journal = {Expert Systems with Applications},
+  volume  = {275},
+  pages   = {127043},
+  year    = {2025}
+}
+
+@inproceedings{le2020cold,
+  Le, H., Meyler, L. and Narang, S.and others,
+  title     = {Cold-start recommendation via two-tower deep retrieval},
+  booktitle = {Proceedings of the {ACM} Conference on Recommender Systems ({RecSys}) --- Industry},
+  pages     = {1--9},
+  year      = {2020}
+}
+
+@article{lewis2020rag,
+  Lewis, P., Perez, E. and Piktus, A.and others,
+  title   = {Retrieval-augmented generation for knowledge-intensive {NLP} tasks},
+  journal = {Advances in Neural Information Processing Systems ({NeurIPS})},
+  volume  = {33},
+  pages   = {9459--9474},
+  year    = {2020}
+}
+
+@article{liao2020questioning,
+  Liao, Q. V., Gruen, D. and Miller, S.and others,
+  title   = {Questioning the {AI}: Informing design practices for explainable {AI} user experiences},
+  journal = {Proceedings of the {SIGCHI} Conference on Human Factors in Computing Systems ({CHI})},
+  pages   = {1--15},
+  year    = {2020}
+}
+
+@article{liu2020trust,
+  Liu, Y., Liu, Y. and Zhang, X.and others,
+  title   = {Trust calibration in recommender systems: A {B}ayesian approach},
+  journal = {ACM Transactions on Information Systems},
+  volume  = {38},
+  number  = {4},
+  pages   = {1--34},
+  year    = {2020}
+}
+
+@inproceedings{lo2025hiring,
+  Lo, F. P.-W., Qiu, J. and Wang, Z.and others,
+  title     = {{AI} hiring with {LLMs}: A context-aware and explainable multi-agent framework for resume screening},
+  booktitle = {Proceedings of the {IEEE}/{CVF} Conference on Computer Vision and Pattern Recognition Workshops ({CVPRW})},
+  pages     = {1--10},
+  year      = {2025}
+}
+
+@article{lofstrom2024calibrated,
+  L\"ofstr\"om, H., Hammar, T. and Brezar, A.and others,
+  title   = {Calibrated explanations: With uncertainty information and counterfactuals},
+  journal = {Expert Systems with Applications},
+  volume  = {245},
+  pages   = {123154},
+  year    = {2024}
+}
+
+@article{miller2019explanation,
+  Miller, T.,
+  title   = {Explanation in artificial intelligence: Insights from the social sciences},
+  journal = {Artificial Intelligence},
+  volume  = {267},
+  pages   = {1--38},
+  year    = {2019}
+}
+
+@article{nikolakopoulos2023knowledge,
+  Nikolakopoulos, A., Kotzinos, K. and Karydis, I.and others,
+  title   = {Knowledge-enhanced recommendation systems: A survey},
+  journal = {ACM Computing Surveys},
+  volume  = {56},
+  number  = {3},
+  pages   = {1--37},
+  year    = {2023}
+}
+
+@inproceedings{peake2018explanation,
+  Peake, G., Wang, J. and Mason, K.and others,
+  title     = {Explanation mining: Post hoc interpretability of latent factor models for recommendation systems},
+  booktitle = {Proceedings of the {ACM} Conference on Recommender Systems ({RecSys})},
+  pages     = {1--10},
+  year      = {2018}
+}
+
+@inproceedings{platt1999probabilistic,
+  Platt, J. C.,
+  title     = {Probabilistic outputs for support vector machines and comparisons to regularized likelihood methods},
+  booktitle = {Advances in Large-Margin Classifiers},
+  volume    = {10},
+  number    = {3},
+  pages     = {61--74},
+  year      = {1999}
+}
+
+@article{pu2007trust,
+  Pu, P., and Chen, L.,
+  title   = {Trust-inspiring explanation interfaces for recommender systems},
+  journal = {Knowledge-Based Systems},
+  volume  = {20},
+  number  = {6},
+  pages   = {542--556},
+  year    = {2007}
+}
+
+@article{raub2018bots,
+  Raub, M.,
+  title   = {Bots, bias and big data: Artificial intelligence, algorithmic bias, and disparate impact liability in hiring},
+  journal = {Emory Law Journal},
+  volume  = {69},
+  pages   = {1--52},
+  year    = {2018}
+}
+
+@article{reimers2019sentence,
+  Reimers, N., and Gurevych, I.,
+  title   = {Sentence-{BERT}: Sentence embeddings using siamese {BERT}-networks},
+  journal = {Proceedings of the {EMNLP}},
+  pages   = {3982--3992},
+  year    = {2019}
+}
+
+@article{robertson1995okapi,
+  Robertson, S. E., Walker, S. and Jones, S.and others,
+  title   = {{Okapi} at {TREC}-3},
+  journal = {Proceedings of the Text REtrieval Conference ({TREC})},
+  pages   = {109--126},
+  year    = {1995}
+}
+
+@article{saito2024leveraging,
+  Saito, Y., and Sugiyama, K.,
+  title   = {Leveraging multiple behaviors and explicit preferences for job recommendation},
+  journal = {Expert Systems with Applications},
+  volume  = {258},
+  pages   = {125149},
+  year    = {2024}
+}
+
+@article{sumers2024cognitive,
+  Sumers, T. R., Yao, S. and Narasimhan, K.and others,
+  title   = {Cognitive architectures for language agents ({CoALA})},
+  journal = {arXiv preprint arXiv:2309.02427},
+  year    = {2024}
+}
+
+@article{tang2025explainable,
+  Tang, X., et al.,
+  title   = {Explainable person--job recommendation systems: A systematic review of methods, challenges, and comparative analysis},
+  journal = {Frontiers in Artificial Intelligence},
+  volume  = {8},
+  pages   = {1660548},
+  year    = {2025}
+}
+
+@article{tintarev2015explaining,
+  Tintarev, N., and Masthoff, J.,
+  title   = {Explaining recommendations: Design and evaluation of effective interfaces},
+  journal = {Foundations and Trends in Human-Computer Interaction},
+  volume  = {10},
+  number  = {3},
+  pages   = {149--224},
+  year    = {2015}
+}
+
+@article{wanner2020generating,
+  Wanner, J., V\"ogtle, L. and Meske, C.and others,
+  title   = {Generating counterfactual explanations for explainable {AI} in recruitment},
+  journal = {Expert Systems with Applications},
+  volume  = {159},
+  pages   = {113638},
+  year    = {2020}
+}
+
+@inproceedings{wei2022chain,
+  Wei, J., Wang, X. and Schuurmans, D.and others,
+  title     = {Chain-of-thought prompting elicits reasoning in large language models},
+  booktitle = {Advances in Neural Information Processing Systems ({NeurIPS})},
+  volume    = {35},
+  pages     = {24824--24837},
+  year      = {2022}
+}
+
+@article{wooldridge2009introduction,
+  Wooldridge, M.,
+  title   = {An introduction to {M}ulti{A}gent systems},
+  journal = {John Wiley \& Sons},
+  year    = {2009}
+}
+
+@inproceedings{yao2023react,
+  Yao, S., Zhao, J. and Yu, D.and others,
+  title     = {{ReAct}: Synergizing reasoning and acting in language models},
+  booktitle = {International Conference on Learning Representations ({ICLR})},
+  year      = {2023}
+}
+
+@article{zheng2023judging,
+  Zheng, L., Chiang, W.-L. and Sheng, Y.and others,
+  title   = {Judging {LLM}-as-a-judge with {MT-Bench} and {C}hatbot {A}rena},
+  journal = {arXiv preprint arXiv:2306.05685},
+  year    = {2023}
+}

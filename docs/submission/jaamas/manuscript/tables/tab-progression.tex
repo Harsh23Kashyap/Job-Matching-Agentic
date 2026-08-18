@@ -1,18 +1,19 @@
-\caption{Paper progression benchmark (regression baselines, $K{=}5$).}
+\caption{Method progression benchmark (canonical committed run, $K{=}5$).}
 \label{tab:progression}
 \begin{tabular}{@{}lrrr@{}}
 \toprule
 Method & P@5 & R@5 & nDCG@5 \\
 \midrule
-Multimodal soft embed w=0.7 & 0.313 & 1.000 & 0.969 \\
-Soft embed + cross-encoder (pool=10) & 0.307 & 0.983 & 0.939 \\
-RRF ensemble (4 lists) & 0.293 & 0.950 & 0.935 \\
-Multimodal Jaccard w=0.7 & 0.293 & 0.950 & 0.933 \\
-Semantic cosine (rich templates) & 0.300 & 0.950 & 0.922 \\
-Semantic cosine & 0.280 & 0.900 & 0.911 \\
-TF-IDF (lexical) & 0.307 & 0.983 & 0.905 \\
-BM25 (lexical) & 0.307 & 0.983 & 0.901 \\
+Production composite (6-channel, default) & 0.293 & 0.933 & 0.949 \\
+Cross-encoder reranker (disabled by default) & 0.307 & 0.983 & 0.939 \\
+Multimodal weighted blend & 0.287 & 0.933 & 0.924 \\
+RRF ensemble (4 lists) & 0.293 & 0.950 & 0.913 \\
+TF-IDF cosine (lexical) & 0.307 & 0.983 & 0.905 \\
+BM25 (lexical) & 0.307 & 0.983 & 0.902 \\
+Semantic cosine & 0.267 & 0.867 & 0.878 \\
+Soft skill embedding & 0.280 & 0.900 & 0.869 \\
+Skills Jaccard & 0.233 & 0.733 & 0.748 \\
 \bottomrule
 \end{tabular}
 \par\vspace{0.4em}
-\footnotesize{Source: \path{data/expected/paper_progression_summary.json}. Produced by \path{benchmarks/paper_progression.py}; gated by \path{tests/benchmarks/test_eval_regression.py} ($\pm 0.04$ nDCG tolerance). Values can differ from the method-comparison run when template or cache flags differ.}
+\footnotesize{Source: committed benchmark artifacts \path{comparison_table.json} (method variants) and \path{composite_eval_report.json} (portal composite); resume-to-jobs, $K{=}5$, 30 resumes $\times$ 15 jobs, gated by the $\pm 0.04$ nDCG regression tolerance. All pairwise nDCG@5 differences lie within the small-corpus confidence intervals --- no method is statistically distinguishable (fails Holm at $n{=}30$).}

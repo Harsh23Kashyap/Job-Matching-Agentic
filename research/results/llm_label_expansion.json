@@ -1,0 +1,44 @@
+{
+  "experiment": "EXP-018 LLM-assisted label expansion (claude -p, RD-005)",
+  "provenance": "LLM-ASSISTED, NOT human. 47 human labels remain the anchor.",
+  "n_llm_labels": 450,
+  "n_resumes": 30,
+  "n_jobs": 15,
+  "grade_distribution_llm": {
+    "0": 383,
+    "1": 44,
+    "2": 23
+  },
+  "agreement_vs_human_anchor": {
+    "n_anchor_pairs": 47,
+    "cohen_kappa_quadratic": 0.691,
+    "raw_exact_agreement": 0.8085,
+    "within_1_agreement": 1.0,
+    "confusion_labels": [
+      0,
+      1,
+      2
+    ],
+    "confusion_matrix_human_rows_llm_cols": [
+      [
+        0,
+        0,
+        0
+      ],
+      [
+        3,
+        19,
+        4
+      ],
+      [
+        0,
+        2,
+        19
+      ]
+    ],
+    "note": "Human anchor has only grades 1,2 (no explicit 0s); kappa/agreement computed on those 47 pairs."
+  },
+  "n_call_failures": 0,
+  "failures": [],
+  "interpretation": "This is an LLM-labeled DENSITY set for stress/robustness/scale checks and a second-annotator signal, NOT a human benchmark. Report kappa honestly; the primary ranking benchmark stays the 47 human/author labels. Do not present these as human relevance judgments (RD-005/\u00a715)."
+}

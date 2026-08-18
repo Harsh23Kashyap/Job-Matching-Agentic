@@ -1,0 +1,9 @@
+> **STALE — pre-numbers-pass planning notes.** Numbers below are superseded. Canonical values: composite nDCG@5 0.949, strongest single 0.924, semantic 0.878, RRF 0.913; held-out ECE 0.019 (low discrimination); ranking parity — not significant (two-sided p=0.10, fails Holm); counterfactual = 50-pair recourse-null; artifact DOI upon acceptance. See research/reports/FINAL_NUMERICAL_AUDIT.md.
+
+# Highlights
+
+- Six-channel composite ranking with documented channel weights
+- Platt-scaled confidence drops calibration error from 0.40 to 0.032
+- Component-level explanations at 0.745 faithfulness, 1.00 consistency
+- Counterfactual probe: 7 of 10 single-field edits move the rank
+- Open-source prototype with 341-test regression gate on 30/15/47 corpus

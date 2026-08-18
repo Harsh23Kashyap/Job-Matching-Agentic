@@ -3,7 +3,7 @@
     "generated_at": "2026-05-27T14:51:17.116840+00:00",
     "report_type": "lexical_vs_embedding_comparison",
     "task": "resume_to_jobs",
-    "eval_path": "/Users/harshkashyap/Projects/JobMatcher-v1/Job-Matching-Agentic/data/eval_pairs.json",
+    "eval_path": "data/eval_pairs.json",
     "corpus": {
       "candidates": 30,
       "jobs": 15,

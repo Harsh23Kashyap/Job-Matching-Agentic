@@ -1,0 +1,20 @@
+\begin{table*}[!t]
+\centering
+\caption{Ranking quality (\ndcg, P@5, R@5) across baselines and the proposed system, all computed on the SAME document-text template and evaluation set (canonical benchmark run \texttt{comparison\_table.json}); the composite reference is \texttt{composite\_eval\_report.json}. Differences are within the small-corpus confidence intervals (\secref{sec:5.1}); no method is statistically superior after correction. Auto-generated; do not hand-edit.}
+\label{tab:progression}
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+Configuration & P@5 & R@5 & nDCG@5 \\
+\midrule
+Portal-default composite (proposed) & 0.293 & 0.933 & 0.949 \\
+\midrule
+Multimodal weighted blend ($w{=}0.7$) & 0.287 & 0.933 & 0.924 \\
+RRF ensemble (four list views) & 0.293 & 0.950 & 0.913 \\
+Soft skill embedding & 0.280 & 0.900 & 0.869 \\
+Semantic cosine & 0.267 & 0.867 & 0.878 \\
+TF--IDF (lexical) & 0.307 & 0.983 & 0.905 \\
+BM25 (lexical) & 0.307 & 0.983 & 0.902 \\
+Skills Jaccard & 0.233 & 0.733 & 0.748 \\
+\bottomrule
+\end{tabular}
+\end{table*}

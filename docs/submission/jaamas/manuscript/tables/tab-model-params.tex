@@ -17,4 +17,4 @@ Top feature weights & \begin{itemize}[leftmargin=*,nosep]
 \bottomrule
 \end{tabular}
 \par\vspace{0.4em}
-\footnotesize{Optional paths only: \texttt{use\_calibration} or \texttt{fusion\_mode=learned}. Platt calibration uses 450 composite-scored pairs and reduces ECE from 0.40 to 0.032 under 5-fold cross-validation (Brier 0.093); monotonic calibration leaves ranking order and nDCG@5 unchanged. Learned fusion is exploratory.}
+\footnotesize{Optional paths only: \texttt{use\_calibration} or \texttt{fusion\_mode=learned}. Platt calibration uses 450 composite-scored pairs and reduces the held-out 5-fold ECE from 0.40 to 0.019 (Brier 0.093), though with low discrimination (Brier skill $\approx 0$); beta calibration attains a lower ECE (0.009) while preserving discrimination, and monotonic calibration leaves ranking order and nDCG@5 unchanged. Learned fusion is exploratory.}

@@ -1,0 +1,30 @@
+\section{Future Work}\label{sec:7}
+
+\subsection{Larger-corpus evaluation}
+We are constructing a larger labeled corpus (target: 1,000+ resumes, 500+ job descriptions, 5,000+ labeled pairs) to support a more powered evaluation; the larger corpus will be released as a public benchmark for the recruitment recommendation task.
+
+\subsection{Live user study}
+We are planning a within-subjects user study comparing the proposed system with a baseline that returns a ranked list without explanations or calibrated confidence, with outcome measures on trust calibration, decision quality, and perceived control.
+
+\subsection{Industrial deployment}
+We are in early discussions with an industrial partner to deploy the prototype as a recommendation engine in a production ATS; the deployment will report operational metrics (time-to-hire, recruiter workload, candidate satisfaction) and a deployment-fairness audit.
+
+\subsection{LLM-in-the-loop ranking}
+Two further directions are mentioned for completeness: the integration of the LLM into the ranking path (currently the LLM is on the parsing and explanation paths only), and the extension of the channel decomposition to a learned channel weighting under strictly disjoint training, validation, and test splits, preserving the interpretability constraints of the current fixed-weight formulation. We emphasise that the present channel weights are fixed domain priors and are \emph{not} optimised against the human-labeled evaluation set (consistent with \secref{sec:3}); learning them is deferred precisely so that it can be done without leaking the evaluation labels.
+
+\subsection{LLM-based explainer comparison}
+The rule-based explainer is the prototype default; an LLM-based explainer achieves higher skill-mention coverage but lower faithfulness, and a planned A/B study will report which explainer type is preferred in a deployment setting. The trade-off is between fluency (LLM-based) and faithfulness-to-the-score (rule-based); the prototype default favors faithfulness.
+
+\subsection{RAG and LLM-as-judge baselines}
+The current offline evaluation does not include retrieval-augmented generation (RAG) \citep{lewis2020rag} or LLM-as-judge \citep{zheng2023judging} baselines. Both are 2024--2026 standards for any retrieval task; a planned evaluation will add them to the comparison and report whether the composite remains competitive at production scale.
+
+\subsection{Larger counterfactual probe}
+The counterfactual probe now covers 50 controlled pairs (25 recourse + 25 demographic-proxy), reported in \secref{sec:5.4}; extending it to a larger, human-validated set remains future work.
+
+\subsection{Comparison with prior multi-agent systems}
+The proposed system is positioned in the multi-agent systems literature, but the contribution is not in the agent architecture per se.
+A foundational text on multi-agent systems \citep{wooldridge2009introduction} identifies three patterns: agents as decision support with calibrated trust, agents as autonomous decision makers, and agents as social actors.
+The proposed system follows the first pattern: the agents are decision support with calibrated trust, not autonomous decision makers.
+The role separation (candidate-side, employer-side, read-only matchmaking) is a privacy-and-accountability choice, not a contribution to the agent architecture literature.
+The novelty is in the integration: the per-decision factor decomposition, the calibrated confidence, the faithfulness evaluation, and the reproducible engineering surface are integrated into a single inference, and the integration is assessed under a controlled evaluation.
+This is the contribution that the present paper claims, and the contribution is bounded: it is an integration contribution, not a methodological breakthrough.

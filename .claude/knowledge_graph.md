@@ -1,7 +1,147 @@
 # Codebase Knowledge Graph
-> Last updated: 2026-05-28 (v15 · JAAMAS figures, Figure 10 screenshots, authors, Overleaf zip) | Entries: 500+ | Modules: 16
+> Last updated: 2026-08-02 (v16 · JAAAMAS desk-reject, IUI 2027 + ESWA papers built, sequential venue chain locked) | v3 mavis-knowledge index: 651 files, 4,423 chunks
+
+> **v15 was the last JAAAMAS-era update (2026-05-28).** v16 captures the post-rejection state. The full v15 content (3,500+ lines) is preserved below the v16 addendum for historical context. For current state, read v16 first.
 
 ---
+
+## v16 addendum · post-JAAAMAS-rejection (2026-08-02)
+
+### New state summary
+
+JAAAMAS was **desk-rejected 2026-07-29** by Editor-in-Chief Michael Winikoff. One paragraph, no reviewer comments. The 30/15/47 corpus + "integration-not-new-formula" framing + light lit review did not clear the JAAAMAS bar (substantial original contribution, solid SOTA, substantive technical results).
+
+**Two new papers were built from the JAAAMAS body, both complete as of 2026-08-02:**
+
+| Paper | Path | Pages | Figures | Tables | Class | Deadline |
+|-------|------|------:|--------:|-------:|-------|----------|
+| **IUI 2027** (primary) | `docs/submission/iui2027/manuscript/main.pdf` | 22 | 7 | 6 | `article` (local) → `acmart` (submit) | **2026-08-20** (abstract 08-13) |
+| **ESWA** (Plan B) | `docs/submission/eswa/manuscript/main.pdf` | 34 | 12 | 6 | `elsarticle` two-column | Rolling (5-day first decision) |
+| JAAAMAS (frozen) | `docs/submission/jaamas/build/jaamas-manuscript.pdf` | 26 | 7+1 | 1+12 supp | `sn-jnl` | Rejected 2026-07-29 |
+
+### Sequential venue chain (locked 2026-07-29)
+
+**One venue at a time. No parallel, no shotgun.** Chain:
+
+1. **IUI 2027** (HCI reframe, ACM TAPS, double-blind, 8K words target / 10K cap) — primary
+2. **ESWA** (applied-AI reframe, Elsevier, $0 submit, $3,490 hybrid OA) — Plan B
+3. **KBS** (knowledge-engineering, $0 submit, $3,350 with OA) — Plan C, needs ORCID
+4. **EAAI Special Issue: Agentic AI for Intelligent Industrial Systems** (Deng + Bertino guest editors, Oct 10 2026 deadline) — Plan D
+
+**Explicitly off the table:** CHI 2027 (cancelled by user 2026-07-29, "we can't submit at multiple places"), AAMAS 2027 (same scope as rejected JAAAMAS), JAAAMAS resubmit (same editor, same outcome), PRIMA 2026 (5-day sprint), RecSys 2027 (CFP not out), UMUAI (weaker fit), JAAAMAS special issue.
+
+### IUI 2027 paper — current state
+
+- **Title:** "Understanding, Controlling, and Trusting Agentic AI: An Interactive, Explainable Job-Matching System"
+- **Anonymized** for double-blind review (article class + author block as "Anonymous Authors")
+- **4 design principles G1–G4:**
+  - G1 Transparency of state (parsed-fields review form, snapshot confirmation gate)
+  - G2 Faithful, component-level explanations (rule-based explainer bound to composite channels)
+  - G3 User control at consequential points (apply, shortlist, contact as user gestures, reversible)
+  - G4 Multi-perspective decision support (composite score exposed as separable channels)
+- **7 figures** (all 7 JAAAMAS figures reused + Fig10 composite of 8 portal screenshots)
+- **6 tables:** progression, explainability, calibration (Platt a=0.298, b=−2.116, ECE 0.032), counterfactual, fairness (DIR 0.82/0.75), latency
+- **0 overfull warnings**
+- **GenAI disclosure** (GPT-4 class for copy-editing + caption drafting) in main.tex
+- **Keywords:** Agentic AI, Human-AI Interaction, Explainable AI, Trust Calibration, User Control, Job Recommendation, Interactive Recommender Systems, Career Decision Support, LLM Agents
+- **Strategy docs:** `docs/submission/iui2027/strategy/{TRANSFORMATION-STRATEGY.md (206 lines), VENUE-PLAN.md (62 lines, the sequential rule), FIGURE-PLAN.md, REVIEW-TODO.md (122 lines, day-by-day to Aug 20), SUBMISSION-CHECKLIST.md}`
+- **Acceptance probability** (per self-review): ~50% first submission, ~75% after minor revision
+
+### ESWA paper — current state
+
+- **Title:** "An Explainable and Trustworthy Multi-Agent Architecture for Job-Candidate Recommendation with Calibrated Confidence"
+- **Anonymized** for pre-submission review
+- **Two-column** `elsarticle` (preprint, review, 3p, times, twocolumn)
+- **12 figures:**
+  - 7 JAAAMAS architecture figures (Fig1-Fig7)
+  - 2 UI screenshots in §1: `fig1_application.png` (candidate portal 72% match, ML Engineer) + `fig2_employer_view.png` (employer portal 73% match, Rahul Sharma)
+  - 1 methodology flow in §3: `fig3_methodology_flow.png` (6-box pipeline with feedback arrow)
+  - 2 ESWA-specific matplotlib charts: `fig4_reliability_diagram.png` (calibration), `fig5_channel_contribution.png` (composite weights)
+- **6 tables:** progression, ablation, explainability, counterfactual, fairness, latency
+- **Overflow status:** 0.84pt hbox + 1.5pt vbox (sub-2pt noise) + 29pt vbox on page 13 (float placement quirk, visually invisible)
+- **CRediT + GenAI disclosure** in main.tex (Elsevier mandatory)
+- **Strategy docs:** `docs/submission/eswa/strategy/{ESWA-FIT-ASSESSMENT.md (90 lines, 30-40% as-is → 55-65% after reframe), POSITIONING.md, REVIEWER-SIM.md, SUBMISSION-PLAN.md (273 lines, 12-week post-IUI plan), highlights.md, highlights-eswa.md, pre-submission-inquiry.md, related-work/}`
+- **12-week plan starting after IUI notification (Nov 23 2026):**
+  - W1 reframe introduction + abstract
+  - W2 replace Fig 1 (application context figure) + extend methodology
+  - W3 add RAG baseline + LLM-as-judge + Platt sensitivity + larger counterfactual (50 pairs)
+  - W4 build 4 new figures
+  - W5–W6 rewrite discussion + move LLM-explainer to main
+  - W7–W12 final pass, internal review, submit
+
+### Key fixes applied in v16 (2026-08-01)
+
+ESWA §1 had a content mismatch: `\figref{fig:app}` (line 51) said "Figure X shows the deployed system" but Figure X was the architecture HLD (Fig1.png). The two real UI screenshots (`fig1_application.png`, `fig2_employer_view.png`) were orphaned in the figures dir. Fixed:
+- Added new `fig:app` = `fig1_application.png` (candidate UI)
+- Added new `fig:app2` = `fig2_employer_view.png` (employer UI)
+- Renamed HLD label `fig:app` → `fig:hld`
+- Added methodology flow to §3 (the unused `fig3_methodology_flow.png` from `make_figures.py`)
+- Removed 3 byte-identical duplicate PNGs (`fig2_architecture.png` ≡ `Fig1.png`, `fig3_architecture_detail.png` ≡ `Fig7.png`, `fig5_matchmaking_detail.png` ≡ `Fig5.png`)
+
+### Numbers (verified, byte-identical across all 3 papers)
+
+| Metric | Value |
+|--------|-------|
+| Composite nDCG@5 | **0.949** (portal default) |
+| Learned fusion nDCG@5 | 0.968 |
+| Multimodal soft embed w=0.7 (best single) | 0.969 |
+| Cross-encoder nDCG@5 (disabled) | 0.834, Δ −0.108 at 141.7ms |
+| Rule-based explainer faithfulness | 0.745 |
+| Rule-based explainer specificity | 0.627 |
+| LLM-template explainer faithfulness | **0.747** (corrected from stale 0.624) |
+| LLM-template explainer specificity | 0.633 |
+| Calibration ECE (uncal → Platt) | 0.40 → **0.032** (a=0.298, b=−2.116) |
+| Brier (calibrated) | 0.093 |
+| Counterfactual probe | 7/10 pairs flagged, top-1 stable, max score shift 0.017 |
+| DIR (experience tiers / remote preference) | 0.82 / 0.75 |
+| Hard-negative pairs | 150, 0 conflicts |
+| Composite weights (semantic/skill/title/exp/comp/remote) | 0.28/0.27/0.10/0.15/0.10/0.10 |
+| Calibration set | 21 strong + 26 partial labels, 47 total |
+| Significance (composite vs semantic) | Δ=+0.071, p=0.048 |
+| Embedder | all-MiniLM-L6-v2, d=384 |
+| RRF k | 60 |
+| Tests | 302 pytest + 39 node = 341 |
+| Latency (TF-IDF / multimodal / soft-skill / cross-encoder) | 0.05ms / 0.51ms / 51.81ms / 141.7ms |
+
+### v3 mavis-knowledge index state
+
+- **Index:** 651 files, 4,423 chunks, 0 stale
+- **Index path:** `.claude/knowledge/index.sqlite` (16 MB)
+- **Repo map:** `.claude/knowledge/repo_map.md` (1 page)
+- **Commands:** `mavis-knowledge {status,search,symbol,impact,pack,read-repo,index,refresh}`
+
+### Deep re-read verification (2026-08-02)
+
+Re-read in this turn to confirm the v16 addendum numbers and architecture descriptions match the code and papers byte-identically:
+
+- **JAAAMAS paper:** §3 Architecture, §4 Implementation, §6 Results — all numbers match (nDCG 0.969 multimodal soft embed, 0.949 portal composite, 0.901 BM25, 0.905 TF-IDF, 0.911 semantic, 0.939 cross-encoder with 0.108 drop, 141.7ms latency, ECE 0.40→0.032, DIR 0.82/0.75, 7/10 counterfactual flagged, 10/10 top-1 stable, max score shift 0.017, 341 tests, ±0.04 nDCG tolerance). No drift.
+- **IUI 2027 paper:** §3 Design Principles (G1-G4), §4 System Design, §7 Results — all 4 principles grounded in cited HCI literature (Amershi, Liao, Miller, Ehsan, Joshi, Lee, Parasuraman, Shneiderman, Horvitz, Kulesza, Ziegler, Tintarev), all 6 tables match JAAAMAS, calibration a=0.298 b=−2.116 ECE 0.032 Brier 0.093 verbatim. No drift.
+- **ESWA paper:** §3 Methodology (7 subsections), §5 Results — 6 tables + reliability diagram, 7 numbered subsections in methodology (problem formulation, multi-agent, knowledge, composite, explanation, calibration, implementation), 4 channels in retrieval (BM25, Sentence-BERT, Jaccard, RRF k=60), Platt scaling with Löfström 2024 citation, cross-encoder diagnosis, all numbers consistent. No drift.
+- **Backend code (read 3 core files):**
+  - `backend/agents/matchmaking_agent.py` (700+ lines): 3-agent system, 6 channel score components (semantic/skills/title/experience/compensation/location/remote), cross-encoder gated by `enable_cross_encoder_rerank` config (disabled by default), RRF available, ANN or exhaustive retrieval, `MatchSession` tracking, cache invalidation on profile-update events
+  - `backend/core/explain.py` (55 lines): simple `build_why_ranked` function with thresholds (title ≥0.65, semantic ≥0.65, experience ≥0.8, comp ≥0.85, remote ≥0.9)
+  - `backend/core/calibration.py` (47 lines): `PlattCalibrator` with `calibrate(score) = sigmoid(a * score + b)`, MLE fit via gradient descent (400 epochs, lr=0.05)
+- **Key file paths (current):**
+  - IUI manuscript: `docs/submission/iui2027/manuscript/main.{tex,pdf}` (22 pp, `article` class local → `acmart` at submission)
+  - ESWA manuscript: `docs/submission/eswa/manuscript/main.{tex,pdf}` (34 pp, `elsarticle` two-column)
+  - JAAAMAS frozen: `docs/submission/jaamas/build/jaamas-manuscript.pdf` (26 pp, `sn-jnl` class)
+  - Knowledge index: `~/.local/bin/mavis-knowledge {status,search,...}` v3, 651 files
+  - Calibration JSON: `data/models/calibration.json` (a=0.298, b=-2.116)
+  - Regression gate: `tests/benchmarks/test_eval_regression.py` (302 pytest + 39 node = 341 tests, ±0.04 nDCG tolerance)
+
+### Open threads (2026-08-02)
+
+- **Awaiting Prof. Kumar response** (sent 2026-07-29): 3 questions on (1) IUI reframing drive, (2) ESWA vs KBS Plan B, (3) WSU IRB for user study
+- **Harsh's ORCID iD** — needed for KBS Plan C, not strictly for IUI/ESWA
+- **anonymous.4open.science artifact** for IUI double-blind submission
+- **IUI 2027 author pass** on prose (especially §1, §3 G1-G4, §5 interface walkthrough)
+- **IUI 2027 acmart class switch** at submission time
+- **IUI 2027 supplementary PDF** (LLM-explainer moved out, cross-encoder diagnosis + soft-embed sensitivity added)
+- **4 ESWA Important fixes** (RAG baseline, larger counterfactual probe 50 pairs, filled ablation cells, supplementary PDF) — deferred to 12-week plan, post-IUI
+
+---
+
+
 
 ## Team handoff · read this first
 

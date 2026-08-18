@@ -1,0 +1,43 @@
+\section{Related Work}\label{sec:2}
+
+The work reported here sits at the intersection of four research streams: interactive and explainable recommender systems, human--{AI} decision support, LLM-based agentic systems, and the specific literature on algorithmic hiring.
+We briefly review each stream and identify the gap that motivates our design.
+
+\leadpara{Interactive and explainable recommender systems}
+Modern recommender systems rely on learned dense representations, often combined with sparse lexical signals, to produce personalized rankings~\cite{he2017neural,covington2016deep}.
+Tintarev and Masthoff~\citeyear{tintarev2015explaining} catalog the design space for recommender explanations and report that explanations are most useful when they address a user's specific question rather than narrating the model's general behavior.
+Pu and Chen~\citeyear{pu2007evaluating} show that explanation interfaces can raise user trust in recommendation agents when the explanation style matches the user's task.
+Ziegler and colleagues~\citeyear{ziegler2005improving} demonstrate that diversification of recommendation lists can reduce over-reliance on a single signal.
+More recent work has examined the fairness implications of recommender pipelines and the need to surface accountability at the recommendation surface~\cite{ekstrand2021rethinking,chen2023causal}.
+Our system inherits the recommendation backbone of this literature but adds an interactive layer in which the user can see, before ranking, what the system has parsed and what it will compare.
+
+\leadpara{Explainable AI}
+A substantial body of work in {XAI} argues that explanations should be evaluated for what they enable users to do, not for their fidelity to an internal model~\cite{miller2019explanation,gunning2017explainable}.
+Liao and colleagues~\citeyear{liao2020questioning} review {XAI} user-experience practice and report that the most common failure mode is explanation content that is internally consistent but does not answer the user's question.
+Ehsan and colleagues~\citeyear{ehsan2021algorithmic,ehsan2022operationalizing} propose that explanations should be evaluated against the social context in which the system is used, not against a model-internal notion of correctness.
+Joshi and colleagues~\citeyear{joshi2021real} reframe explainability as a property of the human--{AI} decision process rather than of the model in isolation.
+We adopt this orientation: the explanations in our prototype are evaluated for their faithfulness to the components that produced them and for their usefulness to the user, not for their match to any single internal representation.
+
+\leadpara{Human--AI decision support and trust calibration}
+A long tradition in human factors research treats trust in automation as something that must be calibrated to system capability rather than encouraged or discouraged wholesale~\cite{lee2004trust,parasuraman1997humans}.
+In machine-learning systems, this has produced a literature on confidence calibration, including the use of Platt scaling to recover well-calibrated probabilities from modern neural networks~\cite{platt1999probabilistic,guo2017calibration}, the expected calibration error as a standard reporting metric, and the Brier score as a complementary measure~\cite{brier1950verification}.
+Mixed-initiative systems, in which the human and the system negotiate the locus of action, provide the conceptual ancestor of the design choices in our prototype~\cite{horvitz1999principles,amershi2014power,kulesza2015principles}.
+Guidelines for human--{AI} interaction consolidate these findings into actionable design practice~\cite{amershi2019guidelines,shneiderman2020human,horvitz2019ai}.
+We draw directly on this body of work to derive the design principles in \secref{sec:3}.
+
+\leadpara{LLM-based agentic systems}
+LLM-based agents decompose complex tasks into tool calls, intermediate reasoning steps, and communication among specialist components~\cite{wei2022chain,yao2023react,schick2023toolformer,xi2023rise}.
+In collaborative-agent designs, separate LLM-driven components take on distinct roles and exchange messages or artifacts~\cite{li2023camel,qian2023communicative,shen2023hugginggpt}.
+Cognitive architectures for language agents argue that a separation between reasoning, memory, and action is necessary for agents that operate over long horizons~\cite{sumers2024cognitive}.
+In the multi-agent systems tradition, the role-separation idea is older and well developed~\cite{wooldridge2009introduction,rosenfeld2019HAS}.
+Our work is influenced by both traditions but is positioned differently: the agents in our system are not the contribution; the user-facing interaction patterns that the agents make possible are.
+
+\leadpara{Algorithmic hiring and decision support in the recruitment domain}
+Hiring is a domain in which opacity and trust failures have well-documented consequences~\cite{raub2018bots,ajunwa2021paradox}.
+A line of recent work in recommender systems targets fairness and accountability specifically in the recruitment setting~\cite{chen2023causal}.
+At the same time, the {HCI} community has repeatedly shown that decision support in high-stakes domains must preserve user agency and must not collapse the user into a passive recipient of model output~\cite{wang2019designing,ehsan2021algorithmic,joshi2021real}.
+Our prototype is designed against this constraint: every consequential outcome in the user interface requires an explicit action and remains reversible.
+
+\leadpara{Positioning}
+The present work is, to our knowledge, the first to combine four properties in a single, end-to-end research prototype for career recommendation: (i) an agentic, role-separated architecture in which no component writes into another component's store; (ii) explanations that are anchored to the components that produced them and are evaluated for faithfulness; (iii) a calibrated confidence display that exposes the system's uncertainty to the user; and (iv) a working interactive interface in which user actions on explanations feed back into the system rather than only consuming its output.
+The closest prior systems address one or two of these properties but not all four; we return to this comparison in \secref{sec:8}.

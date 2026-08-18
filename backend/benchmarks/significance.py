@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import csv
+import hashlib
 import json
 import random
 import statistics
@@ -52,6 +53,19 @@ class SignificanceReport:
     meta: dict[str, Any]
     methods: list[dict[str, Any]]
     comparisons: list[dict[str, Any]]
+
+
+def _stable_offset(*parts: str) -> int:
+    """Deterministic per-comparison seed offset.
+
+    Python's built-in hash() of str/tuple is salted per process (PYTHONHASHSEED),
+    which made the previous ``seed + hash(...) % 997`` non-reproducible run-to-run
+    (integrity audit B3: the borderline p=0.0478 could cross 0.05 on re-run).
+    sha256 gives a fixed offset across processes, so the reported p-value/CI are
+    reproducible for a given (seed, data).
+    """
+    digest = hashlib.sha256("|".join(parts).encode("utf-8")).hexdigest()
+    return int(digest, 16) % 997
 
 
 def bootstrap_mean_ci(
@@ -212,7 +226,7 @@ def run_significance_analysis(
         method_metrics: dict[str, Any] = {}
         for metric, label in SIGNIFICANCE_METRICS:
             vals = list(scores[key][metric].values())
-            ci = bootstrap_mean_ci(vals, n_resamples=n_resamples, seed=seed + hash(key + metric) % 997)
+            ci = bootstrap_mean_ci(vals, n_resamples=n_resamples, seed=seed + _stable_offset(key, metric))
             method_metrics[metric] = {
                 "label": label,
                 "mean": round(ci["mean"], 6),
@@ -238,7 +252,7 @@ def run_significance_analysis(
                 scores[baseline_key][metric],
                 scores[compare_key][metric],
                 n_resamples=n_resamples,
-                seed=seed + hash((baseline_key, compare_key, metric)) % 997,
+                seed=seed + _stable_offset(baseline_key, compare_key, metric),
             )
             comparisons.append(
                 {

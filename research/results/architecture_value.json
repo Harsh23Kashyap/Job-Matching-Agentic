@@ -1,0 +1,22 @@
+{
+  "experiment": "EXP-019 architecture-value characterization (RQ8)",
+  "hot_path_compute_composite_ms": {
+    "n_pairs": 450,
+    "mean": 0.0472,
+    "p50": 0.0452,
+    "p95": 0.0608,
+    "note": "single-machine wall-clock; machine may be under external load; embeddings precomputed (snapshot), so this is the pure scoring cost"
+  },
+  "llm_independence": {
+    "ranking_path_llm_modules_loaded": {
+      "hooks.llm_parser": false,
+      "hooks.parser": false,
+      "openai": false,
+      "ollama": false
+    },
+    "ranking_is_llm_independent": true,
+    "ranking_ok_with_broken_parser": true
+  },
+  "monolith_vs_agents_ab": null,
+  "honest_conclusion": "MEASURED design properties: the ranking (hot) path is deterministic and does NOT import or call the LLM parser, so a cold-path LLM failure is isolated from ranking (failure isolation is real). NOT MEASURED: any latency/throughput/accuracy BENEFIT of the multi-agent split over a monolith (the split is in-process; no A/B run). Per RD-006, RQ8 does not earn a scientific novelty claim -> DEMOTE 'multi-agent' to an implementation/design detail (failure isolation + separation of concerns), not a contribution, consistent with the manuscript's own S7 concession."
+}

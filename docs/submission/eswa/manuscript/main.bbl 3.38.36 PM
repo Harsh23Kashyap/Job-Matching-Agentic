@@ -1,0 +1,266 @@
+\begin{thebibliography}{37}
+\expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
+\providecommand{\url}[1]{\texttt{#1}}
+\providecommand{\href}[2]{#2}
+\providecommand{\path}[1]{#1}
+\providecommand{\DOIprefix}{doi:}
+\providecommand{\ArXivprefix}{arXiv:}
+\providecommand{\URLprefix}{URL: }
+\providecommand{\Pubmedprefix}{pmid:}
+\providecommand{\doi}[1]{\href{http://dx.doi.org/#1}{\path{#1}}}
+\providecommand{\Pubmed}[1]{\href{pmid:#1}{\path{#1}}}
+\providecommand{\bibinfo}[2]{#2}
+\ifx\xfnm\relax \def\xfnm[#1]{\unskip,\space#1}\fi
+%Type = Article
+\bibitem[{Ajunwa(2021)}]{ajunwa2021paradox}
+\bibinfo{author}{Ajunwa, I.}, \bibinfo{year}{2021}.
+\newblock \bibinfo{title}{The paradox of automation as anti-bias intervention}.
+\newblock \bibinfo{journal}{Cardozo Law Review} \bibinfo{volume}{41},
+  \bibinfo{pages}{1--64}.
+%Type = Article
+\bibitem[{Bhattacharya and Verbert(2025)}]{bhattacharya2025xcui}
+\bibinfo{author}{Bhattacharya, A.}, \bibinfo{author}{Verbert, K.},
+  \bibinfo{year}{2025}.
+\newblock \bibinfo{title}{Let's get you hired: A job seeker's perspective on
+  multi-agent recruitment systems for explaining hiring decisions}.
+\newblock \bibinfo{journal}{arXiv preprint arXiv:2505.20312} .
+%Type = Article
+\bibitem[{Brier(1950)}]{brier1950verification}
+\bibinfo{author}{Brier, G.W.}, \bibinfo{year}{1950}.
+\newblock \bibinfo{title}{Verification of forecasts expressed in terms of
+  probability}.
+\newblock \bibinfo{journal}{Monthly Weather Review} \bibinfo{volume}{78},
+  \bibinfo{pages}{1--3}.
+%Type = Article
+\bibitem[{Chen and Wen(2022)}]{chen2022explainable}
+\bibinfo{author}{Chen, X., Z.Y.}, \bibinfo{author}{Wen, J.R.},
+  \bibinfo{year}{2022}.
+\newblock \bibinfo{title}{Measuring ``why'' in recommendation systems: A
+  comprehensive survey on methods, challenges and future directions}.
+\newblock \bibinfo{journal}{ACM Transactions on Information Systems}
+  \bibinfo{volume}{41}, \bibinfo{pages}{1--46}.
+%Type = Article
+\bibitem[{Cormack and B\"uttcher(2009)}]{cormack2010reciprocal}
+\bibinfo{author}{Cormack, G.~V., C.C.L.A.}, \bibinfo{author}{B\"uttcher, S.},
+  \bibinfo{year}{2009}.
+\newblock \bibinfo{title}{Reciprocal rank fusion outperforms condorcet and
+  individual rank learning methods}.
+\newblock \bibinfo{journal}{Proceedings of the {SIGIR} Conference on Research
+  and Development in Information Retrieval} , \bibinfo{pages}{758--759}.
+%Type = Inproceedings
+\bibitem[{Covington and Sargin(2016)}]{covington2016deep}
+\bibinfo{author}{Covington, P., A.J.}, \bibinfo{author}{Sargin, E.},
+  \bibinfo{year}{2016}.
+\newblock \bibinfo{title}{Deep neural networks for {YouTube} recommendations},
+  in: \bibinfo{booktitle}{Proceedings of the {ACM} Conference on Recommender
+  Systems ({RecSys})}, pp. \bibinfo{pages}{191--198}.
+%Type = Article
+\bibitem[{Gentile et~al.(2014)}]{gentile2014feature}
+\bibinfo{author}{Gentile, C., S.T.K.A.}, et~al., \bibinfo{year}{2014}.
+\newblock \bibinfo{title}{Feature selection for recommender systems with
+  {B}oolean conjunctive queries}.
+\newblock \bibinfo{journal}{Proceedings of the {ACM} Conference on Recommender
+  Systems ({RecSys})} , \bibinfo{pages}{1--8}.
+%Type = Article
+\bibitem[{Gunning et~al.(2019)}]{gunning2017explainable}
+\bibinfo{author}{Gunning, D., S.M.C.J.}, et~al., \bibinfo{year}{2019}.
+\newblock \bibinfo{title}{{XAI}---explainable artificial intelligence}.
+\newblock \bibinfo{journal}{Science Robotics} \bibinfo{volume}{4}.
+%Type = Inproceedings
+\bibitem[{Guo et~al.(2017)}]{guo2017calibration}
+\bibinfo{author}{Guo, C., P.G.S.Y.}, et~al., \bibinfo{year}{2017}.
+\newblock \bibinfo{title}{On calibration of modern neural networks}, in:
+  \bibinfo{booktitle}{Proceedings of the International Conference on Machine
+  Learning ({ICML})}, pp. \bibinfo{pages}{1321--1330}.
+%Type = Inproceedings
+\bibitem[{He et~al.(2017)}]{he2017neural}
+\bibinfo{author}{He, X., L.L.Z.H.}, et~al., \bibinfo{year}{2017}.
+\newblock \bibinfo{title}{Neural collaborative filtering}, in:
+  \bibinfo{booktitle}{Proceedings of the International World Wide Web
+  Conference ({WWW})}, pp. \bibinfo{pages}{173--182}.
+%Type = Article
+\bibitem[{Hidasi et~al.(2015)}]{hidasi2015session}
+\bibinfo{author}{Hidasi, B., K.A.B.L.}, et~al., \bibinfo{year}{2015}.
+\newblock \bibinfo{title}{Session-based recommendations with recurrent neural
+  networks}.
+\newblock \bibinfo{journal}{arXiv preprint arXiv:1511.06939} .
+%Type = Article
+\bibitem[{J\"arvelin and Kek\"al\"ainen(2002)}]{jarvelin2002ndcg}
+\bibinfo{author}{J\"arvelin, K.}, \bibinfo{author}{Kek\"al\"ainen, J.},
+  \bibinfo{year}{2002}.
+\newblock \bibinfo{title}{Cumulated gain-based evaluation of {IR} techniques}.
+\newblock \bibinfo{journal}{ACM Transactions on Information Systems}
+  \bibinfo{volume}{20}, \bibinfo{pages}{422--446}.
+%Type = Article
+\bibitem[{Kaur and Iyengar(2020)}]{kaur2020interpreting}
+\bibinfo{author}{Kaur, A., G.R.}, \bibinfo{author}{Iyengar, S.R.S.},
+  \bibinfo{year}{2020}.
+\newblock \bibinfo{title}{Interpreting black-box models via counterfactuals}.
+\newblock \bibinfo{journal}{arXiv preprint arXiv:2008.11124} .
+%Type = Article
+\bibitem[{Koren and Volinsky(2009)}]{koren2009matrix}
+\bibinfo{author}{Koren, Y., B.R.}, \bibinfo{author}{Volinsky, C.},
+  \bibinfo{year}{2009}.
+\newblock \bibinfo{title}{Matrix factorization techniques for recommender
+  systems}.
+\newblock \bibinfo{journal}{Computer} \bibinfo{volume}{42},
+  \bibinfo{pages}{30--37}.
+%Type = Article
+\bibitem[{Lavi and Zschech(2025)}]{lavi2025careerbert}
+\bibinfo{author}{Lavi, O.}, \bibinfo{author}{Zschech, P.},
+  \bibinfo{year}{2025}.
+\newblock \bibinfo{title}{{CareerBERT}: Matching resumes to {ESCO} jobs in a
+  shared embedding space for generic job recommendations}.
+\newblock \bibinfo{journal}{Expert Systems with Applications}
+  \bibinfo{volume}{275}, \bibinfo{pages}{127043}.
+%Type = Inproceedings
+\bibitem[{Le et~al.(2020)}]{le2020cold}
+\bibinfo{author}{Le, H., M.L.N.S.}, et~al., \bibinfo{year}{2020}.
+\newblock \bibinfo{title}{Cold-start recommendation via two-tower deep
+  retrieval}, in: \bibinfo{booktitle}{Proceedings of the {ACM} Conference on
+  Recommender Systems ({RecSys}) --- Industry}, pp. \bibinfo{pages}{1--9}.
+%Type = Article
+\bibitem[{Lewis et~al.(2020)}]{lewis2020rag}
+\bibinfo{author}{Lewis, P., P.E.P.A.}, et~al., \bibinfo{year}{2020}.
+\newblock \bibinfo{title}{Retrieval-augmented generation for
+  knowledge-intensive {NLP} tasks}.
+\newblock \bibinfo{journal}{Advances in Neural Information Processing Systems
+  ({NeurIPS})} \bibinfo{volume}{33}, \bibinfo{pages}{9459--9474}.
+%Type = Article
+\bibitem[{Liu et~al.(2020)}]{liu2020trust}
+\bibinfo{author}{Liu, Y., L.Y.Z.X.}, et~al., \bibinfo{year}{2020}.
+\newblock \bibinfo{title}{Trust calibration in recommender systems: A
+  {B}ayesian approach}.
+\newblock \bibinfo{journal}{ACM Transactions on Information Systems}
+  \bibinfo{volume}{38}, \bibinfo{pages}{1--34}.
+%Type = Inproceedings
+\bibitem[{Lo et~al.(2025)}]{lo2025hiring}
+\bibinfo{author}{Lo, F. P.-W., Q.J.W.Z.}, et~al., \bibinfo{year}{2025}.
+\newblock \bibinfo{title}{{AI} hiring with {LLMs}: A context-aware and
+  explainable multi-agent framework for resume screening}, in:
+  \bibinfo{booktitle}{Proceedings of the {IEEE}/{CVF} Conference on Computer
+  Vision and Pattern Recognition Workshops ({CVPRW})}, pp.
+  \bibinfo{pages}{1--10}.
+%Type = Article
+\bibitem[{L\"ofstr\"om et~al.(2024)}]{lofstrom2024calibrated}
+\bibinfo{author}{L\"ofstr\"om, H., H.T.B.A.}, et~al., \bibinfo{year}{2024}.
+\newblock \bibinfo{title}{Calibrated explanations: With uncertainty information
+  and counterfactuals}.
+\newblock \bibinfo{journal}{Expert Systems with Applications}
+  \bibinfo{volume}{245}, \bibinfo{pages}{123154}.
+%Type = Article
+\bibitem[{Miller(2019)}]{miller2019explanation}
+\bibinfo{author}{Miller, T.}, \bibinfo{year}{2019}.
+\newblock \bibinfo{title}{Explanation in artificial intelligence: Insights from
+  the social sciences}.
+\newblock \bibinfo{journal}{Artificial Intelligence} \bibinfo{volume}{267},
+  \bibinfo{pages}{1--38}.
+%Type = Article
+\bibitem[{Nikolakopoulos et~al.(2023)}]{nikolakopoulos2023knowledge}
+\bibinfo{author}{Nikolakopoulos, A., K.K.K.I.}, et~al., \bibinfo{year}{2023}.
+\newblock \bibinfo{title}{Knowledge-enhanced recommendation systems: A survey}.
+\newblock \bibinfo{journal}{ACM Computing Surveys} \bibinfo{volume}{56},
+  \bibinfo{pages}{1--37}.
+%Type = Inproceedings
+\bibitem[{Peake et~al.(2018)}]{peake2018explanation}
+\bibinfo{author}{Peake, G., W.J.M.K.}, et~al., \bibinfo{year}{2018}.
+\newblock \bibinfo{title}{Explanation mining: Post hoc interpretability of
+  latent factor models for recommendation systems}, in:
+  \bibinfo{booktitle}{Proceedings of the {ACM} Conference on Recommender
+  Systems ({RecSys})}, pp. \bibinfo{pages}{1--10}.
+%Type = Inproceedings
+\bibitem[{Platt(1999)}]{platt1999probabilistic}
+\bibinfo{author}{Platt, J.C.}, \bibinfo{year}{1999}.
+\newblock \bibinfo{title}{Probabilistic outputs for support vector machines and
+  comparisons to regularized likelihood methods}, in:
+  \bibinfo{booktitle}{Advances in Large-Margin Classifiers}, pp.
+  \bibinfo{pages}{61--74}.
+%Type = Article
+\bibitem[{Pu and Chen(2007)}]{pu2007trust}
+\bibinfo{author}{Pu, P.}, \bibinfo{author}{Chen, L.}, \bibinfo{year}{2007}.
+\newblock \bibinfo{title}{Trust-inspiring explanation interfaces for
+  recommender systems}.
+\newblock \bibinfo{journal}{Knowledge-Based Systems} \bibinfo{volume}{20},
+  \bibinfo{pages}{542--556}.
+%Type = Article
+\bibitem[{Raub(2018)}]{raub2018bots}
+\bibinfo{author}{Raub, M.}, \bibinfo{year}{2018}.
+\newblock \bibinfo{title}{Bots, bias and big data: Artificial intelligence,
+  algorithmic bias, and disparate impact liability in hiring}.
+\newblock \bibinfo{journal}{Emory Law Journal} \bibinfo{volume}{69},
+  \bibinfo{pages}{1--52}.
+%Type = Article
+\bibitem[{Reimers and Gurevych(2019)}]{reimers2019sentence}
+\bibinfo{author}{Reimers, N.}, \bibinfo{author}{Gurevych, I.},
+  \bibinfo{year}{2019}.
+\newblock \bibinfo{title}{Sentence-{BERT}: Sentence embeddings using siamese
+  {BERT}-networks}.
+\newblock \bibinfo{journal}{Proceedings of the {EMNLP}} ,
+  \bibinfo{pages}{3982--3992}.
+%Type = Article
+\bibitem[{Robertson et~al.(1995)}]{robertson1995okapi}
+\bibinfo{author}{Robertson, S.~E., W.S.J.S.}, et~al., \bibinfo{year}{1995}.
+\newblock \bibinfo{title}{{Okapi} at {TREC}-3}.
+\newblock \bibinfo{journal}{Proceedings of the Text REtrieval Conference
+  ({TREC})} , \bibinfo{pages}{109--126}.
+%Type = Article
+\bibitem[{Saito and Sugiyama(2024)}]{saito2024leveraging}
+\bibinfo{author}{Saito, Y.}, \bibinfo{author}{Sugiyama, K.},
+  \bibinfo{year}{2024}.
+\newblock \bibinfo{title}{Leveraging multiple behaviors and explicit
+  preferences for job recommendation}.
+\newblock \bibinfo{journal}{Expert Systems with Applications}
+  \bibinfo{volume}{258}, \bibinfo{pages}{125149}.
+%Type = Article
+\bibitem[{Sumers et~al.(2024)}]{sumers2024cognitive}
+\bibinfo{author}{Sumers, T.~R., Y.S.N.K.}, et~al., \bibinfo{year}{2024}.
+\newblock \bibinfo{title}{Cognitive architectures for language agents
+  ({CoALA})}.
+\newblock \bibinfo{journal}{arXiv preprint arXiv:2309.02427} .
+%Type = Article
+\bibitem[{Tang(2025)}]{tang2025explainable}
+\bibinfo{author}{Tang, X., e.a.}, \bibinfo{year}{2025}.
+\newblock \bibinfo{title}{Explainable person--job recommendation systems: A
+  systematic review of methods, challenges, and comparative analysis}.
+\newblock \bibinfo{journal}{Frontiers in Artificial Intelligence}
+  \bibinfo{volume}{8}, \bibinfo{pages}{1660548}.
+%Type = Article
+\bibitem[{Tintarev and Masthoff(2015)}]{tintarev2015explaining}
+\bibinfo{author}{Tintarev, N.}, \bibinfo{author}{Masthoff, J.},
+  \bibinfo{year}{2015}.
+\newblock \bibinfo{title}{Explaining recommendations: Design and evaluation of
+  effective interfaces}.
+\newblock \bibinfo{journal}{Foundations and Trends in Human-Computer
+  Interaction} \bibinfo{volume}{10}, \bibinfo{pages}{149--224}.
+%Type = Article
+\bibitem[{Wanner et~al.(2020)}]{wanner2020generating}
+\bibinfo{author}{Wanner, J., V.L.M.C.}, et~al., \bibinfo{year}{2020}.
+\newblock \bibinfo{title}{Generating counterfactual explanations for
+  explainable {AI} in recruitment}.
+\newblock \bibinfo{journal}{Expert Systems with Applications}
+  \bibinfo{volume}{159}, \bibinfo{pages}{113638}.
+%Type = Inproceedings
+\bibitem[{Wei et~al.(2022)}]{wei2022chain}
+\bibinfo{author}{Wei, J., W.X.S.D.}, et~al., \bibinfo{year}{2022}.
+\newblock \bibinfo{title}{Chain-of-thought prompting elicits reasoning in large
+  language models}, in: \bibinfo{booktitle}{Advances in Neural Information
+  Processing Systems ({NeurIPS})}, pp. \bibinfo{pages}{24824--24837}.
+%Type = Article
+\bibitem[{Wooldridge(2009)}]{wooldridge2009introduction}
+\bibinfo{author}{Wooldridge, M.}, \bibinfo{year}{2009}.
+\newblock \bibinfo{title}{An introduction to {M}ulti{A}gent systems}.
+\newblock \bibinfo{journal}{John Wiley \& Sons} .
+%Type = Inproceedings
+\bibitem[{Yao et~al.(2023)}]{yao2023react}
+\bibinfo{author}{Yao, S., Z.J.Y.D.}, et~al., \bibinfo{year}{2023}.
+\newblock \bibinfo{title}{{ReAct}: Synergizing reasoning and acting in language
+  models}, in: \bibinfo{booktitle}{International Conference on Learning
+  Representations ({ICLR})}.
+%Type = Article
+\bibitem[{Zheng et~al.(2023)}]{zheng2023judging}
+\bibinfo{author}{Zheng, L., C.W.L.S.Y.}, et~al., \bibinfo{year}{2023}.
+\newblock \bibinfo{title}{Judging {LLM}-as-a-judge with {MT-Bench} and
+  {C}hatbot {A}rena}.
+\newblock \bibinfo{journal}{arXiv preprint arXiv:2306.05685} .
+
+\end{thebibliography}

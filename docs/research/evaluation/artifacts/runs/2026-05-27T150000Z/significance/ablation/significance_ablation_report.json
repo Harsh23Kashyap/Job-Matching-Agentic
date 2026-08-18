@@ -34,7 +34,7 @@
       "skills_only"
     ],
     "p_value_definition": "one-sided: fraction of bootstrap mean-diffs <= 0 (H1: compare > baseline)",
-    "eval_path": "/Users/harshkashyap/Projects/JobMatcher-v1/Job-Matching-Agentic/data/eval_pairs.json",
+    "eval_path": "data/eval_pairs.json",
     "data_source": "ablation"
   },
   "methods": [

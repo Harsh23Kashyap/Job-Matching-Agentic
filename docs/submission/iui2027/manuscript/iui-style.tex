@@ -1,0 +1,50 @@
+% iui-style.tex
+% Style notes for the IUI 2027 manuscript.
+% This file exists for documentation; most formatting is in the
+% acmart class options in main.tex.
+
+% --- Typography --------------------------------------------------
+% IUI follows ACM SIGCHI proceedings style (single column, 9pt body,
+% 1.5x line spacing in the camera-ready, 1.0x in review).
+% The sigconf option of acmart sets this. The geometry overrides in
+% main.tex force a slightly wider text area for readability in
+% preprint format; for final TAPS submission, remove the geometry
+% block and let sigconf drive layout.
+
+% --- Section heading spacing -----------------------------------
+\usepackage{titlesec}
+\titleformat{\section}{\Large\bfseries}{\thesection}{1em}{}
+\titleformat{\subsection}{\large\bfseries}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries}{\thesubsubsection}{1em}{}
+
+\titlespacing*{\section}{0pt}{1.5ex plus 1ex minus .2ex}{1.0ex plus .2ex}
+\titlespacing*{\subsection}{0pt}{1.0ex plus 1ex minus .2ex}{0.5ex plus .2ex}
+\titlespacing*{\subsubsection}{0pt}{0.7ex plus 1ex minus .2ex}{0.3ex plus .2ex}
+
+% --- Caption style ---------------------------------------------
+\usepackage[font=small,labelfont=bf,skip=4pt]{caption}
+
+% --- Float placement defaults ----------------------------------
+% ACM TAPS handles most floats; we keep [!htbp] for safety.
+\providecommand{\floatplacement}{!htbp}
+
+% --- Code / pseudocode (algorithmicx preferred) ---------------
+% Note: the IUI manuscript does not currently use \begin{algorithm}
+% blocks; the algorithm pseudocode was in the JAAMAS submission and
+% lives in the supplementary. The packages are not loaded here to
+% avoid a dependency on the full TeX Live distribution. Uncomment
+% the next two lines if you install the algorithm + algpseudocode
+% packages locally and want to add pseudocode to the main paper.
+%
+% \usepackage{algorithm}
+% \usepackage{algpseudocode}
+
+% --- Anonymized supplementary (separate PDF) -------------------
+% Do not include supplementary content in the main tex; the IUI
+% submission system accepts a separate supplementary PDF.
+
+% --- Review mode helpers --------------------------------------
+% In review mode, ACM acmart adds line numbers automatically.
+% The draft watermark is also active. For the final version,
+% remove the draftwatermark lines in iui-macros.tex and the
+% [review,anonymous] options from the documentclass in main.tex.

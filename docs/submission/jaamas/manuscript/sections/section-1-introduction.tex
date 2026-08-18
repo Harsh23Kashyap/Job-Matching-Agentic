@@ -18,7 +18,7 @@ The prototype includes separate candidate, employer, and administrator portals, 
 
 The system is evaluated offline on a fixed demo corpus of 30 resumes, 15 jobs, and 47 graded relevance pairs.
 We compare lexical baselines, dense embedding methods, hybrid semantic--skill rankers, fusion variants, ablations, latency, and fairness/explainability sanity checks.
-Hybrid rankers reach nDCG@5 up to $0.969$ on this corpus; the portal defaults to a fixed composite score whose six components map directly to user-visible explanations.
+The portal-default six-channel composite reaches nDCG@5 $= 0.949$ on this corpus (no method is statistically distinguishable from the others at $n{=}30$), and its six components map directly to user-visible explanations.
 The results should be read as evidence for an assistive ranking prototype, not as evidence of production hiring impact.
 
 This paper makes the following contributions:

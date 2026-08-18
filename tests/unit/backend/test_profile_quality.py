@@ -4,7 +4,7 @@ from core.profile_quality import analyze_profile_quality
 def test_strong_profile_scores_high():
     report = analyze_profile_quality(
         {
-            "name": "Harsh Kashyap",
+            "name": "Jordan Rivera",
             "skills": ["Python", "FastAPI", "PostgreSQL", "Docker", "AWS"],
             "experience_years": 6,
             "preferred_salary": 2_500_000,
@@ -14,9 +14,9 @@ def test_strong_profile_scores_high():
                 "Backend engineer who built scalable APIs serving 2M+ requests/day. "
                 "Led migration to FastAPI and reduced latency by 35%."
             ),
-            "email": "harsh@example.com",
+            "email": "jordan@example.com",
             "phone": "+91 9876543210",
-            "linkedin": "https://linkedin.com/in/harsh",
+            "linkedin": "https://linkedin.com/in/jordan",
         },
         llm_status="ok",
     )

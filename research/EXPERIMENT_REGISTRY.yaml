@@ -1,0 +1,295 @@
+# EXPERIMENT_REGISTRY — every experiment has an ID; no result without one.
+# status: EXISTS-UNVERIFIED (artifact on disk, not yet reproduced in clean venv) |
+#         REPRODUCED | LEAKY | MISSING | PLANNED | BLOCKED
+env: {python: 3.11.15, venv: backend/.venv, seed_convention: 42, hardware: "darwin arm64 (CPU)"}
+
+experiments:
+  EXP-001:
+    name: composite offline eval (fixed 6-channel weights)
+    rq: RQ1/RQ2
+    dataset: data/eval_pairs.json (47 labels, 30 queries)
+    output: backend/reports/research_run_20260606T150509Z/composite_eval_report.json
+    result: {ndcg@5: 0.949, p@5: 0.293, r@5: 0.933}
+    status: EXISTS-UNVERIFIED
+    repro_cmd: "cd backend && .venv/bin/python -m benchmarks.composite_eval"
+  EXP-002:
+    name: composite 5-fold CV (resume-level, fixed weights)
+    rq: RQ7
+    output: backend/reports/extended_evaluation/kfold_cv.json
+    result: {ndcg@5_mean: 0.949, ci: [0.870, 0.993]}
+    status: EXISTS-UNVERIFIED
+    note: vacuous generalization for FIXED weights; all 15 jobs in every fold (no job-held-out)
+  EXP-003:
+    name: pointwise LTR (sklearn LogisticRegression on 6 channels), 5-fold held-out
+    rq: RQ1/RQ2
+    output: backend/reports/extended_evaluation/pointwise_ltr.json
+    result: {ndcg@5_mean: 0.917, ci: [0.838, 0.974], coefs: "title 3.46 > skills 2.79 > remote 1.60 > semantic 1.57 > comp 1.35 > exp 0.66"}
+    status: EXISTS-UNVERIFIED
+    note: MISLABELED as XGBoost/pairwise in docstring/filename; actually LR pointwise. Does NOT beat composite.
+  EXP-004:
+    name: held-out Platt calibration P(y=1|s), 5-fold
+    rq: RQ3
+    output: backend/reports/extended_evaluation/calibration_binary.json
+    result: {ece: 0.0192, ci: [0.0097, 0.0286], brier: 0.093, a: 0.3015, b: -2.1168}
+    status: EXISTS-UNVERIFIED
+    note: supersedes leaky in-sample ECE 0.032; near-degenerate (Brier ~ base rate 0.0935)
+  EXP-005:
+    name: counterfactual+demographic probe (50 pairs)
+    rq: RQ5/RQ6
+    output: backend/reports/extended_evaluation/counterfactual_50.json
+    result: {recourse_flagged: "12/25 (rank_delta=0 all)", demographic_flagged: "9/25", demo_top1_stable: 0.96}
+    status: EXISTS-UNVERIFIED
+    note: recourse null result; perturb_pronouns() is a no-op (5 rows Δ=0 by construction)
+  EXP-006:
+    name: parser robustness (5 perturbations)
+    rq: RQ6
+    output: backend/reports/extended_evaluation/parser_robustness.json
+    status: EXISTS-UNVERIFIED
+    note: all CIs cross zero (n=30)
+  EXP-007:
+    name: cold-start (unseen skill / synonym / misspelling)
+    rq: RQ6
+    output: backend/reports/extended_evaluation/cold_start.json
+    status: REPRODUCED
+    fix: "synonym/misspelling maps re-keyed on FULL corpus skills (were abbreviations that never fired -> vacuous). Regenerated single-threaded (OMP/MKL=1, TOKENIZERS_PARALLELISM=false) to avoid a 0%-CPU startup hang under machine load."
+    result: {synonym_substitution: "Δ-nDCG 0.0 AND Δ-composite 0.0 (verified: ML→canonical folds in BOTH skills channel and doc-text embedding -> genuine synonym invariance for catalog-covered synonyms)", misspelling_substitution: "Δ-nDCG 0.0 but Δ-composite -0.078/pair (verified) -> misspellings DO perturb the score; top-5 ranking stable at n=15 (ranking-coarseness, not full invariance)", unseen_skill_add: "Δ-nDCG -0.0036, top1_changes 1"}
+    note: "RQ6 probe now MEANINGFUL (propagation verified directly). Report honestly: synonym-invariant for covered synonyms; misspellings shift composite but not top-5 rank. Caveat the n=15 ranking coarseness."
+  EXP-008:
+    name: paired-bootstrap significance (composite/multimodal/rrf/bm25/tfidf vs semantic)
+    rq: RQ1
+    output: backend/reports/research_run_20260606T150509Z/significance*_report.json
+    status: LEAKY   # non-reproducible: salted hash() seeding; CI crosses zero; no multiple-comparison correction
+  EXP-009:
+    name: fairness DIR proxy (experience/remote groups)
+    rq: RQ6
+    output: backend/benchmark_outputs/fairness_eval.json
+    result: {experience_dir: 0.82, remote_dir: 0.75}
+    status: EXISTS-UNVERIFIED
+    note: proxy groups on 30-CV demo corpus; NOT a demographic audit
+  EXP-010:
+    name: explainability suite (faithfulness/specificity/consistency/hallucination)
+    rq: RQ4
+    output: backend/reports/research_run_20260606T150509Z/explainability_report.json
+    status: EXISTS-UNVERIFIED
+    note: "faithfulness" = mean of 3 lint checks; component_alignment tautological; no human eval
+
+  # --- PLANNED (blocker-first) ---
+  EXP-011: {name: reproduce EXP-001..010 in clean venv + diff vs baseline snapshot, rq: repro, status: REPRODUCED, note: "PASS 2026-08-17: 0.949/0.0192/0.917/CF-50 match byte-for-byte (REPRODUCTION_LOG)"}
+  EXP-012:
+    name: job-held-out (leave-jobs-out) generalization for the learned LTR
+    rq: RQ7
+    output: research/results/job_heldout.json
+    result: {ltr_jobheldout_ndcg@5: "0.928 CI[0.898,0.955]", STRICT_heldout_relevant: "0.930 CI[0.876,0.969] n=47", fixed_composite_ref: 0.949}
+    status: REPRODUCED
+    repro_cmd: "cd backend && PYTHONHASHSEED=0 PYTHONPATH=. .venv/bin/python ../research/experiments/job_heldout.py"
+    note: "Positive RQ7 result: learned LTR generalizes to UNSEEN jobs (STRICT~=overall); CI overlaps composite 0.949. Addresses audit H3 (job-side generalization was absent)."
+  EXP-013:
+    name: leave-one-channel-out ablation over the true 6 channels, bootstrap CIs
+    rq: RQ2
+    output: research/results/leave_one_out_ablation.json
+    status: REPRODUCED
+    repro_cmd: "cd backend && PYTHONHASHSEED=0 PYTHONPATH=. .venv/bin/python ../research/experiments/leave_one_out_ablation.py"
+    result: {full: 0.949, load_bearing: "semantic (drop +0.080 CI[0.017,0.164]), compensation (+0.013 CI[0.001,0.029])", not_significant: "title/skills/experience/remote (CIs include 0; remote point est -0.031)", single_channel: "semantic 0.878, title 0.866, skills 0.748, comp 0.393, remote 0.335, exp 0.326"}
+    note: "Honest RQ2: on this n=30 corpus only semantic is provably load-bearing; do NOT claim 'all six channels matter'. Feeds weight-stability (EXP-015) + the RQ2 rewrite."
+  EXP-014:
+    name: full RQ1 baselines — LambdaMART (XGBRanker) + dense two-tower + domain encoder, held-out
+    rq: RQ1
+    status: REPRODUCED
+    rq1_honest_conclusion: "LambdaMART 0.963 / composite 0.949 / TFIDF 0.905 / BM25 0.902 / MiniLM two-tower 0.878 / JobBERT 0.864 — ALL CIs overlap at n=30; no method significantly better. Claim 'competitive + decomposition/calibration/explainability', NOT 'beats baselines'."
+    parts:
+      lambdamart:
+        output: research/results/lambdamart_baseline.json
+        status: REPRODUCED
+        result: {ndcg@5: "0.963 CI[0.925,0.992]", vs_composite_0.949: "higher point est but CIs overlap -> not significant at n=30"}
+        note: "Genuine listwise rank:ndcg LTR — closes H4/H8 'no real pairwise LTR'. Honest: composite is competitive, not superior."
+        repro_cmd: "cd backend && PYTHONHASHSEED=0 PYTHONPATH=. .venv/bin/python ../research/experiments/lambdamart_baseline.py"
+      two_tower_bi_encoder: {status: DONE, result: "semantic MiniLM bi-encoder nDCG@5=0.878 (existing semantic-only channel = zero-shot dense two-tower)"}
+      domain_encoder_jobbert:
+        output: research/results/jobbert_baseline.json
+        status: REPRODUCED
+        result: "JobBERT (jjzha/jobbert-base-cased) zero-shot nDCG@5=0.864 CI[0.779,0.934] — does NOT beat MiniLM 0.878 or composite 0.949 (honest negative result, §18)"
+        note: "'CareerBERT' from the paper not available on HF under that name; used jjzha/jobbert-base-cased as the closest obtainable HR-domain encoder (RD-007, no silent omission). JobBERT is a masked-LM, weak for zero-shot sentence similarity."
+        repro_cmd: "cd backend && PYTHONHASHSEED=0 PYTHONPATH=. .venv/bin/python ../research/experiments/jobbert_baseline.py"
+  EXP-015:
+    name: weight-stability cluster bootstrap (1000 iters over 30 resumes)
+    rq: RQ2
+    output: research/results/weight_stability.json
+    status: REPRODUCED
+    repro_cmd: "cd backend && PYTHONHASHSEED=0 PYTHONPATH=. .venv/bin/python ../research/experiments/weight_stability.py"
+    result: {learned_norm_weights: "title 0.30 > skills 0.238 > semantic 0.144 > remote 0.14 > comp 0.119 > exp 0.06", hand_set: "semantic 0.28 > skills 0.27 > title 0.10 ...", all_sign_stable: true}
+    note: "B11 CONFIRMED with quantified evidence: hand-set weights are a design PRIOR, not a fitted optimum; a bootstrap-fit model near-reverses semantic vs title. Manuscript must say 'hand-set prior', not 'maximize nDCG@5 on held-out'. Consistent with EXP-013."
+  EXP-016: {name: scalability (real, diverse corpus + index), rq: RQ-latency, status: SUPERSEDED, superseded_by: "EXP-031/032 (research/results/scalability.json — real timing to 10k jobs + incremental)"}
+  EXP-017: {name: real explanation faithfulness (channel-ablation sufficiency/comprehensiveness), rq: RQ4, status: SUPERSEDED, superseded_by: "EXP-028 (research/results/explanation_faithfulness.json — mechanistic ranking-level comprehensiveness/attribution)"}
+  EXP-018:
+    name: benchmark expansion 47->450 via LLM-assisted claude -p (non-human)
+    rq: RQ1
+    output: [research/results/llm_label_expansion.json, data/eval_pairs_llm.json]
+    status: REPRODUCED
+    repro_cmd: "cd backend && PYTHONHASHSEED=0 PYTHONPATH=. .venv/bin/python ../research/experiments/llm_label_expansion.py"
+    result: {n_labels: 450, grade_dist: "0:383, 1:44, 2:23", cohen_kappa_quadratic_vs_human: 0.691, raw_agree: 0.81, within1_agree: 1.0, call_failures: 0}
+    note: "RD-005: LLM-ASSISTED, NOT human. kappa 0.69 = substantial agreement with the 47 human anchor (within-1 100%). Use as a DENSITY/second-annotator/stress set with explicit negatives (383 grade-0), NOT the primary benchmark. Discloses limitation per §15."
+  EXP-021:
+    name: composite metrics on the denser LLM-labeled set (corroboration + de-saturation, B12)
+    rq: RQ1
+    status: REPRODUCED
+    result: {human_anchor_47: "nDCG@5 0.9492 / P@5 0.293 / R@5 0.933", llm_labeled_450: "nDCG@5 0.9285 / P@5 0.400 / R@5 0.890 (29 q)"}
+    note: "Composite ranking holds (~0.93) on a 2nd-annotator label set. Denser labels DE-SATURATE: P@5 up to 0.40, R@5 down to 0.89 -> confirms R@5~1.0 was partly a sparsity artifact (B12). LLM labels are supporting, not primary."
+  EXP-022:
+    name: reproducible significance + Holm-Bonferroni correction (Phase 27, B3 downstream)
+    rq: RQ1
+    output: research/results/significance_corrected.json
+    status: REPRODUCED
+    repro_cmd: "cd backend && PYTHONHASHSEED=0 PYTHONPATH=. .venv/bin/python ../research/experiments/significance_corrected.py"
+    result: {composite_vs_semantic: "Δ=+0.071, CI[-0.014,+0.167] (crosses 0), p_one_sided=0.051 (>0.05), p_two_sided=0.102", holm_survivors: "NONE of 8"}
+    note: "OVERTURNS the manuscript headline: with the fixed seed the borderline p=0.048 -> 0.051; two-sided 0.10; CI includes 0; nothing survives Holm. Report 'positive but NOT significant'. Refutes the abstract's 'statistically significant (p=0.048)'."
+  EXP-023:
+    name: synthetic corpus with transparent latent ground truth (Stage-2 §F-G)
+    rq: RQ-power/scale/recovery
+    output: research/datasets/synthetic_v1/ (resumes, jobs, relevance+latent_factors, manifest)
+    status: REPRODUCED
+    repro_cmd: "PYTHONHASHSEED=0 python3 research/experiments/synthetic/generate_synthetic.py"
+    result: {n_resumes: 500, n_jobs: 75, n_pairs: 37500, positive: 9668, grade_dist: "0:27832 1:6427 2:2002 3:1239", noise: 0.08, difficulty: "easy/moderate/hard/adversarial", ground_truth: "transparent latent-compatibility (NOT LLM/human)"}
+    note: "SYNTHETIC/CONTROLLED, never presented as human judgments (§G/§I). Enables structure-recovery test, power/stress (§H), scalability (§T). Latent factors stored so we can test whether the ranker recovers known structure."
+  EXP-019:
+    name: architecture-value characterization (RQ8)
+    rq: RQ8
+    output: research/results/architecture_value.json
+    status: REPRODUCED
+    repro_cmd: "cd backend && PYTHONHASHSEED=0 PYTHONPATH=. .venv/bin/python ../research/experiments/architecture_value.py"
+    result: {failure_isolation: "REAL — ranking path loads no LLM modules; works with broken parser", hot_path_latency_ms: "0.045 mean / 0.059 p95 per pair", monolith_vs_agents_benefit: "NOT measured (in-process split)"}
+    note: "RD-006 RESOLVED: no measured perf/accuracy benefit -> DEMOTE multi-agent to implementation detail (failure isolation + deterministic hot path are the honest claims). Confirms RD-001 reframe."
+  EXP-020:
+    name: calibration discrimination (Brier skill score, ROC-AUC, confidence distribution)
+    rq: RQ3
+    output: research/results/calibration_discrimination.json
+    result: {brier_skill_score: 0.0066, roc_auc: 0.758, confidence_range: "[0.114,0.141]; all 450 in one 0.1 bin", base_rate: 0.104}
+    status: REPRODUCED
+    repro_cmd: "cd backend && PYTHONHASHSEED=0 PYTHONPATH=. .venv/bin/python ../research/experiments/calibration_discrimination.py"
+    note: "B8 CONFIRMED: low ECE 0.019 hides near-degenerate confidence ~base rate; never emits ~0.9 -> refutes manuscript '0.9=>9/10'. Report BSS+AUC+range."
+  EXP-024:
+    name: structure-recovery test on synthetic_v1 (does the composite recover KNOWN latent structure?)
+    rq: RQ2/RQ4-recovery
+    output: research/results/structure_recovery.json
+    status: REPRODUCED
+    repro_cmd: "cd backend && OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 TOKENIZERS_PARALLELISM=false PYTHONHASHSEED=0 PYTHONPATH=. .venv/bin/python ../research/experiments/synthetic/structure_recovery.py"
+    result: {ndcg@5_vs_clean: "0.917 CI[0.909,0.925]", recovery_ratio: 0.907, random_baseline: 0.112, oracle: 1.0, spearman_composite_vs_latent: 0.79, decomposition_validity: "skills<->required 0.996, comp<->comp 0.985, experience<->experience 0.867, title<->family 0.689, remote<->workmode 0.647, semantic<->latent 0.388", by_difficulty: "easy 0.934 > moderate 0.927 > hard 0.887 > adversarial 0.883", noise_robustness: "0.917 clean -> 0.894 @8% noise"}
+    note: "SYNTHETIC/CONTROLLED validity probe (NOT a human-benchmark headline). Strong RESULT: the auditable decomposition RECOVERS the known latent structure (each rule channel tracks its intended factor); semantic is holistic (weak per-factor corr, expected). Recovery degrades sensibly on hard/adversarial. Supports the explainability/decomposition claim on controlled data. Never present as a human nDCG (Stage-2 §F-H). CAVEAT (Opus-5 OBJ-2): additive latent mirrors the composite's additive form -> partly by-construction; see EXP-024b for the non-additive control."
+  EXP-024b:
+    name: "structure recovery under a NON-ADDITIVE latent (controls the by-construction objection)"
+    rq: RQ2/RQ4-recovery
+    output: research/results/structure_recovery_nonadditive.json
+    status: REPRODUCED
+    repro_cmd: "cd backend && OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 TOKENIZERS_PARALLELISM=false PYTHONHASHSEED=0 PYTHONPATH=. .venv/bin/python ../research/experiments/synthetic/structure_recovery_nonadditive.py"
+    result: {latent: "multiplicative/hard-gated required^0.5*seniority^0.2*experience^0.2*family^0.1 (NOT the composite's additive form; grades re-thresholded to hold label balance)", recovery_nonadditive: "0.891 (nDCG@5 0.904 CI[0.894,0.914])", recovery_additive_EXP024: 0.9066, delta: -0.0155}
+    note: "DIRECTLY REFUTES Opus-5 OBJ-2: switching the synthetic ground truth from additive to non-additive multiplicative/gated leaves recovery essentially unchanged (Δ -0.016) -> the additive recovery was NOT merely by construction; the additive composite recovers a non-additive latent almost as well. Manuscript §5.7 updated to report this control."
+  # --- Stage-2 strengthening ---
+  EXP-025:
+    name: "25-config protocol-gated model-selection search (Stage-2 §D/E)"
+    rq: RQ1/RQ2
+    output: research/results/model_selection.json
+    status: REPRODUCED
+    repro_cmd: "cd backend && OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 TOKENIZERS_PARALLELISM=false PYTHONHASHSEED=0 PYTHONPATH=. .venv/bin/python ../research/experiments/model_selection/search.py"
+    result: {n_configs: 25, protocol: "5-fold resume CV, seed 42, learned configs held-out, selection criteria frozen before results", top_by_point_est: "C_drop_remote 0.980 / C_sem_skills_title 0.970 / LambdaMART 0.963 / composite-embed-skills 0.953 / INCUMBENT composite 0.949", challengers_beating_incumbent_after_Holm: "NONE", only_significant_ablation: "drop_semantic Δ=-0.080 CI[-0.163,-0.017] p=0.001 survives Holm (semantic is the sole load-bearing channel — corroborates EXP-013)", drop_remote: "Δ=+0.031 CI[-0.008,+0.100] NOT significant", selected: "C01_fixed_composite (incumbent by parsimony/auditability)"}
+    note: "NOT cherry-picking: all 25 configs + negatives reported, criteria frozen pre-result, test never used for selection. Honest finding: n=30 corpus is too small to establish ANY config as superior; the auditable fixed composite is selected by the frozen tie-break (parsimony). Removing remote raises the point estimate but is not significant, so the designed channel is retained. Feeds RQ1/RQ2 + §Z model-selection paragraph."
+  EXP-026:
+    name: "calibration methods raw/Platt/isotonic/temperature + defined target (Stage-2 §N)"
+    rq: RQ3
+    output: research/results/calibration_methods.json
+    status: REPRODUCED
+    repro_cmd: "cd backend && OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 TOKENIZERS_PARALLELISM=false PYTHONHASHSEED=0 PYTHONPATH=. .venv/bin/python ../research/experiments/calibration_methods.py"
+    result: {target: "p=P(y=1|s), y=1 iff graded>=1, s=composite; held-out 5-fold; n=450; base_rate 0.104", raw: "ECE 0.40 / BSS -1.25 / AUC 0.967 (discriminates but miscalibrated)", platt: "ECE 0.018 (lowest) / BSS 0.007 / AUC 0.76 / range[0.114,0.141] — NEAR-DEGENERATE, collapses to base rate (B8)", isotonic: "ECE 0.024 / BSS 0.640 / AUC 0.95 / MCE 0.63 — preserves discrimination but unstable worst-bin on tiny data", temperature_1param_nobias: "ECE 0.46 / BSS -2.18 — FAILS (needs a bias term)", constant_base_rate_floor: "ECE 0 / BSS 0 / AUC 0.5"}
+    note: "KEY §N finding: the composite SCORE already discriminates (raw AUC 0.967). Platt achieves the lowest ECE only by shrinking confidence to a razor band at the base rate (low discrimination). Isotonic preserves discrimination (BSS 0.64) at comparable ECE but has an unstable tail (MCE 0.63) on n=450/10%-positive. Honest conclusion: report the trade-off, no single map is unambiguously best on this data; do NOT sell 'ECE 0.019 => calibrated' without the discrimination caveat. Feeds §Z calibration rewrite."
+  EXP-027:
+    name: "generalization: unseen-candidate / unseen-job / both-unseen (Stage-2 §J)"
+    rq: RQ7
+    output: research/results/generalization.json
+    status: REPRODUCED
+    repro_cmd: "cd backend && OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 TOKENIZERS_PARALLELISM=false PYTHONHASHSEED=0 PYTHONPATH=. .venv/bin/python ../research/experiments/generalization.py"
+    result: {pool_size: "ALL regimes rank the full 15 jobs (commensurable)", candidate_heldout_ltr: "0.929 CI[0.849,0.981]", job_heldout_STRICT: "0.929 CI[0.846,0.983]", both_unseen_STRICT: "0.927 CI[0.846,0.981]", fixed_composite_ref: "0.949 CI[0.874,0.993]", leakage_checks: "ALL disjoint=true", n_queries: 30}
+    note: "CODE-REVIEW FIX (Iteration 4): earlier version ranked only the ~3 held-out jobs -> nDCG@5 over a 3-item list + recall@5 trivially 1.0, incommensurable with the 15-job composite and inflated (0.969/0.958). Rewrote so EVERY regime ranks all 15 jobs (unseen-ness via training exclusion; STRICT subset for job/both) and aggregates one value PER RESUME before bootstrap (no pseudo-replication). Honest defensible result: candidate/job/both-unseen all ~0.93, overlapping composite 0.949. Chose the LOWER, defensible numbers over the inflated ones."
+  EXP-028:
+    name: "rebuilt explanation faithfulness — mechanistic ranking-level (Stage-2 §O)"
+    rq: RQ4
+    output: research/results/explanation_faithfulness.json
+    status: REPRODUCED
+    repro_cmd: "cd backend && OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 TOKENIZERS_PARALLELISM=false PYTHONHASHSEED=0 PYTHONPATH=. .venv/bin/python ../research/experiments/explanation_faithfulness.py"
+    result: {comprehensiveness: "top-1 displaced when dropping TOP-attributed channel 13.3% vs LEAST 0% vs RANDOM 3.3% -> faithful (non-tautological, ranking-level)", attribution_effect_alignment_spearman: 0.206, attribution_correctness_skill_addition: "1.0 (adding a required skill always raises the skills contribution, n=20)", structural_by_construction: "additive-decomposition-exact 1.0, label/score contradiction 0.0, specificity 0.75"}
+    note: "Replaces the old lint-average 'faithfulness 0.745' (B9). Honest: attribution is DIRECTIONALLY faithful (top-attributed channel is the most rank-load-bearing; skill edits move the skill channel correctly) with MODEST ranking-level comprehensiveness and weak-positive alignment. Structural guarantees (exact decomposition/consistency/specificity) reported separately, NOT as faithfulness. No human study — automated structural+mechanistic validation. Feeds §Z explanation rewrite."
+  EXP-029:
+    name: "robustness matrix over 11 controlled perturbations (Stage-2 §R)"
+    rq: RQ6
+    output: research/results/robustness_matrix.json
+    status: REPRODUCED
+    repro_cmd: "cd backend && OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 TOKENIZERS_PARALLELISM=false PYTHONHASHSEED=0 PYTHONPATH=. .venv/bin/python ../research/experiments/robustness_matrix.py"
+    result: {synonym: "|Δ|0.002 top1 1.00 top5J 1.00 — INVARIANT (canonicalization works)", capitalization: "|Δ|0.032 top1 0.90 — near-invariant", keyword_stuffing: "signed -0.087 top1 0.70 — gaming FAILS (stuffing dilutes jaccard, lowers score)", irrelevant_skill_insertion: "|Δ|0.036 top1 0.97 — robust", skill_deletion_sparse_summary: "signed negative — correct sensitivity", formatting_noise: "|Δ|0.117 — NOT invariant (punctuation defeats canonicalization; honest weakness)", misspelling: "|Δ|0.116 — sensitive (matches EXP-007)"}
+    note: "Honest robustness matrix. Strengths: synonym-invariant, gaming-resistant (stuffing lowers not raises), correct deletion sensitivity. Weaknesses reported: formatting-noise + misspellings perturb the composite. Feeds §Z robustness paragraph + a limitation."
+  EXP-030:
+    name: "temporal-drift controlled simulation (Stage-2 §S)"
+    rq: RQ6
+    output: research/results/temporal_drift.json
+    status: REPRODUCED
+    repro_cmd: "cd backend && OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 TOKENIZERS_PARALLELISM=false PYTHONHASHSEED=0 PYTHONPATH=. .venv/bin/python ../research/experiments/temporal_drift.py"
+    result: {baseline: 0.9073, emerging_skills: "0.758 (-16.5%, biggest hit — skills channel loses lexical overlap; semantic partially compensates)", changed_titles: "0.879 (-3.1%)", salary_shift: "0.909 (~0%)"}
+    note: "SIMULATED drift on synthetic_v1 (NO real timestamps) — explicitly a simulation + limitation, never real temporal validation (§S). Honest: emerging-skill drift degrades most; title/salary drift minor."
+  EXP-031_032:
+    name: "scalability + incremental-update timing (Stage-2 §T-U)"
+    rq: RQ-latency
+    output: research/results/scalability.json
+    status: REPRODUCED
+    repro_cmd: "cd backend && OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 TOKENIZERS_PARALLELISM=false PYTHONHASHSEED=0 PYTHONPATH=. .venv/bin/python ../research/experiments/scalability.py"
+    result: {latency_mean_ms: "15->3.6 / 500->24 / 1000->48 / 5000->242 / 10000->486 (~0.048 ms/pair, ~linear)", throughput: "~20k pairs/s single-thread", incremental: "score 1 new job 0.1ms vs full re-rank 50ms = 500x; 100 new jobs 5ms vs 56ms = 11x"}
+    note: "Replaces the misleading '15-job = production scale' claim (audit §T). Honest: brute-force scoring is ~linear; production would add an ANN retrieval prefilter (not implemented). Incremental scoring far cheaper than full re-rank (§U validates the snapshot/delta design)."
+  EXP-033:
+    name: "failure-injection matrix (Stage-2 §V)"
+    rq: RQ8-isolation
+    output: research/results/failure_injection.json
+    status: REPRODUCED
+    repro_cmd: "cd backend && OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 TOKENIZERS_PARALLELISM=false PYTHONHASHSEED=0 PYTHONPATH=. .venv/bin/python ../research/experiments/failure_injection.py"
+    result: {n_cases: 9, no_crash: "9/9", determinism: true, realistic_degradations: "empty fields / zero embeddings / missing skills / missing comp / empty desc all return finite in-range scores (failure isolation confirmed, RQ8)", nan_gap_found_and_FIXED: "NaN-embedding previously clamped to a spurious 1.0; added core.scoring._safe_vec guard (nan_to_num) -> now scores 0.707 from the valid channels with semantic correctly zeroed; re-verified"}
+    note: "Confirms failure isolation of the deterministic scoring path (corroborates EXP-019). AE loop applied: discovered the NaN->1.0 correctness gap, FIXED it with an embedding-sanitization guard in core/scoring.py, re-ran and confirmed (garbage embedding no longer scores perfect; finite normal scores unchanged). Feeds §W (isolation) + honest limitation."
+  # --- Stage-3 (model-improvement + acceptance campaign; PROTOCOL.md frozen 2026-08-18) ---
+  EXP-034:
+    name: "graded skill-semantics matcher + controlled 4-class benchmark (Stage-3 §8/P1)"
+    rq: RQ2/RQ6
+    output: research/results/skill_semantics.json
+    status: REPRODUCED
+    repro_cmd: "cd backend && OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 TOKENIZERS_PARALLELISM=false PYTHONHASHSEED=0 PYTHONPATH=. .venv/bin/python ../research/experiments/skill_semantics.py"
+    result: {n_pairs: 32, accuracy: 0.906, macro_f1: 0.81, EXACT: "P/R/F1 1.0", RELATED: "P/R/F1 1.0", SEMANTIC: "P 1.0 / R 0.25 / F1 0.40 (cross-group adjacency mostly below skill-name-embedding TAU=0.5)", UNRELATED: "P 0.727 / R 1.0", graded_credit: "EXACT 1.0 / RELATED 0.5 / SEMANTIC 0.3 / UNRELATED 0.0 — related/semantic NEVER get full credit (verified)", misspelling_robustness: "6/10 exact typos still matched (0.6)"}
+    note: "P1 new methodology. HONEST: EXACT+RELATED separate perfectly and graded credit works (fixes binary-Jaccard all-or-nothing); but skill-NAME embeddings at a fixed a-priori TAU=0.5 rarely fire for cross-group SEMANTIC adjacency (recall 0.25) -> report as effectively a 3-class EXACT/RELATED/UNRELATED graded matcher with a low-confidence SEMANTIC tier; taxonomy carries the RELATED signal. Fixed a benchmark-labeling error pre-report (4 'SEMANTIC' pairs were actually same-group RELATED). TAU not tuned on the benchmark. CIRCULARITY CAVEAT (panel): the SEMANTIC tier uses MiniLM to decide labels graded against MiniLM -> treat SEMANTIC as EXPLORATORY only; the non-circular claims live in EXP-034b."
+  EXP-034b:
+    name: "de-circularized objective skill-matching benchmark + hard negatives (Stage-3 panel fix)"
+    rq: RQ2/RQ6
+    output: research/results/skill_semantics_objective.json
+    status: REPRODUCED
+    repro_cmd: "cd backend && OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 TOKENIZERS_PARALLELISM=false PYTHONHASHSEED=0 PYTHONPATH=. .venv/bin/python ../research/experiments/skill_semantics_objective.py"
+    result: {orthographic_exact_recall: "1.0 (70/70)", synonym_abbrev_exact_recall: "1.0 (7/7)", hard_negative_false_exact: "0.125 (1/8 — Angular/AngularJS over-merged by the catalog; other 7 correct incl. Java/JavaScript, React/React Native, C/C++)", misspelling_exact_recall: "0.0 (canonical matching is NOT typo-robust; the 0.6 in EXP-034 came from the exploratory embedding tier)"}
+    note: "Addresses the panel circularity objection: labels are DEFINITIONAL (catalog + curated non-equivalences), MiniLM used for NO exact/hard-negative decision. Strong non-circular claim: orthographic/synonym normalization is exact + 7/8 hard negatives kept distinct. HONEST weaknesses reported: (1) Angular/AngularJS false-merge (catalog data issue — flagged, not silently patched to preserve repro); (2) misspelling brittleness (matches EXP-029). This is the defensible core of the skill-semantics contribution."
+  EXP-035_036:
+    name: "derived skill features + fusion-model comparison on synthetic (Stage-3 P2/P3)"
+    rq: RQ1/RQ2
+    output: research/results/feature_fusion_synth.json
+    status: REPRODUCED
+    repro_cmd: "cd backend && OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 TOKENIZERS_PARALLELISM=false PYTHONHASHSEED=0 PYTHONPATH=. .venv/bin/python ../research/experiments/synthetic/feature_fusion_synth.py"
+    result: {corpus: "SYNTHETIC 500x75 (has power + preferred field); 5-fold resume CV nDCG@5", fixed_composite: 0.917, best: "lambdamart+derived 0.990 (Δ+0.073 CI[0.065,0.081] sig)", others_beating_fixed: "monotonic_gbm+derived 0.983 / logreg+derived 0.983 / ridge+derived 0.962 / lambdamart-base6 0.961 / monotonic_gbm-base6 0.947 (all CI-excl-0)", derived_helps: "+derived consistently > base6 (e.g. logreg 0.912->0.983)"}
+    note: "HONEST + SYNTHETIC-ONLY. CORRECTED 2026-08-18 by EXP-044 by-construction audit: the +derived jump (0.917->0.99) is LARGELY BY CONSTRUCTION — required_coverage correlates 1.000 with the latent generative factor `required` (weight 0.40) and preferred_coverage 0.68 with `preferred`, so feeding them to the fusion model hands it >0.5 of the generator. The +derived number is therefore NOT claimed as a methodology gain. The DEFENSIBLE finding is base6 NONLINEAR fusion: lambdamart-base6 0.961 (Δ+0.044 CI-excl-0) and monotonic_gbm-base6 0.947 (Δ+0.030 CI-excl-0) beat the fixed composite using ONLY the composite's own text/embedding channels (which correlate 0.54-0.76 with the latent score, NOT 1.0), whereas learned LINEAR fusion does NOT beat the hand-set weights (ridge-base6 0.891, logreg-base6 0.912) -> the hand weights are near-optimal linearly and the real gain is nonlinear channel interaction. Prior note claimed the gain was carried by 'transferable features incl. required-coverage' — RETRACTED: required-coverage IS the generator. Real-corpus improvement is pursued separately via the frozen graded skill channel (EXP-043), not via derived-feature fusion."
+  EXP-043_044:
+    name: "graded skill channel in live scorer + by-construction audit of synthetic fusion (Stage-3 follow-up)"
+    rq: RQ1/RQ2
+    output: research/results/graded_skill_channel.json
+    status: REPRODUCED
+    repro_cmd: "cd backend && OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 TOKENIZERS_PARALLELISM=false PYTHONHASHSEED=0 PYTHONPATH=. .venv/bin/python ../research/experiments/graded_skill_channel.py"
+    result: {by_construction_audit: "corr(required_coverage, latent_required)=1.000; corr(preferred_coverage, latent_preferred)=0.683; base6 channels corr 0.54-0.76 with latent -> +derived fusion gain is by-construction (EXP-035/036 corrected)", decomposition_synthetic_clean_grade_n500: "jaccard(symmetric) 0.917 -> exact-coverage(asymmetric) 0.949 [FORM effect Δ+0.032 p<0.001] -> graded(+related 0.5) 0.944 [RELATION-AWARE effect Δ-0.005 p=0.01, i.e. HURTS]; on synthetic the whole gain is the coverage FORM and the relation-aware credit slightly hurts (generator is exact-coverage, has no related-skill structure). Reconciles fixed-composite baseline to 0.917.", decomposition_real_human_n30: "jaccard 0.949 -> exact-coverage 0.942 [FORM Δ-0.007 p=0.50, null] -> graded 0.992 [RELATION-AWARE Δ+0.050 p=0.031]; on the REAL corpus the coverage form does nothing and the RELATION-AWARE credit (the novelty) drives the gain: 6/30 queries improved, 0 worsened", real_fragility: "p=0.031 is the sign-test floor for 6 concordant / 24 tied queries (effective n=6); one query reversing -> p~=0.22; gain dominated by cv_07 (0->1.0) -> DIRECTIONAL signal, NOT an effect size", credit_sweep: "MOVED to synthetic-dev only (0.0..0.7); NOT run on the real corpus (honors one prospective evaluation)"}
+    note: "GENUINE, DEFENSIBLE SYSTEM IMPROVEMENT + integrity audit, REVISED after independent hostile-review panel (6 agents). (A) EXP-044 proves BOTH the EXP-035/036 +derived fusion gain AND a bare jaccard-vs-graded synthetic comparison are by-construction (required-coverage IS the 0.40-weight latent factor, corr 1.000) -> so we DECOMPOSE the skill-channel effect into (a) coverage FORM (symmetric jaccard -> asymmetric coverage) and (b) RELATION-AWARE partial credit (the novelty). (B) Isolated result: on SYNTHETIC the entire gain is the coverage form (0.917->0.949) and the relation-aware credit slightly HURTS (0.949->0.944) because the generator has no related-skill structure -> the synthetic corpus CANNOT validate the novelty and we do NOT claim it does. On the REAL human corpus the form is null (0.949->0.942, p=0.50) and the relation-aware credit is the driver (0.942->0.992, p=0.031) -> the novelty captures partial-credit structure human judgment rewards. HONEST fragility: real result is one-query-dominated, effective n=6, near-ceiling -> DIRECTIONAL, not an effect size. Jaccard RETAINED as primary composite for baseline comparability; graded reported as an auditable enhancement whose measurable benefit is specific to human-judged relevance. No test-set tuning: 3 pre-specified frozen variants, no credit sweep on the real corpus."
+  EXP-037: {name: "two-stage retrieval + K-sweep {10,25,50,100,250} on synthetic pool (Stage-3 §6/P5)", rq: RQ1/latency, status: PLANNED}
+  EXP-038: {name: "embedding comparison MiniLM/JobBERT/lexical (offline-bounded) (Stage-3 §3B/P6)", rq: RQ1, status: PLANNED}
+  EXP-039: {name: "hard-negative mining expansion on synthetic (Stage-3 §10/P7)", rq: RQ1, status: PLANNED}
+  EXP-040: {name: "counterfactual 100+ with per-channel monotonicity checks (Stage-3 §16/P8)", rq: RQ5, status: PLANNED}
+  EXP-041:
+    name: "calibration campaign — adaptive (equal-mass) ECE + beta calibration (Stage-3 §13/P9)"
+    rq: RQ3
+    output: research/results/calibration_methods.json
+    status: REPRODUCED
+    repro_cmd: "cd backend && OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 TOKENIZERS_PARALLELISM=false PYTHONHASHSEED=0 PYTHONPATH=. .venv/bin/python ../research/experiments/calibration_methods.py"
+    result: {adaptive_ece_exposes_platt: "Platt equal-width ECE 0.018 but ADAPTIVE (equal-mass) ECE 0.084 — equal-width bins were mostly empty because scores cluster in a narrow band, understating miscalibration; adaptive ECE is the more honest aggregate", beta_calibration_wins: "beta (Kull 2017) ECE 0.009 equal-width / 0.009 adaptive (bootstrap CI [0.012,0.032]) AND preserves discrimination (BSS 0.673, AUC 0.964) — best on every axis, RESOLVES the calibration-vs-discrimination trade-off", others: "isotonic adaptive-ECE 0.019 BSS 0.640 AUC 0.950 (close second); temperature fails 0.46; raw 0.40"}
+    note: "GENUINE improvement to the calibration contribution (no new data). Two findings: (1) adaptive/equal-mass ECE exposes that Platt's headline equal-width 0.019 understates miscalibration (adaptive 0.084) — an integrity-strengthening disclosure; (2) beta calibration achieves the lowest ECE under BOTH binnings while preserving discrimination, resolving the trade-off the paper previously listed as a limitation. Selection on held-out 5-fold CV (not the outer test); deployed Platt map RETAINED as the frozen default (consistent with the graded-matcher framing: deployed vs recommended-enhancement), beta RECOMMENDED. §5.3/§6.2 + tab:calibration (auto-gen, now 5 maps + adaptive-ECE column) + Kull citation updated."
+  EXP-042: {name: "explanation metrics + human-study attempt (Stage-3 §15/P10)", rq: RQ4, status: PLANNED}

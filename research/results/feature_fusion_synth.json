@@ -1,0 +1,156 @@
+{
+  "experiment": "EXP-035/036 derived features + fusion-model comparison on synthetic (Stage-3 P2/P3)",
+  "protocol": "synthetic development/validation ONLY (real corpus is untouched test); 5-fold resume CV; selection frozen in PROTOCOL.md; all models + both feature sets reported; negatives preserved",
+  "feature_sets": {
+    "base6": [
+      "semantic",
+      "skills",
+      "title",
+      "experience",
+      "compensation",
+      "remote"
+    ],
+    "+derived": [
+      "semantic",
+      "skills",
+      "title",
+      "experience",
+      "compensation",
+      "remote",
+      "required_coverage",
+      "preferred_coverage",
+      "skill_deficit_frac",
+      "graded_skill_coverage",
+      "experience_deficit",
+      "experience_excess"
+    ]
+  },
+  "leaderboard": [
+    {
+      "model": "lambdamart__+derived",
+      "ndcg@5_mean": 0.99017,
+      "n": 500,
+      "vs_fixed": {
+        "delta_mean": 0.07316,
+        "ci_low": 0.06528,
+        "ci_high": 0.08116,
+        "excludes_zero": true
+      }
+    },
+    {
+      "model": "monotonic_gbm__+derived",
+      "ndcg@5_mean": 0.98325,
+      "n": 500,
+      "vs_fixed": {
+        "delta_mean": 0.06624,
+        "ci_low": 0.05833,
+        "ci_high": 0.07439,
+        "excludes_zero": true
+      }
+    },
+    {
+      "model": "logreg__+derived",
+      "ndcg@5_mean": 0.98324,
+      "n": 500,
+      "vs_fixed": {
+        "delta_mean": 0.06623,
+        "ci_low": 0.05846,
+        "ci_high": 0.07404,
+        "excludes_zero": true
+      }
+    },
+    {
+      "model": "lambdamart__+derived_no_pref",
+      "ndcg@5_mean": 0.97745,
+      "n": 500,
+      "vs_fixed": {
+        "delta_mean": 0.06044,
+        "ci_low": 0.0529,
+        "ci_high": 0.06787,
+        "excludes_zero": true
+      }
+    },
+    {
+      "model": "monotonic_gbm__+derived_no_pref",
+      "ndcg@5_mean": 0.96849,
+      "n": 500,
+      "vs_fixed": {
+        "delta_mean": 0.05148,
+        "ci_low": 0.04419,
+        "ci_high": 0.05879,
+        "excludes_zero": true
+      }
+    },
+    {
+      "model": "ridge__+derived",
+      "ndcg@5_mean": 0.96198,
+      "n": 500,
+      "vs_fixed": {
+        "delta_mean": 0.04497,
+        "ci_low": 0.03657,
+        "ci_high": 0.05344,
+        "excludes_zero": true
+      }
+    },
+    {
+      "model": "lambdamart__base6",
+      "ndcg@5_mean": 0.96143,
+      "n": 500,
+      "vs_fixed": {
+        "delta_mean": 0.04442,
+        "ci_low": 0.03703,
+        "ci_high": 0.05154,
+        "excludes_zero": true
+      }
+    },
+    {
+      "model": "monotonic_gbm__base6",
+      "ndcg@5_mean": 0.94705,
+      "n": 500,
+      "vs_fixed": {
+        "delta_mean": 0.03004,
+        "ci_low": 0.02259,
+        "ci_high": 0.03704,
+        "excludes_zero": true
+      }
+    },
+    {
+      "model": "fixed_composite",
+      "ndcg@5_mean": 0.91701,
+      "n": 500
+    },
+    {
+      "model": "logreg__base6",
+      "ndcg@5_mean": 0.91226,
+      "n": 500,
+      "vs_fixed": {
+        "delta_mean": -0.00475,
+        "ci_low": -0.01214,
+        "ci_high": 0.00243,
+        "excludes_zero": false
+      }
+    },
+    {
+      "model": "ridge__base6",
+      "ndcg@5_mean": 0.89076,
+      "n": 500,
+      "vs_fixed": {
+        "delta_mean": -0.02626,
+        "ci_low": -0.03532,
+        "ci_high": -0.01715,
+        "excludes_zero": true
+      }
+    }
+  ],
+  "challengers_beating_fixed_composite_CI_excl_0": [
+    "ridge__+derived",
+    "logreg__+derived",
+    "lambdamart__base6",
+    "lambdamart__+derived",
+    "monotonic_gbm__base6",
+    "monotonic_gbm__+derived",
+    "lambdamart__+derived_no_pref",
+    "monotonic_gbm__+derived_no_pref"
+  ],
+  "interpretation": "On the SYNTHETIC corpus (where there is statistical power), report whether derived skill features and/or learned fusion beat the fixed composite (paired CI excludes 0). This is development/validation evidence; the real 30x15 corpus remains the untouched test. If nothing beats the fixed composite, that parity is the honest finding and the auditable composite is retained by the frozen tie-break."
+}

@@ -1,0 +1,25 @@
+{
+  "experiment": "EXP-028 rebuilt explanation faithfulness \u2014 mechanistic, ranking-level (Stage-2 \u00a7O)",
+  "n_resumes_explained": 30,
+  "comprehensiveness_ranking": {
+    "top1_displaced_when_dropping_TOP_attributed_channel": 0.1333,
+    "top1_displaced_when_dropping_LEAST_attributed_channel": 0.0,
+    "top1_displaced_when_dropping_RANDOM_channel": 0.0333,
+    "faithful": true,
+    "note": "Faithful attribution => dropping the TOP-attributed channel displaces the top-1 job more often than dropping the LEAST-attributed channel. This is NOT tautological (ranking-level)."
+  },
+  "attribution_effect_alignment_spearman_mean": 0.2063,
+  "attribution_correctness_skill_addition": {
+    "fraction_skill_contrib_STRICTLY_increases": 1.0,
+    "mean_delta": 0.1858,
+    "min_delta": 0.1667,
+    "n_edits": 20
+  },
+  "structural_by_construction": {
+    "additive_decomposition_exact_fraction": 1.0,
+    "fit_label_score_contradiction_rate": 0.0,
+    "specificity_reasons_naming_a_number": 0.75,
+    "note": "These are structural properties (exact decomposition, label-score consistency, specificity). They are reported as engineering guarantees, NOT as XAI faithfulness (audit B9)."
+  },
+  "interpretation": "Report the ranking-level comprehensiveness and attribution-effect alignment as the honest faithfulness evidence; keep the additive decomposition / consistency / specificity as structural guarantees, not as a 'faithfulness score'. No human study was run; describe as automated structural + mechanistic validation."
+}

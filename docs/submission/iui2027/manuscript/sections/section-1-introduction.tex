@@ -1,0 +1,42 @@
+\section{Introduction}\label{sec:1}
+
+Online hiring platforms present job seekers and recruiters with ranked lists, but the reasons behind a given ranking are typically hidden behind a single opaque score.
+A candidate who edits a resume to add a new skill has no way to see whether the new skill moved a posting up or down the list, or whether the change reached the system at all.
+A recruiter who changes a job description and reruns a search receives a refreshed shortlist, but the link between the edit and the resulting rank order is invisible.
+Both sides of the market therefore share a common problem: an absence of feedback that would let them reason about, contest, or learn from the recommendations they receive.
+This paper asks what it would take to design a career-recommendation system whose interaction surface makes its reasoning legible to the people whose decisions it is meant to support.
+
+A growing body of work on agentic systems based on large language models (LLMs) makes this question timely.
+LLM-based agents can parse resumes into structured fields, normalize skills against a shared vocabulary, draft natural-language explanations of ranking decisions, and chain such subtasks together~\cite{wei2022chain,yao2023react,schick2023toolformer,xi2023rise,sumers2024cognitive}.
+Multi-agent designs further distribute the work: a candidate-facing agent can maintain a versioned user model while a separate employer-facing agent maintains a job model, and a third, neutral component can compare the two without ever writing into either store~\cite{li2023camel,qian2023communicative,shen2023hugginggpt,rosenfeld2019HAS}.
+This delegation of labor is, however, only the first step.
+What such systems do for the person reading a recommendation is a separate question, and a more difficult one.
+A model that scores well offline can still leave users worse off if its explanations mislead, if its confidence is poorly calibrated, or if it removes the user's ability to act.
+
+Three concrete challenges motivate our work.
+First, existing recommender systems are largely opaque from the user's perspective: the dominant paradigm in production hiring tools returns a list and a single number, with no breakdown of which input fields contributed~\cite{jannach2021recsys,tintarev2015explaining}.
+Second, the explanations that have been studied in the literature are often post-hoc reconstructions of model behavior, not direct accounts of the inputs that drove a score; users have repeatedly been shown to over- or under-rely on such accounts depending on their framing~\cite{miller2019explanation,liao2020questioning,joshi2021real}.
+Third, the arrival of LLM-based agents in recommendation pipelines introduces new surface area for trust and control problems: a system that can both rank and explain can also rank incorrectly while sounding confident~\cite{lin2022exploring}.
+
+We address these challenges with \JobMatch, a research prototype that organizes a job-candidate matching workflow as three cooperating interaction components rather than as a single end-to-end predictor.
+The candidate-side component helps users inspect, revise, and understand what the system knows about them, and emits an event only after the user confirms a save.
+The employer-side component plays the symmetric role for job descriptions, exposing which requirements are driving a shortlist and which are inert.
+A read-only matchmaking component consumes the resulting snapshots, returns a ranked list, attaches component-level reasons, and reports a calibrated confidence value.
+The user is the locus of decision in all three components: applying, shortlisting, contacting, and dismissing remain explicit human actions that the system records but does not act on.
+
+\leadpara{Contributions}
+This paper makes the following contributions.
+\emph{First}, we contribute a set of design principles for interactive, explainable agentic career recommendation, derived from established guidelines for human--{AI} interaction~\cite{amershi2019guidelines,shneiderman2020human,horvitz2019ai}, and instantiate them as concrete interaction patterns in a working system.
+\emph{Second}, we present a multi-component agentic architecture in which each component is described by the user need it addresses, the information it returns, and the control it preserves, rather than by its internal data flow.
+\emph{Third}, we report a controlled evaluation on a fixed demo corpus that simultaneously measures ranking quality (\ndcg), explanation faithfulness, confidence calibration (\ece), and adversarial robustness under controlled profile edits, and we map each metric to a user-facing property.
+\emph{Fourth}, we provide an anonymized open-source artifact that includes the prototype, the demo corpus, the explanation generator, the calibration layer, and the regression benchmark, so that the design choices and their measured effects can be inspected and replicated.
+
+The remainder of the paper is organized as follows.
+\secref{sec:2} situates the work in the literature on interactive recommender systems, explainable {AI}, human--{AI} decision making, and LLM-based agents.
+\secref{sec:3} derives the design principles that guide the prototype.
+\secref{sec:4} describes the system in terms of user needs, component responsibilities, and the boundaries between them.
+\secref{sec:5} presents the interactive interface as a sequence of design choices visible in the running prototype.
+\secref{sec:6} defines the evaluation methodology and maps each metric to a user-facing property.
+\secref{sec:7} reports results.
+\secref{sec:8} discusses implications, limitations, and future work.
+\secref{sec:9} concludes.

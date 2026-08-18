@@ -1,0 +1,232 @@
+\relax 
+\providecommand\hyper@newdestlabel[2]{}
+\providecommand\HyField@AuxAddToFields[1]{}
+\providecommand\HyField@AuxAddToCoFields[2]{}
+\citation{tang2025explainable}
+\citation{koren2009matrix,he2017neural}
+\Newlabel{anonymous}{a}
+\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{section.1}\protected@file@percent }
+\newlabel{sec:1}{{1}{1}{Introduction}{section.1}{}}
+\citation{raub2018bots,ajunwa2021paradox}
+\citation{raub2018bots,ajunwa2021paradox}
+\citation{he2017neural,covington2016deep,koren2009matrix}
+\citation{reimers2019sentence}
+\citation{wei2022chain,yao2023react,sumers2024cognitive}
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.1}The engineering problem}{2}{subsection.1.1}\protected@file@percent }
+\newlabel{sec:1.1}{{1.1}{2}{The engineering problem}{subsection.1.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.2}Regulatory and engineering context}{2}{subsection.1.2}\protected@file@percent }
+\newlabel{sec:1.2}{{1.2}{2}{Regulatory and engineering context}{subsection.1.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.3}Limitations of existing AI approaches}{2}{subsection.1.3}\protected@file@percent }
+\newlabel{sec:1.3}{{1.3}{2}{Limitations of existing AI approaches}{subsection.1.3}{}}
+\citation{platt1999probabilistic,guo2017calibration}
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.4}Why current approaches are insufficient}{3}{subsection.1.4}\protected@file@percent }
+\newlabel{sec:1.4}{{1.4}{3}{Why current approaches are insufficient}{subsection.1.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.5}Research gap}{3}{subsection.1.5}\protected@file@percent }
+\newlabel{sec:1.5}{{1.5}{3}{Research gap}{subsection.1.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.6}Our contribution}{3}{subsection.1.6}\protected@file@percent }
+\newlabel{sec:1.6}{{1.6}{3}{Our contribution}{subsection.1.6}{}}
+\citation{koren2009matrix}
+\citation{he2017neural}
+\citation{covington2016deep,le2020cold}
+\citation{hidasi2015session}
+\citation{lavi2025careerbert,saito2024leveraging}
+\citation{tang2025explainable}
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.7}Application context}{4}{subsection.1.7}\protected@file@percent }
+\newlabel{sec:1.7}{{1.7}{4}{Application context}{subsection.1.7}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.8}Paper organization}{4}{subsection.1.8}\protected@file@percent }
+\newlabel{sec:1.8}{{1.8}{4}{Paper organization}{subsection.1.8}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {2}Related Work}{4}{section.2}\protected@file@percent }
+\newlabel{sec:2}{{2}{4}{Related Work}{section.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}AI-based recommendation systems}{4}{subsection.2.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Prototype candidate-side portal: ranked job list with the per-decision factor decomposition (skills overlap, experience, compensation, remote, semantic) and the calibrated confidence (72\%, "Good") shown both as a header and as an expandable drawer on the right of the selected job. Matched skill tokens (Machine Learning, Python) and missing tokens (TensorFlow) are surfaced inline so the candidate can act on the output without leaving the page.}}{5}{figure.caption.1}\protected@file@percent }
+\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
+\newlabel{fig:app}{{1}{5}{Prototype candidate-side portal: ranked job list with the per-decision factor decomposition (skills overlap, experience, compensation, remote, semantic) and the calibrated confidence (72\%, "Good") shown both as a header and as an expandable drawer on the right of the selected job. Matched skill tokens (Machine Learning, Python) and missing tokens (TensorFlow) are surfaced inline so the candidate can act on the output without leaving the page}{figure.caption.1}{}}
+\citation{robertson1995okapi}
+\citation{reimers2019sentence}
+\citation{cormack2010reciprocal}
+\citation{nikolakopoulos2023knowledge,gentile2014feature}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Prototype employer-side portal (reverse direction): ranked candidate list for a posted job, with the per-candidate factor decomposition (semantic, skills, experience, compensation, remote), the per-candidate calibrated confidence, and the inline action menu (view profile, saved, reject, contact). The recruiter sees the same explanation structure that the candidate sees; the scoring pipeline is symmetric and the only difference is the direction of the query.}}{6}{figure.caption.2}\protected@file@percent }
+\newlabel{fig:app2}{{2}{6}{Prototype employer-side portal (reverse direction): ranked candidate list for a posted job, with the per-candidate factor decomposition (semantic, skills, experience, compensation, remote), the per-candidate calibrated confidence, and the inline action menu (view profile, saved, reject, contact). The recruiter sees the same explanation structure that the candidate sees; the scoring pipeline is symmetric and the only difference is the direction of the query}{figure.caption.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Semantic matching models}{6}{subsection.2.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Comprehensive view of the prototype portal surface, showing all eight primary interaction states in the order a user encounters them. Top row (candidate side): (a) resume upload and review; (b) parsed-fields confirmation; (c) match list with component-level explanation drawer; (d) counterfactual view showing how a small edit to a snapshot field would move the rank. Bottom row (employer side): (e) job-description upload and review; (f) parsed-requirements confirmation; (g) reverse match list with component-level explanation; (h) shortlist panel. The admin/evaluation console (event strip, agent health, manual match, demo reset) is not shown here. The single-state views of Figs.~\ref {fig:app} and~\ref {fig:app2} correspond to panels (c) and (g) of this figure.}}{7}{figure.caption.3}\protected@file@percent }
+\newlabel{fig:portal-survey}{{3}{7}{Comprehensive view of the prototype portal surface, showing all eight primary interaction states in the order a user encounters them. Top row (candidate side): (a) resume upload and review; (b) parsed-fields confirmation; (c) match list with component-level explanation drawer; (d) counterfactual view showing how a small edit to a snapshot field would move the rank. Bottom row (employer side): (e) job-description upload and review; (f) parsed-requirements confirmation; (g) reverse match list with component-level explanation; (h) shortlist panel. The admin/evaluation console (event strip, agent health, manual match, demo reset) is not shown here. The single-state views of Figs.~\ref {fig:app} and~\ref {fig:app2} correspond to panels (c) and (g) of this figure}{figure.caption.3}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces High-level layout of \textsc  {JobMatch}. The candidate-side component (C1) and the employer-side component (C2) own the user-editable state on each side of the market. The matchmaking component (C3) reads those snapshots, returns a ranked list with component-level reasons and a calibrated confidence, and never writes into either store. The dashed arrows represent snapshot and event flow; the solid arrows represent user-facing recommendations and feedback. The portals shown above (Figs.~\ref {fig:app} and~\ref {fig:app2}) are two of the three role-specific portals (candidate, employer, administrator) sharing the same scoring and explanation pipeline.}}{7}{figure.caption.4}\protected@file@percent }
+\newlabel{fig:hld}{{4}{7}{High-level layout of \JobMatch . The candidate-side component (C1) and the employer-side component (C2) own the user-editable state on each side of the market. The matchmaking component (C3) reads those snapshots, returns a ranked list with component-level reasons and a calibrated confidence, and never writes into either store. The dashed arrows represent snapshot and event flow; the solid arrows represent user-facing recommendations and feedback. The portals shown above (Figs.~\ref {fig:app} and~\ref {fig:app2}) are two of the three role-specific portals (candidate, employer, administrator) sharing the same scoring and explanation pipeline}{figure.caption.4}{}}
+\citation{wei2022chain,yao2023react,sumers2024cognitive}
+\citation{lo2025hiring,bhattacharya2025xcui}
+\citation{miller2019explanation,gunning2017explainable,tintarev2015explaining,peake2018explanation,chen2022explainable}
+\citation{tintarev2015explaining}
+\citation{peake2018explanation}
+\citation{wanner2020generating}
+\citation{lofstrom2024calibrated}
+\citation{kaur2020interpreting,wanner2020generating}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Knowledge-driven AI systems}{8}{subsection.2.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.4}LLM-based agents}{8}{subsection.2.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.5}Explainable AI for recommendation}{8}{subsection.2.5}\protected@file@percent }
+\citation{liu2020trust,pu2007trust}
+\citation{guo2017calibration}
+\citation{platt1999probabilistic}
+\citation{lofstrom2024calibrated}
+\citation{brier1950verification}
+\citation{ekstrand2021rethinking}
+\citation{chen2023causal}
+\citation{amershi2019guidelines,liao2020questioning}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.6}Trustworthy AI and confidence calibration}{9}{subsection.2.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.7}Positioning}{10}{subsection.2.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {3}Proposed Methodology}{10}{section.3}\protected@file@percent }
+\newlabel{sec:3}{{3}{10}{Proposed Methodology}{section.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Problem formulation and notation}{10}{subsection.3.1}\protected@file@percent }
+\newlabel{sec:3.1}{{3.1}{10}{Problem formulation and notation}{subsection.3.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Methodology at a glance}{10}{subsection.3.2}\protected@file@percent }
+\newlabel{sec:3.2}{{3.2}{10}{Methodology at a glance}{subsection.3.2}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Candidate-side ingestion and representation pipeline. The candidate-side component owns the editable profile and the versioned snapshot. The ingestion lane accepts a resume upload, runs text clean and rule-based extraction, normalizes the result against the shared skill vocabulary (with an optional LLM fallback for ambiguous fields), and presents the parsed result to the user as a review form. Only on user confirmation does the component register a snapshot and emit a profile-updated event.}}{11}{figure.caption.5}\protected@file@percent }
+\newlabel{fig:candidate-pipeline}{{5}{11}{Candidate-side ingestion and representation pipeline. The candidate-side component owns the editable profile and the versioned snapshot. The ingestion lane accepts a resume upload, runs text clean and rule-based extraction, normalizes the result against the shared skill vocabulary (with an optional LLM fallback for ambiguous fields), and presents the parsed result to the user as a review form. Only on user confirmation does the component register a snapshot and emit a profile-updated event}{figure.caption.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Multi-agent system architecture}{11}{subsection.3.3}\protected@file@percent }
+\newlabel{sec:3.3}{{3.3}{11}{Multi-agent system architecture}{subsection.3.3}{}}
+\citation{robertson1995okapi}
+\citation{reimers2019sentence}
+\citation{cormack2010reciprocal}
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Employer-side ingestion and representation pipeline. The employer-side component mirrors the candidate-side layout for the job side: editable posting, versioned snapshot, and an ingestion lane that accepts a job description paste, file, or external API and presents the parsed result as a recruiter review form. Only on confirmation does the component register a snapshot and emit a job-updated event.}}{12}{figure.caption.6}\protected@file@percent }
+\newlabel{fig:employer-pipeline}{{6}{12}{Employer-side ingestion and representation pipeline. The employer-side component mirrors the candidate-side layout for the job side: editable posting, versioned snapshot, and an ingestion lane that accepts a job description paste, file, or external API and presents the parsed result as a recruiter review form. Only on confirmation does the component register a snapshot and emit a job-updated event}{figure.caption.6}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces End-to-end methodology: from resume and job-description inputs through knowledge representation, hybrid retrieval, composite scoring, RRF fusion, cross-encoder rerank, calibration, and component-level explanation, to the ranked, explained, and calibrated output. The dashed feedback arrow indicates that the calibrated confidence is recomputed on each ranking request and used to inform downstream display and user actions. The same pipeline runs for both the candidate-initiated and the employer-initiated direction; the matchmaking component does not see the editable profile behind either side.}}{13}{figure.caption.7}\protected@file@percent }
+\newlabel{fig:methodology}{{7}{13}{End-to-end methodology: from resume and job-description inputs through knowledge representation, hybrid retrieval, composite scoring, RRF fusion, cross-encoder rerank, calibration, and component-level explanation, to the ranked, explained, and calibrated output. The dashed feedback arrow indicates that the calibrated confidence is recomputed on each ranking request and used to inform downstream display and user actions. The same pipeline runs for both the candidate-initiated and the employer-initiated direction; the matchmaking component does not see the editable profile behind either side}{figure.caption.7}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.4}Knowledge representation and retrieval}{13}{subsection.3.4}\protected@file@percent }
+\newlabel{sec:3.4}{{3.4}{13}{Knowledge representation and retrieval}{subsection.3.4}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces End-to-end methodology: from resume and job-description inputs through knowledge representation, hybrid retrieval, composite scoring, component-level explanation, and Platt-scaled confidence calibration to the ranked list with per-channel reasons and a calibrated confidence value. The dashed orange feedback arrow indicates that the calibrated confidence is recomputed on each ranking request and is available to inform downstream display and user actions. The same pipeline runs in both the candidate-initiated and the employer-initiated direction; the per-direction portal (Figs.~\ref {fig:app} and~\ref {fig:app2}) is the only stage that is direction-specific.}}{14}{figure.caption.8}\protected@file@percent }
+\newlabel{fig:methodology-flow}{{8}{14}{End-to-end methodology: from resume and job-description inputs through knowledge representation, hybrid retrieval, composite scoring, component-level explanation, and Platt-scaled confidence calibration to the ranked list with per-channel reasons and a calibrated confidence value. The dashed orange feedback arrow indicates that the calibrated confidence is recomputed on each ranking request and is available to inform downstream display and user actions. The same pipeline runs in both the candidate-initiated and the employer-initiated direction; the per-direction portal (Figs.~\ref {fig:app} and~\ref {fig:app2}) is the only stage that is direction-specific}{figure.caption.8}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.5}Composite ranking with decomposition}{14}{subsection.3.5}\protected@file@percent }
+\newlabel{sec:3.5}{{3.5}{14}{Composite ranking with decomposition}{subsection.3.5}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces End-to-end matchmaking workflow (employer direction shown; the candidate direction is symmetric). The workflow is the same whether it is initiated by a candidate refreshing their matches or by an employer refreshing their shortlist: ingestion, snapshot/index, ranking, optional coach feedback, and user actions are sequenced so the read-only matchmaking component never crosses the ownership boundary.}}{15}{figure.caption.9}\protected@file@percent }
+\newlabel{fig:arch}{{9}{15}{End-to-end matchmaking workflow (employer direction shown; the candidate direction is symmetric). The workflow is the same whether it is initiated by a candidate refreshing their matches or by an employer refreshing their shortlist: ingestion, snapshot/index, ranking, optional coach feedback, and user actions are sequenced so the read-only matchmaking component never crosses the ownership boundary}{figure.caption.9}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {10}{\ignorespaces Detailed system architecture and matchmaking services. The user portals (candidate, employer, admin) sit above an access layer with auth, role, and read-only middleware that fronts the REST handlers. The candidate domain owns the parse pipeline, profile, snapshot, and activity log; the employer domain owns the parse + live sync, job + snapshot, and job vectors. The shared resources layer exposes the skill catalog, bootstrap data, snapshot contracts, event bus, fusion and calibration models, and the invalidation log. The matchmaking component reads from the shared resources and from the snapshot edges of each domain, never from the editable stores.}}{16}{figure.caption.10}\protected@file@percent }
+\newlabel{fig:capstone}{{10}{16}{Detailed system architecture and matchmaking services. The user portals (candidate, employer, admin) sit above an access layer with auth, role, and read-only middleware that fronts the REST handlers. The candidate domain owns the parse pipeline, profile, snapshot, and activity log; the employer domain owns the parse + live sync, job + snapshot, and job vectors. The shared resources layer exposes the skill catalog, bootstrap data, snapshot contracts, event bus, fusion and calibration models, and the invalidation log. The matchmaking component reads from the shared resources and from the snapshot edges of each domain, never from the editable stores}{figure.caption.10}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {11}{\ignorespaces Six-channel composite: documented channel weights. The two high-weight channels (semantic 0.28 and skill 0.27) carry the dominant share of the score; the four medium- and low-weight channels (title 0.10, experience 0.15, compensation 0.10, remote 0.10) carry the remaining 45\%. The weights are chosen to maximize nDCG@5 on a held-out subset of the labeled pairs and are reported as part of the system configuration.}}{17}{figure.caption.11}\protected@file@percent }
+\newlabel{fig:channels}{{11}{17}{Six-channel composite: documented channel weights. The two high-weight channels (semantic 0.28 and skill 0.27) carry the dominant share of the score; the four medium- and low-weight channels (title 0.10, experience 0.15, compensation 0.10, remote 0.10) carry the remaining 45\%. The weights are chosen to maximize nDCG@5 on a held-out subset of the labeled pairs and are reported as part of the system configuration}{figure.caption.11}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.6}Component-level explanation generation}{17}{subsection.3.6}\protected@file@percent }
+\newlabel{sec:3.6}{{3.6}{17}{Component-level explanation generation}{subsection.3.6}{}}
+\citation{platt1999probabilistic,guo2017calibration,lofstrom2024calibrated}
+\citation{lofstrom2024calibrated}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.7}Confidence calibration}{18}{subsection.3.7}\protected@file@percent }
+\newlabel{sec:3.7}{{3.7}{18}{Confidence calibration}{subsection.3.7}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.8}Implementation details}{18}{subsection.3.8}\protected@file@percent }
+\newlabel{sec:3.8}{{3.8}{18}{Implementation details}{subsection.3.8}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.9}Engineering surface and integration}{18}{subsection.3.9}\protected@file@percent }
+\newlabel{sec:3.9}{{3.9}{18}{Engineering surface and integration}{subsection.3.9}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.10}Cross-encoder diagnosis}{19}{subsection.3.10}\protected@file@percent }
+\newlabel{sec:3.10}{{3.10}{19}{Cross-encoder diagnosis}{subsection.3.10}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Experimental Setup}{19}{section.4}\protected@file@percent }
+\newlabel{sec:4}{{4}{19}{Experimental Setup}{section.4}{}}
+\citation{robertson1995okapi}
+\citation{reimers2019sentence}
+\citation{cormack2010reciprocal}
+\citation{jarvelin2002ndcg}
+\citation{guo2017calibration}
+\citation{brier1950verification}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Dataset}{20}{subsection.4.1}\protected@file@percent }
+\newlabel{sec:4.1}{{4.1}{20}{Dataset}{subsection.4.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Baselines}{20}{subsection.4.2}\protected@file@percent }
+\newlabel{sec:4.2}{{4.2}{20}{Baselines}{subsection.4.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Metrics}{20}{subsection.4.3}\protected@file@percent }
+\newlabel{sec:4.3}{{4.3}{20}{Metrics}{subsection.4.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Evaluation protocol}{21}{subsection.4.4}\protected@file@percent }
+\newlabel{sec:4.4}{{4.4}{21}{Evaluation protocol}{subsection.4.4}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Results}{21}{section.5}\protected@file@percent }
+\newlabel{sec:5}{{5}{21}{Results}{section.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Ranking quality}{22}{subsection.5.1}\protected@file@percent }
+\newlabel{sec:5.1}{{5.1}{22}{Ranking quality}{subsection.5.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Ablation study}{22}{subsection.5.2}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Progression of nDCG@5, P@5, and R@5 across the baselines and the proposed system. The portal-default composite is the proposed system with the fixed-weight six-channel combination. The strongest single configuration is the multimodal soft-embed ranker with skill weight $w = 0.7$. Differences between rows should be read with the small-corpus caveat from Section~\ref {sec:4.1} in mind. Source: committed benchmark artifact \texttt  {paper\_progression\_summary.json}.}}{23}{table.caption.13}\protected@file@percent }
+\newlabel{tab:progression}{{1}{23}{Progression of \ndcg , P@5, and R@5 across the baselines and the proposed system. The portal-default composite is the proposed system with the fixed-weight six-channel combination. The strongest single configuration is the multimodal soft-embed ranker with skill weight $w = 0.7$. Differences between rows should be read with the small-corpus caveat from \secref {sec:4.1} in mind. Source: committed benchmark artifact \texttt {paper\_progression\_summary.json}}{table.caption.13}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Ablation study of the proposed system. Each row removes or replaces one component of the full system while keeping the rest fixed. The faithfulness metric (0.745 for the full system) is a property of the rule-based explainer and is reported as ``n/a'' for configurations that do not use a rule-based explainer. The ECE metric (0.032 for the full system) is a property of the Platt scaler and is reported as ``n/a'' for configurations that do not use a composite output. Source: committed benchmark artifacts \texttt  {paper\_progression\_summary.json} and \texttt  {calibration\_summary.json}.}}{23}{table.caption.14}\protected@file@percent }
+\newlabel{tab:ablation}{{2}{23}{Ablation study of the proposed system. Each row removes or replaces one component of the full system while keeping the rest fixed. The faithfulness metric (0.745 for the full system) is a property of the rule-based explainer and is reported as ``n/a'' for configurations that do not use a rule-based explainer. The ECE metric (0.032 for the full system) is a property of the Platt scaler and is reported as ``n/a'' for configurations that do not use a composite output. Source: committed benchmark artifacts \texttt {paper\_progression\_summary.json} and \texttt {calibration\_summary.json}}{table.caption.14}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}Explanation faithfulness}{24}{subsection.5.3}\protected@file@percent }
+\newlabel{sec:5.2}{{5.3}{24}{Explanation faithfulness}{subsection.5.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.4}Confidence calibration}{24}{subsection.5.4}\protected@file@percent }
+\newlabel{sec:5.3}{{5.4}{24}{Confidence calibration}{subsection.5.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.5}Counterfactual and adversarial robustness}{24}{subsection.5.5}\protected@file@percent }
+\newlabel{sec:5.4}{{5.5}{24}{Counterfactual and adversarial robustness}{subsection.5.5}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Explainability evaluation summary, rule-based explainer (prototype default) vs.\ LLM-template explainer (offline comparison). Faithfulness is the pass rate on the automated checks (skill mention, no hallucination, component alignment). Specificity is the proportion of bullets that cite a concrete matched or missing skill. Consistency is the bullet-set Jaccard on synthetic similar-profile pairs. Both explainers have 100\% component alignment with the channel scores that produced the rank. Source: committed benchmark artifact \texttt  {explainability\_report.json}.}}{25}{table.caption.16}\protected@file@percent }
+\newlabel{tab:explainability}{{3}{25}{Explainability evaluation summary, rule-based explainer (prototype default) vs.\ LLM-template explainer (offline comparison). Faithfulness is the pass rate on the automated checks (skill mention, no hallucination, component alignment). Specificity is the proportion of bullets that cite a concrete matched or missing skill. Consistency is the bullet-set Jaccard on synthetic similar-profile pairs. Both explainers have 100\% component alignment with the channel scores that produced the rank. Source: committed benchmark artifact \texttt {explainability\_report.json}}{table.caption.16}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.6}Latency}{25}{subsection.5.6}\protected@file@percent }
+\newlabel{sec:5.5}{{5.6}{25}{Latency}{subsection.5.6}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.7}Sensitivity analysis on Platt parameters}{25}{subsection.5.7}\protected@file@percent }
+\newlabel{sec:5.6}{{5.7}{25}{Sensitivity analysis on Platt parameters}{subsection.5.7}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.8}Engineering surface}{25}{subsection.5.8}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Counterfactual probe on 10 synthetic demographic-pair edits. Each row is a single controlled edit (name, summary suffix, hometown label, pronouns, or email domain) applied to a profile and re-ranked against the same job pool. The top-1 item is stable for all 10 pairs; the top-5 overlap is the number of items in common with the unedited profile's top-5. A pair is flagged when the score delta exceeds the 0.005 threshold or the rank delta exceeds 1. The mean rank delta across the 10 pairs is 1.2; the mean score delta is 0.0080. No protected attributes are inferred from real users. Source: committed benchmark artifact \texttt  {fairness\_eval.json}.}}{26}{table.caption.18}\protected@file@percent }
+\newlabel{tab:counterfactual}{{4}{26}{Counterfactual probe on 10 synthetic demographic-pair edits. Each row is a single controlled edit (name, summary suffix, hometown label, pronouns, or email domain) applied to a profile and re-ranked against the same job pool. The top-1 item is stable for all 10 pairs; the top-5 overlap is the number of items in common with the unedited profile's top-5. A pair is flagged when the score delta exceeds the 0.005 threshold or the rank delta exceeds 1. The mean rank delta across the 10 pairs is 1.2; the mean score delta is 0.0080. No protected attributes are inferred from real users. Source: committed benchmark artifact \texttt {fairness\_eval.json}}{table.caption.18}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces Adversarial fairness probe: selection-rate disparate-impact ratios (DIR) on synthetic proxy groups. Parity is 1.0. The proxy groups are derived from the labeled corpus, not from real demographic attributes. The experience-tier probe groups candidates by self-reported seniority (mid vs senior); the remote-preference probe groups by declared remote-work preference (remote-seeker vs onsite-flexible). The probe is reported as an engineering sanity check, not a demographic-fairness audit. Source: committed benchmark artifact \texttt  {fairness\_eval.json}.}}{26}{table.caption.19}\protected@file@percent }
+\newlabel{tab:fairness}{{5}{26}{Adversarial fairness probe: selection-rate disparate-impact ratios (DIR) on synthetic proxy groups. Parity is 1.0. The proxy groups are derived from the labeled corpus, not from real demographic attributes. The experience-tier probe groups candidates by self-reported seniority (mid vs senior); the remote-preference probe groups by declared remote-work preference (remote-seeker vs onsite-flexible). The probe is reported as an engineering sanity check, not a demographic-fairness audit. Source: committed benchmark artifact \texttt {fairness\_eval.json}}{table.caption.19}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {6}Discussion}{26}{section.6}\protected@file@percent }
+\newlabel{sec:6}{{6}{26}{Discussion}{section.6}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces Quality--latency trade-off across retrieval methods. The latency is mean wall-clock ms per query on exhaustive evaluation on a single machine, with the 15-job pool and $K = 5$. The soft-skill embed reranker is approximately 100$\times $ slower than the composite bi-encoder and is therefore reported as a research variant, not the prototype default. Source: committed benchmark artifact \texttt  {phase11\_summary.csv}.}}{27}{table.caption.20}\protected@file@percent }
+\newlabel{tab:latency}{{6}{27}{Quality--latency trade-off across retrieval methods. The latency is mean wall-clock ms per query on exhaustive evaluation on a single machine, with the 15-job pool and $K = 5$. The soft-skill embed reranker is approximately 100$\times $ slower than the composite bi-encoder and is therefore reported as a research variant, not the prototype default. Source: committed benchmark artifact \texttt {phase11\_summary.csv}}{table.caption.20}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.1}Engineering implications}{27}{subsection.6.1}\protected@file@percent }
+\newlabel{sec:6.1}{{6.1}{27}{Engineering implications}{subsection.6.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.2}Limitations}{28}{subsection.6.2}\protected@file@percent }
+\newlabel{sec:6.2}{{6.2}{28}{Limitations}{subsection.6.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.3}Broader perspective}{28}{subsection.6.3}\protected@file@percent }
+\newlabel{sec:6.3}{{6.3}{28}{Broader perspective}{subsection.6.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {7}Future Work}{28}{section.7}\protected@file@percent }
+\newlabel{sec:7}{{7}{28}{Future Work}{section.7}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.1}Larger-corpus evaluation}{28}{subsection.7.1}\protected@file@percent }
+\citation{lewis2020rag}
+\citation{zheng2023judging}
+\citation{wooldridge2009introduction}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.2}Live user study}{29}{subsection.7.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.3}Industrial deployment}{29}{subsection.7.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.4}LLM-in-the-loop ranking}{29}{subsection.7.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.5}LLM-based explainer comparison}{29}{subsection.7.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.6}RAG and LLM-as-judge baselines}{29}{subsection.7.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.7}Larger counterfactual probe}{29}{subsection.7.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.8}Comparison with prior multi-agent systems}{29}{subsection.7.8}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {8}Conclusion}{30}{section.8}\protected@file@percent }
+\newlabel{sec:8}{{8}{30}{Conclusion}{section.8}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.1}Broader perspective}{30}{subsection.8.1}\protected@file@percent }
+\bibstyle{elsarticle-harv}
+\bibdata{references}
+\bibcite{ajunwa2021paradox}{{1}{2021}{{Ajunwa}}{{}}}
+\bibcite{amershi2019guidelines}{{2}{2019}{{Amershi et~al.}}{{}}}
+\bibcite{bhattacharya2025xcui}{{3}{2025}{{Bhattacharya and Verbert}}{{}}}
+\bibcite{brier1950verification}{{4}{1950}{{Brier}}{{}}}
+\bibcite{chen2023causal}{{5}{2023}{{Chen et~al.}}{{}}}
+\bibcite{chen2022explainable}{{6}{2022}{{Chen et~al.}}{{Chen, Zhang and Wen}}}
+\bibcite{cormack2010reciprocal}{{7}{2009}{{Cormack et~al.}}{{Cormack, Clarke and B\"uttcher}}}
+\bibcite{covington2016deep}{{8}{2016}{{Covington et~al.}}{{Covington, Adams and Sargin}}}
+\bibcite{ekstrand2021rethinking}{{9}{2022}{{Ekstrand et~al.}}{{Ekstrand, Das, Burke and Diaz}}}
+\bibcite{gentile2014feature}{{10}{2014}{{Gentile et~al.}}{{Gentile, Schnabel, Karatzoglou and Joachims}}}
+\bibcite{gunning2017explainable}{{11}{2019}{{Gunning et~al.}}{{Gunning, Stefik, Choi, Miller, Stumpf and Yang}}}
+\bibcite{guo2017calibration}{{12}{2017}{{Guo et~al.}}{{Guo, Pleiss, Sun and Weinberger}}}
+\bibcite{he2017neural}{{13}{2017}{{He et~al.}}{{He, Liao, Zhang, Nie, Hu and Chua}}}
+\bibcite{hidasi2015session}{{14}{2015}{{Hidasi et~al.}}{{Hidasi, Karatzoglou, Baltrunas and Tikk}}}
+\bibcite{jarvelin2002ndcg}{{15}{2002}{{J\"arvelin and Kek\"al\"ainen}}{{}}}
+\bibcite{kaur2020interpreting}{{16}{2020}{{Kaur et~al.}}{{Kaur, Goyal and Iyengar}}}
+\bibcite{koren2009matrix}{{17}{2009}{{Koren et~al.}}{{Koren, Bell and Volinsky}}}
+\bibcite{lavi2025careerbert}{{18}{2025}{{Lavi and Zschech}}{{}}}
+\bibcite{le2020cold}{{19}{2020}{{Le et~al.}}{{Le, Meyler, Narang et~al.}}}
+\bibcite{lewis2020rag}{{20}{2020}{{Lewis et~al.}}{{Lewis, Perez, Piktus et~al.}}}
+\bibcite{liao2020questioning}{{21}{2020}{{Liao et~al.}}{{Liao, Gruen, Miller, Gaur and Yang}}}
+\bibcite{liu2020trust}{{22}{2020}{{Liu et~al.}}{{Liu, Liu, Zhang, Yin, Lu and Zhang}}}
+\bibcite{lo2025hiring}{{23}{2025}{{Lo et~al.}}{{Lo, Qiu, Wang et~al.}}}
+\bibcite{lofstrom2024calibrated}{{24}{2024}{{L\"ofstr\"om et~al.}}{{L\"ofstr\"om, Hammar, Brezar, Steinhauer, Papapetrou and Johansson}}}
+\bibcite{miller2019explanation}{{25}{2019}{{Miller}}{{}}}
+\bibcite{nikolakopoulos2023knowledge}{{26}{2023}{{Nikolakopoulos et~al.}}{{Nikolakopoulos, Kotzinos, Karydis et~al.}}}
+\bibcite{peake2018explanation}{{27}{2018}{{Peake et~al.}}{{Peake, Wang et~al.}}}
+\bibcite{platt1999probabilistic}{{28}{1999}{{Platt}}{{}}}
+\bibcite{pu2007trust}{{29}{2007}{{Pu and Chen}}{{}}}
+\bibcite{raub2018bots}{{30}{2018}{{Raub}}{{}}}
+\bibcite{reimers2019sentence}{{31}{2019}{{Reimers and Gurevych}}{{}}}
+\bibcite{robertson1995okapi}{{32}{1995}{{Robertson et~al.}}{{Robertson, Walker, Jones, Hancock-Beaulieu and Gatford}}}
+\bibcite{saito2024leveraging}{{33}{2024}{{Saito and Sugiyama}}{{}}}
+\bibcite{sumers2024cognitive}{{34}{2024}{{Sumers et~al.}}{{Sumers, Yao, Narasimhan and Griffiths}}}
+\bibcite{tang2025explainable}{{35}{2025}{{Tang et~al.}}{{}}}
+\bibcite{tintarev2015explaining}{{36}{2015}{{Tintarev and Masthoff}}{{}}}
+\bibcite{wanner2020generating}{{37}{2020}{{Wanner et~al.}}{{Wanner, V\"ogtle, Meske and Dieterle}}}
+\bibcite{wei2022chain}{{38}{2022}{{Wei et~al.}}{{Wei, Wang, Schuurmans, Bosma, Ichter, Xia, Chi, Le and Zhou}}}
+\bibcite{wooldridge2009introduction}{{39}{2009}{{Wooldridge}}{{}}}
+\bibcite{yao2023react}{{40}{2023}{{Yao et~al.}}{{Yao, Zhao, Yu, Du, Shafran, Narasimhan and Cao}}}
+\bibcite{zheng2023judging}{{41}{2023}{{Zheng et~al.}}{{}}}
+\@writefile{lof}{\contentsline {figure}{\numberline {12}{\ignorespaces Candidate-side lifecycle and matchmaking workflow. The end-to-end candidate journey is: (1) ingestion of the resume and confirmation of the parsed profile, (2) snapshot registration and vector upsert, (3) matchmaking, (4) optional resume-coach feedback (read-only suggestions for the next edit), and (5) user action (save, apply, or dismiss). The matchmaking component is invoked between step 2 and step 5; the optional coach is invoked only on user request and is gated by a per-request budget.}}{35}{figure.caption.12}\protected@file@percent }
+\newlabel{fig:candidate-lifecycle}{{12}{35}{Candidate-side lifecycle and matchmaking workflow. The end-to-end candidate journey is: (1) ingestion of the resume and confirmation of the parsed profile, (2) snapshot registration and vector upsert, (3) matchmaking, (4) optional resume-coach feedback (read-only suggestions for the next edit), and (5) user action (save, apply, or dismiss). The matchmaking component is invoked between step 2 and step 5; the optional coach is invoked only on user request and is gated by a per-request budget}{figure.caption.12}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {13}{\ignorespaces Reliability diagram: composite scoring calibration. The uncalibrated composite (orange) over-confidently predicts high accuracy across the upper half of the confidence range, with an ECE of 0.40. The Platt-scaled composite (teal) tracks the diagonal within an ECE of 0.032. The calibration set is 21 strong + 26 partial labels, partitioned into 10 equal-width confidence bins; the bin-level accuracy values are computed from the empirical distribution and the ECE values are calculated as $\DOTSB \sum@ \slimits@ _b |acc_b - conf_b| \cdot n_b / N$. The diagram is generated from the calibration JSON committed to the released artifact; the JSON, the per-bin counts, and the reliability-plot script are in the supplementary archive.}}{36}{figure.caption.17}\protected@file@percent }
+\newlabel{fig:reliability}{{13}{36}{Reliability diagram: composite scoring calibration. The uncalibrated composite (orange) over-confidently predicts high accuracy across the upper half of the confidence range, with an ECE of 0.40. The Platt-scaled composite (teal) tracks the diagonal within an ECE of 0.032. The calibration set is 21 strong + 26 partial labels, partitioned into 10 equal-width confidence bins; the bin-level accuracy values are computed from the empirical distribution and the ECE values are calculated as $\sum _b |acc_b - conf_b| \cdot n_b / N$. The diagram is generated from the calibration JSON committed to the released artifact; the JSON, the per-bin counts, and the reliability-plot script are in the supplementary archive}{figure.caption.17}{}}
+\gdef \@abspage@last{36}

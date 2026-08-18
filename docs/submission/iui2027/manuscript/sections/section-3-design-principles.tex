@@ -1,0 +1,36 @@
+\section{Design Principles}\label{sec:3}
+
+The prototype described in \secref{sec:4} and the interface described in \secref{sec:5} instantiate four design principles that we derive here from prior work in human--{AI} interaction, explainability, and trust calibration.
+The principles are not claims about the system's behavior; they are commitments against which the system's design is judged.
+\secref{sec:7} returns to each principle and reports the empirical property that operationalizes it.
+
+\leadpara{Principle G1: Transparency of state}
+A user must be able to see, before any recommendation is computed, what the system has parsed from their document and what it will compare.
+The principle is grounded in the observation that explanations of opaque model output are difficult to evaluate when the user cannot see the inputs to the model~\cite{amershi2019guidelines,liao2020questioning}.
+In our system, the candidate portal exposes the parsed fields of a resume as a review form before any snapshot is registered; the employer portal exposes the parsed requirements of a job description as a similar review form.
+A user who disagrees with a parsed field can edit it; the system does not rank on the basis of half-edited forms.
+This is the transparency property the system commits to: the data on which a ranking is computed is the same data the user last confirmed.
+
+\leadpara{Principle G2: Faithful, component-level explanations}
+When the system returns a ranked list, every list item should carry an explanation that names the input fields that contributed to its position.
+The principle follows the {XAI} literature that ties explanation quality to the question a user is actually asking~\cite{miller2019explanation,ehsan2022operationalizing} and to recent work that warns against explanations that are internally consistent but decoupled from the components that produced the score~\cite{joshi2021real}.
+Our explanations are bound to the same composite channels that produced the score; we evaluate their faithfulness against the contributions of individual channels in \secref{sec:7}.
+
+\leadpara{Principle G3: User control at consequential points}
+Three actions in the system are consequential for the user: applying to a job, shortlisting a candidate, and contacting a candidate.
+None of them happens implicitly.
+Each requires a user gesture; the system records the action and updates local state but does not act on the user's behalf.
+This commitment is the user-control counterpart of the trust-calibration literature~\cite{lee2004trust,parasuraman1997humans,shneiderman2020human} and of the mixed-initiative tradition that assigns the system a supporting role~\cite{horvitz1999principles,amershi2014power,kulesza2015principles}.
+A useful interaction is one in which the user can always inspect what the system did, undo it if it was wrong, and decide what to do next.
+
+\leadpara{Principle G4: Multi-perspective decision support}
+A ranking is rarely a single number in the user's mind; it is a composite of independent considerations---text similarity, skill overlap, experience tier, compensation fit, and remote policy in our case.
+The system exposes these as separable components of the score rather than collapsing them into a single value, so that a user who weights remote policy more heavily than experience tier can read both components in the explanation panel.
+The principle is grounded in the recommendation literature that warns against over-reliance on a single signal~\cite{ziegler2005improving,tintarev2015explaining} and in the interactive-machine-learning tradition that exposes intermediate signals to the user for inspection and revision~\cite{kulesza2015principles,amershi2014power}.
+
+\leadpara{How the principles relate}
+The four principles are not independent.
+G1 supports G2: a user who can see what the system has parsed can evaluate an explanation that names those fields.
+G2 supports G3: a user who sees a component-level reason for a ranking is in a position to act on the components they disagree with.
+G3 supports G4: when users retain control over the final action, exposing the components of a score is informative rather than threatening.
+We refer back to this dependency in \secref{sec:8} when we discuss the design space our system does not address.

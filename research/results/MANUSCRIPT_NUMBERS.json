@@ -1,0 +1,154 @@
+{
+  "composite_ndcg5": {
+    "value": 0.949,
+    "source": "composite_eval_report.json"
+  },
+  "ndcg5::BM25 (lexical)": {
+    "value": 0.902,
+    "source": "comparison_table.json"
+  },
+  "ndcg5::TF-IDF cosine (lexical)": {
+    "value": 0.905,
+    "source": "comparison_table.json"
+  },
+  "ndcg5::Exact skill overlap": {
+    "value": 0.748,
+    "source": "comparison_table.json"
+  },
+  "ndcg5::Semantic cosine": {
+    "value": 0.878,
+    "source": "comparison_table.json"
+  },
+  "ndcg5::Semantic euclidean-derived": {
+    "value": 0.878,
+    "source": "comparison_table.json"
+  },
+  "ndcg5::Skills Jaccard": {
+    "value": 0.748,
+    "source": "comparison_table.json"
+  },
+  "ndcg5::Soft skill embedding": {
+    "value": 0.869,
+    "source": "comparison_table.json"
+  },
+  "ndcg5::Multimodal weighted blend": {
+    "value": 0.924,
+    "source": "comparison_table.json"
+  },
+  "ndcg5::RRF ensemble": {
+    "value": 0.913,
+    "source": "comparison_table.json"
+  },
+  "latency_softskill_ms": {
+    "value": 51.814,
+    "source": "comparison_table.json"
+  },
+  "calib::raw::ece": {
+    "value": 0.3995,
+    "source": "calibration_methods.json"
+  },
+  "calib::raw::adaptive_ece": {
+    "value": 0.4124,
+    "source": "calibration_methods.json"
+  },
+  "calib::raw::bss": {
+    "value": -1.2473,
+    "source": "calibration_methods.json"
+  },
+  "calib::raw::auc": {
+    "value": 0.967,
+    "source": "calibration_methods.json"
+  },
+  "calib::platt::ece": {
+    "value": 0.0179,
+    "source": "calibration_methods.json"
+  },
+  "calib::platt::adaptive_ece": {
+    "value": 0.084,
+    "source": "calibration_methods.json"
+  },
+  "calib::platt::bss": {
+    "value": 0.0066,
+    "source": "calibration_methods.json"
+  },
+  "calib::platt::auc": {
+    "value": 0.7577,
+    "source": "calibration_methods.json"
+  },
+  "calib::isotonic::ece": {
+    "value": 0.0238,
+    "source": "calibration_methods.json"
+  },
+  "calib::isotonic::adaptive_ece": {
+    "value": 0.0188,
+    "source": "calibration_methods.json"
+  },
+  "calib::isotonic::bss": {
+    "value": 0.6399,
+    "source": "calibration_methods.json"
+  },
+  "calib::isotonic::auc": {
+    "value": 0.9497,
+    "source": "calibration_methods.json"
+  },
+  "calib::temperature::ece": {
+    "value": 0.4609,
+    "source": "calibration_methods.json"
+  },
+  "calib::temperature::adaptive_ece": {
+    "value": 0.5039,
+    "source": "calibration_methods.json"
+  },
+  "calib::temperature::bss": {
+    "value": -2.1773,
+    "source": "calibration_methods.json"
+  },
+  "calib::temperature::auc": {
+    "value": 0.967,
+    "source": "calibration_methods.json"
+  },
+  "calib::beta::ece": {
+    "value": 0.0089,
+    "source": "calibration_methods.json"
+  },
+  "calib::beta::adaptive_ece": {
+    "value": 0.0093,
+    "source": "calibration_methods.json"
+  },
+  "calib::beta::bss": {
+    "value": 0.6734,
+    "source": "calibration_methods.json"
+  },
+  "calib::beta::auc": {
+    "value": 0.964,
+    "source": "calibration_methods.json"
+  },
+  "calib::constant_base_rate::ece": {
+    "value": 0.0,
+    "source": "calibration_methods.json"
+  },
+  "calib::constant_base_rate::adaptive_ece": {
+    "value": null,
+    "source": "calibration_methods.json"
+  },
+  "calib::constant_base_rate::bss": {
+    "value": 0.0,
+    "source": "calibration_methods.json"
+  },
+  "calib::constant_base_rate::auc": {
+    "value": 0.5,
+    "source": "calibration_methods.json"
+  },
+  "recovery_ratio": {
+    "value": 0.9066,
+    "source": "structure_recovery.json"
+  },
+  "gen_both_unseen": {
+    "value": 0.927462,
+    "source": "generalization.json"
+  },
+  "ece_platt_heldout": {
+    "value": 0.019156379342205522,
+    "source": "calibration_binary.json"
+  }
+}

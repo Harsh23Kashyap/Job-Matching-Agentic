@@ -1,0 +1,2 @@
+method_key,method,precision_at_k,recall_at_k,mrr,ndcg_at_k,map,latency_ms,top_k,queries
+composite,Production composite,0.29333333333333333,0.9333333333333333,0.9722222222222222,0.949235633450573,0.9206878306878307,1.006,5,30

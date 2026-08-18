@@ -1,0 +1,19 @@
+{
+  "method": "composite_5fold",
+  "k_folds": 5,
+  "n_resumes": 30,
+  "per_fold_mean": [
+    0.9939900722194421,
+    0.9598355077397785,
+    0.9939900722194421,
+    0.9650291817408689,
+    0.8333333333333334
+  ],
+  "overall": {
+    "mean": 0.949235633450573,
+    "ci_low": 0.8698900205408594,
+    "ci_high": 0.9930058363481737,
+    "se": 0.033790672789571444
+  },
+  "note": "K-fold over 30 resumes with fixed composite weights; demonstrates resume-level generalization of the parametric composite, not per-fold weight tuning."
+}

@@ -1,0 +1,87 @@
+# BASELINE SNAPSHOT MANIFEST
+captured_utc_note: baseline preserved before any ESWA-revision modification (2026-08-17)
+baseline_git_commit: 02a700e2412a55ff7c1d94991399df0258f47738 (main, pre-branch)
+revision_branch: eswa-final-evaluation
+python: 3.11.15   node: v24.18.0   pdflatex: ABSENT   ollama: present(no models)
+
+## dataset + model hashes (sha256[:16])
+c9869de98fd2fd09  data/cvs.json
+f4902839107eb11a  data/jobs.json
+e5e18f6c3c6595fc  data/eval_pairs.json
+278d2809edfd3109  data/models/calibration.json
+80b5f93fc2c187e2  data/models/fusion.json
+
+## manuscript PDF hashes
+c9f8f9663b45f702  docs/submission/eswa/manuscript/main.pdf
+db4f1de3578b304f  docs/submission/iui2027/manuscript/main.pdf
+d04ff6e88842e92c  docs/submission/jaamas/manuscript/main.pdf
+
+## preserved artifacts
+research/audit/baseline/cvs.json
+research/audit/baseline/eval_pairs.json
+research/audit/baseline/extended_evaluation/calibration_binary.json
+research/audit/baseline/extended_evaluation/cold_start.json
+research/audit/baseline/extended_evaluation/counterfactual_50.json
+research/audit/baseline/extended_evaluation/kfold_cv.json
+research/audit/baseline/extended_evaluation/parser_robustness.json
+research/audit/baseline/extended_evaluation/xgb_ranker.json
+research/audit/baseline/fairness_eval.json
+research/audit/baseline/hard_negatives.json
+research/audit/baseline/jobs.json
+research/audit/baseline/MANIFEST.txt
+research/audit/baseline/models/calibration.json
+research/audit/baseline/models/calibration.json.preneg.bak
+research/audit/baseline/models/fusion.json
+research/audit/baseline/research_run_20260606T150509Z/ablation_per_query.csv
+research/audit/baseline/research_run_20260606T150509Z/ablation_report.json
+research/audit/baseline/research_run_20260606T150509Z/ablation_summary.csv
+research/audit/baseline/research_run_20260606T150509Z/ablation_summary.json
+research/audit/baseline/research_run_20260606T150509Z/ablation_summary.md
+research/audit/baseline/research_run_20260606T150509Z/ablation_table.csv
+research/audit/baseline/research_run_20260606T150509Z/comparison_summary.json
+research/audit/baseline/research_run_20260606T150509Z/comparison_table.csv
+research/audit/baseline/research_run_20260606T150509Z/comparison_table.json
+research/audit/baseline/research_run_20260606T150509Z/composite_eval_report.json
+research/audit/baseline/research_run_20260606T150509Z/composite_per_query.csv
+research/audit/baseline/research_run_20260606T150509Z/composite_summary.csv
+research/audit/baseline/research_run_20260606T150509Z/dataset_validation.json
+research/audit/baseline/research_run_20260606T150509Z/dataset_validation.md
+research/audit/baseline/research_run_20260606T150509Z/explainability_consistency.csv
+research/audit/baseline/research_run_20260606T150509Z/explainability_flagged.csv
+research/audit/baseline/research_run_20260606T150509Z/explainability_instances.csv
+research/audit/baseline/research_run_20260606T150509Z/explainability_report.json
+research/audit/baseline/research_run_20260606T150509Z/explainability_summary.md
+research/audit/baseline/research_run_20260606T150509Z/fairness_audit_flagged.csv
+research/audit/baseline/research_run_20260606T150509Z/fairness_audit_pairs.csv
+research/audit/baseline/research_run_20260606T150509Z/fairness_audit_report.json
+research/audit/baseline/research_run_20260606T150509Z/fairness_audit_summary.md
+research/audit/baseline/research_run_20260606T150509Z/paper_tables/manifest.json
+research/audit/baseline/research_run_20260606T150509Z/paper_tables/README.md
+research/audit/baseline/research_run_20260606T150509Z/paper_tables/table1_method_comparison.csv
+research/audit/baseline/research_run_20260606T150509Z/paper_tables/table1_method_comparison.md
+research/audit/baseline/research_run_20260606T150509Z/paper_tables/table1_method_comparison.tex
+research/audit/baseline/research_run_20260606T150509Z/paper_tables/table2_ablation.csv
+research/audit/baseline/research_run_20260606T150509Z/paper_tables/table2_ablation.md
+research/audit/baseline/research_run_20260606T150509Z/paper_tables/table2_ablation.tex
+research/audit/baseline/research_run_20260606T150509Z/paper_tables/table3_latency.csv
+research/audit/baseline/research_run_20260606T150509Z/paper_tables/table3_latency.md
+research/audit/baseline/research_run_20260606T150509Z/paper_tables/table3_latency.tex
+research/audit/baseline/research_run_20260606T150509Z/paper_tables/table4_fairness.csv
+research/audit/baseline/research_run_20260606T150509Z/paper_tables/table4_fairness.md
+research/audit/baseline/research_run_20260606T150509Z/paper_tables/table4_fairness.tex
+research/audit/baseline/research_run_20260606T150509Z/paper_tables/table5_explanation_quality.csv
+research/audit/baseline/research_run_20260606T150509Z/paper_tables/table5_explanation_quality.md
+research/audit/baseline/research_run_20260606T150509Z/paper_tables/table5_explanation_quality.tex
+research/audit/baseline/research_run_20260606T150509Z/paper_tables/table6_qualitative_examples.csv
+research/audit/baseline/research_run_20260606T150509Z/paper_tables/table6_qualitative_examples.md
+research/audit/baseline/research_run_20260606T150509Z/paper_tables/table6_qualitative_examples.tex
+research/audit/baseline/research_run_20260606T150509Z/pipeline_manifest.json
+research/audit/baseline/research_run_20260606T150509Z/significance_ablation_comparisons.csv
+research/audit/baseline/research_run_20260606T150509Z/significance_ablation_methods.csv
+research/audit/baseline/research_run_20260606T150509Z/significance_ablation_report.json
+research/audit/baseline/research_run_20260606T150509Z/significance_ablation_summary.md
+research/audit/baseline/research_run_20260606T150509Z/significance_comparisons.csv
+research/audit/baseline/research_run_20260606T150509Z/significance_methods.csv
+research/audit/baseline/research_run_20260606T150509Z/significance_report.json
+research/audit/baseline/research_run_20260606T150509Z/significance_summary.md
+research/audit/baseline/table11_fusion.json

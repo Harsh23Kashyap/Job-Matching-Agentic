@@ -28,10 +28,11 @@ This paper presents **JobMatch**, an integrated research prototype for **explain
 
 | Result | Source | nDCG@5 |
 |--------|--------|--------|
-| Multimodal soft embed (α = 0.7) | `paper_progression_summary.json` | **0.969** |
-| Learned fusion (logistic regression) | `table11_fusion.json` | **0.968** |
-| Full composite ablation | `ablation_summary.json` (portal weights 28/27/10/15/10/10) | **0.949** |
-| TF–IDF / BM25 lexical baselines | progression benchmark | **0.905 / 0.901** |
+| Portal-default composite (6-channel) | `composite_eval_report.json` (weights 28/27/10/15/10/10) | **0.949** |
+| Multimodal weighted blend | `comparison_table.json` | **0.924** |
+| RRF ensemble (4 lists) | `comparison_table.json` | **0.913** |
+| Learned fusion (logistic, held-out) | `table11_fusion.json` | **0.917** |
+| TF–IDF / BM25 lexical baselines | `comparison_table.json` | **0.905 / 0.902** |
 
 **Additional measured findings:**
 
@@ -85,7 +86,7 @@ JobMatch sits at the intersection of **information retrieval**, **multi-agent sy
 
 **Data availability (per manuscript declarations).** The demo corpus (`data/cvs.json`, `data/jobs.json`, `data/eval_pairs.json`) and benchmark outputs under `backend/benchmark_outputs/` and `docs/research/evaluation/` are included in the project repository. Metrics can be regenerated with `python backend/scripts/run_research_pipeline.py` and `python -m benchmarks.paper_progression`.
 
-**Relationship between repository and paper.** The repository implements the architecture, matching core, portals, and evaluation pipeline described in the manuscript. Reported numbers (e.g., nDCG@5 **0.969**, **0.968**, **0.949**; cross-encoder **ΔnDCG@5 = −0.108**; hard negatives **150** pairs with **0** conflicts; fairness audit **7/10** flagged) are drawn from named artifacts cited in the paper tables, not from unaudited runs.
+**Relationship between repository and paper.** The repository implements the architecture, matching core, portals, and evaluation pipeline described in the manuscript. Reported numbers (portal composite nDCG@5 **0.949**, with ranking **parity** — no method statistically distinguishable at n=30, fails Holm; held-out ECE **0.019**; cross-encoder **ΔnDCG@5 = −0.108** when reranking a pool; hard negatives **150** pairs with **0** conflicts; fairness audit **7/10** flagged) are drawn from named artifacts cited in the paper tables, not from unaudited runs.
 
 **Funding.** This work was supported by the NVIDIA Academic Grant Program through an unrestricted gift of 32,000 NVIDIA A100 GPU-hours on the Brev cloud platform.
 

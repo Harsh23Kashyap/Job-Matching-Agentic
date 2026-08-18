@@ -34,7 +34,7 @@ def test_upload_llm_unavailable_returns_manual_fallback(mock_factory, client):
     mock_factory.return_value = mock_parser
 
     _register_candidate(client, "cand-llm-fail@test.com")
-    content = b"Harsh Kashyap\nharsh@example.com\n+91 9876543210\nhttps://linkedin.com/in/harsh"
+    content = b"Jordan Rivera\njordan@example.com\n+91 9876543210\nhttps://linkedin.com/in/jordan"
     resp = client.post(
         "/candidates/upload-resume",
         files={"file": ("resume.txt", io.BytesIO(content), "text/plain")},
@@ -45,9 +45,9 @@ def test_upload_llm_unavailable_returns_manual_fallback(mock_factory, client):
     assert "raw_text_preview" in data
     assert "cleaned_text" in data
     assert "(cid:" not in data["cleaned_text"]
-    assert data["extracted_fields"]["name"] == "Harsh Kashyap"
-    assert data["extracted_fields"]["email"] == "harsh@example.com"
-    assert "linkedin.com/in/harsh" in data["extracted_fields"]["linkedin"]
+    assert data["extracted_fields"]["name"] == "Jordan Rivera"
+    assert data["extracted_fields"]["email"] == "jordan@example.com"
+    assert "linkedin.com/in/jordan" in data["extracted_fields"]["linkedin"]
 
 
 @patch("gateway.routes.candidates.create_llm_parser")
@@ -59,7 +59,7 @@ def test_upload_strips_cid_noise_from_cleaned_text(mock_factory, client):
     mock_factory.return_value = mock_parser
 
     _register_candidate(client, "cand-cid@test.com")
-    content = b"Harsh Kashyap (cid:131)\nSkills \xc2\xa7 Python\nharsh@example.com"
+    content = b"Jordan Rivera (cid:131)\nSkills \xc2\xa7 Python\njordan@example.com"
     resp = client.post(
         "/candidates/upload-resume",
         files={"file": ("resume.txt", io.BytesIO(content), "text/plain")},
@@ -68,10 +68,10 @@ def test_upload_strips_cid_noise_from_cleaned_text(mock_factory, client):
     data = resp.json()
     assert "(cid:" not in data["cleaned_text"]
     assert "\xc2\xa7" not in data["cleaned_text"]
-    assert data["cleaned_text"].startswith("Harsh Kashyap")
-    assert "harsh@example.com" in data["cleaned_text"]
-    assert data["extracted_fields"]["name"] == "Harsh Kashyap"
-    assert data["extracted_fields"]["email"] == "harsh@example.com"
+    assert data["cleaned_text"].startswith("Jordan Rivera")
+    assert "jordan@example.com" in data["cleaned_text"]
+    assert data["extracted_fields"]["name"] == "Jordan Rivera"
+    assert data["extracted_fields"]["email"] == "jordan@example.com"
 
 
 @patch("gateway.routes.candidates.create_llm_parser")

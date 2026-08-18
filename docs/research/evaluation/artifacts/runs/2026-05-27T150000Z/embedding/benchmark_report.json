@@ -2,8 +2,8 @@
   "meta": {
     "generated_at": "2026-05-27T14:50:01.380731+00:00",
     "task": "resume_to_jobs",
-    "eval_path": "/Users/harshkashyap/Projects/JobMatcher-v1/Job-Matching-Agentic/data/eval_pairs.json",
-    "data_dir": "/Users/harshkashyap/Projects/JobMatcher-v1/Job-Matching-Agentic/data",
+    "eval_path": "data/eval_pairs.json",
+    "data_dir": ".",
     "corpus": {
       "candidates": 30,
       "jobs": 15,

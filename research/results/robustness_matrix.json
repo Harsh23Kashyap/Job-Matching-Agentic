@@ -1,0 +1,86 @@
+{
+  "experiment": "EXP-029 robustness matrix (Stage-2 \u00a7R)",
+  "n_resumes": 30,
+  "n_jobs": 15,
+  "seed": 42,
+  "matrix": {
+    "synonym_substitution": {
+      "expectation": "invariant",
+      "mean_abs_delta_composite": 0.0017,
+      "mean_signed_delta_composite": -0.0017,
+      "top1_stability": 1.0,
+      "mean_top5_jaccard": 1.0
+    },
+    "capitalization": {
+      "expectation": "invariant",
+      "mean_abs_delta_composite": 0.0316,
+      "mean_signed_delta_composite": -0.0316,
+      "top1_stability": 0.9,
+      "mean_top5_jaccard": 0.8571
+    },
+    "formatting_noise": {
+      "expectation": "invariant",
+      "mean_abs_delta_composite": 0.1167,
+      "mean_signed_delta_composite": -0.1167,
+      "top1_stability": 0.9333,
+      "mean_top5_jaccard": 0.8667
+    },
+    "missing_compensation": {
+      "expectation": "small",
+      "mean_abs_delta_composite": 0.0054,
+      "mean_signed_delta_composite": 0.0054,
+      "top1_stability": 0.9,
+      "mean_top5_jaccard": 0.6734
+    },
+    "missing_remote": {
+      "expectation": "small",
+      "mean_abs_delta_composite": 0.0223,
+      "mean_signed_delta_composite": -0.0211,
+      "top1_stability": 0.9,
+      "mean_top5_jaccard": 0.4192
+    },
+    "irrelevant_skill_insertion": {
+      "expectation": "robust (small +)",
+      "mean_abs_delta_composite": 0.0365,
+      "mean_signed_delta_composite": -0.0365,
+      "top1_stability": 0.9667,
+      "mean_top5_jaccard": 0.8889
+    },
+    "keyword_stuffing": {
+      "expectation": "robust (bounded +)",
+      "mean_abs_delta_composite": 0.0894,
+      "mean_signed_delta_composite": -0.0888,
+      "top1_stability": 0.7,
+      "mean_top5_jaccard": 0.6056
+    },
+    "misspelling": {
+      "expectation": "small",
+      "mean_abs_delta_composite": 0.1159,
+      "mean_signed_delta_composite": -0.1159,
+      "top1_stability": 0.9333,
+      "mean_top5_jaccard": 0.8778
+    },
+    "skill_deletion": {
+      "expectation": "sensitive (-)",
+      "mean_abs_delta_composite": 0.0588,
+      "mean_signed_delta_composite": -0.048,
+      "top1_stability": 0.9,
+      "mean_top5_jaccard": 0.9444
+    },
+    "sparse_resume": {
+      "expectation": "sensitive (-)",
+      "mean_abs_delta_composite": 0.0944,
+      "mean_signed_delta_composite": -0.0862,
+      "top1_stability": 0.7333,
+      "mean_top5_jaccard": 0.6861
+    },
+    "summary_removal": {
+      "expectation": "sensitive (-)",
+      "mean_abs_delta_composite": 0.0359,
+      "mean_signed_delta_composite": -0.0325,
+      "top1_stability": 0.9,
+      "mean_top5_jaccard": 0.7496
+    }
+  },
+  "interpretation": "Report per-perturbation \u0394composite / top-1 stability / top-5 Jaccard vs the expected behavior. Invariance types (synonym/caps/formatting) should show ~0 \u0394 and ~1.0 stability; injection/stuffing should show only a bounded score change (not a large jump); deletion/sparsity should reduce fit. Deviations are reported honestly (e.g., misspellings do perturb the composite; see EXP-007)."
+}
