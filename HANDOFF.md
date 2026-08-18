@@ -1445,12 +1445,14 @@ git lfs ls-files
 
 | Pattern | Why | Approx size |
 |---|---|---|
-| `research/datasets/synthetic_v*/synthetic_*.json` | Synthetic relevance labels (v1: 11 MB, v2: 120 MB, 2000 resumes × 200 jobs) | up to 120 MB |
-| `vendor/**/*.parquet` | Future-proofing for any vendor-shipped model weights | n/a yet |
+| `research/datasets/synthetic_v2/synthetic_relevance.json` | 120 MB synthetic relevance labels (v2: 2000 synthetic resumes × 200 synthetic jobs = 400 K labels). The only file that exceeds GitHub's 100 MB hard cap. | 120 MB |
+| `vendor/**/*.parquet` | Future-proofing for any vendor-shipped model weights (e.g., ONNX exports, embedding tables). No files currently match. | n/a yet |
+
+The v1 synthetic files (`research/datasets/synthetic_v1/*` — `synthetic_jobs.json` 34 KB, `synthetic_relevance.json` 11 MB, `synthetic_resumes.json` 198 KB) and the v2 small files (`synthetic_jobs.json` 91 KB, `synthetic_resumes.json` 794 KB) are committed as regular content — all are well under the 100 MB cap and do not need LFS. The LFS pattern is intentionally narrow to avoid forcing a history rewrite to migrate the v1 file.
 
 **What this means in practice:**
 - A `git clone` without LFS gives you 3-line pointer files for LFS-tracked paths. Run `git lfs pull` (or `git lfs fetch && git lfs checkout`) to retrieve the real content.
-- The v1 `synthetic_relevance.json` (11 MB) was committed before LFS was set up; it lives in regular git history under the 100 MB cap. To migrate it to LFS as well, run `git lfs migrate import --include='research/datasets/synthetic_v1/synthetic_relevance.json' --include-ref=refs/heads/main` and force-push. Not done in the initial LFS commit to avoid a history rewrite.
+- The v1 `synthetic_relevance.json` (11 MB) was committed before LFS was set up; it lives in regular git history under the 100 MB cap. The LFS pattern was deliberately narrowed to v2-only (`research/datasets/synthetic_v2/synthetic_relevance.json`) to avoid forcing a history rewrite. To migrate the v1 file as well: `git lfs migrate import --include='research/datasets/synthetic_v1/synthetic_relevance.json' --include-ref=refs/heads/main` and force-push.
 - GitHub LFS storage is per-account. LFS bandwidth on the free plan is 1 GB/month; the v2 file alone is 120 MB, so budget accordingly if you regenerate.
 - To add a new pattern: `git lfs track "path/pattern/*"` then `git add .gitattributes` and commit.
 
