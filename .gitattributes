@@ -1,2 +1,2 @@
-research/datasets/synthetic_v*/synthetic_*.json filter=lfs diff=lfs merge=lfs -text
 vendor/**/*.parquet filter=lfs diff=lfs merge=lfs -text
+research/datasets/synthetic_v2/synthetic_relevance.json filter=lfs diff=lfs merge=lfs -text
