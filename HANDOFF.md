@@ -1408,6 +1408,12 @@ EVAL_PAIRS=data/eval_pairs_expanded.json python3 research/experiments/powered_re
 # 5. JAAMAS build: Overleaf ONLY (tectonic CANNOT build Springer sn-jnl.cls).
 #    Upload docs/submission/jaamas/jaamas_overleaf_ready.zip -> compiler=pdfLaTeX
 #    -> main document = manuscript/main.tex -> recompile twice (BibTeX).
+
+# 6. Git LFS — first time on a new machine (large synthetic datasets live in LFS)
+brew install git-lfs      # one-time
+git lfs install           # one-time per clone, sets up the hooks
+git lfs ls-files          # see what is LFS-tracked
+git lfs fetch             # explicit fetch (usually automatic on clone/pull)
 ```
 
 **Gotchas that will bite a new agent:**
@@ -1417,9 +1423,49 @@ EVAL_PAIRS=data/eval_pairs_expanded.json python3 research/experiments/powered_re
 - **No git commits** (RD-009) and **no external LLM APIs** (use headless `claude -p` or Kiro/`consult-kiro` only).
 - **`main.pdf` in the JAAMAS dir is stale (Jul 30)** — rebuild; don't trust it. `/tmp/eswa_build/main.pdf` is a disposable ESWA build.
 - **Workflow scripts:** `${VAR}` in a template literal interpolates at construction — define every referenced const, or the workflow fails instantly (learned the hard way building this handoff).
+- **Synthetic v2 dataset is LFS, not regular git.** `research/datasets/synthetic_v2/synthetic_relevance.json` is 120 MB and lives in Git LFS storage. A shallow `git clone` without LFS will leave you with a 3-line pointer file; run `git lfs pull` to fetch the actual content. The synthetic_v1 version (11 MB) is in regular git history under the 100 MB cap.
 
 ## Appendix B — Recovery (if you're lost)
 Re-read, in order: `research/PHASE_STATUS.md` -> `research/RESEARCH_DECISIONS.md` (RD-001..RD-017) -> this file's §1 (mandate/constraints) -> render `docs/submission/eswa/manuscript/main.pdf`. Then run the verifier (Appendix A #1); if it is exit 0, the manuscript is intact and the only real work left is the 4 author-gated items in §6. Do not start new experiments or "improve the metric" — the governing rule is MAXIMUM SCIENTIFIC CREDIBILITY, not maximum metric.
+
+## Appendix C — Git LFS setup and tracked patterns
+
+This repo uses **Git LFS** for the large synthetic relevance files. Tracked patterns are recorded in `.gitattributes` at the repo root.
+
+```bash
+# First time on a new machine
+brew install git-lfs
+git lfs install
+
+# Verify what's tracked
+git lfs ls-files
+```
+
+**Tracked patterns** (from `.gitattributes`):
+
+| Pattern | Why | Approx size |
+|---|---|---|
+| `research/datasets/synthetic_v*/synthetic_*.json` | Synthetic relevance labels (v1: 11 MB, v2: 120 MB, 2000 resumes × 200 jobs) | up to 120 MB |
+| `vendor/**/*.parquet` | Future-proofing for any vendor-shipped model weights | n/a yet |
+
+**What this means in practice:**
+- A `git clone` without LFS gives you 3-line pointer files for LFS-tracked paths. Run `git lfs pull` (or `git lfs fetch && git lfs checkout`) to retrieve the real content.
+- The v1 `synthetic_relevance.json` (11 MB) was committed before LFS was set up; it lives in regular git history under the 100 MB cap. To migrate it to LFS as well, run `git lfs migrate import --include='research/datasets/synthetic_v1/synthetic_relevance.json' --include-ref=refs/heads/main` and force-push. Not done in the initial LFS commit to avoid a history rewrite.
+- GitHub LFS storage is per-account. LFS bandwidth on the free plan is 1 GB/month; the v2 file alone is 120 MB, so budget accordingly if you regenerate.
+- To add a new pattern: `git lfs track "path/pattern/*"` then `git add .gitattributes` and commit.
+
+**LFS endpoint for this repo:** `https://github.com/Harsh23Kashyap/Job-Matching-Agentic.git/info/lfs` (auto-detected from `git remote -v`).
+
+## Appendix D — Off-laptop sync protocol
+
+When syncing the repo from another machine (e.g., another laptop where Claude did work), the safe order is:
+
+1. **Zip without `.git`**: on the source machine, `zip -r jobmatch.zip . -x '.git/*' '__pycache__/*' '.venv/*'`. This strips the git history and the broken `.git` directory. The destination machine keeps the canonical `.git` and history.
+2. **Unzip into a staging dir** like `~/Job-Matching-Agentic/` (do not unzip into the canonical git working tree).
+3. **Rsync the contents** (excluding `.git/`, `__pycache__/`, `.venv/`, `node_modules/`, `.DS_Store`, `.pytest_cache`) from staging to the canonical working tree: `rsync -a --exclude='.git/' --exclude='__pycache__/' --exclude='.venv/' --exclude='node_modules/' --exclude='.DS_Store' --exclude='.pytest_cache' staging/ canonical/`.
+4. **Stage, commit, push** with an explicit `/git-pushing` invocation. Watch for files >100 MB; route them to LFS via `.gitattributes` patterns.
+
+If a non-LFS file >100 MB sneaks in, GitHub rejects the push with `GH001: Large files detected`. Either add an LFS pattern for it, or `git rm --cached <path>` and update `.gitignore` so the local copy stays but the push does not include it.
 
 ---
 _This handoff was assembled from an 8-reader + synthesis workflow over the live repo on 2026-08-18. If a fact here conflicts with the `research/` control files, the control files win (RD-004)._
