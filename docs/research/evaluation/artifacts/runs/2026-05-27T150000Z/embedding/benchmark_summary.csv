@@ -1,7 +1,0 @@
-method_key,method,description,precision_at_k,recall_at_k,mrr,ndcg_at_k,map,queries,top_k
-semantic_cosine,Semantic cosine,Bi-encoder cosine similarity on document embeddings.,0.26666666666666666,0.8666666666666667,0.9314814814814815,0.8781765441996437,0.8098821548821549,30,5
-semantic_euclidean,Semantic euclidean-derived,1 / (1 + L2 distance) on document embeddings.,0.26666666666666666,0.8666666666666667,0.9314814814814815,0.8781765441996437,0.8098821548821549,30,5
-skills_jaccard,Skills Jaccard,Jaccard overlap on canonicalized required skills (skills-only signal).,0.23333333333333334,0.7333333333333333,0.8157531357531358,0.7481217031530997,0.6808966033966034,30,5
-soft_skill_embed,Soft skill embedding,Mean max cosine between required job skills and resume skill embeddings.,0.28,0.9,0.9107142857142857,0.8688853265261552,0.8292328042328042,30,5
-multimodal_weighted,Multimodal weighted blend,"Weighted blend: semantic_weight=0.7, skills_mode=jaccard.",0.2866666666666667,0.9333333333333333,0.9611111111111111,0.9237306496163087,0.867037037037037,30,5
-rrf_ensemble,RRF ensemble,Reciprocal rank fusion (k=60) over the five base rankers above.,0.29333333333333333,0.95,0.9444444444444444,0.9131413643600619,0.8451322751322751,30,5

@@ -121,3 +121,101 @@ docs/submission/eswa/manuscript/main.blg *[0-9]*
 docs/submission/eswa/manuscript/main.out *[0-9]*
 docs/submission/eswa/manuscript/main.pdf *[0-9]*
 docs/submission/eswa/title-page.* *[0-9]*
+
+# ============================================================
+# Added by the public-GitHub cleanup audit (2026-08-20)
+# ============================================================
+
+# AI / agent state — local development only, never on GitHub
+.claude/
+.claude/**
+
+# Cloud-LLM annotator cache (hidden, regenerated)
+research/results/.annot_cache.json
+**/.annot_cache.json
+
+# LLM-assisted labels — DISCLOSED-provisional (HANDOFF), not for the
+# verifier-gated manuscript until real human labels arrive
+data/eval_pairs_llm*.json
+research/datasets/annotation_sheet_*.csv
+
+# Pre-negative-samples calibration backup
+data/models/*.bak
+**/*.bak
+
+# Explanation-study experiment renderings (LLM/agent-generated)
+research/datasets/explanation_study/
+
+# Personal session change logs (also at root)
+SESSION-CHANGES-*.txt
+docs/session/SESSION-CHANGES-*.txt
+docs/session/SESSION-*.md
+docs/session/SESSION-*.txt
+docs/session/README.md
+
+# Per-professor tracking (personal comms)
+docs/submission/PROFESSOR_*.md
+
+# LLM-summarized related-work notes and 3rd-party PDFs kept for
+# local study only
+docs/submission/eswa/strategy/related-work/
+
+# ESWA internal planning docs (not part of the paper itself)
+docs/submission/eswa/ESWA-EXECUTION-PLAN.md
+docs/submission/eswa/ESWA-STAGE2-PLAN.md
+docs/submission/eswa/ESWA-STAGE3-PLAN.md
+docs/submission/eswa/EDITORIAL_RISK_MATRIX.md
+docs/submission/eswa/BENCHMARK_ANNOTATION_PROTOCOL.md
+docs/submission/eswa/HUMAN_STUDY_PROTOCOL.md
+docs/submission/eswa/strategy/ESWA-FIT-ASSESSMENT.md
+docs/submission/eswa/strategy/POSITIONING.md
+docs/submission/eswa/strategy/REVIEWER-SIM.md
+docs/submission/eswa/strategy/SUBMISSION-PLAN.md
+docs/submission/eswa/strategy/highlights-eswa.md
+docs/submission/eswa/strategy/pre-submission-inquiry.md
+docs/submission/eswa/highlights-check.txt
+
+# IUI 2027 internal strategy docs
+docs/submission/iui2027/strategy/
+
+# JAAMAS submission-package build (Overleaf staging, submission zip)
+docs/submission/jaamas/build/
+
+# Old JAAMAS archive (previous submission snapshot)
+archive/jaamas-overleaf-prev-*/
+
+# Research run outputs — regenerable from scripts/reproduce_all.sh
+backend/reports/research_run_*/
+backend/reports/extended_evaluation/
+backend/benchmark_outputs/
+
+# Research results and JAAAMAS-era eval artifacts
+research/results/
+docs/research/evaluation/
+
+# Research audit baseline research-run snapshots (canonical
+# reproduction anchor in research/audit/baseline/{cvs,jobs,eval_pairs}.json
+# is kept; the research-run output snapshot under it is not)
+research/audit/baseline/research_run_*/
+
+# Older data snapshot (different versions of cvs/jobs/eval_pairs)
+data/research/
+
+# Anonymized submission-package build output
+build/anon/
+
+# Lowercase figure-name variants (duplicate of uppercase Fig*.png)
+docs/submission/eswa/manuscript/figures/fig*.png
+
+# ESWA strategy/ entirely local (covers any new files added later)
+docs/submission/eswa/strategy/
+
+# Small synthetic data files (v1 and v2; the 11MB v1 and 120MB v2
+# synthetic_relevance.json stay in regular git / LFS, but the small
+# jobs/resumes/manifest files are regenerable)
+research/datasets/synthetic_v1/manifest.json
+research/datasets/synthetic_v1/synthetic_jobs.json
+research/datasets/synthetic_v1/synthetic_resumes.json
+research/datasets/synthetic_v2/manifest.json
+research/datasets/synthetic_v2/synthetic_jobs.json
+research/datasets/synthetic_v2/synthetic_resumes.json
