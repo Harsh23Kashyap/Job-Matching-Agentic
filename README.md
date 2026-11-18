@@ -1,5 +1,7 @@
 # Job-Matching-Agentic
 
+Preprint: SSRN 7540530 (https://papers.ssrn.com/sol3/papers.cfm?abstract_id=7540530), submitted to Applied Intelligence.
+
 A **multi-agent job matching platform** where candidates and employers each have their own portal, and a neutral **Matchmaking Agent** ranks fit between people and roles using explainable ML scoring.
 
 Built as a thesis research demo: three collaborating agents, a bootstrapped evaluation corpus (30 CVs, 15 jobs), role-based web UI, and benchmark drivers for reproducible evaluation.
@@ -531,9 +533,9 @@ python -m benchmarks.phase11 --stores chroma
 
 These reproduce paper Table 9 regression gates and progression metrics against the fixed corpus. See [V1-V2-SCOPE.md](docs/design/V1-V2-SCOPE.md) for what is in v1 vs v2.
 
-### ESWA submission — one-command reproduction
+### Paper reproduction — one-command reproduction
 
-The scientific evaluation for the ESWA manuscript lives under `research/` (control plane) and
+The scientific evaluation for the paper lives under `research/` (control plane) and
 regenerates every reported number from committed artifacts.
 
 ```bash
@@ -643,11 +645,11 @@ Job-Matching-Agentic/
 | [V1 vs V2 scope](docs/design/V1-V2-SCOPE.md) | What shipped in v1/v1.1 vs planned v2 ML |
 | [V1.1 role portals + auth](docs/design/v1.1-role-portals-auth.md) | Auth model, portal routes, ownership |
 | [Session summary 2026-05-27](docs/session/SESSION-2026-05-27.md) | Recent feature work and decisions |
-| [JAAMAS submission](docs/submission/jaamas/build/README.md) | Manuscript PDF, Overleaf zip, figure pipeline |
+| [Manuscript build](docs/submission/jaamas/build/README.md) | Manuscript PDF, Overleaf zip, figure pipeline |
 
 ---
 
-## JAAMAS submission (thesis paper)
+## Manuscript build (thesis paper)
 
 **Authors:** Harsh Kashyap, Taranumpreet Kaur Wasu (Thapar Institute of Engineering and Technology)  
 **Supervisor:** Dr Parteek Kumar (Washington State University)
